@@ -53,7 +53,7 @@ TEST(work_returns_the_string_obtained_from_I_foo)
     .SIDE_EFFECT(_2 = "cat")
     .RETURN(true);
 
-    auto s = out.lookup(3);
+    auto s = out.work(3);
 
     ASSERT(s == "cat");
   }
@@ -106,7 +106,7 @@ positional names `_1`, `_2`, etc. This code may alter out-parameters.
 Several **`.SIDE_EFFECT`** clauses can be added to a single **`REQUIRE_CALL`**
 
 **`.RETURN`(** *expr* **)**  
-Set the return value after having evaluated all **`.SIDE_EFFECT`**s. For `void`
+Set the return value after having evaluated every **`.SIDE_EFFECT`** . For `void`
 functions **`.RETURN`** is illegal. For non-`void` functions **`.RETURN`** is
 required exactly once. *expr* may refer to parameters in the call with their
 positional names `_1`, `_2`, etc. This code may alter out-parameters.
@@ -127,8 +127,15 @@ scope and is destroyed, this error will call *`std::terminate()`*, which
 is typically not what you want.
 
 There is a function  
- **`trompeloeil::set_reporter(`** *`std::function<void(`* **`trompeloeil::severity`**, *`const char* location`*, *`const std::string&`* **`)`**  
-which can be used to control the reporting. Some examples are:
+```Cpp
+trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
+                                             const char* location
+                                             const std::string& msg)
+```
+which can be used to control the reporting. `trompeloeil::severity` is an enum
+with the values `fatal` and `nonfatal`. Severity is `nonfatal` when called
+from the destructor of a **`REQUIRE_CALL`** object due to unfulfilled
+expectations. Some examples are:
 
 ### catch
 ```Cpp
