@@ -15,7 +15,7 @@
 // * Support custom test output stream insertion operator
 
 #if (!defined(__cplusplus) || __cplusplus <= 201103)
-#error requires C++14 or higher
+//#error requires C++14 or higher
 #endif
 
 #include <utility>
@@ -25,8 +25,35 @@
 #include <exception>
 #include <functional>
 
-#define COUNT_(p1,p2,p3,p4,p5,p6,p7,p8,p9,p11,p12,p13,p14,p15,p16,X,...) X
-#define COUNT(...) COUNT_(__VA_ARGS__, 15,14,13,12,11,10,9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+#define APPLY(x,...) x(__VA_ARGS__)
+#define CONCAT5(x, ...) CONCAT4(x ## __VA_ARGS__)
+#define CONCAT4(x, ...) CONCAT3(x ## __VA_ARGS__)
+#define CONCAT3(x, ...) CONCAT2(x ## __VA_ARGS__)
+#define CONCAT2(x, ...) CONCAT1(x ## __VA_ARGS__)
+#define CONCAT1(x) x
+
+
+#define ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
+#define HAS_COMMA(...) ARG16(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  0)
+
+#define MAKE_COMMA(...) ,
+
+
+#define ISEMPTY(...)                                                    \
+  ISEMPTY_(                                                             \
+           HAS_COMMA(__VA_ARGS__),                                      \
+           HAS_COMMA(MAKE_COMMA __VA_ARGS__),                           \
+           HAS_COMMA(__VA_ARGS__ (/*empty*/)),                          \
+           HAS_COMMA(MAKE_COMMA __VA_ARGS__ ()))
+
+
+#define ISEMPTY_(a,b,c,d) HAS_COMMA(CONCAT5(IS_EMPTY_CASE_,a,b,c,d))
+#define IS_EMPTY_CASE_0001 ,
+
+#define COUNT0(...) ARG16(__VA_ARGS__,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#define COUNT1() 0
+#define COUNT(...) APPLY(CONCAT2, COUNT,  ISEMPTY(__VA_ARGS__))(__VA_ARGS__)
+
 
 #define PLIST15(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15)  \
   PLIST14(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14), \
@@ -85,7 +112,7 @@
   trompeloeil::c ## _type_catcher<void(P2)> p2
 
 #define PLIST1(c, P1) trompeloeil::c ## _type_catcher<void(P1)> p1
-#define PLIST0(c)
+#define PLIST0(c, P0)
 
 #define VLIST15(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15) \
   VLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14),     \
@@ -440,6 +467,15 @@ namespace trompeloeil
     using bare_type = typename std::remove_reference<T>::type;
   };
 
+
+  template <>
+  struct type_catcher_t<void(void)>
+  {
+    using type = void;
+    using ref_type = void;
+    using const_ref_type = void;
+    using bare_type = void;
+  };
   template<typename T>
   using ref_type_catcher = typename type_catcher_t<T>::ref_type;
   template<typename T>
@@ -491,6 +527,7 @@ namespace trompeloeil
     using type = std::tuple<value_matcher<typename std::remove_reference<T>::type> ...>;
   };
 
+
   template<typename Sig>
   using value_match_type = typename value_match_type_t<Sig>::type;
 
@@ -519,7 +556,7 @@ namespace trompeloeil
     }
 
     virtual bool matches(const param_type &) = 0;
-    virtual void run_actions(call_action_type<Sig> &params) = 0;
+    virtual bool run_actions(call_action_type<Sig> &params) = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const param_type &) = 0;
     virtual return_of<Sig> return_value(call_action_type<Sig> &params) = 0;
     virtual void report_missed() = 0;
@@ -539,7 +576,7 @@ namespace trompeloeil
     }
 
     virtual bool matches(const param_type &) = 0;
-    virtual void run_actions(call_action_type<void(A...)> &params) = 0;
+    virtual bool run_actions(call_action_type<void(A...)> &params) = 0;
     virtual std::ostream& report_mismatch(std::ostream&, const param_type &) = 0;
     void return_value(call_action_type<void(A...)> &) {};
 
@@ -593,7 +630,7 @@ namespace trompeloeil
 
     virtual bool matches(const param_type &) { return false; }
 
-    virtual void run_actions(call_action_type<Sig> &) {}
+    virtual bool run_actions(call_action_type<Sig> &) { return false; }
 
     virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) { return r;}
 
@@ -614,7 +651,7 @@ namespace trompeloeil
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this;}
     virtual bool matches(const param_type &) { return false; }
-    virtual void run_actions(call_action_type<void(A...)> &) {}
+    virtual bool run_actions(call_action_type<void(A...)> &) { return false;}
     virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) {return r;}
     virtual void report_missed() {}
   };
@@ -844,7 +881,7 @@ namespace trompeloeil
     {
       return return_handler.next()->return_value(params);
     }
-    void run_actions(call_action_type<Sig>& params)
+    bool run_actions(call_action_type<Sig>& params)
     {
       auto limits = call_limits();
       if (++call_count > std::get<1>(limits))
@@ -859,6 +896,7 @@ namespace trompeloeil
       {
         p->action(params);
       }
+      return call_count == std::get<1>(limits);
     }
     std::ostream& report_mismatch(std::ostream& os, const param_type& params) override
     {
@@ -892,10 +930,12 @@ namespace trompeloeil
     template <typename H>
     call_data<return_type_injector<return_of<Sig>, call_matcher>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
     {
-      static_assert(!std::is_same<return_type, void>::value && std::is_same<H, void>::value,
+      static_assert(!std::is_same<return_of<Sig>, void>::value || std::is_same<H, void>::value,
                     "RETURN does not make sense for void-function");
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_action_type<Sig> >()))>::value,
+#if 0
+      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_action_type<Sig> >()))>::value || std::is_same<return_of<Sig>, void>::value,
                     "given RETURN type is not convertible to that of the function");
+#endif
       return {std::move(*this), {str, std::move(h)}};
     }
     template <unsigned long long L, unsigned long long H = L>
@@ -989,6 +1029,7 @@ class mock;
 #define MOCK(name, params)                                                    \
   using matcher_type ## name  = ::trompeloeil::call_matcher<decltype(std::declval<mocked_type>().name( VLIST params)) params>; \
   ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> matcher_list ## name; \
+  ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> exhausted_matcher_list ## name; \
   auto name (VERBATIM_PLIST params) -> decltype(mocked_type::name CLIST params) override \
   {                                                                           \
     const auto param_value = ::trompeloeil::make_value_match_obj CLIST params;  \
@@ -999,19 +1040,36 @@ class mock;
     }                                                                         \
     if (i == &matcher_list ## name)                                           \
     {                                                                         \
-      std::ostringstream os;                                            \
-      os << "No match for call " #name #params ".\n";                                      \
+      std::ostringstream os;                                                  \
+      os << "No match for call " #name #params ".\n";                         \
+      for (auto ei = exhausted_matcher_list ## name.next();                   \
+           ei != &exhausted_matcher_list ## name;                             \
+           ei = ei->next())                                                   \
+      {                                                                       \
+        if (ei->matches(param_value))                                         \
+        {                                                                     \
+          os << "Did you mean exhausted match\n";                             \
+          ei->report_mismatch(os, param_value);                               \
+          ::trompeloeil::send_report(::trompeloeil::severity::fatal,          \
+                                     "",                                      \
+                                     os.str());                               \
+        }                                                                     \
+      }                                                                       \
       for (auto i = matcher_list ## name.next();                              \
            i != &matcher_list ## name;                                        \
            i = i->next())                                                     \
       {                                                                       \
-        os << "Tried ";                                                        \
-        i->report_mismatch(os, param_value);                                   \
+        os << "Tried ";                                                       \
+        i->report_mismatch(os, param_value);                                  \
       }                                                                       \
       ::trompeloeil::send_report(::trompeloeil::severity::fatal, "", os.str()); \
     }                                                                         \
     auto param_ref = ::trompeloeil::make_action_type_obj CLIST params;        \
-    i->run_actions(param_ref);                                                \
+    if (i->run_actions(param_ref))                                            \
+      {                                                                       \
+        i->unlink();                                                          \
+        exhausted_matcher_list ## name.link_before(*i);                       \
+      }                                                                       \
     return i->return_value(param_ref);                                        \
   }
 

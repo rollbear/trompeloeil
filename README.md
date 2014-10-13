@@ -2,7 +2,7 @@
 
 *trompe l'oeil* noun    (Concise Encyclopedia)  
 Style of representation in which a painted object is intended
-to deceive the viewer into believing it is the object itself...*
+to deceive the viewer into believing it is the object itself...
 
 What is it?
 -----------
@@ -130,7 +130,7 @@ There is a function
 ```Cpp
 trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
                                              const char* location
-                                             const std::string& msg)
+                                             const std::string& msg)>)
 ```
 which can be used to control the reporting. `trompeloeil::severity` is an enum
 with the values `fatal` and `nonfatal`. Severity is `nonfatal` when called
