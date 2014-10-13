@@ -942,7 +942,7 @@ namespace trompeloeil
     call_data<call_limit_injector<call_matcher>, std::tuple<>, Sig> times()
     {
       static_assert(H >= L, "In TIMES Higher limit must exceed lower limit");
-      static_assert(L > 0, "TIMES call limit of 0 does not make sense");
+      static_assert(H > 0, "TIMES call limit of 0 does not make sense");
       min_calls = L;
       max_calls = H;
       return { std::move(*this), {} };
@@ -1033,10 +1033,10 @@ class mock;
   auto name (VERBATIM_PLIST params) -> decltype(mocked_type::name CLIST params) override \
   {                                                                           \
     const auto param_value = ::trompeloeil::make_value_match_obj CLIST params;  \
-    auto i = matcher_list ## name.next();                                     \
+    auto i = matcher_list ## name.prev();                                     \
     while (i != &matcher_list ## name && !i->matches(param_value))            \
     {                                                                         \
-      i = i->next();                                                          \
+      i = i->prev();                                                          \
     }                                                                         \
     if (i == &matcher_list ## name)                                           \
     {                                                                         \

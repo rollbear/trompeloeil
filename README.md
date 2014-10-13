@@ -88,8 +88,10 @@ Set up an expectaion that the method *method_name* is called on the object
 *mock_object*. The parameter list may include exact match values, or the
 wildcard `trompeloeil::_`. The expectation has scope lifetime and must be
 met by the time the scope ends. When there are several expectations active on
-the same object and method, they are tried in the order they were defined
-until a match is found.
+the same object and method, they are tried in the reversed order they were
+defined, i.e. last defined is tried first, until a match is found. This allows
+you to specify a wide default early, and narrow specializations in short
+scopes.
 
 **`.WITH`(** *expr* **)**  
 Add further conditions for a **`REQUIRE_CALL`**, typically used when the
