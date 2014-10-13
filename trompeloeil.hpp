@@ -8,7 +8,6 @@
 
 // Missing features
 // * Mocking overloaded methods
-// * Unscoped expectations
 // * Sequences
 // * EXPECT_DESTRUCTION
 // * Report types lacking output stream insertion operator
@@ -24,6 +23,7 @@
 #include <sstream>
 #include <exception>
 #include <functional>
+#include <memory>
 
 #define APPLY(x,...) x(__VA_ARGS__)
 #define CONCAT5(x, ...) CONCAT4(x ## __VA_ARGS__)
@@ -834,8 +834,12 @@ namespace trompeloeil
     U data;
   };
 
+  struct expectation {
+    virtual ~expectation() = default;
+  };
+
   template<typename Sig>
-  struct call_matcher : public call_matcher_base<Sig>
+  struct call_matcher : public call_matcher_base<Sig>, expectation
   {
     using return_type = void;
     using param_type = typename call_matcher_base<Sig>::param_type;
@@ -1018,6 +1022,15 @@ namespace trompeloeil
   template <typename T>
     T operator+(T&& t) { return std::move(t.validate()); }
   };
+
+  struct heap_elevator
+  {
+    template <typename T>
+    std::unique_ptr<T> operator^(T&& t)
+    {
+      return std::unique_ptr<T>(new T(std::move(t)));
+    }
+  };
 }
 
 template<typename T>
@@ -1077,8 +1090,14 @@ class mock;
 #define STRINGIFY(...) STRINGIFY_(__VA_ARGS__)
 
 #define REQUIRE_CALL(obj, func) \
-auto CONCAT(call_obj, __COUNTER__) = ::trompeloeil::call_validator{} + CONCAT(decltype(obj)::matcher_type, func ) \
-  .set_location(__FILE__ ":" STRINGIFY(__LINE__)) \
+  auto CONCAT(call_obj, __COUNTER__) =  REQUIRE_CALL_OBJ(obj, func)
+
+#define NAMED_REQUIRE_CALL(obj, func) \
+  ::trompeloeil::heap_elevator{} ^ REQUIRE_CALL_OBJ(obj, func)
+
+#define REQUIRE_CALL_OBJ(obj, func)                                     \
+  ::trompeloeil::call_validator{} + CONCAT(decltype(obj)::matcher_type, func ) \
+  .set_location(__FILE__ ":" STRINGIFY(__LINE__))                       \
   . hook_last(CONCAT(obj.matcher_list, func))
 
 #define WITH(...) with(#__VA_ARGS__, [&](const auto& x) { \

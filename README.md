@@ -93,6 +93,10 @@ defined, i.e. last defined is tried first, until a match is found. This allows
 you to specify a wide default early, and narrow specializations in short
 scopes.
 
+**`NAMED_REQUIRE_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**
+Same as **`REQUIRE_CALL`**, except it instantiates a
+*std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a variable.
+
 **`.WITH`(** *expr* **)**  
 Add further conditions for a **`REQUIRE_CALL`**, typically used when the
 wildcard `trompeloeil::_` has been used. *expr* can refer to parameters in the
