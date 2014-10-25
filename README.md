@@ -1,12 +1,10 @@
- ## *Trompeloeil*
-<table frame="void" rules="none">
-<tr><td>
+## *Trompeloeil*
+
 ![trompeloeil logo](trompeloeil-logo.png)
-</td><td>
 *trompe l'oeil* noun    (Concise Encyclopedia)  
 Style of representation in which a painted object is intended
 to deceive the viewer into believing it is the object itself...
-</td></tr></table>
+
 What is it?
 -----------
 
