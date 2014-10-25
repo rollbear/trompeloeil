@@ -47,9 +47,11 @@ TEST(work_returns_the_string_obtained_from_I_foo)
   CUT out(&mock_i);
 
   {
+    trompeloeil::sequence seq;
     REQUIRE_CALL(mock_i, foo(3, _))
     .WITH(_2 == "")
     .TIMES(1)
+    .IN_SEQUENCE(seq)
     .SIDE_EFFECT(_2 = "cat")
     .RETURN(true);
 
@@ -63,12 +65,12 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 Limitations (TODO-list)
 -----------------------
 - Overloaded methods cannot be mocked
-- Sequences
-- Unscoped expectations
-- EXPECT_DESTRUCTION
-- Report types lacking output stream insertion operator
+- EXPECT_DESTRUCTION is not supported
+- Reporting really needs more work
+- Support reporting types lacking output stream insertion
 - Allow custom test output stream insertion operator
 - Tracing
+- WAY too many macros...
 
 How to use
 ----------
@@ -123,6 +125,13 @@ Set the number of times the call is allowed. *limits* must be `constexpr`.
 specifying a range. A lower limit of `0` means the call is not required.
 By default a **`REQUIRE_CALL`** is expected to be tripped exactly once.
 **`.TIMES`** may only be used once for a **`REQUIRE_CALL`**
+
+**`.IN_SEQUENCE`(** *seq...* **)**  
+Where *seq...* is one or more instances of `trompeloeil::sequence`. Impose an
+order in which **`.REQUIRE_CALL`** must match. Several sequences can be parallel
+and interleaved. A sequence for a **`.REQUIRE_CALL`** is no longer monitored
+once the lower limit from **`.TIMES`** is reached.
+
 
 ## Report to test frameworks
 
