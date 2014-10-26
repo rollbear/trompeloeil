@@ -87,6 +87,9 @@ Define a MOCK implementation for the interface.
 Make a mock implementation of the method named *method_name*. *method_name*
 must be virtual, and may currently not be overloded with several signatures.
 
+**`MOCK_CONST`(** *method_name*, *parameter_list* **)**  
+Same as **`MOCK`(** *method_name*, *parameter_list* **)** for `const` methods.
+
 **`REQUIRE_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Set up an expectaion that the method *method_name* is called on the object
 *mock_object*. The parameter list may include exact match values, or the
@@ -120,7 +123,7 @@ Set the return value after having evaluated every **`.SIDE_EFFECT`** . For `void
 functions **`.RETURN`** is illegal. For non-`void` functions **`.RETURN`** is
 required exactly once. *expr* may refer to parameters in the call with their
 positional names `_1`, `_2`, etc. This code may alter out-parameters. If you
-need to return an lvalue reference, use std::ref().
+need to return an lvalue reference, use `std::ref()`.
 
 **`.TIMES`(** *limit* **)**  
 Set the number of times the call is allowed. *limits* must be `constexpr`.

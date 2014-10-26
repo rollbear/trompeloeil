@@ -997,13 +997,6 @@ namespace trompeloeil
       static_assert(!b, "a SEQUENCE limit is already in place");
       return { std::move(*this), { std::tuple<typename std::remove_reference<T>::type...>(std::forward<T>(t)...) } };
     }
-    template <typename T = return_type>
-    call_data& validate()
-    {
-      static_assert(std::is_same<return_of<Sig>, return_type>::value,
-                    "RETURN missing for non-void function");
-      return *this;
-    }
 
     U data;
   };
@@ -1017,6 +1010,7 @@ namespace trompeloeil
   {
     using return_type = void;
     using param_type = typename call_matcher_base<Sig>::param_type;
+
     template<typename ... U>
     call_matcher(U &&... u) : val(std::forward<U>(u)...) {}
 
@@ -1030,14 +1024,6 @@ namespace trompeloeil
     call_matcher& hook_last(call_matcher_list<Sig> &list)
     {
       list.link_before(*this);
-      return *this;
-    }
-
-    template <typename T = return_type>
-    call_matcher& validate()
-    {
-      static_assert(std::is_same<T, return_of<Sig> >::value,
-                    "missing RETURN for non-void function");
       return *this;
     }
 
@@ -1210,8 +1196,18 @@ namespace trompeloeil
 
   struct call_validator
   {
-  template <typename T>
-    T operator+(T&& t) { return std::move(t.validate()); }
+    template <typename Sig>
+    call_matcher<Sig> operator+(trompeloeil::call_matcher<Sig>& t) {
+      static_assert(std::is_same<typename call_matcher<Sig>::return_type, return_of<Sig> >::value,
+                    "missig RETURN for non-void function");
+      return std::move(t);
+    }
+    template <typename P, typename U, typename Sig>
+    call_data<P, U, Sig> operator+(::trompeloeil::call_data<P, U, Sig>&& t) {
+      static_assert(std::is_same<return_of<Sig>, typename call_data<P, U, Sig>::return_type>::value,
+                    "RETURN missing for non-void function");
+      return std::move(t);
+    }
   };
 
   struct heap_elevator
