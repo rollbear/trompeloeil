@@ -8,6 +8,7 @@
 
 // Deficiencies and missing features
 // * Mocking overloaded methods is not supported
+// * Mocking private methods is not supported
 // * EXPECT_DESTRUCTION
 // * No support for report types lacking output stream insertion operator
 // * No support for custom test output stream insertion operator
@@ -1220,11 +1221,8 @@ namespace trompeloeil
   };
 }
 
-template<typename T>
-class mock;
 
-#define MOCK_CLASS(x) template <> class mock<x> \
-  : public ::trompeloeil::mock_base<x>
+#define MOCKED_CLASS(x)  public ::trompeloeil::mock_base<x>
 
 
 #define MOCK(name, params) MOCK_(name, , params)

@@ -34,7 +34,7 @@ public:
   std::string work(int n);
 };
 
-MOCK_CLASS(I)
+class MI : MOCKED_CLASS(I)
 {
 public:
   MOCK(foo, (int, std::string&));
@@ -45,7 +45,7 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 {
   using trompeloeil::_;
 
-  mock<I> mock_i;
+  MI mock_i;
   CUT out(&mock_i);
 
   {
@@ -67,6 +67,7 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 Limitations (TODO-list)
 -----------------------
 - Overloaded methods cannot be mocked
+- Private methods cannot be mocked
 - EXPECT_DESTRUCTION is not supported
 - Reporting really needs more work
 - Support reporting types lacking output stream insertion
@@ -80,7 +81,7 @@ The example above shows all currently supported functionality
 
 ## Macros
 
-**`MOCK_CLASS`(** *interface_name* **)**  
+**`MOCKED_CLASS`(** *interface_name* **)**  
 Define a MOCK implementation for the interface.
 
 **`MOCK`(** *method_name*, *parameter_list* **)**  
