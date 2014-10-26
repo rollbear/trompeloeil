@@ -70,8 +70,6 @@ Limitations (TODO-list)
 - Private methods cannot be mocked
 - EXPECT_DESTRUCTION is not supported
 - Reporting really needs more work
-- Support reporting types lacking output stream insertion
-- Allow custom test output stream insertion operator
 - Tracing
 - WAY too many macros...
 
@@ -139,6 +137,15 @@ order in which **`.REQUIRE_CALL`** must match. Several sequences can be parallel
 and interleaved. A sequence for a **`.REQUIRE_CALL`** is no longer monitored
 once the lower limit from **`.TIMES`** is reached.
 
+## Printing values
+
+By default *`trompeloeil`* prints any values in violation reports using
+the defined output stream `operator<<` for the type. If none is available,
+the objects memory region is printed as a hex-dump.
+
+Should you want to provide a special print function for use in tests,
+define a function `void print(std::ostream&, const TYPE&)` in namespace
+`trompeloeil` for your type.
 
 ## Report to test frameworks
 

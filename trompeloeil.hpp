@@ -10,8 +10,6 @@
 // * Mocking overloaded methods is not supported
 // * Mocking private methods is not supported
 // * EXPECT_DESTRUCTION
-// * No support for report types lacking output stream insertion operator
-// * No support for custom test output stream insertion operator
 // * Reporting really needs working on
 // * implement tracing
 // * If a macro kills a kitten, this threatens extinction of all felines!
@@ -23,6 +21,7 @@
 #include <utility>
 #include <tuple>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <exception>
 #include <functional>
@@ -282,6 +281,64 @@ namespace trompeloeil
       reporter_obj()(s, loc, msg);
   }
 
+  template <typename T>
+  class is_output_streamable
+  {
+    struct no;
+    template <typename U>
+    static no func(...);
+    template <typename U>
+    static auto func(U* u) -> decltype(std::declval<std::ostream&>() << *u);
+  public:
+    static const bool value = !std::is_same<no, decltype(func<T>(nullptr))>::value;
+  };
+
+  struct stream_sentry
+  {
+    stream_sentry(std::ostream& os_) : os(os_), width(os.width(0)), flags(os.flags(std::ios_base::dec | std::ios_base::left)), fill(os.fill(' ')) {  }
+    ~stream_sentry() { os.flags(flags); os.fill(fill); os.width(width);}
+    std::ostream& os;
+    std::streamsize width;
+    std::ios_base::fmtflags flags;
+    char fill;
+  };
+
+  template <typename T, bool b = is_output_streamable<T>::value>
+  struct streamer
+  {
+    static void print(std::ostream& os, const T& t)
+    {
+      stream_sentry s(os);
+      os << t;
+    }
+  };
+
+
+  template <typename T>
+  struct streamer<T, false>
+  {
+    static void print(std::ostream& os, const T& t)
+    {
+      stream_sentry s(os);
+
+      os << sizeof(T) << "-byte object={";
+      if (sizeof(T) > 8) os << '\n';
+      os << std::setfill('0') << std::hex;
+      auto p = reinterpret_cast<const uint8_t*>(&t);
+      for (size_t i = 0; i < sizeof(T); ++i)
+      {
+        os << " 0x" << std::setw(2) << unsigned(p[i]);
+        if ((i & 0xf) == 0xf) os << '\n';
+      }
+      os << " }";
+    }
+  };
+  template <typename T>
+  void print(std::ostream& os, const T& t)
+  {
+    streamer<T>::print(os, t);
+  }
+
   template<typename T>
   struct list_elem
   {
@@ -531,8 +588,9 @@ namespace trompeloeil
 
     friend std::ostream &operator<<(std::ostream &os, const value_matcher &v)
     {
-      if (v.desired.is_valid()) return os << v.desired.value();
-      return os << "_";
+      if (!v.desired.is_valid()) return os << "_";
+      print(os, v.desired.value());
+      return os;
     }
 
   private:
@@ -674,8 +732,11 @@ namespace trompeloeil
     template <typename stream>
     static stream &print_mismatch(stream &os, const T &t1, const T &t2)
     {
-      os << "  Got param " << N << " = " << std::get<N>(t1) << '\n'
-         << "  Expected:     " << std::get<N>(t2) << "\n\n";
+      os << "  Got param _" << N+1 << " = ";
+      print(os, std::get<N>(t1));
+      os << "\n  Expected:     ";
+      print(os, std::get<N>(t2));
+      os << "\n\n";
 
       return tuple_pair<T, N + 1>::print_mismatch(os, t1, t2);
     }
@@ -683,7 +744,9 @@ namespace trompeloeil
     template <typename stream>
     static stream &print_missed(stream &os, const T &t)
     {
-      os << "  param " << N << " = " << std::get<N>(t) << '\n';
+      os << "  param _" << N+1 << " = ";
+      print(os, std::get<N>(t));
+      os << '\n';
       return tuple_pair<T, N + 1>::print_missed(os, t);
     }
   };
