@@ -1,6 +1,7 @@
 ## *Trompeloeil*
 
-![trompeloeil logo](trompeloeil-logo.png)
+![trompeloeil logo](trompeloeil-logo.png)  
+
 *trompe l'oeil* noun    (Concise Encyclopedia)  
 Style of representation in which a painted object is intended
 to deceive the viewer into believing it is the object itself...
@@ -118,7 +119,8 @@ Several **`.SIDE_EFFECT`** clauses can be added to a single **`REQUIRE_CALL`**
 Set the return value after having evaluated every **`.SIDE_EFFECT`** . For `void`
 functions **`.RETURN`** is illegal. For non-`void` functions **`.RETURN`** is
 required exactly once. *expr* may refer to parameters in the call with their
-positional names `_1`, `_2`, etc. This code may alter out-parameters.
+positional names `_1`, `_2`, etc. This code may alter out-parameters. If you
+need to return an lvalue reference, use std::ref().
 
 **`.TIMES`(** *limit* **)**  
 Set the number of times the call is allowed. *limits* must be `constexpr`.

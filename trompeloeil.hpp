@@ -495,6 +495,19 @@ namespace trompeloeil
     bool valid;
   };
 
+  template <typename T>
+  class optional<T&>
+  {
+  public:
+    optional() = default;
+    optional(T& t) : ptr(&t) {}
+    const T& value() const { return *ptr; }
+    T& value() { return *ptr; }
+    bool is_valid() const { return ptr; }
+    operator T&() { return value(); }
+  private:
+    T* ptr = nullptr;
+  };
   template<typename T>
   struct value_matcher
   {
@@ -582,7 +595,7 @@ namespace trompeloeil
   template<typename R, typename ... T>
   struct call_match_type_t<R(T...)>
   {
-    using type = std::tuple<const typename std::remove_reference<T>::type &...>;
+    using type = std::tuple<const typename std::add_lvalue_reference<T>::type...>;
   };
 
   template<typename T>
@@ -594,7 +607,7 @@ namespace trompeloeil
   template<typename R, typename ... T>
   struct value_match_type_t<R(T...)>
   {
-    using type = std::tuple<value_matcher<typename std::remove_reference<T>::type> ...>;
+    using type = std::tuple<value_matcher<T> ...>;
   };
 
 
@@ -718,7 +731,7 @@ namespace trompeloeil
 
     virtual return_of<Sig> return_value(call_action_type<Sig> &)
     {
-      return_of<Sig> *p = nullptr;
+      typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
       return *p;
     }
 
@@ -806,7 +819,7 @@ namespace trompeloeil
   {
     return_of<Sig> return_value(call_action_type<Sig> &)
     {
-      return_of<Sig> *p = nullptr;
+      typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
       return *p;
     }
   };
@@ -1217,11 +1230,14 @@ class mock;
 #define MOCK_CLASS(x) template <> class mock<x> \
   : public ::trompeloeil::mock_base<x>
 
-#define MOCK(name, params)                                                    \
+
+#define MOCK(name, params) MOCK_(name, , params)
+#define MOCK_CONST(name, params) MOCK_(name, const, params)
+#define MOCK_(name, constness, params)                                   \
   using matcher_type ## name  = ::trompeloeil::call_matcher<decltype(std::declval<mocked_type>().name( VLIST params)) params>; \
-  ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> matcher_list ## name; \
-  ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> exhausted_matcher_list ## name; \
-  auto name (VERBATIM_PLIST params) -> decltype(mocked_type::name CLIST params) override \
+  mutable ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> matcher_list ## name; \
+  mutable ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> exhausted_matcher_list ## name; \
+  auto name (VERBATIM_PLIST params) constness -> decltype(mocked_type::name CLIST params) override \
   {                                                                           \
     const auto param_value = ::trompeloeil::make_value_match_obj CLIST params;  \
     auto i = matcher_list ## name.prev();                                     \
@@ -1318,7 +1334,7 @@ class mock;
   __VA_ARGS__;\
   })
 
-#define RETURN(...) handle_return(#__VA_ARGS__, [&](auto& x) {             \
+#define RETURN(...) handle_return(#__VA_ARGS__, [&](auto& x) {               \
   auto& _1 = ::trompeloeil::mkarg<1>(x);                                     \
   auto& _2 = ::trompeloeil::mkarg<2>(x);                                     \
   auto& _3 = ::trompeloeil::mkarg<3>(x);                                     \
