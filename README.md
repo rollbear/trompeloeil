@@ -78,6 +78,9 @@ Limitations (TODO-list)
 - Tracing
 - WAY too many macros...  
   * with very generic names to boot
+  * uses empty __VA_ARGS__, which is illegal (although harmless)
+    - With `GCC`, don't use `-pedantic` on the command line
+    - With `clang`, add `-Wno-gnu-zero-variadic-macro-argument` to the command line
 
 How to use
 ----------

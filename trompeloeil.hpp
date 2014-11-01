@@ -13,6 +13,9 @@
 // * Reporting really needs working on
 // * implement tracing
 // * If a macro kills a kitten, this threatens extinction of all felines!
+//   * With GCC, avoid -pedantic to avoid warnings about empty __VA_ARGS__
+//   * Wth clang, add -Wno-gnu-zero-variadic-macro-argument to avoid
+//     warnings about empty __VA_ARGS__
 
 #if (!defined(__cplusplus) || __cplusplus <= 201103)
 #error requires C++14 or higher
@@ -1432,10 +1435,9 @@ namespace trompeloeil
 
 #define TIMES(...) times<__VA_ARGS__>()
 
-
-
-
 #define IN_SEQUENCE(...) in_sequence(INIT_WITH_STR(::trompeloeil::sequence_matcher, __VA_ARGS__))
-#endif // include guard
 
 #define ANY(type) ::trompeloeil::typed_wildcard<type>()
+
+#endif // include guard
+
