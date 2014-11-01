@@ -9,7 +9,6 @@
 // Deficiencies and missing features
 // * Mocking private methods is not supported
 // * Mocking function templates is not supported
-// * EXPECT_DESTRUCTION
 // * Reporting really needs working on
 // * implement tracing
 // * If a macro kills a kitten, this threatens extinction of all felines!
@@ -630,14 +629,58 @@ namespace trompeloeil
   template<typename T>
   using bare_type_catcher = typename type_catcher_t<T>::bare_type;
 
+  struct lifetime_monitor;
+
+  template <typename T>
+  class deathwatch : public T
+  {
+  public:
+    using T::T;
+    ~deathwatch();
+    lifetime_monitor* trompeloeil_lifetime_monitor = nullptr;
+  };
+
   template<typename T>
-  class mock_base : public T
+  class trompeloeil_mock_base : public T
   {
   protected:
-    using mocked_type = T;
+    using trompeloeil_mocked_type = T;
   public:
     using T::T;
   };
+
+  struct lifetime_monitor
+  {
+    template <typename T>
+    lifetime_monitor(deathwatch<T>&obj, const char* obj_name, const char *loc) : location(loc), object(obj_name) { obj.trompeloeil_lifetime_monitor = this; }
+    ~lifetime_monitor() {
+      if (!died)
+      {
+        std::ostringstream os;
+        os << "Object " << object << " is still alive";
+        send_report(severity::nonfatal, location, os.str());
+      }
+    }
+    void notify() { died = true; }
+    bool died = false;
+    const char *location;
+    const char *object;
+  };
+
+  template <typename T>
+  deathwatch<T>::~deathwatch()
+  {
+    if (trompeloeil_lifetime_monitor)
+    {
+      trompeloeil_lifetime_monitor->notify();
+    }
+    else
+    {
+      std::ostringstream os;
+      os << "Unexpected destruction of " << typeid(T).name() << "@" << this << '\n';
+      send_report(severity::nonfatal, "", os.str());
+    }
+  }
 
   template<typename T>
   struct return_of_t;
@@ -1305,8 +1348,10 @@ namespace trompeloeil
   };
 }
 
+#define TROMPELOEIL_HEAD_(x, ...) x
+#define TROMPELOEIL_HEAD(...) TROMPELOEIL_HEAD_(__VA_ARGS__, xxxx)
 
-#define TROMPELOEIL_MOCKED_CLASS(x)  public ::trompeloeil::mock_base<x>
+#define TROMPELOEIL_MOCKED_CLASS(...)  public ::trompeloeil::trompeloeil_mock_base<__VA_ARGS__>
 
 #define TROMPELOEIL_MOCK(name, params)          \
   TROMPELOEIL_MOCK_(name, , params)
@@ -1317,14 +1362,14 @@ namespace trompeloeil
 
 #define TROMPELOEIL_MOCK_(name, constness, params)                            \
   using TROMPELOEIL_CONCAT(trompeloeil_matcher_type_, __LINE__) =             \
-    ::trompeloeil::call_matcher<decltype(std::declval<mocked_type>()          \
+    ::trompeloeil::call_matcher<decltype(std::declval<trompeloeil_mocked_type>()          \
                                          .name( TROMPELOEIL_VLIST params)) params>;       \
                                                                               \
   TROMPELOEIL_CONCAT(trompeloeil_matcher_type_, __LINE__)                     \
   trompeloeil_matcher_type_ ## name params constness;                         \
                                                                               \
   using TROMPELOEIL_CONCAT(trompeloeil_matcher_list_type_, __LINE__) =        \
-    ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>()     \
+    ::trompeloeil::call_matcher_list<decltype(std::declval<trompeloeil_mocked_type>()     \
                                               .name( TROMPELOEIL_VLIST params)) params>;  \
                                                                               \
   mutable TROMPELOEIL_CONCAT(trompeloeil_matcher_list_type_, __LINE__)        \
@@ -1351,7 +1396,7 @@ namespace trompeloeil
     return TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__); \
   }                                                                           \
   auto name (VERBATIM_TROMPELOEIL_PLIST params) constness                     \
-  -> decltype(mocked_type::name TROMPELOEIL_CLIST params) override            \
+  -> decltype(trompeloeil_mocked_type::name TROMPELOEIL_CLIST params) override            \
   {                                                                           \
     const auto param_value = ::trompeloeil::make_value_match_obj TROMPELOEIL_CLIST params;  \
     auto i = TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__).prev();  \
@@ -1501,8 +1546,14 @@ namespace trompeloeil
 #define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
 #define TROMPELOEIL_AT_MOST(num) 0, num
 
+#define TROMPELOEIL_REQUIRE_DESTRUCTION(obj) \
+  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, #obj, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))
+
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj) \
+  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, #obj, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__)))
+
 #ifndef TROMPELOEIL_LONG_MACROS
-#define MOCKED_CLASS(x)               TROMPELOEIL_MOCKED_CLASS(x)
+#define MOCKED_CLASS(...)             TROMPELOEIL_MOCKED_CLASS(__VA_ARGS__)
 #define MOCK(name, params)            TROMPELOEIL_MOCK(name, params)
 #define MOCK_CONST(name, params)      TROMPELOEIL_MOCK_CONST(name, params)
 #define REQUIRE_CALL(obj, func)       TROMPELOEIL_REQUIRE_CALL(obj, func)
@@ -1519,6 +1570,8 @@ namespace trompeloeil
 #define ANY(type)                     TROMPELOEIL_ANY(type)
 #define AT_LEAST(num)                 TROMPELOEIL_AT_LEAST(num)
 #define AT_MOST(num)                  TROMPELOEIL_AT_MOST(num)
+#define REQUIRE_DESTRUCTION(obj)      TROMPELOEIL_REQUIRE_DESTRUCTION(obj)
+#define NAMED_REQUIRE_DESTRUCTION(obj)TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)
 #endif
 
 #endif // include guard

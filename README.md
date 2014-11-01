@@ -76,8 +76,7 @@ Limitations (TODO-list)
   template types with more than one template parameter.)
   * use a typedef as a simple work-around
 - Function templates cannot be mocked
-- EXPECT_DESTRUCTION is not supported
-- Reporting really needs more work
+- Reporting needs more work
 - Tracing
 - WAY too many macros...  
   * uses empty __VA_ARGS__, which is illegal (although harmless)
@@ -129,7 +128,17 @@ scopes.
 
 **`NAMED_REQUIRE_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**
 Same as **`REQUIRE_CALL`**, except it instantiates a
-*std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a variable.
+*std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a
+variable.
+
+**`REQUIRE_DESTRUCTION`(** *mock_object* **)**  
+*mock_object* must be of type `trompeloeil::deathwatch<T>`, where T is your
+mock class.
+
+**`NAMED_REQUIRE_DESTRUCTION`(** *mock_object* **)**  
+Same as **`REQUIRE_DESTRUCTION`**, except it instantiates a
+*std::unique_ptr&lt;trompeloeil::lifetime_monitor&gt;* which you can bind to a
+variable.
 
 **`.WITH`(** *expr* **)**  
 Add further conditions for a **`REQUIRE_CALL`**, typically used when the
