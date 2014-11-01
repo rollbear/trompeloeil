@@ -456,28 +456,22 @@ namespace trompeloeil
   struct wildcard
   {
     template<typename T>
-    operator T&&();
+    operator T&&() const;
+    template<typename T>
+    operator T&() const;
   };
 
-  static const constexpr wildcard _{};
+  static constexpr const wildcard _{};
 
   template<typename T>
   class optional
   {
   public:
-    optional() : valid(false)
-    {
-    }
+    optional() : valid(false) { }
 
-    optional(const T &t) : valid(true)
-    {
-      new(buffer) T(t);
-    }
+    optional(const T &t) : valid(true) { new(buffer) T(t);  }
 
-    optional(T &&t) : valid(true)
-    {
-      new(buffer) T(std::move(t));
-    }
+    optional(T &&t) : valid(true) { new(buffer) T(std::move(t)); }
 
     optional(const optional &c) : valid(c.valid)
     {
@@ -491,8 +485,7 @@ namespace trompeloeil
 
     ~optional()
     {
-      if (valid)
-      {value().~T();}
+      if (valid) value().~T();
     }
 
     optional &operator=(const optional &c)
@@ -539,10 +532,7 @@ namespace trompeloeil
       return std::move(value());
     }
 
-    bool is_valid() const
-    {
-      return valid;
-    }
+    bool is_valid() const { return valid; }
 
     operator T &()
     {
@@ -566,19 +556,21 @@ namespace trompeloeil
   private:
     T* ptr = nullptr;
   };
+
   template<typename T>
   struct value_matcher
   {
+    template <typename U>
+    friend struct value_matcher;
   public:
-    value_matcher(wildcard)
-    {
-    };
+    value_matcher(const ::trompeloeil::wildcard&) { };
 
-    template<typename U,
-             typename = std::enable_if<!std::is_same<U, wildcard>::value> >
-    value_matcher(U &&u) : desired(std::forward<U>(u))
-    {
-    }
+
+    template <typename U, typename = typename std::enable_if<std::is_same<wildcard, typename std::remove_cv<typename std::remove_reference<U>::type>::type>::value > >
+    value_matcher(value_matcher<U>&&) {}
+
+    template<typename U>
+    value_matcher(U &&u) : desired(std::forward<U>(u))  { }
 
     template<typename U>
     bool operator==(const U &u) const
@@ -1076,7 +1068,7 @@ namespace trompeloeil
     using param_type = typename call_matcher_base<Sig>::param_type;
 
     template<typename ... U>
-    call_matcher(U &&... u) : val(std::forward<U>(u)...) {}
+    call_matcher(U &&... u) : val(value_matcher<U>(std::forward<U>(u))...) {}
 
     call_matcher(call_matcher &&r) = default;
 
@@ -1290,24 +1282,39 @@ namespace trompeloeil
 
 #define MOCK(name, params) MOCK_(name, , params)
 #define MOCK_CONST(name, params) MOCK_(name, const, params)
-#define MOCK_(name, constness, params)                                   \
-  using matcher_type ## name  = ::trompeloeil::call_matcher<decltype(std::declval<mocked_type>().name( VLIST params)) params>; \
-  mutable ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> matcher_list ## name; \
-  mutable ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params> exhausted_matcher_list ## name; \
+#define MOCK_(name, constness, params)                                  \
+  using CONCAT(trompeloeil_matcher_type_, __LINE__) = ::trompeloeil::call_matcher<decltype(std::declval<mocked_type>().name( VLIST params)) params>; \
+  CONCAT(trompeloeil_matcher_type_, __LINE__) trompeloeil_matcher_type_ ## name params constness; \
+  using CONCAT(trompeloeil_matcher_list_type_, __LINE__) = ::trompeloeil::call_matcher_list<decltype(std::declval<mocked_type>().name( VLIST params)) params>; \
+  mutable CONCAT(trompeloeil_matcher_list_type_, __LINE__) CONCAT(trompeloeil_matcher_list_, __LINE__); \
+  mutable CONCAT(trompeloeil_matcher_list_type_, __LINE__) CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__); \
+  struct CONCAT(tag_type_trompeloeil_, __LINE__)                        \
+  {                                                                     \
+    using name = CONCAT(trompeloeil_matcher_type_, __LINE__);           \
+  };                                                                    \
+  CONCAT(tag_type_trompeloeil_, __LINE__) trompeloeil_tag_ ## name params constness; \
+  CONCAT(trompeloeil_matcher_list_type_, __LINE__)& trompeloeil_matcher_list(CONCAT(tag_type_trompeloeil_, __LINE__)) constness \
+  {                                                                     \
+    return CONCAT(trompeloeil_matcher_list_, __LINE__);                 \
+  }                                                                     \
+  CONCAT(trompeloeil_matcher_list_type_, __LINE__)& trompeloeil_exhausted_matcher_list(CONCAT(tag_type_trompeloeil_, __LINE__)) constness \
+  {                                                                     \
+    return CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__);       \
+  }                                                                     \
   auto name (VERBATIM_PLIST params) constness -> decltype(mocked_type::name CLIST params) override \
   {                                                                           \
     const auto param_value = ::trompeloeil::make_value_match_obj CLIST params;  \
-    auto i = matcher_list ## name.prev();                                     \
-    while (i != &matcher_list ## name && !i->matches(param_value))            \
+    auto i = CONCAT(trompeloeil_matcher_list_, __LINE__).prev();         \
+    while (i != &CONCAT(trompeloeil_matcher_list_, __LINE__) && !i->matches(param_value)) \
     {                                                                         \
       i = i->prev();                                                          \
     }                                                                         \
-    if (i == &matcher_list ## name)                                           \
+    if (i == &CONCAT(trompeloeil_matcher_list_, __LINE__))               \
     {                                                                         \
       std::ostringstream os;                                                  \
       os << "No match for call " #name #params ".\n";                         \
-      for (auto ei = exhausted_matcher_list ## name.next();                   \
-           ei != &exhausted_matcher_list ## name;                             \
+      for (auto ei = CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).next(); \
+           ei != &CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__); \
            ei = ei->next())                                                   \
       {                                                                       \
         if (ei->matches(param_value))                                         \
@@ -1319,8 +1326,8 @@ namespace trompeloeil
                                      os.str());                               \
         }                                                                     \
       }                                                                       \
-      for (auto i = matcher_list ## name.next();                              \
-           i != &matcher_list ## name;                                        \
+      for (auto i = CONCAT(trompeloeil_matcher_list_, __LINE__).next(); \
+           i != &CONCAT(trompeloeil_matcher_list_, __LINE__);           \
            i = i->next())                                                     \
       {                                                                       \
         os << "Tried ";                                                       \
@@ -1332,7 +1339,7 @@ namespace trompeloeil
     if (i->run_actions(param_ref))                                            \
       {                                                                       \
         i->unlink();                                                          \
-        exhausted_matcher_list ## name.link_before(*i);                       \
+        CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).link_before(*i); \
       }                                                                       \
     return i->return_value(param_ref);                                        \
   }
@@ -1347,9 +1354,9 @@ namespace trompeloeil
   ::trompeloeil::heap_elevator{} ^ REQUIRE_CALL_OBJ(obj, func)
 
 #define REQUIRE_CALL_OBJ(obj, func)                                     \
-  ::trompeloeil::call_validator{} + CONCAT(decltype(obj)::matcher_type, func ) \
+  ::trompeloeil::call_validator{} + decltype(obj.CONCAT(trompeloeil_tag_, func) )::func \
   .set_location(__FILE__ ":" STRINGIFY(__LINE__))                       \
-  . hook_last(CONCAT(obj.matcher_list, func))
+  . hook_last(obj.trompeloeil_matcher_list(decltype(CONCAT(obj.trompeloeil_tag_, func)){}))
 
 #define WITH(...) with(#__VA_ARGS__, [&](const auto& x) { \
   auto& _1 = ::trompeloeil::mkarg<1>(x);                    \
