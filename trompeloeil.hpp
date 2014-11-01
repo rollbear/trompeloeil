@@ -904,31 +904,37 @@ namespace trompeloeil
     const char *str;
   };
 
-  template <typename T, std::size_t N = 0>
-  struct sequence_validator;
+  template <typename T, std::size_t N, size_t M>
+  struct sequence_validator_t;
 
-  template <typename ... T, size_t N>
-  struct sequence_validator<std::tuple<T...>, N>
+  template <typename ... T, size_t N, size_t M>
+  struct sequence_validator_t<std::tuple<T...>, N, M>
   {
     static void validate(const char *loc, const std::tuple<T...>& t)
     {
       std::get<N>(t).check_match(loc);
-      sequence_validator<std::tuple<T...>, N + 1>::validate(loc, t);
+      sequence_validator_t<std::tuple<T...>, N + 1, M>::validate(loc, t);
     }
     static void retire(std::tuple<T...>& t)
     {
       std::get<N>(t).retire();
-      sequence_validator<std::tuple<T...>, N + 1>::retire(t);
+      sequence_validator_t<std::tuple<T...>, N + 1, M>::retire(t);
     }
   };
 
-  template <typename ... T>
-  struct sequence_validator<std::tuple<T...>, sizeof...(T)>
+  template <typename ... T, size_t N>
+  struct sequence_validator_t<std::tuple<T...>, N, N>
   {
     static void validate(const char*, const std::tuple<T...>& ) {}
     static void retire(std::tuple<T...>& ){}
   };
 
+
+  template <typename T>
+  struct sequence_validator
+  : sequence_validator_t<T, 0, std::tuple_size<T>::value>
+  {
+  };
 
   struct sequence_handler_base : public list_elem<sequence_handler_base >
   {
