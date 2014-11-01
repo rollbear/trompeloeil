@@ -76,8 +76,8 @@ Limitations (TODO-list)
 - EXPECT_DESTRUCTION is not supported
 - Reporting really needs more work
 - Tracing
-- WAY too many macros...
-  > with very generic names to boot
+- WAY too many macros...  
+  * with very generic names to boot
 
 How to use
 ----------
