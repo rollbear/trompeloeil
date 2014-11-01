@@ -72,6 +72,9 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 Limitations (TODO-list)
 -----------------------
 - Private methods cannot be mocked
+- Mock function parameter types must not include commas (i.e. must not be of
+  template types with more than one template parameter.)
+  * use a typedef as a simple work-around
 - Function templates cannot be mocked
 - EXPECT_DESTRUCTION is not supported
 - Reporting really needs more work
@@ -102,7 +105,7 @@ Used in **`.TIMES`()** to set the range *number*..infinity. *number* must be
 
 **`AT_MOST`**( *number* **)**  
 Used in **`.TIMES`()** to set the range 0..*number*. *number* must be
-`cohstexpr`.
+`constexpr`.
 
 **`MOCKED_CLASS`(** *interface_name* **)**  
 Define a MOCK implementation for the interface.

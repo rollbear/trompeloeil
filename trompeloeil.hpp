@@ -1315,8 +1315,8 @@ namespace trompeloeil
   TROMPELOEIL_MOCK_(name, const, params)
 
 
-#define TROMPELOEIL_MOCK_(name, constness, params)                      \
-  using TROMPELOEIL_CONCAT(trompeloeil_matcher_type_, __LINE__) =       \
+#define TROMPELOEIL_MOCK_(name, constness, params)                            \
+  using TROMPELOEIL_CONCAT(trompeloeil_matcher_type_, __LINE__) =             \
     ::trompeloeil::call_matcher<decltype(std::declval<mocked_type>()          \
                                          .name( TROMPELOEIL_VLIST params)) params>;       \
                                                                               \
