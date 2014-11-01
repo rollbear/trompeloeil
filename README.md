@@ -2,9 +2,9 @@
 
 ![trompeloeil logo](trompeloeil-logo.png)  
 
-*trompe l'oeil* noun    (Concise Encyclopedia)  
-Style of representation in which a painted object is intended
-to deceive the viewer into believing it is the object itself...
+> *trompe l'oeil* noun    (Concise Encyclopedia)  
+> Style of representation in which a painted object is intended
+> to deceive the viewer into believing it is the object itself...
 
 What is it?
 -----------
@@ -25,6 +25,7 @@ class I
 public:
   virtual bool foo(int, std::string& s) = 0;
   virtual bool bar(int) = 0;
+  virtual bool bar(std::string) = 0;
 };
 
 class CUT
@@ -39,11 +40,12 @@ class MI : MOCKED_CLASS(I)
 public:
   MOCK(foo, (int, std::string&));
   MOCK(bar, (int));
+  MOCK(bar, (std::string));
 };
 
 TEST(work_returns_the_string_obtained_from_I_foo)
 {
-  using trompeloeil::_;
+  using trompeloeil::_; // wildcard for matching any value
 
   MI mock_i;
   CUT out(&mock_i);
@@ -57,6 +59,9 @@ TEST(work_returns_the_string_obtained_from_I_foo)
     .SIDE_EFFECT(_2 = "cat")
     .RETURN(true);
 
+    REQUIRE_CALL(mock_i, bar(ANY(int)))
+    .RETURN(false);
+
     auto s = out.work(3);
 
     ASSERT(s == "cat");
@@ -66,18 +71,23 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 
 Limitations (TODO-list)
 -----------------------
-- Wildcards cannot disambiguate overloaded functions.
 - Private methods cannot be mocked
+- Function templates cannot be mocked
 - EXPECT_DESTRUCTION is not supported
 - Reporting really needs more work
 - Tracing
 - WAY too many macros...
+  > with very generic names to boot
 
 How to use
 ----------
 The example above shows all currently supported functionality
 
 ## Macros
+
+**`ANY`(** *type* **)**  
+Typed wildcard to disambiguate overloaded functions on type when the exact
+value is unimportant.
 
 **`MOCKED_CLASS`(** *interface_name* **)**  
 Define a MOCK implementation for the interface.

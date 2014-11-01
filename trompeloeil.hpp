@@ -7,8 +7,8 @@
 
 
 // Deficiencies and missing features
-// * Wildcards cannot disabmiguate overloaded functions
 // * Mocking private methods is not supported
+// * Mocking function templates is not supported
 // * EXPECT_DESTRUCTION
 // * Reporting really needs working on
 // * implement tracing
@@ -463,6 +463,11 @@ namespace trompeloeil
 
   static constexpr const wildcard _{};
 
+  template <typename T>
+  struct typed_wildcard
+  {
+    operator T() const;
+  };
   template<typename T>
   class optional
   {
@@ -563,8 +568,9 @@ namespace trompeloeil
     template <typename U>
     friend struct value_matcher;
   public:
-    value_matcher(const ::trompeloeil::wildcard&) { };
+    value_matcher(const ::trompeloeil::wildcard&) { }
 
+    value_matcher(const ::trompeloeil::typed_wildcard<T>&) {}
 
     template <typename U, typename = typename std::enable_if<std::is_same<wildcard, typename std::remove_cv<typename std::remove_reference<U>::type>::type>::value > >
     value_matcher(value_matcher<U>&&) {}
@@ -1425,3 +1431,5 @@ namespace trompeloeil
 
 #define IN_SEQUENCE(...) in_sequence(INIT_WITH_STR(::trompeloeil::sequence_matcher, __VA_ARGS__))
 #endif // include guard
+
+#define ANY(type) ::trompeloeil::typed_wildcard<type>()
