@@ -100,7 +100,7 @@ value is unimportant.
 Used in **`.TIMES`()** to set the range *number*..infinity. *number* must be
 `constexpr`.
 
-**`AT_MOST`**( *number **)**  
+**`AT_MOST`**( *number* **)**  
 Used in **`.TIMES`()** to set the range 0..*number*. *number* must be
 `cohstexpr`.
 
