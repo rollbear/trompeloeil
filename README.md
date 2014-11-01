@@ -77,14 +77,18 @@ Limitations (TODO-list)
 - Reporting really needs more work
 - Tracing
 - WAY too many macros...  
-  * with very generic names to boot
   * uses empty __VA_ARGS__, which is illegal (although harmless)
     - With `GCC`, don't use `-pedantic` on the command line
     - With `clang`, add `-Wno-gnu-zero-variadic-macro-argument` to the command line
 
+
 How to use
 ----------
-The example above shows most currently supported functionality
+The example above shows most currently supported functionality.
+
+If the generic macro names conflicts with others in your sources, define the
+macro **`TROMPELOEIL_LONG_MACROS`** before inclusion of `trompeloeil.hpp`. It
+prefixes all macros listed below with **`TROMPELOEIL_`**.
 
 ## Macros
 
