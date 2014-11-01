@@ -66,7 +66,7 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 
 Limitations (TODO-list)
 -----------------------
-- Overloaded methods cannot be mocked
+- Wildcards cannot disambiguate overloaded functions.
 - Private methods cannot be mocked
 - EXPECT_DESTRUCTION is not supported
 - Reporting really needs more work

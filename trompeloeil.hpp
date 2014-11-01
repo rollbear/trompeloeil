@@ -7,7 +7,7 @@
 
 
 // Deficiencies and missing features
-// * Mocking overloaded methods is not supported
+// * Wildcards cannot disabmiguate overloaded functions
 // * Mocking private methods is not supported
 // * EXPECT_DESTRUCTION
 // * Reporting really needs working on
