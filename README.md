@@ -84,13 +84,21 @@ Limitations (TODO-list)
 
 How to use
 ----------
-The example above shows all currently supported functionality
+The example above shows most currently supported functionality
 
 ## Macros
 
 **`ANY`(** *type* **)**  
 Typed wildcard to disambiguate overloaded functions on type when the exact
 value is unimportant.
+
+**`AT_LEAST`**( *number* **)**  
+Used in **`.TIMES`()** to set the range *number*..infinity. *number* must be
+`constexpr`.
+
+**`AT_MOST`**( *number **)**  
+Used in **`.TIMES`()** to set the range 0..*number*. *number* must be
+`cohstexpr`.
 
 **`MOCKED_CLASS`(** *interface_name* **)**  
 Define a MOCK implementation for the interface.
@@ -149,6 +157,24 @@ Where *seq...* is one or more instances of `trompeloeil::sequence`. Impose an
 order in which **`.REQUIRE_CALL`** must match. Several sequences can be parallel
 and interleaved. A sequence for a **`.REQUIRE_CALL`** is no longer monitored
 once the lower limit from **`.TIMES`** is reached.
+
+**`ALLOW_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
+Same as **`REQUIRE_CALL`**().**`TIMES`(** 0, infinity **)**. Matches any
+number of times, but is not required to match. (_actually the limit is
+0..~0ULL, but that is for all practical purposes "infinity"_)
+
+**`NAMED_ALLOW_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
+Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0, infinity **)**.
+Matches any number of times, but is not required to match. (_actually the limit
+is 0..~0ULL, but that is for all practical purposes "infinity"_)
+
+**`FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
+Same as **`REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching call
+an error.
+
+**`NAMED_FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
+Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching
+call an error.
 
 ## Printing values
 

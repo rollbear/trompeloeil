@@ -1056,7 +1056,6 @@ namespace trompeloeil
       static_assert(!verboten,
                     "A TIMES call limit is already given");
       static_assert(H >= L, "In TIMES Higher limit must exceed lower limit");
-      static_assert(H > 0, "TIMES call limit of 0 does not make sense");
       this->min_calls = L;
       this->max_calls = H;
       return { std::move(*this), {} };
@@ -1127,8 +1126,16 @@ namespace trompeloeil
       {
         reported = true;
         std::ostringstream os;
-        os << "Expectation fulfilled " << call_count << " times when the limit is "
-           << std::get<1>(limits) << "\n";
+        if (std::get<1>(limits) == 0)
+        {
+          os << "Match of forbidden call of\n";
+        }
+        else
+        {
+          os << "Expectation fulfilled " << call_count << " times when the limit is "
+             << std::get<1>(limits) << "\n";
+        }
+        tuple_pair<decltype(val)>::print_missed(os, params);
         send_report(severity::fatal, location, os.str());
       }
       if (call_count == std::get<0>(limits))
@@ -1185,7 +1192,6 @@ namespace trompeloeil
     call_data<call_limit_injector<call_matcher>, std::tuple<>, Sig> times()
     {
       static_assert(H >= L, "In TIMES Higher limit must exceed lower limit");
-      static_assert(H > 0, "TIMES call limit of 0 does not make sense");
       min_calls = L;
       max_calls = H;
       return { std::move(*this), {} };
@@ -1373,6 +1379,18 @@ namespace trompeloeil
   .set_location(__FILE__ ":" STRINGIFY(__LINE__))                       \
   . hook_last(obj.trompeloeil_matcher_list(decltype(CONCAT(obj.trompeloeil_tag_, func)){}))
 
+#define ALLOW_CALL(obj, func) \
+  REQUIRE_CALL(obj, func).TIMES(0, ~0ULL)
+
+#define NAMED_ALLOW_CALL(obj, func) \
+  NAMED_REQUIRE_CALL(obj, func).TIMES(0, ~0ULL)
+
+#define FORBID_CALL(obj, func) \
+  REQUIRE_CALL(obj, func).TIMES(0)
+
+#define NAMED_FORBID_CALL(obj, func) \
+  NAMED_REQUIRE_CALL(obj, func).TIMES(0)
+
 #define WITH(...) with(#__VA_ARGS__, [&](const auto& x) { \
   auto& _1 = ::trompeloeil::mkarg<1>(x);                    \
   auto& _2 = ::trompeloeil::mkarg<2>(x);                    \
@@ -1438,6 +1456,9 @@ namespace trompeloeil
 #define IN_SEQUENCE(...) in_sequence(INIT_WITH_STR(::trompeloeil::sequence_matcher, __VA_ARGS__))
 
 #define ANY(type) ::trompeloeil::typed_wildcard<type>()
+
+#define AT_LEAST(num) num, ~0ULL
+#define AT_MOST(num) 0, num
 
 #endif // include guard
 
