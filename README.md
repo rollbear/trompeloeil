@@ -213,7 +213,7 @@ is typically not what you want.
 There is a function  
 ```Cpp
 trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
-                                             const char* location
+                                             const std::string& location
                                              const std::string& msg)>)
 ```
 which can be used to control the reporting. `trompeloeil::severity` is an enum
@@ -224,12 +224,10 @@ expectations. Some examples are:
 ### catch
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity s,
-                               const char *loc,
+                               const std::string& loc,
                                const std::string& msg)
     {
-      std::string m(loc);
-      m+="\n";
-      m+= msg;
+      auto m = loc + "\n" = msg;
       if (s == ::trompeloeil::severity::fatal)
         {
           FAIL(m);
@@ -241,12 +239,12 @@ expectations. Some examples are:
 ### crpcut
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity,
-                               const char *loc,
+                               const std::string& loc,
                                const std::string& msg)
     {
-      ::crpcut::fixed_string location(loc, std::strlen(loc))
-      ::crpcut::comm::report(::crpcut::comm::exit_fail,
-                             location,
-                             std::ostringstream(msg));
+      using namespace ::crpcut;
+      comm::report(comm::exit_fail,
+                   std::ostringstream(msg),
+                   datatypes::fixed_string{loc.c_str(), loc.length()});
     });
 ```

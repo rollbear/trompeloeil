@@ -277,18 +277,18 @@ namespace trompeloeil
   enum class severity { fatal, nonfatal };
 
   inline
-  std::function<void(severity, const char* loc, const std::string&)>& reporter_obj()
+  std::function<void(severity, const std::string& loc, const std::string&)>& reporter_obj()
   {
-    static std::function<void(severity, const char* loc, const std::string&)> obj
-      = [](severity, const char *loc, const std::string& msg)
+    static std::function<void(severity, const std::string& loc, const std::string&)> obj
+      = [](severity, const std::string& loc, const std::string& msg)
       {
-        throw expectation_violation(std::string(loc) + "\n" + msg);
+        throw expectation_violation(loc + "\n" + msg);
       };
     return obj;
   }
 
   inline
-  void set_reporter(std::function<void(severity, const char*loc, const std::string& s)> f)
+  void set_reporter(std::function<void(severity, const std::string& loc, const std::string& s)> f)
   {
     reporter_obj() = f;
   }
@@ -297,8 +297,7 @@ namespace trompeloeil
   inline
   void send_report(severity s, const char* loc, const std::string& msg)
   {
-    if (!std::uncaught_exception())
-      reporter_obj()(s, loc, msg);
+    reporter_obj()(s, loc, msg);
   }
 
   template <typename T>
@@ -713,7 +712,7 @@ namespace trompeloeil
     {
       std::ostringstream os;
       os << "Unexpected destruction of " << typeid(T).name() << "@" << this << '\n';
-      send_report(severity::nonfatal, "", os.str());
+      send_report(severity::nonfatal, "<unknown>", os.str());
     }
   }
 
@@ -1453,7 +1452,7 @@ namespace trompeloeil
           os << "Did you mean exhausted match\n";                             \
           ei->report_mismatch(os, param_value);                               \
           ::trompeloeil::send_report(::trompeloeil::severity::fatal,          \
-                                     "",                                      \
+                                     "<unknown>",                             \
                                      os.str());                               \
         }                                                                     \
       }                                                                       \
@@ -1464,7 +1463,7 @@ namespace trompeloeil
         os << "Tried ";                                                       \
         i->report_mismatch(os, param_value);                                  \
       }                                                                       \
-      ::trompeloeil::send_report(::trompeloeil::severity::fatal, "", os.str()); \
+      ::trompeloeil::send_report(::trompeloeil::severity::fatal, "<unknown>", os.str()); \
     }                                                                         \
     auto param_ref = ::trompeloeil::make_action_type_obj TROMPELOEIL_CLIST params;        \
     if (i->run_actions(param_ref))                                            \
