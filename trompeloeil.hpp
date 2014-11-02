@@ -712,7 +712,7 @@ namespace trompeloeil
     {
       std::ostringstream os;
       os << "Unexpected destruction of " << typeid(T).name() << "@" << this << '\n';
-      send_report(severity::nonfatal, "<unknown>", os.str());
+      send_report(severity::nonfatal, "", os.str());
     }
   }
 
@@ -1452,7 +1452,7 @@ namespace trompeloeil
           os << "Did you mean exhausted match\n";                             \
           ei->report_mismatch(os, param_value);                               \
           ::trompeloeil::send_report(::trompeloeil::severity::fatal,          \
-                                     "<unknown>",                             \
+                                     "",                                      \
                                      os.str());                               \
         }                                                                     \
       }                                                                       \
@@ -1463,7 +1463,7 @@ namespace trompeloeil
         os << "Tried ";                                                       \
         i->report_mismatch(os, param_value);                                  \
       }                                                                       \
-      ::trompeloeil::send_report(::trompeloeil::severity::fatal, "<unknown>", os.str()); \
+      ::trompeloeil::send_report(::trompeloeil::severity::fatal, "", os.str()); \
     }                                                                         \
     auto param_ref = ::trompeloeil::make_action_type_obj TROMPELOEIL_CLIST params;        \
     if (i->run_actions(param_ref))                                            \
