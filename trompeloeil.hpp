@@ -187,47 +187,64 @@
 #define TROMPELOEIL_VLIST(...) TROMPELOEIL_CONCAT(TROMPELOEIL_VLIST, TROMPELOEIL_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 #define TROMPELOEIL_CLIST15(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15
+  TROMPELOEIL_CLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14), \
+  static_cast<::trompeloeil::ref_type_catcher<void(P15)> >(p15)
 
 #define TROMPELOEIL_CLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
+  TROMPELOEIL_CLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13), \
+  static_cast<::trompeloeil::ref_type_catcher<void(P14)> >(p14)
 
 #define TROMPELOEIL_CLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13
+  TROMPELOEIL_CLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12),   \
+  static_cast<::trompeloeil::ref_type_catcher<void(P13)> >(p13)
 
 #define TROMPELOEIL_CLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12
+  TROMPELOEIL_CLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11),        \
+  static_cast<::trompeloeil::ref_type_catcher<void(P12)> >(p12)
 
 #define TROMPELOEIL_CLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11
+  TROMPELOEIL_CLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10),         \
+  static_cast<::trompeloeil::ref_type_catcher<void(P11)> >(p11)
 
 #define TROMPELOEIL_CLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10
+  TROMPELOEIL_CLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9),            \
+  static_cast<::trompeloeil::ref_type_catcher<void(P10)> >(p10)
 
-#define TROMPELOEIL_CLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9) \
-  p1, p2, p3, p4, p5, p6, p7, p8, p9
+#define TROMPELOEIL_CLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9)  \
+  TROMPELOEIL_CLIST8(P1, P2, P3, P4, P5, P6, P7, P8),           \
+  static_cast<::trompeloeil::ref_type_catcher<void(P9)> >(p9)
 
-#define TROMPELOEIL_CLIST8(P1, P2, P3, P4, P5, P6, P7, P8) \
-  p1, p2, p3, p4, p5, p6, p7, p8
+#define TROMPELOEIL_CLIST8(P1, P2, P3, P4, P5, P6, P7, P8)      \
+  TROMPELOEIL_CLIST7(P1, P2, P3, P4, P5, P6, P7),               \
+  static_cast<::trompeloeil::ref_type_catcher<void(P8)> >(p8)
 
-#define TROMPELOEIL_CLIST7(P1, P2, P3, P4, P5, P6, P7) \
-  p1, p2, p3, p4, p5, p6, p7
+#define TROMPELOEIL_CLIST7(P1, P2, P3, P4, P5, P6, P7)          \
+  TROMPELOEIL_CLIST6(P1, P2, P3, P4, P5, P6),                   \
+  static_cast<::trompeloeil::ref_type_catcher<void(P7)> >(p7)
 
-#define TROMPELOEIL_CLIST6(P1, P2, P3, P4, P5, P6) \
-  p1, p2, p3, p4, p5, p6
+#define TROMPELOEIL_CLIST6(P1, P2, P3, P4, P5, P6)              \
+  TROMPELOEIL_CLIST5(P1, P2, P3, P4, P5),                       \
+  static_cast<::trompeloeil::ref_type_catcher<void(P6)> >(p6)
 
-#define TROMPELOEIL_CLIST5(P1, P2, P3, P4, P5) \
-  p1, p2, p3, p4, p5
+#define TROMPELOEIL_CLIST5(P1, P2, P3, P4, P5)                  \
+  TROMPELOEIL_CLIST4(P1, P2, P3, P4),                           \
+  static_cast<::trompeloeil::ref_type_catcher<void(P5)> >(p5)
 
-#define TROMPELOEIL_CLIST4(P1, P2, P3, P4) \
-  p1, p2, p3, p4
-#define TROMPELOEIL_CLIST3(P1, P2, P3) \
-  p1, p2, p3
-#define TROMPELOEIL_CLIST2(P1, P2) \
-  TROMPELOEIL_CLIST1(P1),                                               \
+#define TROMPELOEIL_CLIST4(P1, P2, P3, P4)                      \
+  TROMPELOEIL_CLIST3(P1, P2, P3),                               \
+  static_cast<::trompeloeil::ref_type_catcher<void(P4)> >(p4)
+
+#define TROMPELOEIL_CLIST3(P1, P2, P3)                          \
+  TROMPELOEIL_CLIST2(P1, P2),                                   \
+  static_cast<::trompeloeil::ref_type_catcher<void(P3)> >(p3)
+
+#define TROMPELOEIL_CLIST2(P1, P2)                              \
+  TROMPELOEIL_CLIST1(P1),                                       \
   static_cast<::trompeloeil::ref_type_catcher<void(P2)> >(p2)
+
 #define TROMPELOEIL_CLIST1(P1) \
   static_cast<::trompeloeil::ref_type_catcher<void(P1)> >(p1)
+
 #define TROMPELOEIL_CLIST0()
 #define TROMPELOEIL_CLIST(...) ( TROMPELOEIL_CONCAT(TROMPELOEIL_CLIST, TROMPELOEIL_COUNT(__VA_ARGS__)) (__VA_ARGS__) )
 
