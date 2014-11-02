@@ -50,6 +50,8 @@ TEST(work_returns_the_string_obtained_from_I_foo)
   MI mock_i;
   CUT out(&mock_i);
 
+  DEATHWATCH(mock_i);
+
   {
     trompeloeil::sequence seq;
     REQUIRE_CALL(mock_i, foo(3, _))
@@ -66,6 +68,8 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 
     ASSERT(s == "cat");
   }
+
+  REQUIRE_DESTRUCTION(mock_i);
 }
 ```
 
@@ -131,9 +135,14 @@ Same as **`REQUIRE_CALL`**, except it instantiates a
 *std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a
 variable.
 
+**`DEATHWATCH`(** *mock_object* **)**  
+Set up a deathwatch for *mock_object*, meaning its destruction is monitored.
+It is an error if *mock_object* is destroyed before a
+**`REQUIRE_DESTRUCTION`()** is active.
+
 **`REQUIRE_DESTRUCTION`(** *mock_object* **)**  
-*mock_object* must be of type `trompeloeil::deathwatch<T>`, where T is your
-mock class.
+Makes it legal for *mock_object* to be destroyed when a **`DEATHWATCH`**() is
+active for it. It is an error if *mock_object* is still alive at end of scope.
 
 **`NAMED_REQUIRE_DESTRUCTION`(** *mock_object* **)**  
 Same as **`REQUIRE_DESTRUCTION`**, except it instantiates a
