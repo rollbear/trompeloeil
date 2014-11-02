@@ -187,48 +187,49 @@
 #define TROMPELOEIL_VLIST(...) TROMPELOEIL_CONCAT(TROMPELOEIL_VLIST, TROMPELOEIL_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 #define TROMPELOEIL_CLIST15(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15
 
 #define TROMPELOEIL_CLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
 
 #define TROMPELOEIL_CLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13
 
 #define TROMPELOEIL_CLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12
 
 #define TROMPELOEIL_CLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11
 
 #define TROMPELOEIL_CLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10
 
 #define TROMPELOEIL_CLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9) \
-  (p1, p2, p3, p4, p5, p6, p7, p8, p9)
+  p1, p2, p3, p4, p5, p6, p7, p8, p9
 
 #define TROMPELOEIL_CLIST8(P1, P2, P3, P4, P5, P6, P7, P8) \
-  (p1, p2, p3, p4, p5, p6, p7, p8)
+  p1, p2, p3, p4, p5, p6, p7, p8
 
 #define TROMPELOEIL_CLIST7(P1, P2, P3, P4, P5, P6, P7) \
-  (p1, p2, p3, p4, p5, p6, p7)
+  p1, p2, p3, p4, p5, p6, p7
 
 #define TROMPELOEIL_CLIST6(P1, P2, P3, P4, P5, P6) \
-  (p1, p2, p3, p4, p5, p6)
+  p1, p2, p3, p4, p5, p6
 
 #define TROMPELOEIL_CLIST5(P1, P2, P3, P4, P5) \
-  (p1, p2, p3, p4, p5)
+  p1, p2, p3, p4, p5
 
 #define TROMPELOEIL_CLIST4(P1, P2, P3, P4) \
-  (p1, p2, p3, p4)
+  p1, p2, p3, p4
 #define TROMPELOEIL_CLIST3(P1, P2, P3) \
-  (p1, p2, p3)
+  p1, p2, p3
 #define TROMPELOEIL_CLIST2(P1, P2) \
-  (p1, p2)
+  TROMPELOEIL_CLIST1(P1),                                               \
+  static_cast<::trompeloeil::ref_type_catcher<void(P2)> >(p2)
 #define TROMPELOEIL_CLIST1(P1) \
-  (p1)
-#define TROMPELOEIL_CLIST0() ()
-#define TROMPELOEIL_CLIST(...) TROMPELOEIL_CONCAT(TROMPELOEIL_CLIST, TROMPELOEIL_COUNT(__VA_ARGS__)) (__VA_ARGS__)
+  static_cast<::trompeloeil::ref_type_catcher<void(P1)> >(p1)
+#define TROMPELOEIL_CLIST0()
+#define TROMPELOEIL_CLIST(...) ( TROMPELOEIL_CONCAT(TROMPELOEIL_CLIST, TROMPELOEIL_COUNT(__VA_ARGS__)) (__VA_ARGS__) )
 
 #define TROMPELOEIL_INIT_WITH_STR15(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR14(base, __VA_ARGS__)
 #define TROMPELOEIL_INIT_WITH_STR14(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR13(base, __VA_ARGS__)
@@ -566,6 +567,20 @@ namespace trompeloeil
     T* ptr = nullptr;
   };
 
+  template <typename T>
+  class optional<T&&>
+  {
+  public:
+    optional() = default;
+    optional(T& t) : ptr(&t) {}
+    const T& value() const { return *ptr; }
+    T& value() { return *ptr; }
+    bool is_valid() const { return ptr; }
+    operator T&() { return value(); }
+  private:
+    T* ptr = nullptr;
+  };
+
   template<typename T>
   struct value_matcher
   {
@@ -608,7 +623,6 @@ namespace trompeloeil
     using type = T;
     using ref_type = T &;
     using const_ref_type = const T &;
-    using bare_type = typename std::remove_reference<T>::type;
   };
 
 
@@ -618,7 +632,13 @@ namespace trompeloeil
     using type = void;
     using ref_type = void;
     using const_ref_type = void;
-    using bare_type = void;
+  };
+
+  template <typename T>
+  struct type_catcher_t<void(T&&)>
+  {
+    using type = T&&;
+    using ref_type = T&&;
   };
   template<typename T>
   using ref_type_catcher = typename type_catcher_t<T>::ref_type;
@@ -626,8 +646,6 @@ namespace trompeloeil
   using const_ref_type_catcher = typename type_catcher_t<T>::const_ref_type;
   template<typename T>
   using verbatim_type_catcher = typename type_catcher_t<T>::type;
-  template<typename T>
-  using bare_type_catcher = typename type_catcher_t<T>::bare_type;
 
   struct lifetime_monitor;
 
@@ -700,7 +718,7 @@ namespace trompeloeil
   template<typename R, typename ... T>
   struct call_match_type_t<R(T...)>
   {
-    using type = std::tuple<const typename std::add_lvalue_reference<T>::type...>;
+    using type = std::tuple<typename std::add_lvalue_reference<T>::type...>;
   };
 
   template<typename T>
@@ -842,7 +860,7 @@ namespace trompeloeil
     virtual return_of<Sig> return_value(call_action_type<Sig> &)
     {
       typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
-      return *p;
+      return std::forward<return_of<Sig>>(*p);
     }
 
     virtual void report_missed() {}
@@ -930,7 +948,7 @@ namespace trompeloeil
     return_of<Sig> return_value(call_action_type<Sig> &)
     {
       typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
-      return *p;
+      return std::forward<return_of<Sig> >(*p);
     }
   };
 
@@ -1310,14 +1328,14 @@ namespace trompeloeil
   void ignore(const T& ...) {}
 
   template <typename ... T>
-  call_match_type<void(T...)> make_value_match_obj(T& ... t)
+  call_match_type<void(T...)> make_value_match_obj(T&& ... t)
   {
     call_match_type<void(T...)> rv{t...};
     return rv;
   }
 
   template <typename ... T>
-  call_action_type<void(T...)> make_action_type_obj(T& ... t)
+  call_action_type<void(T...)> make_action_type_obj(T&& ... t)
   {
     return call_action_type<void(T...)>(t...);
   }
