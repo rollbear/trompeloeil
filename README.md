@@ -11,8 +11,9 @@ What is it?
 
 A header only mocking framework for C++14.
 
-**NOTE! This is very early days. Concider this wildly experimental where
-everything is subject to change**
+**NOTE! These are still early days. Bugs will be found, and important features
+are missing. Code breaking changes are no longer expected, but may still
+occurr.**
 
 Example usage
 -------------
