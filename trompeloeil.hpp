@@ -665,33 +665,34 @@ namespace trompeloeil
 
   struct lifetime_monitor;
 
+
   template<typename T>
-  class trompeloeil_mock_base : public T
+  class mocked_class : public T
   {
   protected:
     using trompeloeil_mocked_type = T;
-  public:
     using T::T;
-    ~trompeloeil_mock_base();
+  public:
+    ~mocked_class();
     void trompeloeil_deathwatch(const char *name, const char *loc) const
     {
       trompeloeil_deathwatch_loc = loc;
       trompeloeil_deathwatch_name = name;
     }
-    void trompeloeil_expect_death(lifetime_monitor* monitor) const
+    void trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor) const
     {
       trompeloeil_lifetime_monitor = monitor;
     }
   private:
-    mutable const char       *trompeloeil_deathwatch_loc = nullptr;
-    mutable const char       *trompeloeil_deathwatch_name = nullptr;
-    mutable lifetime_monitor *trompeloeil_lifetime_monitor = nullptr;
+    mutable const char                    *trompeloeil_deathwatch_loc = nullptr;
+    mutable const char                    *trompeloeil_deathwatch_name = nullptr;
+    mutable trompeloeil::lifetime_monitor *trompeloeil_lifetime_monitor = nullptr;
   };
 
   struct lifetime_monitor
   {
     template <typename T>
-    lifetime_monitor(const trompeloeil_mock_base<T>&obj,
+    lifetime_monitor(const mocked_class<T>&obj,
                      const char* obj_name,
                      const char *loc)
       : location(loc),
@@ -715,7 +716,7 @@ namespace trompeloeil
   };
 
   template <typename T>
-  trompeloeil_mock_base<T>::~trompeloeil_mock_base()
+  mocked_class<T>::~mocked_class()
   {
     if (trompeloeil_lifetime_monitor)
     {
@@ -725,10 +726,14 @@ namespace trompeloeil
     if (trompeloeil_deathwatch_loc)
     {
       std::ostringstream os;
-      os << "Unexpected destruction of " << typeid(T).name() << "@" << this << " on deathwatch as " << trompeloeil_deathwatch_name  << '\n';
-      send_report(severity::nonfatal, trompeloeil_deathwatch_loc, os.str());
+      os << "Unexpected destruction of "
+         << typeid(T).name() << "@" << this
+         << " on deathwatch as " << trompeloeil_deathwatch_name  << '\n';
+      trompeloeil::send_report(trompeloeil::severity::nonfatal,
+                             trompeloeil_deathwatch_loc,
+                             os.str());
     }
-  }
+  };
 
   template<typename T>
   struct return_of_t;
@@ -1396,11 +1401,6 @@ namespace trompeloeil
   };
 }
 
-#define TROMPELOEIL_HEAD_(x, ...) x
-#define TROMPELOEIL_HEAD(...) TROMPELOEIL_HEAD_(__VA_ARGS__, xxxx)
-
-#define TROMPELOEIL_MOCKED_CLASS(...)  public ::trompeloeil::trompeloeil_mock_base<__VA_ARGS__>
-
 #define TROMPELOEIL_MOCK(name, params)          \
   TROMPELOEIL_MOCK_(name, , params)
 
@@ -1604,7 +1604,6 @@ namespace trompeloeil
   std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, #obj, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__)))
 
 #ifndef TROMPELOEIL_LONG_MACROS
-#define MOCKED_CLASS(...)             TROMPELOEIL_MOCKED_CLASS(__VA_ARGS__)
 #define MOCK(name, params)            TROMPELOEIL_MOCK(name, params)
 #define MOCK_CONST(name, params)      TROMPELOEIL_MOCK_CONST(name, params)
 #define REQUIRE_CALL(obj, func)       TROMPELOEIL_REQUIRE_CALL(obj, func)

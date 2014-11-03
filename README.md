@@ -24,6 +24,7 @@ Example usage
 class I
 {
 public:
+  I(const char*);
   virtual bool foo(int, std::string& s) = 0;
   virtual bool bar(int) = 0;
   virtual bool bar(std::string) = 0;
@@ -36,9 +37,10 @@ public:
   std::string work(int n);
 };
 
-class MI : MOCKED_CLASS(I)
+class MI : public trompeloeil::mocked_class<I>
 {
 public:
+  using mocked_class::mocked_class;
   MOCK(foo, (int, std::string&));
   MOCK(bar, (int));
   MOCK(bar, (std::string));
@@ -48,7 +50,7 @@ TEST(work_returns_the_string_obtained_from_I_foo)
 {
   using trompeloeil::_; // wildcard for matching any value
 
-  MI mock_i;
+  MI mock_i("word");
   CUT out(&mock_i);
 
   DEATHWATCH(mock_i);
@@ -93,11 +95,29 @@ How to use
 ----------
 The example above shows most currently supported functionality.
 
+## Types & Templates
+
+**`trompeloeil::sequence`**  
+Type of sequence objects, used to impose an order of matching invocations of
+**`REQUIRE_CALL`** instances. Several sequence objects can be used to denote
+parallel sequences, and several sequence objects can be joined in one
+**`REQUIRE_CALL`**.
+
+**`trompeloeil::mocked_class&lt;T&gt;`**  
+All mock objects inherit from an instantiation of **`mocked_class&lt;&gt;`**
+of the type they mock. The template provides the necessary information for
+the rest of the machinery to work. Template instantiations inherits all
+constructors of `&lt;T&gt;`.
+
+**`trompeloeil::wildcard`**  
+The type of the wildcard object **`trompeloeil::_**`. You typically never see
+the type itself.
+
+## Macros
+
 If the generic macro names conflicts with others in your sources, define the
 macro **`TROMPELOEIL_LONG_MACROS`** before inclusion of `trompeloeil.hpp`. It
 prefixes all macros listed below with **`TROMPELOEIL_`**.
-
-## Macros
 
 **`ANY`(** *type* **)**  
 Typed wildcard to disambiguate overloaded functions on type when the exact
@@ -110,9 +130,6 @@ Used in **`.TIMES`()** to set the range *number*..infinity. *number* must be
 **`AT_MOST`**( *number* **)**  
 Used in **`.TIMES`()** to set the range 0..*number*. *number* must be
 `constexpr`.
-
-**`MOCKED_CLASS`(** *interface_name* **)**  
-Define a MOCK implementation for the interface.
 
 **`MOCK`(** *method_name*, *parameter_list* **)**  
 Make a mock implementation of the method named *method_name*. *method_name*
