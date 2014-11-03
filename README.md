@@ -103,14 +103,14 @@ Type of sequence objects, used to impose an order of matching invocations of
 parallel sequences, and several sequence objects can be joined in one
 **`REQUIRE_CALL`**.
 
-**`trompeloeil::mocked_class&lt;T&gt;`**  
-All mock objects inherit from an instantiation of **`mocked_class&lt;&gt;`**
+**`trompeloeil::mocked_class<T>`**  
+All mock objects inherit from an instantiation of **`mocked_class<>`**
 of the type they mock. The template provides the necessary information for
 the rest of the machinery to work. Template instantiations inherits all
-constructors of `&lt;T&gt;`.
+constructors of `T`.
 
 **`trompeloeil::wildcard`**  
-The type of the wildcard object **`trompeloeil::_**`. You typically never see
+The type of the wildcard object `trompeloeil::_` . You typically never see
 the type itself.
 
 ## Macros
