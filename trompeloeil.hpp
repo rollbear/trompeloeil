@@ -946,26 +946,26 @@ namespace trompeloeil
   void report_mismatch(const char                    *name,
                        const call_params_type_t<Sig> &p,
                        call_matcher_list<Sig>        &matcher_list,
-                       call_matcher_list<Sig>        &exhausted_list)
+                       call_matcher_list<Sig>        &saturated_list)
   {
     std::ostringstream os;
     os << "No match for call of " << name << " with.\n";
     print_params(os, p);
-    bool exhausted_match = false;
-    for (auto i = exhausted_list.next(); i != &exhausted_list; i = i->next())
+    bool saturated_match = false;
+    for (auto i = saturated_list.next(); i != &saturated_list; i = i->next())
     {
       if (i->matches(p))
       {
-        if (!exhausted_match)
+        if (!saturated_match)
         {
-          os << "\nMatches exhausted call requirement\n";
-          exhausted_match = true;
+          os << "\nMatches saturated call requirement\n";
+          saturated_match = true;
         }
         os << "  ";
         i->report_signature(os) << '\n';
       }
     }
-    if (!exhausted_match)
+    if (!saturated_match)
     {
       for (auto i = matcher_list.prev(); i != &matcher_list; i = i->prev())
       {
@@ -1501,7 +1501,7 @@ namespace trompeloeil
     TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__);                  \
                                                                               \
   mutable TROMPELOEIL_CONCAT(trompeloeil_matcher_list_type_, __LINE__)        \
-    TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__);        \
+    TROMPELOEIL_CONCAT(trompeloeil_saturated_matcher_list_, __LINE__);        \
                                                                               \
   struct TROMPELOEIL_CONCAT(tag_type_trompeloeil_, __LINE__)                  \
   {                                                                           \
@@ -1525,12 +1525,12 @@ namespace trompeloeil
       ::trompeloeil::report_mismatch(#name #params,                     \
                                      param_value,                       \
                                      TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__), \
-                                     TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__)); \
+                                     TROMPELOEIL_CONCAT(trompeloeil_saturated_matcher_list_, __LINE__)); \
     }                                                                         \
     if (i->run_actions(param_value))                                            \
     {                                                                 \
       i->unlink();                                                      \
-      TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).link_before(*i); \
+      TROMPELOEIL_CONCAT(trompeloeil_saturated_matcher_list_, __LINE__).link_before(*i); \
     }                                                                   \
     return i->return_value(param_value);                                        \
   }
