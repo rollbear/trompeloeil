@@ -1284,23 +1284,15 @@ namespace trompeloeil
       {
         sequence_handler.next()->validate(name, location);
       }
-      if (++call_count > std::get<1>(limits))
+      if (std::get<1>(limits) == 0)
       {
         reported = true;
         std::ostringstream os;
-        if (std::get<1>(limits) == 0)
-        {
-          os << "Match of forbidden call of" << name << "\n";
-        }
-        else
-        {
-          os << "Expectation fulfilled " << name << " " << call_count << " times when the limit is "
-             << std::get<1>(limits) << "\n";
-        }
+        os << "Match of forbidden call of " << name << " at " << location << '\n';
         tuple_pair<decltype(val)>::print_missed(os, params);
         send_report(severity::fatal, location, os.str());
       }
-      if (call_count == std::get<0>(limits))
+      if (++call_count == std::get<0>(limits))
       {
         sequence_handler.next()->retire();
       }
