@@ -401,15 +401,10 @@ namespace trompeloeil
       return n == this;
     }
 
-    T *next()
-    {
-      return static_cast<T *>(n);
-    }
-
-    T *prev()
-    {
-      return static_cast<T *>(p);
-    }
+    T       *next()       { return static_cast<T       *>(n); }
+    T const *next() const { return static_cast<T const *>(n); }
+    T       *prev()       { return static_cast<T       *>(p); }
+    T const *prev() const { return static_cast<T const *>(p); }
 
     void unlink()
     {
@@ -796,7 +791,7 @@ namespace trompeloeil
     {
     }
 
-    virtual bool matches(const param_type &) = 0;
+    virtual bool matches(const param_type &) const = 0;
     virtual bool run_actions(call_action_type<Sig> &params) = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const param_type &) = 0;
     virtual return_of<Sig> return_value(call_action_type<Sig> &params) = 0;
@@ -816,7 +811,7 @@ namespace trompeloeil
     {
     }
 
-    virtual bool matches(const param_type &) = 0;
+    virtual bool matches(const param_type &) const = 0;
     virtual bool run_actions(call_action_type<void(A...)> &params) = 0;
     virtual std::ostream& report_mismatch(std::ostream&, const param_type &) = 0;
     void return_value(call_action_type<void(A...)> &) {};
@@ -886,11 +881,11 @@ namespace trompeloeil
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this; }
 
-    virtual bool matches(const param_type &) { return false; }
+    virtual bool matches(const param_type &) const { return false; }
 
     virtual bool run_actions(call_action_type<Sig> &) { return false; }
 
-    virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) { return r;}
+    virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) override { return r;}
 
     virtual return_of<Sig> return_value(call_action_type<Sig> &)
     {
@@ -908,18 +903,61 @@ namespace trompeloeil
 
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this;}
-    virtual bool matches(const param_type &) { return false; }
+    virtual bool matches(const param_type &) const { return false; }
     virtual bool run_actions(call_action_type<void(A...)> &) { return false;}
-    virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) {return r;}
+    virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) override {return r;}
     virtual void report_missed() {}
   };
+
+  template <typename Sig>
+  call_matcher_base<Sig>* find(const typename call_matcher_base<Sig>::param_type& p,
+                               call_matcher_list<Sig>& list)
+  {
+    for (auto i = list.prev(); i != &list; i = i->prev())
+    {
+      if (i->matches(p))
+      {
+        return i;
+      }
+    }
+    return nullptr;
+  }
+
+  template <typename Sig>
+  void report_mismatch(const char *name,
+                       const typename call_matcher_base<Sig>::param_type& p,
+                       call_matcher_list<Sig>& matcher_list,
+                       call_matcher_list<Sig>& exhausted_list)
+  {
+    std::ostringstream os;
+    os << "No match for call " << name << ".\n";
+    bool exhausted_match = false;
+    for (auto i = exhausted_list.next(); i != &exhausted_list; i = i->next())
+    {
+      if (i->matches(p))
+      {
+        exhausted_match = true;
+        os << "Matches exhausted call requirement\n";
+        i->report_mismatch(os, p);
+      }
+    }
+    if (!exhausted_match)
+    {
+      for (auto i = matcher_list.next(); i != &matcher_list; i = i->next())
+      {
+        os << "Tried ";
+        i->report_mismatch(os, p);
+      }
+    }
+    send_report(severity::fatal, "", os.str());
+  }
 
   template<typename Sig>
   struct condition_base : public list_elem<condition_base<Sig> >
   {
     condition_base() = default;
     condition_base(condition_base&& r) : list_elem<condition_base<Sig> >(std::move(r)) {}
-    virtual bool check(const typename call_matcher_base<Sig>::param_type &) = 0;
+    virtual bool check(const typename call_matcher_base<Sig>::param_type &) const = 0;
   };
 
   template<typename Sig>
@@ -927,7 +965,7 @@ namespace trompeloeil
   {
     condition_list() = default;
     condition_list(condition_list&& r) : condition_base<Sig>(std::move(r)) {}
-    bool check(const typename call_matcher_base<Sig>::param_type &)
+    bool check(const typename call_matcher_base<Sig>::param_type &) const override
     {
       return false;
     }
@@ -938,7 +976,7 @@ namespace trompeloeil
   {
     condition(const char *str_, Cond c_) : c(c_), str(str_) {};
 
-    bool check(const typename call_matcher_base<Sig>::param_type &t)
+    bool check(const typename call_matcher_base<Sig>::param_type &t) const override
     {
       return c(t);
     }
@@ -1195,12 +1233,12 @@ namespace trompeloeil
       return *this;
     }
 
-    virtual bool matches(const param_type& params) override
+    virtual bool matches(const param_type& params) const override
     {
       return val == params && match_conditions(params);
     }
 
-    bool match_conditions(const param_type& params)
+    bool match_conditions(const param_type& params) const
     {
       for (auto p = conditions.next(); p != &conditions; p = p->next())
       {
@@ -1408,6 +1446,7 @@ namespace trompeloeil
   TROMPELOEIL_MOCK_(name, const, params)
 
 
+
 #define TROMPELOEIL_MOCK_(name, constness, params)                            \
   using TROMPELOEIL_CONCAT(trompeloeil_matcher_type_, __LINE__) =             \
     ::trompeloeil::call_matcher<decltype(std::declval<trompeloeil_mocked_type>()          \
@@ -1438,53 +1477,24 @@ namespace trompeloeil
   {                                                                           \
     return TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__);           \
   }                                                                           \
-  TROMPELOEIL_CONCAT(trompeloeil_matcher_list_type_, __LINE__)&               \
-  trompeloeil_exhausted_matcher_list(TROMPELOEIL_CONCAT(tag_type_trompeloeil_, __LINE__)) constness \
-  {                                                                           \
-    return TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__); \
-  }                                                                           \
   auto name (VERBATIM_TROMPELOEIL_PLIST params) constness                     \
   -> decltype(trompeloeil_mocked_type::name TROMPELOEIL_CLIST params) override            \
   {                                                                           \
     const auto param_value = ::trompeloeil::make_value_match_obj TROMPELOEIL_CLIST params;  \
-    auto i = TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__).prev();  \
-    while (i != &TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__)      \
-           && !i->matches(param_value))                                       \
+    auto i = find(param_value, TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__)); \
+    if (!i) \
     {                                                                         \
-      i = i->prev();                                                          \
-    }                                                                         \
-    if (i == &TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__))        \
-    {                                                                         \
-      std::ostringstream os;                                                  \
-      os << "No match for call " #name #params ".\n";                         \
-      for (auto ei = TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).next(); \
-           ei != &TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__);      \
-           ei = ei->next())                                                   \
-      {                                                                       \
-        if (ei->matches(param_value))                                         \
-        {                                                                     \
-          os << "Did you mean exhausted match\n";                             \
-          ei->report_mismatch(os, param_value);                               \
-          ::trompeloeil::send_report(::trompeloeil::severity::fatal,          \
-                                     "",                                      \
-                                     os.str());                               \
-        }                                                                     \
-      }                                                                       \
-      for (auto i = TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__).next();       \
-           i != &TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__);     \
-           i = i->next())                                                     \
-      {                                                                       \
-        os << "Tried ";                                                       \
-        i->report_mismatch(os, param_value);                                  \
-      }                                                                       \
-      ::trompeloeil::send_report(::trompeloeil::severity::fatal, "", os.str()); \
+      ::trompeloeil::report_mismatch(#name #params,                     \
+                                     param_value,                       \
+                                     TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__), \
+                                     TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__)); \
     }                                                                         \
     auto param_ref = ::trompeloeil::make_action_type_obj TROMPELOEIL_CLIST params;        \
     if (i->run_actions(param_ref))                                            \
-      {                                                                       \
-        i->unlink();                                                          \
-        TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).link_before(*i); \
-      }                                                                       \
+    {                                                                 \
+      i->unlink();                                                      \
+      TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).link_before(*i); \
+    }                                                                   \
     return i->return_value(param_ref);                                        \
   }
 
