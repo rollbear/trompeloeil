@@ -376,12 +376,20 @@ namespace trompeloeil
 
     list_elem(const list_elem &) = delete;
 
-    list_elem(list_elem &&r) : n(r.n), p(r.p)
+    list_elem(list_elem &&r) : n(r.n), p(&r)
     {
+      r.n->p = this;
+      r.n = this;
+
       assert(r.n->p == &r);
       assert(r.p->n == &r);
-      r.n = r.p = &r;
-      n->p = p->n = this;
+      assert(n->p == this);
+      assert(p->n == this);
+
+      r.unlink();
+
+      assert(r.n == &r);
+      assert(r.p == &r);
       assert(n->p == this);
       assert(p->n == this);
     }
@@ -625,6 +633,23 @@ namespace trompeloeil
     optional<T> desired;
   };
 
+  template <typename T>
+  bool operator==(const T& t, const value_matcher<T>& v)
+  {
+    return v == t;
+  }
+
+  template <typename T>
+  bool operator==(const T& t, const value_matcher<T&>& v)
+  {
+    return v == t;
+  }
+
+  template <typename T>
+  bool operator==(const T& t, const value_matcher<T&&>& v)
+  {
+    return v == t;
+  }
   template<typename T>
   struct type_catcher_t;
 
@@ -674,9 +699,9 @@ namespace trompeloeil
       trompeloeil_deathwatch_loc = loc;
       trompeloeil_deathwatch_name = name;
     }
-    void trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor) const
+    lifetime_monitor*& trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor) const
     {
-      trompeloeil_lifetime_monitor = monitor;
+      return trompeloeil_lifetime_monitor = monitor;
     }
   private:
     mutable const char                    *trompeloeil_deathwatch_loc = nullptr;
@@ -690,24 +715,27 @@ namespace trompeloeil
     lifetime_monitor(const mocked_class<T>&obj,
                      const char* obj_name,
                      const char *loc)
-      : location(loc),
-        object(obj_name)
+      : object_monitor(obj.trompeloeil_expect_death(this)),
+        location(loc),
+        object_name(obj_name)
     {
-      obj.trompeloeil_expect_death(this);
     }
     ~lifetime_monitor()
     {
       if (!died)
       {
         std::ostringstream os;
-        os << "Object " << object << " is still alive";
+        os << "Object " << object_name << " is still alive";
         send_report(severity::nonfatal, location, os.str());
+        object_monitor = nullptr; // prevent its death poking this cadaver
       }
     }
     void notify() { died = true; }
-    bool died = false;
-    const char *location;
-    const char *object;
+
+    bool               died = false;
+    lifetime_monitor *&object_monitor;
+    const char        *location;
+    const char        *object_name;
   };
 
   template <typename T>
@@ -780,6 +808,7 @@ namespace trompeloeil
 
     virtual bool matches(const call_params_type_t<Sig>&) const = 0;
     virtual bool run_actions(call_params_type_t<Sig> &) = 0;
+    virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
     virtual return_of<Sig> return_value(call_params_type_t<Sig> &params) = 0;
     virtual void report_missed() = 0;
@@ -798,6 +827,7 @@ namespace trompeloeil
 
     virtual bool matches(const call_params_type_t<void(A...)> &) const = 0;
     virtual bool run_actions(call_params_type_t<void(A...)> &params) = 0;
+    virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&, const call_params_type_t<void(A...)> &) = 0;
     void return_value(call_params_type_t<void(A...)> &) {};
 
@@ -811,19 +841,19 @@ namespace trompeloeil
     template <typename stream>
     static stream &print_mismatch(stream &os, const T &t1, const T &t2)
     {
-      os << "  Got param _" << N+1 << " = ";
-      print(os, std::get<N>(t1));
-      os << "\n  Expected:     ";
-      print(os, std::get<N>(t2));
-      os << "\n\n";
-
+      if (!(std::get<N>(t1) == std::get<N>(t2)))
+      {
+        os << "  Expected " << std::setw((N<9)+1) << '_' << N+1 << " = ";
+        print(os, std::get<N>(t2));
+        os << '\n';
+      }
       return tuple_pair<T, N + 1>::print_mismatch(os, t1, t2);
     }
 
     template <typename stream>
     static stream &print_missed(stream &os, const T &t)
     {
-      os << "  param _" << N+1 << " = ";
+      os << "  param " << std::setw((N<9)+1) << "_" << N+1 << " = ";
       print(os, std::get<N>(t));
       os << '\n';
       return tuple_pair<T, N + 1>::print_missed(os, t);
@@ -868,6 +898,7 @@ namespace trompeloeil
 
     virtual bool run_actions(call_params_type_t<Sig> &) { return false; }
 
+    virtual std::ostream& report_signature(std::ostream& r ) const  override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
 
     virtual return_of<Sig> return_value(call_params_type_t<Sig> &)
@@ -886,6 +917,7 @@ namespace trompeloeil
     call_matcher_list &operator()(const U &...) { return *this;}
     virtual bool matches(const call_params_type_t<void(A...)> &) const { return false; }
     virtual bool run_actions(call_params_type_t<void(A...)> &) { return false;}
+    virtual std::ostream& report_signature(std::ostream& r) const override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<void(A...)> &) override {return r;}
     virtual void report_missed() {}
   };
@@ -904,6 +936,12 @@ namespace trompeloeil
     return nullptr;
   }
 
+  template <typename ... P>
+  void print_params(std::ostream& os, const std::tuple<P...>& p)
+  {
+    tuple_pair<std::tuple<P...> >::print_missed(os, p);
+  }
+
   template <typename Sig>
   void report_mismatch(const char                    *name,
                        const call_params_type_t<Sig> &p,
@@ -911,22 +949,27 @@ namespace trompeloeil
                        call_matcher_list<Sig>        &exhausted_list)
   {
     std::ostringstream os;
-    os << "No match for call " << name << ".\n";
+    os << "No match for call of " << name << " with.\n";
+    print_params(os, p);
     bool exhausted_match = false;
     for (auto i = exhausted_list.next(); i != &exhausted_list; i = i->next())
     {
       if (i->matches(p))
       {
-        exhausted_match = true;
-        os << "Matches exhausted call requirement\n";
-        i->report_mismatch(os, p);
+        if (!exhausted_match)
+        {
+          os << "\nMatches exhausted call requirement\n";
+          exhausted_match = true;
+        }
+        os << "  ";
+        i->report_signature(os) << '\n';
       }
     }
     if (!exhausted_match)
     {
-      for (auto i = matcher_list.next(); i != &matcher_list; i = i->next())
+      for (auto i = matcher_list.prev(); i != &matcher_list; i = i->prev())
       {
-        os << "Tried ";
+        os << "\nTried ";
         i->report_mismatch(os, p);
       }
     }
@@ -939,6 +982,7 @@ namespace trompeloeil
     condition_base() = default;
     condition_base(condition_base&& r) : list_elem<condition_base<Sig> >(std::move(r)) {}
     virtual bool check(const call_params_type_t<Sig>&) const = 0;
+    virtual const char* name() const = 0;
   };
 
   template<typename Sig>
@@ -950,6 +994,7 @@ namespace trompeloeil
     {
       return false;
     }
+    const char *name() const override { return nullptr; }
   };
 
   template<typename Sig, typename Cond>
@@ -962,6 +1007,7 @@ namespace trompeloeil
       return c(t);
     }
 
+    const char *name() const override { return str; }
     Cond c;
     const char *str;
   };
@@ -1264,11 +1310,30 @@ namespace trompeloeil
       }
       return call_count == std::get<1>(limits);
     }
+    std::ostream& report_signature(std::ostream& os) const override
+    {
+      return os << name << " at " << location;
+    }
     std::ostream& report_mismatch(std::ostream& os, const call_params_type_t<Sig>& params) override
     {
       reported = true;
-      os << "No matching call for expectation of " << name << " at " << location << "\n";
-      return tuple_pair<decltype(val)>::print_mismatch(os, params, val);
+      report_signature(os);
+      if (val == params)
+      {
+        for (auto i = conditions.next(); i != &conditions; i = i->next())
+        {
+          if (!i->check(params))
+          {
+            os << "\n  Failed condition " << i->name();
+          }
+        }
+      }
+      else
+      {
+        os << '\n';
+        tuple_pair<decltype(val)>::print_mismatch(os, params, val);
+      }
+      return os;
     }
 
     void report_missed() override
