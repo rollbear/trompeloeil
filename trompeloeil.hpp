@@ -1324,7 +1324,7 @@ namespace trompeloeil
         {
           if (!i->check(params))
           {
-            os << "\n  Failed condition " << i->name();
+            os << "\n  Failed WITH(" << i->name() << ')';
           }
         }
       }
