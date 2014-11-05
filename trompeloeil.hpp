@@ -743,16 +743,16 @@ namespace trompeloeil
   using return_of = typename return_of_t<T>::type;
 
   template<typename T>
-  struct call_match_type_t;
+  struct call_params_type;
 
   template<typename R, typename ... T>
-  struct call_match_type_t<R(T...)>
+  struct call_params_type<R(T...)>
   {
     using type = std::tuple<typename std::add_lvalue_reference<T>::type...>;
   };
 
   template<typename T>
-  using call_match_type = typename call_match_type_t<T>::type;
+  using call_params_type_t = typename call_params_type<T>::type;
 
   template<typename T>
   struct value_match_type_t;
@@ -768,22 +768,9 @@ namespace trompeloeil
   using value_match_type = typename value_match_type_t<Sig>::type;
 
 
-  template<typename T>
-  struct call_action_type_t;
-
-  template<typename R, typename ... T>
-  struct call_action_type_t<R(T...)>
-  {
-    using type = std::tuple<typename std::add_lvalue_reference<T>::type ...>;
-  };
-
-  template<typename Sig>
-  using call_action_type = typename call_action_type_t<Sig>::type;
-
   template<typename Sig>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
   {
-    using param_type = call_match_type<Sig>;
     call_matcher_base() = default;
 
     call_matcher_base(call_matcher_base *list)
@@ -791,10 +778,10 @@ namespace trompeloeil
     {
     }
 
-    virtual bool matches(const param_type &) const = 0;
-    virtual bool run_actions(call_action_type<Sig> &params) = 0;
-    virtual std::ostream& report_mismatch(std::ostream&,const param_type &) = 0;
-    virtual return_of<Sig> return_value(call_action_type<Sig> &params) = 0;
+    virtual bool matches(const call_params_type_t<Sig>&) const = 0;
+    virtual bool run_actions(call_params_type_t<Sig> &) = 0;
+    virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
+    virtual return_of<Sig> return_value(call_params_type_t<Sig> &params) = 0;
     virtual void report_missed() = 0;
   };
 
@@ -802,8 +789,6 @@ namespace trompeloeil
   struct call_matcher_base<void(A...)>
     : public list_elem<call_matcher_base<void(A...)> >
   {
-    using param_type = call_match_type<void(A...)>;
-
     call_matcher_base() = default;
 
     call_matcher_base(call_matcher_base *list)
@@ -811,10 +796,10 @@ namespace trompeloeil
     {
     }
 
-    virtual bool matches(const param_type &) const = 0;
-    virtual bool run_actions(call_action_type<void(A...)> &params) = 0;
-    virtual std::ostream& report_mismatch(std::ostream&, const param_type &) = 0;
-    void return_value(call_action_type<void(A...)> &) {};
+    virtual bool matches(const call_params_type_t<void(A...)> &) const = 0;
+    virtual bool run_actions(call_params_type_t<void(A...)> &params) = 0;
+    virtual std::ostream& report_mismatch(std::ostream&, const call_params_type_t<void(A...)> &) = 0;
+    void return_value(call_params_type_t<void(A...)> &) {};
 
     virtual void report_missed() = 0;
 
@@ -876,18 +861,16 @@ namespace trompeloeil
   template<typename Sig>
   struct call_matcher_list : public call_matcher_base<Sig>
   {
-    using typename call_matcher_base<Sig>::param_type;
-
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this; }
 
-    virtual bool matches(const param_type &) const { return false; }
+    virtual bool matches(const call_params_type_t<Sig> &) const { return false; }
 
-    virtual bool run_actions(call_action_type<Sig> &) { return false; }
+    virtual bool run_actions(call_params_type_t<Sig> &) { return false; }
 
-    virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) override { return r;}
+    virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
 
-    virtual return_of<Sig> return_value(call_action_type<Sig> &)
+    virtual return_of<Sig> return_value(call_params_type_t<Sig> &)
     {
       typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
       return std::forward<return_of<Sig>>(*p);
@@ -899,19 +882,17 @@ namespace trompeloeil
   template<typename ... A>
   struct call_matcher_list<void(A...)> : public call_matcher_base<void(A...)>
   {
-    using typename call_matcher_base<void(A...)>::param_type;
-
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this;}
-    virtual bool matches(const param_type &) const { return false; }
-    virtual bool run_actions(call_action_type<void(A...)> &) { return false;}
-    virtual std::ostream& report_mismatch(std::ostream& r, const param_type &) override {return r;}
+    virtual bool matches(const call_params_type_t<void(A...)> &) const { return false; }
+    virtual bool run_actions(call_params_type_t<void(A...)> &) { return false;}
+    virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<void(A...)> &) override {return r;}
     virtual void report_missed() {}
   };
 
   template <typename Sig>
-  call_matcher_base<Sig>* find(const typename call_matcher_base<Sig>::param_type& p,
-                               call_matcher_list<Sig>& list)
+  call_matcher_base<Sig>* find(const call_params_type_t<Sig> &p,
+                               call_matcher_list<Sig>        &list)
   {
     for (auto i = list.prev(); i != &list; i = i->prev())
     {
@@ -924,10 +905,10 @@ namespace trompeloeil
   }
 
   template <typename Sig>
-  void report_mismatch(const char *name,
-                       const typename call_matcher_base<Sig>::param_type& p,
-                       call_matcher_list<Sig>& matcher_list,
-                       call_matcher_list<Sig>& exhausted_list)
+  void report_mismatch(const char                    *name,
+                       const call_params_type_t<Sig> &p,
+                       call_matcher_list<Sig>        &matcher_list,
+                       call_matcher_list<Sig>        &exhausted_list)
   {
     std::ostringstream os;
     os << "No match for call " << name << ".\n";
@@ -957,7 +938,7 @@ namespace trompeloeil
   {
     condition_base() = default;
     condition_base(condition_base&& r) : list_elem<condition_base<Sig> >(std::move(r)) {}
-    virtual bool check(const typename call_matcher_base<Sig>::param_type &) const = 0;
+    virtual bool check(const call_params_type_t<Sig>&) const = 0;
   };
 
   template<typename Sig>
@@ -965,7 +946,7 @@ namespace trompeloeil
   {
     condition_list() = default;
     condition_list(condition_list&& r) : condition_base<Sig>(std::move(r)) {}
-    bool check(const typename call_matcher_base<Sig>::param_type &) const override
+    bool check(const call_params_type_t<Sig>&) const override
     {
       return false;
     }
@@ -976,7 +957,7 @@ namespace trompeloeil
   {
     condition(const char *str_, Cond c_) : c(c_), str(str_) {};
 
-    bool check(const typename call_matcher_base<Sig>::param_type &t) const override
+    bool check(const call_params_type_t<Sig>& t) const override
     {
       return c(t);
     }
@@ -989,13 +970,13 @@ namespace trompeloeil
   template<typename Sig>
   struct side_effect_base : public list_elem<side_effect_base<Sig> >
   {
-    virtual void action(call_action_type<Sig> &) = 0;
+    virtual void action(call_params_type_t<Sig> &) = 0;
   };
 
   template<typename Sig>
   struct side_effect_list : public side_effect_base<Sig>
   {
-    void action(call_action_type<Sig> &) {}
+    void action(call_params_type_t<Sig> &) {}
   };
 
   template<typename Sig, typename Action>
@@ -1003,7 +984,7 @@ namespace trompeloeil
   {
     side_effect(const char *str_, Action a_) : a(a_), str(str_) {};
 
-    void action(call_action_type<Sig> &t) { a(t); }
+    void action(call_params_type_t<Sig> &t) { a(t); }
 
     Action a;
     const char *str;
@@ -1012,13 +993,13 @@ namespace trompeloeil
   template<typename Sig>
   struct return_handler_base : public list_elem<return_handler_base<Sig> >
   {
-    virtual return_of<Sig> return_value(call_action_type<Sig> &) = 0;
+    virtual return_of<Sig> return_value(call_params_type_t<Sig> &) = 0;
   };
 
   template<typename Sig>
   struct return_handler_list : public return_handler_base<Sig>
   {
-    return_of<Sig> return_value(call_action_type<Sig> &)
+    return_of<Sig> return_value(call_params_type_t<Sig> &)
     {
       typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
       return std::forward<return_of<Sig> >(*p);
@@ -1029,7 +1010,7 @@ namespace trompeloeil
   struct return_handler_list<void(A...)>
     : public return_handler_base<void(A...)>
   {
-    void return_value(call_action_type<void(A...)> &) {}
+    void return_value(call_params_type_t<void(A...)> &) {}
   };
 
   template<typename Sig, typename Handler>
@@ -1037,7 +1018,7 @@ namespace trompeloeil
   {
     return_handler(const char *str_, Handler h_) : h(h_), str(str_) {}
 
-    return_of<Sig> return_value(call_action_type<Sig> &t) { return h(t); }
+    return_of<Sig> return_value(call_params_type_t<Sig> &t) { return h(t); }
 
     Handler h;
     const char *str;
@@ -1176,11 +1157,11 @@ namespace trompeloeil
     template <typename H>
     call_data<return_type_injector<return_of<Sig>, call_data>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
     {
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_action_type<Sig>& >()))>::value || !std::is_same<return_of<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of<Sig>, void>::value,
                     "RETURN does not make sense for void-function");
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_action_type<Sig>& >()))>::value || std::is_same<return_of<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of<Sig>, void>::value,
                     "given RETURN type is not convertible to that of the function");
-      static_assert(!std::is_same<return_type, decltype(h(std::declval<call_action_type<Sig>&>()))>::value || std::is_same<return_type, void>::value,
+      static_assert(!std::is_same<return_type, decltype(h(std::declval<call_params_type_t<Sig>&>()))>::value || std::is_same<return_type, void>::value,
                     "A RETURN is already given");
       return {return_type_injector<return_of<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
     }
@@ -1215,7 +1196,6 @@ namespace trompeloeil
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
     using return_type = void;
-    using param_type = typename call_matcher_base<Sig>::param_type;
 
     template<typename ... U>
     call_matcher(U &&... u) : val(value_matcher<U>(std::forward<U>(u))...) {}
@@ -1233,12 +1213,12 @@ namespace trompeloeil
       return *this;
     }
 
-    virtual bool matches(const param_type& params) const override
+    virtual bool matches(const call_params_type_t<Sig>& params) const override
     {
       return val == params && match_conditions(params);
     }
 
-    bool match_conditions(const param_type& params) const
+    bool match_conditions(const call_params_type_t<Sig>& params) const
     {
       for (auto p = conditions.next(); p != &conditions; p = p->next())
       {
@@ -1247,11 +1227,11 @@ namespace trompeloeil
       return true;
     }
 
-    return_of<Sig> return_value(call_action_type<Sig>& params)
+    return_of<Sig> return_value(call_params_type_t<Sig>& params)
     {
       return return_handler.next()->return_value(params);
     }
-    bool run_actions(call_action_type<Sig>& params)
+    bool run_actions(call_params_type_t<Sig>& params)
     {
       auto limits = call_limits();
       if (call_count < std::get<0>(limits))
@@ -1284,7 +1264,7 @@ namespace trompeloeil
       }
       return call_count == std::get<1>(limits);
     }
-    std::ostream& report_mismatch(std::ostream& os, const param_type& params) override
+    std::ostream& report_mismatch(std::ostream& os, const call_params_type_t<Sig>& params) override
     {
       reported = true;
       os << "No matching call for expectation of " << name << " at " << location << "\n";
@@ -1319,7 +1299,7 @@ namespace trompeloeil
       static_assert(!std::is_same<return_of<Sig>, void>::value || std::is_same<H, void>::value,
                     "RETURN does not make sense for void-function");
 #if 0
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_action_type<Sig> >()))>::value || std::is_same<return_of<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_params_type_t<Sig> >()))>::value || std::is_same<return_of<Sig>, void>::value,
                     "given RETURN type is not convertible to that of the function");
 #endif
       return {std::move(*this), {str, std::move(h)}};
@@ -1401,16 +1381,9 @@ namespace trompeloeil
   void ignore(const T& ...) {}
 
   template <typename ... T>
-  call_match_type<void(T...)> make_value_match_obj(T&& ... t)
+  call_params_type_t<void(T...)> make_params_type_obj(T&& ... t)
   {
-    call_match_type<void(T...)> rv{t...};
-    return rv;
-  }
-
-  template <typename ... T>
-  call_action_type<void(T...)> make_action_type_obj(T&& ... t)
-  {
-    return call_action_type<void(T...)>(t...);
+    return call_params_type_t<void(T...)>(t...);
   }
 
   struct call_validator
@@ -1480,7 +1453,7 @@ namespace trompeloeil
   auto name (VERBATIM_TROMPELOEIL_PLIST params) constness                     \
   -> decltype(trompeloeil_mocked_type::name TROMPELOEIL_CLIST params) override            \
   {                                                                           \
-    const auto param_value = ::trompeloeil::make_value_match_obj TROMPELOEIL_CLIST params;  \
+  auto param_value = ::trompeloeil::make_params_type_obj TROMPELOEIL_CLIST params; \
     auto i = find(param_value, TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__)); \
     if (!i) \
     {                                                                         \
@@ -1489,13 +1462,12 @@ namespace trompeloeil
                                      TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__), \
                                      TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__)); \
     }                                                                         \
-    auto param_ref = ::trompeloeil::make_action_type_obj TROMPELOEIL_CLIST params;        \
-    if (i->run_actions(param_ref))                                            \
+    if (i->run_actions(param_value))                                            \
     {                                                                 \
       i->unlink();                                                      \
       TROMPELOEIL_CONCAT(trompeloeil_exhausted_matcher_list_, __LINE__).link_before(*i); \
     }                                                                   \
-    return i->return_value(param_ref);                                        \
+    return i->return_value(param_value);                                        \
   }
 
 #define TROMPELOEIL_STRINGIFY_(...) #__VA_ARGS__
