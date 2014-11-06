@@ -1470,14 +1470,14 @@ namespace trompeloeil
 }
 
 #define TROMPELOEIL_MOCK(name, params)          \
-  TROMPELOEIL_MOCK_(name, , params)
+  TROMPELOEIL_MOCK_(name, , params, #name, #params)
 
 #define TROMPELOEIL_MOCK_CONST(name, params)    \
-  TROMPELOEIL_MOCK_(name, const, params)
+  TROMPELOEIL_MOCK_(name, const, params, #name, #params)
 
 
 
-#define TROMPELOEIL_MOCK_(name, constness, params)                            \
+#define TROMPELOEIL_MOCK_(name, constness, params, name_s, params_s)          \
   using TROMPELOEIL_CONCAT(trompeloeil_matcher_type_, __LINE__) =             \
     ::trompeloeil::call_matcher<decltype(std::declval<trompeloeil_mocked_type>()          \
                                          .name( TROMPELOEIL_VLIST params)) params>;       \
@@ -1514,7 +1514,7 @@ namespace trompeloeil
     auto i = find(param_value, TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__)); \
     if (!i) \
     {                                                                         \
-      ::trompeloeil::report_mismatch(#name #params,                     \
+      ::trompeloeil::report_mismatch(name_s params_s,                     \
                                      param_value,                       \
                                      TROMPELOEIL_CONCAT(trompeloeil_matcher_list_, __LINE__), \
                                      TROMPELOEIL_CONCAT(trompeloeil_saturated_matcher_list_, __LINE__)); \
@@ -1530,37 +1530,58 @@ namespace trompeloeil
 #define TROMPELOEIL_STRINGIFY_(...) #__VA_ARGS__
 #define TROMPELOEIL_STRINGIFY(...) TROMPELOEIL_STRINGIFY_(__VA_ARGS__)
 
-#define TROMPELOEIL_REQUIRE_CALL(obj, func) \
-  auto TROMPELOEIL_CONCAT(call_obj, __COUNTER__) =  TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func)
+#define TROMPELOEIL_REQUIRE_CALL(obj, func)                    \
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
+
+#define TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
+  auto TROMPELOEIL_CONCAT(call_obj, __COUNTER__) =  TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func) \
-  ::trompeloeil::heap_elevator{} ^ TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func)
+  TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func, #obj, #func)
 
-#define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func)                         \
+#define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)              \
+  ::trompeloeil::heap_elevator{} ^ TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
+
+#define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
   ::trompeloeil::call_validator{} +                                     \
   decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func     \
   .set_location(__FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))           \
-  .set_name(#obj "." #func)                                             \
+  .set_name(obj_s "." func_s)                                             \
   .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){}))
 
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func) \
-  TROMPELOEIL_REQUIRE_CALL(obj, func).TIMES(0, ~0ULL)
+  TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
+
+#define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)               \
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0, ~0ULL)
 
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL(obj, func) \
-  TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func).TIMES(0, ~0ULL)
+  TROMPELOEIL_NAMED_ALLOW_CALL(obj, func, #obj, #func)
 
+#define TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, obj_s, func_s)      \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0, ~0ULL)
 
 #define TROMPELOEIL_FORBID_CALL(obj, func) \
-  TROMPELOEIL_REQUIRE_CALL(obj, func).TIMES(0)
+  TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
+
+#define TROMPELOEIL_FORBID_CALL_(obj, func, obj_s, func_s)     \
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL(obj, func) \
-  TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func).TIMES(0)
+  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
+
+#define TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, obj_s, func_s)       \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0)
 
 
-#define TROMPELOEIL_WITH(...) with(#__VA_ARGS__, [&](const auto& x) { \
+
+#define TROMPELOEIL_WITH(...) \
+  TROMPELOEIL_WITH(#__VA_ARGS__, __VA_ARGS__)
+
+#define TROMPELOEIL_WITH_(arg_s, ...) with(arg_s, [&](const auto& x) { \
   auto& _1 = ::trompeloeil::mkarg<1>(x);                    \
   auto& _2 = ::trompeloeil::mkarg<2>(x);                    \
   auto& _3 = ::trompeloeil::mkarg<3>(x);                    \
@@ -1580,8 +1601,10 @@ namespace trompeloeil
   return __VA_ARGS__;\
   })
 
+#define TROMPELOEIL_SIDE_EFFECT(...) \
+  TROMPELOEIL_SIDE_EFFECT_(#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_SIDE_EFFECT(...) sideeffect(#__VA_ARGS__, [&](auto& x) { \
+#define TROMPELOEIL_SIDE_EFFECT_(arg_s, ...) sideeffect(arg_s, [&](auto& x) { \
   auto& _1 = ::trompeloeil::mkarg<1>(x);                    \
   auto& _2 = ::trompeloeil::mkarg<2>(x);                    \
   auto& _3 = ::trompeloeil::mkarg<3>(x);                    \
@@ -1601,8 +1624,10 @@ namespace trompeloeil
   __VA_ARGS__;\
   })
 
+#define TROMPELOEIL_RETURN(...) \
+  TROMPELOEIL_RETURN_(#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_RETURN(...) handle_return(#__VA_ARGS__, [&](auto& x) {   \
+#define TROMPELOEIL_RETURN_(arg_s, ...) handle_return(arg_s, [&](auto& x) { \
   auto& _1 = ::trompeloeil::mkarg<1>(x);                                     \
   auto& _2 = ::trompeloeil::mkarg<2>(x);                                     \
   auto& _3 = ::trompeloeil::mkarg<3>(x);                                     \
@@ -1634,34 +1659,43 @@ namespace trompeloeil
 #define TROMPELOEIL_AT_MOST(num) 0, num
 
 #define TROMPELOEIL_DEATHWATCH(obj) \
-  (obj).trompeloeil_deathwatch(#obj, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))
+  TROMPELOEIL_DEATHWATCH(obj, #obj)
+
+#define TROMPELOEIL_DEATHWATCH_(obj, obj_s)                                   \
+  (obj).trompeloeil_deathwatch(obj_s, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION(obj) \
-  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, #obj, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))
+  TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
+
+#define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                          \
+  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, obj_s, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj) \
-  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, #obj, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__)))
+  TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj, #obj)
+
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                    \
+  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, obj_s, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__)))
 
 #ifndef TROMPELOEIL_LONG_MACROS
-#define MOCK(name, params)            TROMPELOEIL_MOCK(name, params)
-#define MOCK_CONST(name, params)      TROMPELOEIL_MOCK_CONST(name, params)
-#define REQUIRE_CALL(obj, func)       TROMPELOEIL_REQUIRE_CALL(obj, func)
-#define NAMED_REQUIRE_CALL(obj, func) TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func)
-#define ALLOW_CALL(obj, func)         TROMPELOEIL_ALLOW_CALL(obj, func)
-#define NAMED_ALLOW_CALL(obj, func)   TROMPELOEIL_NAMED_ALLOW_CALL(obj, func)
-#define FORBID_CALL(obj, func)        TROMPELOEIL_FORBID_CALL(obj, func)
-#define NAMED_FORBID_CALL(obj, func)  TROMPELOEIL_NAMED_FORBID_CALL(obj, func)
-#define WITH(...)                     TROMPELOEIL_WITH(__VA_ARGS__)
-#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT(__VA_ARGS__)
-#define RETURN(...)                   TROMPELOEIL_RETURN(__VA_ARGS__)
+#define MOCK(name, params)            TROMPELOEIL_MOCK_(name,, params, #name, #params)
+#define MOCK_CONST(name, params)      TROMPELOEIL_MOCK_(name, const, arams, #name, #params)
+#define REQUIRE_CALL(obj, func)       TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
+#define NAMED_REQUIRE_CALL(obj, func) TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, #obj, #func)
+#define ALLOW_CALL(obj, func)         TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
+#define NAMED_ALLOW_CALL(obj, func)   TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, #obj, #func)
+#define FORBID_CALL(obj, func)        TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
+#define NAMED_FORBID_CALL(obj, func)  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
+#define WITH(...)                     TROMPELOEIL_WITH_(#__VA_ARGS__, __VA_ARGS__)
+#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(#__VA_ARGS__, __VA_ARGS__)
+#define RETURN(...)                   TROMPELOEIL_RETURN_(#__VA_ARGS__, __VA_ARGS__)
 #define TIMES(...)                    TROMPELOEIL_TIMES(__VA_ARGS__)
 #define IN_SEQUENCE(...)              TROMPELOEIL_IN_SEQUENCE(__VA_ARGS__)
 #define ANY(type)                     TROMPELOEIL_ANY(type)
 #define AT_LEAST(num)                 TROMPELOEIL_AT_LEAST(num)
 #define AT_MOST(num)                  TROMPELOEIL_AT_MOST(num)
-#define REQUIRE_DESTRUCTION(obj)      TROMPELOEIL_REQUIRE_DESTRUCTION(obj)
-#define DEATHWATCH(obj)               TROMPELOEIL_DEATHWATCH(obj)
-#define NAMED_REQUIRE_DESTRUCTION(obj)TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)
+#define DEATHWATCH(obj)               TROMPELOEIL_DEATHWATCH_(obj, #obj)
+#define REQUIRE_DESTRUCTION(obj)      TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
+#define NAMED_REQUIRE_DESTRUCTION(obj)TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
 #endif
 
 #endif // include guard

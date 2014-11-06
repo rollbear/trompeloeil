@@ -688,7 +688,7 @@ Tried obj.getter(4) at [a-z_.]*:[0-9]*
         R"_(No match for call of getter(int) with\.
   param  _1 = 4
 
-Tried obj.getter(::trompeloeil::typed_wildcard<int>()) at [a-z_.]*:[0-9]*
+Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
   Failed WITH(_1 < 3)
   Failed WITH(_1 > 5))_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
@@ -712,7 +712,7 @@ Tried obj.getter(::trompeloeil::typed_wildcard<int>()) at [a-z_.]*:[0-9]*
         R"_(No match for call of getter(int) with\.
   param  _1 = 4
 
-Tried obj.getter(::trompeloeil::typed_wildcard<int>()) at [a-z_.]*:[0-9]*
+Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
   Failed WITH(_1 < 3))_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
