@@ -176,7 +176,7 @@ TESTSUITE(sequences)
     catch (reported)
     {
       ASSERT_TRUE(!reports.empty());
-      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq.*first"));
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*\"seq\".*matching.*obj2.count().*has obj2.func(_,_) at.*.*first"));
     }
   }
 
@@ -212,7 +212,7 @@ TESTSUITE(sequences)
     catch (reported)
     {
       ASSERT_TRUE(!reports.empty());
-      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq2.*first"));
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq2.*of obj1.count().*has obj2.func(_,_).*first"));
     }
   }
 
@@ -291,7 +291,7 @@ TESTSUITE(sequences)
     catch (reported)
     {
       ASSERT_TRUE(reports.size() == 1U);
-      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq.*first"));
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq1.*of obj1.func(_,_).*has obj1.count().*first"));
       INFO << reports.front().loc << "\n" << reports.front().msg;
     }
   }

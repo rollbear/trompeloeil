@@ -448,6 +448,7 @@ namespace trompeloeil
   struct sequence : public list_elem<sequence>
   {
     sequence() = default;
+    virtual void print_expectation(std::ostream&) const {}
   protected:
     sequence(sequence* p) : list_elem(p) {}
   };
@@ -455,24 +456,39 @@ namespace trompeloeil
   struct sequence_elem : public sequence
   {
     sequence_elem(sequence& r) : sequence(&r) {}
+    void print_expectation(std::ostream& os) const override
+    {
+      os << exp_name << " at " << exp_loc;
+    }
+    const char *exp_name;
+    const char *exp_loc;
   };
 
   struct sequence_matcher : public list_elem<sequence_matcher>
   {
-    sequence_matcher(const char* name_, sequence& s) : name(name_), seq(s), seq_elem(s) {}
+    sequence_matcher(const char* name_, sequence& s) : seq_name(name_), seq(s), seq_elem(s) {}
+    void set_expectation(const char *name, const char *loc)
+    {
+      seq_elem.exp_name = name;
+      seq_elem.exp_loc = loc;
+    }
     void check_match(const char *match_name, const char* loc) const
     {
-      if (seq.next() != &seq_elem)
+      auto next = seq.next();
+      if (next != &seq_elem)
       {
+        auto ns = static_cast<sequence_elem*>(next);
         std::ostringstream os;
-        os << "Sequence mismatch of " << match_name
-           << ". Sequence \"" << name
-           << "\" was first in line for matching expectation\n";
+        os << "Sequence mismatch for sequence \"" << seq_name
+           << "\" with matching call of " << match_name << " at " << loc
+           << ". Sequence \"" << seq_name << "\" has ";
+        ns->print_expectation(os);
+        os << " first in line\n";
         send_report(severity::fatal, loc, os.str());
       }
     }
     void retire() { seq_elem.unlink(); }
-    const char    *name;
+    const char    *seq_name;
     sequence&      seq;
     sequence_elem  seq_elem;
   };
@@ -1076,6 +1092,11 @@ namespace trompeloeil
   template <typename ... T, size_t N, size_t M>
   struct sequence_validator_t<std::tuple<T...>, N, M>
   {
+    static void set_expectation(const char *exp_name, const char *exp_loc, std::tuple<T...>& t)
+    {
+      std::get<N>(t).set_expectation(exp_name, exp_loc);
+      sequence_validator_t<std::tuple<T...>, N + 1, M>::set_expectation(exp_name, exp_loc, t);
+    }
     static void validate(const char*match_name, const char *loc, const std::tuple<T...>& t)
     {
       std::get<N>(t).check_match(match_name, loc);
@@ -1091,6 +1112,7 @@ namespace trompeloeil
   template <typename ... T, size_t N>
   struct sequence_validator_t<std::tuple<T...>, N, N>
   {
+    static void set_expectation(const char*, const char*, std::tuple<T...>&) {}
     static void validate(const char*, const char*, const std::tuple<T...>& ) {}
     static void retire(std::tuple<T...>& ){}
   };
@@ -1104,12 +1126,14 @@ namespace trompeloeil
 
   struct sequence_handler_base : public list_elem<sequence_handler_base >
   {
+    virtual void set_expectation(const char *, const char*) = 0;
     virtual void validate(const char*, const char*) = 0;
     virtual void retire() = 0;
   };
 
   struct sequence_handler_list : public sequence_handler_base
   {
+    void set_expectation(const char*, const char*) override {}
     void validate(const char*, const char*) override {}
     void retire() override {}
   };
@@ -1123,6 +1147,10 @@ namespace trompeloeil
   {
     using seq_tuple = std::tuple<Seq...>;
     sequence_handler(seq_tuple&& t) : sequences(std::move(t)) {}
+    void set_expectation(const char *exp_name, const char *exp_loc)
+    {
+      sequence_validator<seq_tuple>::set_expectation(exp_name, exp_loc, sequences);
+    }
     void validate(const char* match_name, const char *loc)
     {
       sequence_validator<seq_tuple>::validate(match_name, loc, sequences);
@@ -1188,6 +1216,7 @@ namespace trompeloeil
     void add_last(sequence_handler_base& s)
     {
       this->sequence_handler.link_before(s);
+      s.set_expectation(this->name, this->location);
     }
     void add_last(std::tuple<>) {}
     template <typename D>
