@@ -46,33 +46,43 @@ public:
   MOCK(bar, (std::string));
 };
 
-TEST(work_returns_the_string_obtained_from_I_foo)
+TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 {
   using trompeloeil::_; // wildcard for matching any value
 
-  MI mock_i("word");
-  CUT out(&mock_i);
+  auto raw_i = new MI("word");
+  CUT out(raw_i);
 
-  DEATHWATCH(mock_i);
+  DEATHWATCH(*raw_i);
+
+  trompeloeil::sequence seq1, seq2;
 
   {
-    trompeloeil::sequence seq;
-    REQUIRE_CALL(mock_i, foo(3, _))
-    .WITH(_2 == "")
-    .TIMES(1)
-    .IN_SEQUENCE(seq)
-    .SIDE_EFFECT(_2 = "cat")
-    .RETURN(true);
+    REQUIRE_CALL(*raw_i, bar(ANY(int)))
+      .RETURN(_1 > 0)
+      .IN_SEQUENCE(seq1)
+      .TIMES(AT_LEAST(1));
 
-    REQUIRE_CALL(mock_i, bar(ANY(int)))
-    .RETURN(false);
+    FORBID_CALL(*raw_i, bar(0))
+      .RETURN(false);
+
+    REQUIRE_CALL(*raw_i, bar("word"))
+      .RETURN(true)
+      .IN_SEQUENCE(seq2);
+
+    REQUIRE_CALL(*raw_i, foo(3, _))
+      .WITH(_2 == "")
+      .IN_SEQUENCE(seq1, seq2)
+      .SIDE_EFFECT(_2 = "cat")
+      .RETURN(true);
+
+    REQUIRE_DESTRUCTION(*raw_i);
 
     auto s = out.work(3);
 
     ASSERT(s == "cat");
   }
 
-  REQUIRE_DESTRUCTION(mock_i);
 }
 ```
 
