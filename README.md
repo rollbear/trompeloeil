@@ -100,7 +100,6 @@ Limitations (TODO-list)
     - With `GCC`, don't use `-pedantic` on the command line
     - With `clang`, add `-Wno-gnu-zero-variadic-macro-argument` to the command line
 
-
 How to use
 ----------
 The example above shows most currently supported functionality.
@@ -287,3 +286,11 @@ expectations. Some examples are:
                              location);
     });
 ```
+
+Compatibility
+-------------
+
+Trompeloeil is known to work with:
+
+* GCC 4.9
+* Clang 3.5
