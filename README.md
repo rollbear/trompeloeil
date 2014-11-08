@@ -13,7 +13,7 @@ A header only mocking framework for C++14.
 
 **NOTE! These are still early days. Bugs will be found, and important features
 are missing. Code breaking changes are no longer expected, but may still
-occurr.**
+occur.**
 
 Example usage
 -------------
@@ -48,7 +48,7 @@ public:
 
 TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 {
-  using trompeloeil::_; // wildcard for matching any value
+  using trompeloeil::_; // wild card for matching any value
 
   auto raw_i = new MI("word");
   CUT out(raw_i);
@@ -119,7 +119,7 @@ the rest of the machinery to work. Template instantiations inherits all
 constructors of `T`.
 
 **`trompeloeil::wildcard`**  
-The type of the wildcard object `trompeloeil::_` . You typically never see
+The type of the wild card object `trompeloeil::_` . You typically never see
 the type itself.
 
 ## Macros
@@ -129,7 +129,7 @@ macro **`TROMPELOEIL_LONG_MACROS`** before inclusion of `trompeloeil.hpp`. It
 prefixes all macros listed below with **`TROMPELOEIL_`**.
 
 **`ANY`(** *type* **)**  
-Typed wildcard to disambiguate overloaded functions on type when the exact
+Typed wild card to disambiguate overloaded functions on type when the exact
 value is unimportant.
 
 **`AT_LEAST`**( *number* **)**  
@@ -142,15 +142,15 @@ Used in **`.TIMES`()** to set the range 0..*number*. *number* must be
 
 **`MOCK`(** *method_name*, *parameter_list* **)**  
 Make a mock implementation of the method named *method_name*. *method_name*
-must be virtual, and may currently not be overloded with several signatures.
+must be virtual, and may currently not be overloaded with several signatures.
 
 **`MOCK_CONST`(** *method_name*, *parameter_list* **)**  
 Same as **`MOCK`(** *method_name*, *parameter_list* **)** for `const` methods.
 
 **`REQUIRE_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
-Set up an expectaion that the method *method_name* is called on the object
+Set up an expectation that the method *method_name* is called on the object
 *mock_object*. The parameter list may include exact match values, or the
-wildcard `trompeloeil::_`. The expectation has scope lifetime and must be
+wild card `trompeloeil::_`. The expectation has scope lifetime and must be
 met by the time the scope ends. When there are several expectations active on
 the same object and method, they are tried in the reversed order they were
 defined, i.e. last defined is tried first, until a match is found. This allows
@@ -178,7 +178,7 @@ variable.
 
 **`.WITH`(** *expr* **)**  
 Add further conditions for a **`REQUIRE_CALL`**, typically used when the
-wildcard `trompeloeil::_` has been used. *expr* can refer to parameters in the
+wild card `trompeloeil::_` has been used. *expr* can refer to parameters in the
 call with their positional names `_1`, `_2`, etc. Even if the
 function signature has parameter as non-`const` references, they are
 immutable in this context. Several **`.WITH`** clauses can be added to a single
@@ -263,7 +263,7 @@ expectations. Some examples are:
                                const std::string& loc,
                                const std::string& msg)
     {
-      auto m = loc + "\n" = msg;
+      auto m = loc + "\n" + msg;
       if (s == ::trompeloeil::severity::fatal)
         {
           FAIL(m);
