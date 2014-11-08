@@ -93,7 +93,6 @@ Limitations (TODO-list)
   template types with more than one template parameter.)
   * use a typedef as a simple work-around
 - Function templates cannot be mocked
-- Reporting needs more work
 - Tracing
 - WAY too many macros...  
   * uses empty __VA_ARGS__, which is illegal (although harmless)

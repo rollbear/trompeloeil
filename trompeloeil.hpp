@@ -9,7 +9,6 @@
 // Deficiencies and missing features
 // * Mocking private methods is not supported
 // * Mocking function templates is not supported
-// * Reporting really needs working on
 // * implement tracing
 // * If a macro kills a kitten, this threatens extinction of all felines!
 //   * With GCC, avoid -pedantic to avoid warnings about empty __VA_ARGS__
