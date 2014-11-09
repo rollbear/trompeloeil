@@ -845,10 +845,10 @@ namespace trompeloeil
   };
 
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
-  struct tuple_pair
+  struct tuple_print
   {
     template <typename stream>
-    static stream &print_mismatch(stream &os, const T &t1, const T &t2)
+    static stream &mismatch(stream &os, const T &t1, const T &t2)
     {
       if (!(std::get<N>(t1) == std::get<N>(t2)))
       {
@@ -856,30 +856,30 @@ namespace trompeloeil
         print(os, std::get<N>(t2));
         os << '\n';
       }
-      return tuple_pair<T, N + 1>::print_mismatch(os, t1, t2);
+      return tuple_print<T, N + 1>::mismatch(os, t1, t2);
     }
 
     template <typename stream>
-    static stream &print_missed(stream &os, const T &t)
+    static stream &missed(stream &os, const T &t)
     {
       os << "  param " << std::setw((N<9)+1) << "_" << N+1 << " = ";
       print(os, std::get<N>(t));
       os << '\n';
-      return tuple_pair<T, N + 1>::print_missed(os, t);
+      return tuple_print<T, N + 1>::missed(os, t);
     }
   };
 
   template<typename T, size_t N>
-  struct tuple_pair<T, N, true>
+  struct tuple_print<T, N, true>
   {
     template <typename stream>
-    static stream &print_mismatch(stream &os, const T &, const T &)
+    static stream &mismatch(stream &os, const T &, const T &)
     {
       return os;
     }
 
     template <typename stream>
-    static stream& print_missed(stream &os, const T &)
+    static stream& missed(stream &os, const T &)
     {
       return os;
     }
@@ -948,7 +948,7 @@ namespace trompeloeil
   template <typename ... P>
   void print_params(std::ostream& os, const std::tuple<P...>& p)
   {
-    tuple_pair<std::tuple<P...> >::print_missed(os, p);
+    tuple_print<std::tuple<P...> >::missed(os, p);
   }
 
   template <typename Sig>
@@ -1311,7 +1311,7 @@ namespace trompeloeil
         reported = true;
         std::ostringstream os;
         os << "Match of forbidden call of " << name << " at " << location << '\n';
-        tuple_pair<decltype(val)>::print_missed(os, params);
+        tuple_print<decltype(val)>::missed(os, params);
         send_report(severity::fatal, location, os.str());
       }
       if (++call_count == std::get<0>(limits))
@@ -1345,7 +1345,7 @@ namespace trompeloeil
       else
       {
         os << '\n';
-        tuple_pair<decltype(val)>::print_mismatch(os, params, val);
+        tuple_print<decltype(val)>::mismatch(os, params, val);
       }
       return os;
     }
@@ -1358,7 +1358,7 @@ namespace trompeloeil
          << "Expected " << name << " to be called " << min_calls
          << " times, actually called " << call_count << " time"
          << (call_count > 1 ? "s\n" : "\n");
-      tuple_pair<decltype(val)>::print_missed(os, val);
+      tuple_print<decltype(val)>::missed(os, val);
       send_report(severity::nonfatal, location, os.str());
     }
     template <typename D>
