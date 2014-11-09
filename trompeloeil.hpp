@@ -55,121 +55,121 @@
 
 #define TROMPELOEIL_PLIST15(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15)  \
   TROMPELOEIL_PLIST14(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14), \
-  trompeloeil::c ## _type_catcher<void(P15)> p15
+  trompeloeil::c ## _type_catcher_t<void(P15)> p15
 
 #define TROMPELOEIL_PLIST14(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14)  \
   TROMPELOEIL_PLIST13(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13), \
-  trompeloeil::c ## _type_catcher<void(P14)> p14
+  trompeloeil::c ## _type_catcher_t<void(P14)> p14
 
 #define TROMPELOEIL_PLIST13(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13)  \
   TROMPELOEIL_PLIST12(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12), \
-  trompeloeil::c ## _type_catcher<void(P13)> p13
+  trompeloeil::c ## _type_catcher_t<void(P13)> p13
 
 #define TROMPELOEIL_PLIST12(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12)  \
   TROMPELOEIL_PLIST11(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), \
-  trompeloeil::c ## _type_catcher<void(P12)> p12
+  trompeloeil::c ## _type_catcher_t<void(P12)> p12
 
 #define TROMPELOEIL_PLIST11(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11)  \
   TROMPELOEIL_PLIST10(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), \
-  trompeloeil::c ## _type_catcher<void(P11)> p11
+  trompeloeil::c ## _type_catcher_t<void(P11)> p11
 
 #define TROMPELOEIL_PLIST10(c, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10)  \
   TROMPELOEIL_PLIST9(c, P1, P2, P3, P4, P5, P6, P7, P8, P9), \
-  trompeloeil::c ## _type_catcher<void(P10)> p10
+  trompeloeil::c ## _type_catcher_t<void(P10)> p10
 
 #define TROMPELOEIL_PLIST9(c, P1, P2, P3, P4, P5, P6, P7, P8, P9) \
   TROMPELOEIL_PLIST8(c, P1, P2, P3, P4, P5, P6, P7, P8), \
-  trompeloeil::c ## _type_catcher<void(P9)> p9
+  trompeloeil::c ## _type_catcher_t<void(P9)> p9
 
 #define TROMPELOEIL_PLIST8(c, P1, P2, P3, P4, P5, P6, P7, P8) \
   TROMPELOEIL_PLIST7(c, P1, P2, P3, P4, P5, P6, P7), \
-  trompeloeil::c ## _type_catcher<void(P8)> p8
+  trompeloeil::c ## _type_catcher_t<void(P8)> p8
 
 #define TROMPELOEIL_PLIST7(c, P1, P2, P3, P4, P5, P6, P7) \
   TROMPELOEIL_PLIST6(c, P1, P2, P3, P4, P5, P6), \
-  trompeloeil::c ## _type_catcher<void(P7)> p7
+  trompeloeil::c ## _type_catcher_t<void(P7)> p7
 
 #define TROMPELOEIL_PLIST6(c, P1, P2, P3, P4, P5, P6) \
   TROMPELOEIL_PLIST5(c, P1, P2, P3, P4, P5), \
-  trompeloeil::c ## _type_catcher<void(P6)> p6
+  trompeloeil::c ## _type_catcher_t<void(P6)> p6
 
 #define TROMPELOEIL_PLIST5(c, P1, P2, P3, P4, P5) \
   TROMPELOEIL_PLIST4(c, P1, P2, P3, P4), \
-  trompeloeil::c ## _type_catcher<void(P5)> p5
+  trompeloeil::c ## _type_catcher_t<void(P5)> p5
 
 #define TROMPELOEIL_PLIST4(c, P1, P2, P3, P4)  \
   TROMPELOEIL_PLIST3(c, P1, P2, P3), \
-  trompeloeil::c ## _type_catcher<void(P4)> p4
+  trompeloeil::c ## _type_catcher_t<void(P4)> p4
 
 #define TROMPELOEIL_PLIST3(c, P1, P2, P3) \
   TROMPELOEIL_PLIST2(c, P1, P2), \
-  trompeloeil::c ## _type_catcher<void(P3)> p3
+  trompeloeil::c ## _type_catcher_t<void(P3)> p3
 
 #define TROMPELOEIL_PLIST2(c, P1, P2) \
   TROMPELOEIL_PLIST1(c, P1), \
-  trompeloeil::c ## _type_catcher<void(P2)> p2
+  trompeloeil::c ## _type_catcher_t<void(P2)> p2
 
-#define TROMPELOEIL_PLIST1(c, P1) trompeloeil::c ## _type_catcher<void(P1)> p1
+#define TROMPELOEIL_PLIST1(c, P1) trompeloeil::c ## _type_catcher_t<void(P1)> p1
 #define TROMPELOEIL_PLIST0(c, P0)
 
 #define TROMPELOEIL_VLIST15(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15) \
   TROMPELOEIL_VLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14),     \
-  std::declval<trompeloeil::ref_type_catcher<void(P15)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P15)> >()
 
 #define TROMPELOEIL_VLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14) \
   TROMPELOEIL_VLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13),          \
-  std::declval<trompeloeil::base_type_catcher<void(P14)> >()
+  std::declval<trompeloeil::base_type_catcher_t<void(P14)> >()
 
 #define TROMPELOEIL_VLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13)     \
   TROMPELOEIL_VLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12),               \
-  std::declval<trompeloeil::ref_type_catcher<void(P13)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P13)> >()
 
 #define TROMPELOEIL_VLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12)          \
   TROMPELOEIL_VLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11),                    \
-  std::declval<trompeloeil::ref_type_catcher<void(P12)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P12)> >()
 
 #define TROMPELOEIL_VLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11)               \
   TROMPELOEIL_VLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10),                          \
-  std::declval<trompeloeil::ref_type_catcher<void(P11)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P11)> >()
 
 #define TROMPELOEIL_VLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10)                    \
   TROMPELOEIL_VLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9),                              \
-  std::declval<trompeloeil::ref_type_catcher<void(P10)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P10)> >()
 
 #define TROMPELOEIL_VLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9)                         \
   TROMPELOEIL_VLIST8(P1, P2, P3, P4, P5, P6, P7, P8),                                  \
-  std::declval<trompeloeil::ref_type_catcher<void(P9)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P9)> >()
 
 #define TROMPELOEIL_VLIST8(P1, P2, P3, P4, P5, P6, P7, P8)                             \
   TROMPELOEIL_VLIST7(P1, P2, P3, P4, P5, P6, P7),                                   \
-  std::declval<trompeloeil::ref_type_catcher<void(P8)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P8)> >()
 
 #define TROMPELOEIL_VLIST7(P1, P2, P3, P4, P5, P6, P7)                            \
   TROMPELOEIL_VLIST6(P1, P2, P3, P4, P5, P6),                                        \
-  std::declval<trompeloeil::ref_type_catcher<void(P7)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P7)> >()
 
 #define TROMPELOEIL_VLIST6(P1, P2, P3, P4, P5, P6)             \
   TROMPELOEIL_VLIST5(P1, P2, P3, P4, P5),                                      \
-  std::declval<trompeloeil::ref_type_catcher<void(P6)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P6)> >()
 
 #define TROMPELOEIL_VLIST5(P1, P2, P3, P4, P5) \
   TROMPELOEIL_VLIST4(P1, P2, P3, P4), \
-  std::declval<trompeloeil::ref_type_catcher<void(P5)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P5)> >()
 
 #define TROMPELOEIL_VLIST4(P1, P2, P3, P4) \
   TROMPELOEIL_VLIST3(P1, P2, P3), \
-  std::declval<trompeloeil::ref_type_catcher<void(P4)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P4)> >()
 
 #define TROMPELOEIL_VLIST3(P1, P2, P3)                         \
   TROMPELOEIL_VLIST2(P1, P2),                                                  \
-  std::declval<trompeloeil::ref_type_catcher<void(P3)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P3)> >()
 
 #define TROMPELOEIL_VLIST2(P1, P2) \
   TROMPELOEIL_VLIST1(P1),          \
-  std::declval<trompeloeil::ref_type_catcher<void(P2)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P2)> >()
 
 #define TROMPELOEIL_VLIST1(P1) \
-  std::declval<trompeloeil::ref_type_catcher<void(P1)> >()
+  std::declval<trompeloeil::ref_type_catcher_t<void(P1)> >()
 #define TROMPELOEIL_VLIST0()
 
 #define TROMPELOEIL_CONCAT_(x, y) x ## y
@@ -181,62 +181,62 @@
 
 #define TROMPELOEIL_CLIST15(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15) \
   TROMPELOEIL_CLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14), \
-  static_cast<::trompeloeil::ref_type_catcher<void(P15)> >(p15)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P15)> >(p15)
 
 #define TROMPELOEIL_CLIST14(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14) \
   TROMPELOEIL_CLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13), \
-  static_cast<::trompeloeil::ref_type_catcher<void(P14)> >(p14)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P14)> >(p14)
 
 #define TROMPELOEIL_CLIST13(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13) \
   TROMPELOEIL_CLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12),   \
-  static_cast<::trompeloeil::ref_type_catcher<void(P13)> >(p13)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P13)> >(p13)
 
 #define TROMPELOEIL_CLIST12(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12) \
   TROMPELOEIL_CLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11),        \
-  static_cast<::trompeloeil::ref_type_catcher<void(P12)> >(p12)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P12)> >(p12)
 
 #define TROMPELOEIL_CLIST11(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11) \
   TROMPELOEIL_CLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10),         \
-  static_cast<::trompeloeil::ref_type_catcher<void(P11)> >(p11)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P11)> >(p11)
 
 #define TROMPELOEIL_CLIST10(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) \
   TROMPELOEIL_CLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9),            \
-  static_cast<::trompeloeil::ref_type_catcher<void(P10)> >(p10)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P10)> >(p10)
 
 #define TROMPELOEIL_CLIST9(P1, P2, P3, P4, P5, P6, P7, P8, P9)  \
   TROMPELOEIL_CLIST8(P1, P2, P3, P4, P5, P6, P7, P8),           \
-  static_cast<::trompeloeil::ref_type_catcher<void(P9)> >(p9)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P9)> >(p9)
 
 #define TROMPELOEIL_CLIST8(P1, P2, P3, P4, P5, P6, P7, P8)      \
   TROMPELOEIL_CLIST7(P1, P2, P3, P4, P5, P6, P7),               \
-  static_cast<::trompeloeil::ref_type_catcher<void(P8)> >(p8)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P8)> >(p8)
 
 #define TROMPELOEIL_CLIST7(P1, P2, P3, P4, P5, P6, P7)          \
   TROMPELOEIL_CLIST6(P1, P2, P3, P4, P5, P6),                   \
-  static_cast<::trompeloeil::ref_type_catcher<void(P7)> >(p7)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P7)> >(p7)
 
 #define TROMPELOEIL_CLIST6(P1, P2, P3, P4, P5, P6)              \
   TROMPELOEIL_CLIST5(P1, P2, P3, P4, P5),                       \
-  static_cast<::trompeloeil::ref_type_catcher<void(P6)> >(p6)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P6)> >(p6)
 
 #define TROMPELOEIL_CLIST5(P1, P2, P3, P4, P5)                  \
   TROMPELOEIL_CLIST4(P1, P2, P3, P4),                           \
-  static_cast<::trompeloeil::ref_type_catcher<void(P5)> >(p5)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P5)> >(p5)
 
 #define TROMPELOEIL_CLIST4(P1, P2, P3, P4)                      \
   TROMPELOEIL_CLIST3(P1, P2, P3),                               \
-  static_cast<::trompeloeil::ref_type_catcher<void(P4)> >(p4)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P4)> >(p4)
 
 #define TROMPELOEIL_CLIST3(P1, P2, P3)                          \
   TROMPELOEIL_CLIST2(P1, P2),                                   \
-  static_cast<::trompeloeil::ref_type_catcher<void(P3)> >(p3)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P3)> >(p3)
 
 #define TROMPELOEIL_CLIST2(P1, P2)                              \
   TROMPELOEIL_CLIST1(P1),                                       \
-  static_cast<::trompeloeil::ref_type_catcher<void(P2)> >(p2)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P2)> >(p2)
 
 #define TROMPELOEIL_CLIST1(P1) \
-  static_cast<::trompeloeil::ref_type_catcher<void(P1)> >(p1)
+  static_cast<::trompeloeil::ref_type_catcher_t<void(P1)> >(p1)
 
 #define TROMPELOEIL_CLIST0()
 #define TROMPELOEIL_CLIST(...) ( TROMPELOEIL_CONCAT(TROMPELOEIL_CLIST, TROMPELOEIL_COUNT(__VA_ARGS__)) (__VA_ARGS__) )
@@ -660,37 +660,33 @@ namespace trompeloeil
     return v == t;
   }
   template<typename T>
-  struct type_catcher_t;
+  struct type_catcher;
 
   template<typename T>
-  struct type_catcher_t<void(T)>
+  struct type_catcher<void(T)>
   {
     using type = T;
     using ref_type = T &;
-    using const_ref_type = const T &;
   };
 
 
   template <>
-  struct type_catcher_t<void(void)>
+  struct type_catcher<void(void)>
   {
     using type = void;
     using ref_type = void;
-    using const_ref_type = void;
   };
 
   template <typename T>
-  struct type_catcher_t<void(T&&)>
+  struct type_catcher<void(T&&)>
   {
     using type = T&&;
     using ref_type = T&&;
   };
   template<typename T>
-  using ref_type_catcher = typename type_catcher_t<T>::ref_type;
+  using ref_type_catcher_t = typename type_catcher<T>::ref_type;
   template<typename T>
-  using const_ref_type_catcher = typename type_catcher_t<T>::const_ref_type;
-  template<typename T>
-  using verbatim_type_catcher = typename type_catcher_t<T>::type;
+  using verbatim_type_catcher_t = typename type_catcher<T>::type;
 
   struct lifetime_monitor;
 
@@ -768,16 +764,16 @@ namespace trompeloeil
   };
 
   template<typename T>
-  struct return_of_t;
+  struct return_of;
 
   template<typename R, typename ... A>
-  struct return_of_t<R(A...)>
+  struct return_of<R(A...)>
   {
     using type = R;
   };
 
   template<typename T>
-  using return_of = typename return_of_t<T>::type;
+  using return_of_t = typename return_of<T>::type;
 
   template<typename T>
   struct call_params_type;
@@ -792,17 +788,17 @@ namespace trompeloeil
   using call_params_type_t = typename call_params_type<T>::type;
 
   template<typename T>
-  struct value_match_type_t;
+  struct value_match_type;
 
   template<typename R, typename ... T>
-  struct value_match_type_t<R(T...)>
+  struct value_match_type<R(T...)>
   {
     using type = std::tuple<value_matcher<T> ...>;
   };
 
 
   template<typename Sig>
-  using value_match_type = typename value_match_type_t<Sig>::type;
+  using value_match_type_t = typename value_match_type<Sig>::type;
 
 
   template<typename Sig>
@@ -819,7 +815,7 @@ namespace trompeloeil
     virtual bool run_actions(call_params_type_t<Sig> &) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
-    virtual return_of<Sig> return_value(call_params_type_t<Sig> &params) = 0;
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &params) = 0;
     virtual void report_missed() = 0;
   };
 
@@ -910,10 +906,10 @@ namespace trompeloeil
     virtual std::ostream& report_signature(std::ostream& r ) const  override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
 
-    virtual return_of<Sig> return_value(call_params_type_t<Sig> &)
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &)
     {
-      typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
-      return std::forward<return_of<Sig>>(*p);
+      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
+      return std::forward<return_of_t<Sig>>(*p);
     }
 
     virtual void report_missed() {}
@@ -1048,16 +1044,16 @@ namespace trompeloeil
   template<typename Sig>
   struct return_handler_base : public list_elem<return_handler_base<Sig> >
   {
-    virtual return_of<Sig> return_value(call_params_type_t<Sig> &) = 0;
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &) = 0;
   };
 
   template<typename Sig>
   struct return_handler_list : public return_handler_base<Sig>
   {
-    return_of<Sig> return_value(call_params_type_t<Sig> &)
+    return_of_t<Sig> return_value(call_params_type_t<Sig> &)
     {
-      typename std::remove_reference<return_of<Sig>>::type *p = nullptr;
-      return std::forward<return_of<Sig> >(*p);
+      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
+      return std::forward<return_of_t<Sig> >(*p);
     }
   };
 
@@ -1073,7 +1069,7 @@ namespace trompeloeil
   {
     return_handler(const char *str_, Handler h_) : h(h_), str(str_) {}
 
-    return_of<Sig> return_value(call_params_type_t<Sig> &t) { return h(t); }
+    return_of_t<Sig> return_value(call_params_type_t<Sig> &t) { return h(t); }
 
     Handler h;
     const char *str;
@@ -1223,15 +1219,15 @@ namespace trompeloeil
       return {std::move(*this), side_effect<Sig, A>(str, std::move(a))};
     }
     template <typename H>
-    call_data<return_type_injector<return_of<Sig>, call_data>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
+    call_data<return_type_injector<return_of_t<Sig>, call_data>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
     {
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of_t<Sig>, void>::value,
                     "RETURN does not make sense for void-function");
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
                     "given RETURN type is not convertible to that of the function");
       static_assert(!std::is_same<return_type, decltype(h(std::declval<call_params_type_t<Sig>&>()))>::value || std::is_same<return_type, void>::value,
                     "A RETURN is already given");
-      return {return_type_injector<return_of<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
+      return {return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
     }
     template <unsigned long long L,
               unsigned long long H = L,
@@ -1295,7 +1291,7 @@ namespace trompeloeil
       return true;
     }
 
-    return_of<Sig> return_value(call_params_type_t<Sig>& params)
+    return_of_t<Sig> return_value(call_params_type_t<Sig>& params)
     {
       return return_handler.next()->return_value(params);
     }
@@ -1373,12 +1369,12 @@ namespace trompeloeil
     }
 
     template <typename H>
-    call_data<return_type_injector<return_of<Sig>, call_matcher>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
+    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
     {
-      static_assert(!std::is_same<return_of<Sig>, void>::value || std::is_same<H, void>::value,
+      static_assert(!std::is_same<return_of_t<Sig>, void>::value || std::is_same<H, void>::value,
                     "RETURN does not make sense for void-function");
 #if 0
-      static_assert(std::is_constructible<return_of<Sig>, decltype(h(std::declval<call_params_type_t<Sig> >()))>::value || std::is_same<return_of<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig> >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
                     "given RETURN type is not convertible to that of the function");
 #endif
       return {std::move(*this), {str, std::move(h)}};
@@ -1416,7 +1412,7 @@ namespace trompeloeil
 
     static const bool         call_limit_set = false;
     static const bool         sequence_set = false;
-    value_match_type<Sig>     val;
+    value_match_type_t<Sig>   val;
     condition_list<Sig>       conditions;
     side_effect_list<Sig>     actions;
     return_handler_list<Sig>  return_handler;
@@ -1469,13 +1465,13 @@ namespace trompeloeil
   {
     template <typename Sig>
     call_matcher<Sig> operator+(trompeloeil::call_matcher<Sig>& t) {
-      static_assert(std::is_same<typename call_matcher<Sig>::return_type, return_of<Sig> >::value,
+      static_assert(std::is_same<typename call_matcher<Sig>::return_type, return_of_t<Sig> >::value,
                     "missig RETURN for non-void function");
       return std::move(t);
     }
     template <typename P, typename U, typename Sig>
     call_data<P, U, Sig> operator+(::trompeloeil::call_data<P, U, Sig>&& t) {
-      static_assert(std::is_same<return_of<Sig>, typename call_data<P, U, Sig>::return_type>::value,
+      static_assert(std::is_same<return_of_t<Sig>, typename call_data<P, U, Sig>::return_type>::value,
                     "RETURN missing for non-void function");
       return std::move(t);
     }
