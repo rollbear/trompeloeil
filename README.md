@@ -88,6 +88,7 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
 Limitations (TODO-list)
 -----------------------
+- Even if you throw as a side-effect, you need a .RETURN() in non-void functions
 - Private methods cannot be mocked
 - Mock function parameter types must not include commas (i.e. must not be of
   template types with more than one template parameter.)

@@ -7,6 +7,7 @@
 
 
 // Deficiencies and missing features
+// * Implement A .THROW(expr) to use instead of .RETURN(expr) when desired
 // * Mocking private methods is not supported
 // * Mocking function templates is not supported
 // * implement tracing
@@ -761,7 +762,7 @@ namespace trompeloeil
                              trompeloeil_deathwatch_loc,
                              os.str());
     }
-  };
+  }
 
   template<typename T>
   struct return_of;
@@ -802,6 +803,9 @@ namespace trompeloeil
 
 
   template<typename Sig>
+  struct call_matcher_list;
+
+  template<typename Sig>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
   {
     call_matcher_base() = default;
@@ -812,7 +816,7 @@ namespace trompeloeil
     }
 
     virtual bool matches(const call_params_type_t<Sig>&) const = 0;
-    virtual bool run_actions(call_params_type_t<Sig> &) = 0;
+    virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &saturated_list) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
     virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &params) = 0;
@@ -831,7 +835,7 @@ namespace trompeloeil
     }
 
     virtual bool matches(const call_params_type_t<void(A...)> &) const = 0;
-    virtual bool run_actions(call_params_type_t<void(A...)> &params) = 0;
+    virtual void run_actions(call_params_type_t<void(A...)> &, call_matcher_list<void(A...)> &) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&, const call_params_type_t<void(A...)> &) = 0;
     void return_value(call_params_type_t<void(A...)> &) {};
@@ -901,7 +905,7 @@ namespace trompeloeil
 
     virtual bool matches(const call_params_type_t<Sig> &) const { return false; }
 
-    virtual bool run_actions(call_params_type_t<Sig> &) { return false; }
+    virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &) {}
 
     virtual std::ostream& report_signature(std::ostream& r ) const  override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
@@ -921,7 +925,7 @@ namespace trompeloeil
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this;}
     virtual bool matches(const call_params_type_t<void(A...)> &) const { return false; }
-    virtual bool run_actions(call_params_type_t<void(A...)> &) { return false;}
+    virtual void run_actions(call_params_type_t<void(A...)> &, call_matcher_list<void(A...)> &) { }
     virtual std::ostream& report_signature(std::ostream& r) const override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<void(A...)> &) override {return r;}
     virtual void report_missed() {}
@@ -1295,7 +1299,7 @@ namespace trompeloeil
     {
       return return_handler.next()->return_value(params);
     }
-    bool run_actions(call_params_type_t<Sig>& params)
+    void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list)
     {
       auto limits = call_limits();
       if (call_count < std::get<0>(limits))
@@ -1314,11 +1318,15 @@ namespace trompeloeil
       {
         sequence_handler.next()->retire();
       }
+      if (call_count == std::get<1>(limits))
+      {
+        this->unlink();
+        saturated_list.link_before(*this);
+      }
       for (auto p = actions.next(); p != &actions; p = p->next())
       {
         p->action(params);
       }
-      return call_count == std::get<1>(limits);
     }
     std::ostream& report_signature(std::ostream& os) const override
     {
@@ -1537,12 +1545,8 @@ namespace trompeloeil
                                      TROMPELOEIL_ID(matcher_list),            \
                                      TROMPELOEIL_ID(saturated_matcher_list)); \
     }                                                                         \
-    if (i->run_actions(param_value))                                            \
-    {                                                                 \
-      i->unlink();                                                      \
-      TROMPELOEIL_ID(saturated_matcher_list).link_before(*i); \
-    }                                                                   \
-    return i->return_value(param_value);                                        \
+    i->run_actions(param_value, TROMPELOEIL_ID(saturated_matcher_list));      \
+    return i->return_value(param_value);                                      \
   }
 
 #define TROMPELOEIL_STRINGIFY_(...) #__VA_ARGS__

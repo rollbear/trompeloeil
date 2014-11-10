@@ -529,6 +529,8 @@ TESTSUITE(scoping)
     }
     ASSERT_TRUE(reports.empty());
   }
+
+
 }
 
 TESTSUITE(destruction)
@@ -645,6 +647,55 @@ Matches saturated call requirement
     }
   }
 
+  TEST(a_matching_call_that_throws_is_saturated)
+  {
+    unsigned count = 0;
+    try {
+      mock_c obj;
+      ALLOW_CALL(obj, getter(ANY(int)))
+        .WITH(_1 != 3)
+        .RETURN(1);
+
+      REQUIRE_CALL(obj, getter(3))
+        .TIMES(3)
+        .SIDE_EFFECT(throw 0)
+        .RETURN(1);
+
+      count += obj.getter(4); // 1
+      count += obj.getter(2); // 2
+      try {
+        count += obj.getter(3); // 2 -> 1
+        FAIL << "didn't throw";
+      } catch (int) {}
+      count += obj.getter(4); // 3
+      count += obj.getter(2); // 4
+      try {
+        count += obj.getter(3); // 4 -> 2
+        FAIL << "didn't throw";
+      } catch (int) {}
+      count += obj.getter(5); // 5
+      try {
+        count += obj.getter(3); // 5 -> 3
+        FAIL << "didn't throw";
+      } catch(int) {}
+      count += obj.getter(8); // 6
+      count += obj.getter(3); // boom!
+      FAIL << "didn't report";
+    }
+    catch (reported)
+    {
+      ASSERT_TRUE(count == 6U);
+      ASSERT_TRUE(reports.size() == 1U);
+      auto re =
+        R"_(No match for call of getter(int) with\.
+  param  _1 = 3
+
+Matches saturated call requirement
+  obj.getter(3) at [a-z_.]*:[0-9]*)_";
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+    }
+  }
+
   TEST(unmatched_call_with_mismatching_requirements_is_reported)
   {
     try {
@@ -741,8 +792,8 @@ Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
   }
-
 }
+
 int main(int argc, char *argv[])
 {
   trompeloeil::set_reporter(send_report);
