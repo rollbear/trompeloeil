@@ -355,7 +355,7 @@ namespace trompeloeil
   template<typename T>
   struct list_elem
   {
-    list_elem(T *list) : n(list), p(list->p)
+    list_elem(T *list) noexcept : n(list), p(list->p)
     {
       p->n = n->p = this;
       assert(list->p->n == list);
@@ -364,13 +364,11 @@ namespace trompeloeil
       assert(p->n == this);
     }
 
-    list_elem() : n(this), p(this)
-    {
-    }
+    list_elem() noexcept : n(this), p(this) { }
 
     list_elem(const list_elem &) = delete;
 
-    list_elem(list_elem &&r) : n(r.n), p(&r)
+    list_elem(list_elem &&r) noexcept : n(r.n), p(&r)
     {
       r.n->p = this;
       r.n = this;
@@ -396,19 +394,19 @@ namespace trompeloeil
     list_elem &operator=(const list_elem &) = delete;
     list_elem &operator=(list_elem&&) = delete;
 
-    bool is_empty() const
+    bool is_empty() const noexcept
     {
       assert(n->p == this);
       assert(p->n == this);
       return n == this;
     }
 
-    T       *next()       { return static_cast<T       *>(n); }
-    T const *next() const { return static_cast<T const *>(n); }
-    T       *prev()       { return static_cast<T       *>(p); }
-    T const *prev() const { return static_cast<T const *>(p); }
+    T       *next()       noexcept { return static_cast<T       *>(n); }
+    T const *next() const noexcept { return static_cast<T const *>(n); }
+    T       *prev()       noexcept { return static_cast<T       *>(p); }
+    T const *prev() const noexcept { return static_cast<T const *>(p); }
 
-    void unlink()
+    void unlink() noexcept
     {
       assert(n->p == this);
       assert(p->n == this);
@@ -421,7 +419,7 @@ namespace trompeloeil
       assert(nn->p == pp);
     }
 
-    void link_before(T &b)
+    void link_before(T &b) noexcept
     {
       auto nn = n;
       auto bn = b.n;
@@ -441,15 +439,15 @@ namespace trompeloeil
 
   struct sequence : public list_elem<sequence>
   {
-    sequence() = default;
+    sequence() noexcept = default;
     virtual void print_expectation(std::ostream&) const {}
   protected:
-    sequence(sequence* p) : list_elem(p) {}
+    sequence(sequence* p) noexcept : list_elem(p) {}
   };
 
   struct sequence_elem : public sequence
   {
-    sequence_elem(sequence& r) : sequence(&r) {}
+    sequence_elem(sequence& r) noexcept : sequence(&r) {}
     void print_expectation(std::ostream& os) const override
     {
       os << exp_name << " at " << exp_loc;
@@ -460,8 +458,12 @@ namespace trompeloeil
 
   struct sequence_matcher : public list_elem<sequence_matcher>
   {
-    sequence_matcher(const char* name_, sequence& s) : seq_name(name_), seq(s), seq_elem(s) {}
-    void set_expectation(const char *name, const char *loc)
+    sequence_matcher(const char* name_, sequence& s) noexcept
+    : seq_name(name_)
+    , seq(s)
+    , seq_elem(s)
+    {}
+    void set_expectation(const char *name, const char *loc) noexcept
     {
       seq_elem.exp_name = name;
       seq_elem.exp_loc = loc;
@@ -481,7 +483,7 @@ namespace trompeloeil
         send_report(severity::fatal, loc, os.str());
       }
     }
-    void retire() { seq_elem.unlink(); }
+    void retire() noexcept { seq_elem.unlink(); }
     const char    *seq_name;
     sequence&      seq;
     sequence_elem  seq_elem;
@@ -506,7 +508,7 @@ namespace trompeloeil
   class optional
   {
   public:
-    optional() : valid(false) { }
+    optional() noexcept : valid(false) { }
 
     optional(const T &t) : valid(true) { new(buffer) T(t);  }
 
@@ -556,22 +558,22 @@ namespace trompeloeil
       return operator=(optional(std::move(t)));
     }
 
-    const T &value() const
+    const T &value() const noexcept
     {
       return *reinterpret_cast<const T *>(buffer);
     }
 
-    T &value()
+    T &value() noexcept
     {
       return *reinterpret_cast<T *>(buffer);
     }
 
-    T &&rvalue()
+    T &&rvalue() noexcept
     {
       return std::move(value());
     }
 
-    bool is_valid() const { return valid; }
+    bool is_valid() const noexcept { return valid; }
 
     operator T &()
     {
@@ -586,12 +588,12 @@ namespace trompeloeil
   class optional<T&>
   {
   public:
-    optional() = default;
-    optional(T& t) : ptr(&t) {}
-    const T& value() const { return *ptr; }
-    T& value() { return *ptr; }
-    bool is_valid() const { return ptr; }
-    operator T&() { return value(); }
+    optional() noexcept = default;
+    optional(T& t) noexcept : ptr(&t) {}
+    const T& value() const noexcept { return *ptr; }
+    T& value() noexcept { return *ptr; }
+    bool is_valid() const noexcept { return ptr; }
+    operator T&() noexcept { return value(); }
   private:
     T* ptr = nullptr;
   };
@@ -600,12 +602,12 @@ namespace trompeloeil
   class optional<T&&>
   {
   public:
-    optional() = default;
-    optional(T& t) : ptr(&t) {}
-    const T& value() const { return *ptr; }
-    T& value() { return *ptr; }
-    bool is_valid() const { return ptr; }
-    operator T&() { return value(); }
+    optional() noexcept = default;
+    optional(T& t) noexcept : ptr(&t) {}
+    const T& value() const noexcept { return *ptr; }
+    T& value() noexcept { return *ptr; }
+    bool is_valid() const noexcept { return ptr; }
+    operator T&() noexcept { return value(); }
   private:
     T* ptr = nullptr;
   };
@@ -616,12 +618,12 @@ namespace trompeloeil
     template <typename U>
     friend struct value_matcher;
   public:
-    value_matcher(const ::trompeloeil::wildcard&) { }
+    value_matcher(const ::trompeloeil::wildcard&) noexcept { }
 
-    value_matcher(const ::trompeloeil::typed_wildcard<T>&) {}
+    value_matcher(const ::trompeloeil::typed_wildcard<T>&) noexcept {}
 
     template <typename U, typename = typename std::enable_if<std::is_same<wildcard, typename std::remove_cv<typename std::remove_reference<U>::type>::type>::value > >
-    value_matcher(value_matcher<U>&&) {}
+    value_matcher(value_matcher<U>&&) noexcept {}
 
     template<typename U>
     value_matcher(U &&u) : desired(std::forward<U>(u))  { }
@@ -700,12 +702,12 @@ namespace trompeloeil
     using T::T;
   public:
     ~mocked_class();
-    void trompeloeil_deathwatch(const char *name, const char *loc) const
+    void trompeloeil_deathwatch(const char *name, const char *loc) const noexcept
     {
       trompeloeil_deathwatch_loc = loc;
       trompeloeil_deathwatch_name = name;
     }
-    lifetime_monitor*& trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor) const
+    lifetime_monitor*& trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor) const noexcept
     {
       return trompeloeil_lifetime_monitor = monitor;
     }
@@ -720,7 +722,7 @@ namespace trompeloeil
     template <typename T>
     lifetime_monitor(const mocked_class<T>&obj,
                      const char* obj_name,
-                     const char *loc)
+                     const char *loc) noexcept
       : object_monitor(obj.trompeloeil_expect_death(this)),
         location(loc),
         object_name(obj_name)
@@ -736,7 +738,7 @@ namespace trompeloeil
         object_monitor = nullptr; // prevent its death poking this cadaver
       }
     }
-    void notify() { died = true; }
+    void notify() noexcept { died = true; }
 
     bool               died = false;
     lifetime_monitor *&object_monitor;
@@ -991,7 +993,7 @@ namespace trompeloeil
     condition_base() = default;
     condition_base(condition_base&& r) : list_elem<condition_base<Sig> >(std::move(r)) {}
     virtual bool check(const call_params_type_t<Sig>&) const = 0;
-    virtual const char* name() const = 0;
+    virtual const char* name() const noexcept = 0;
   };
 
   template<typename Sig>
@@ -1003,7 +1005,7 @@ namespace trompeloeil
     {
       return false;
     }
-    const char *name() const override { return nullptr; }
+    const char *name() const noexcept override { return nullptr; }
   };
 
   template<typename Sig, typename Cond>
@@ -1016,7 +1018,7 @@ namespace trompeloeil
       return c(t);
     }
 
-    const char *name() const override { return str; }
+    const char *name() const noexcept override { return str; }
     Cond c;
     const char *str;
   };
@@ -1085,7 +1087,7 @@ namespace trompeloeil
   template <typename ... T, size_t N, size_t M>
   struct sequence_validator_t<std::tuple<T...>, N, M>
   {
-    static void set_expectation(const char *exp_name, const char *exp_loc, std::tuple<T...>& t)
+    static void set_expectation(const char *exp_name, const char *exp_loc, std::tuple<T...>& t) noexcept
     {
       std::get<N>(t).set_expectation(exp_name, exp_loc);
       sequence_validator_t<std::tuple<T...>, N + 1, M>::set_expectation(exp_name, exp_loc, t);
@@ -1095,7 +1097,7 @@ namespace trompeloeil
       std::get<N>(t).check_match(match_name, loc);
       sequence_validator_t<std::tuple<T...>, N + 1, M>::validate(match_name, loc, t);
     }
-    static void retire(std::tuple<T...>& t)
+    static void retire(std::tuple<T...>& t) noexcept
     {
       std::get<N>(t).retire();
       sequence_validator_t<std::tuple<T...>, N + 1, M>::retire(t);
@@ -1105,9 +1107,9 @@ namespace trompeloeil
   template <typename ... T, size_t N>
   struct sequence_validator_t<std::tuple<T...>, N, N>
   {
-    static void set_expectation(const char*, const char*, std::tuple<T...>&) {}
+    static void set_expectation(const char*, const char*, std::tuple<T...>&) noexcept {}
     static void validate(const char*, const char*, const std::tuple<T...>& ) {}
-    static void retire(std::tuple<T...>& ){}
+    static void retire(std::tuple<T...>& ) noexcept {}
   };
 
 
@@ -1119,16 +1121,16 @@ namespace trompeloeil
 
   struct sequence_handler_base : public list_elem<sequence_handler_base >
   {
-    virtual void set_expectation(const char *, const char*) = 0;
+    virtual void set_expectation(const char *, const char*) noexcept = 0;
     virtual void validate(const char*, const char*) = 0;
-    virtual void retire() = 0;
+    virtual void retire() noexcept = 0;
   };
 
   struct sequence_handler_list : public sequence_handler_base
   {
-    void set_expectation(const char*, const char*) override {}
+    void set_expectation(const char*, const char*) noexcept override {}
     void validate(const char*, const char*) override {}
-    void retire() override {}
+    void retire() noexcept override {}
   };
 
 
@@ -1140,7 +1142,7 @@ namespace trompeloeil
   {
     using seq_tuple = std::tuple<Seq...>;
     sequence_handler(seq_tuple&& t) : sequences(std::move(t)) {}
-    void set_expectation(const char *exp_name, const char *exp_loc)
+    void set_expectation(const char *exp_name, const char *exp_loc) noexcept
     {
       sequence_validator<seq_tuple>::set_expectation(exp_name, exp_loc, sequences);
     }
@@ -1148,7 +1150,7 @@ namespace trompeloeil
     {
       sequence_validator<seq_tuple>::validate(match_name, loc, sequences);
     }
-    void retire()
+    void retire() noexcept
     {
       sequence_validator<seq_tuple>::retire(sequences);
     }
@@ -1194,24 +1196,24 @@ namespace trompeloeil
     {
       add_last(data);
     }
-    void add_last(side_effect_base<Sig>& s)
+    void add_last(side_effect_base<Sig>& s) noexcept
     {
       this->actions.link_before(s);
     }
-    void add_last(condition_base<Sig>& s)
+    void add_last(condition_base<Sig>& s) noexcept
     {
       this->conditions.link_before(s);
     }
-    void add_last(return_handler_base<Sig>& s)
+    void add_last(return_handler_base<Sig>& s) noexcept
     {
       this->return_handler.link_before(s);
     }
-    void add_last(sequence_handler_base& s)
+    void add_last(sequence_handler_base& s) noexcept
     {
       this->sequence_handler.link_before(s);
       s.set_expectation(this->name, this->location);
     }
-    void add_last(std::tuple<>) {}
+    void add_last(std::tuple<>) noexcept {}
     template <typename D>
     call_data<call_data, condition<Sig, D>, Sig> with(const char* str, D&& d)
     {
@@ -1275,7 +1277,7 @@ namespace trompeloeil
       if (!reported && !this->is_empty() && call_count < min_calls) report_missed();
     }
 
-    call_matcher& hook_last(call_matcher_list<Sig> &list)
+    call_matcher& hook_last(call_matcher_list<Sig> &list) noexcept
     {
       list.link_before(*this);
       return *this;
@@ -1403,17 +1405,17 @@ namespace trompeloeil
       using h = ::trompeloeil::sequence_handler<std::tuple<T...> >;
       return { std::move(*this), h( std::move(tup) ) };
     }
-    call_matcher &set_location(const char *loc)
+    call_matcher &set_location(const char *loc) noexcept
     {
       location = loc;
       return *this;
     }
-    call_matcher& set_name(const char* n)
+    call_matcher& set_name(const char* n) noexcept
     {
       name = n;
       return *this;
     }
-    virtual std::tuple<unsigned long long, unsigned long long> call_limits() const
+    virtual std::tuple<unsigned long long, unsigned long long> call_limits() const noexcept
     {
       return std::make_tuple(min_calls, max_calls);
     }
@@ -1449,7 +1451,7 @@ namespace trompeloeil
   template <typename T, int N>
   struct arg<T, N, false>
   {
-    static const illegal_argument<N>& value(T&)
+    static const illegal_argument<N>& value(T&) noexcept
     {
       static const constexpr illegal_argument<N> v{};
       return v;
@@ -1458,10 +1460,10 @@ namespace trompeloeil
   };
 
   template <int N, typename T>
-  auto mkarg(T& t) -> decltype(arg<T, N>::value(t)) { return arg<T, N>::value(t); }
+  auto mkarg(T& t) noexcept -> decltype(arg<T, N>::value(t)) { return arg<T, N>::value(t); }
 
   template <typename ... T>
-  void ignore(const T& ...) {}
+  void ignore(const T& ...) noexcept {}
 
   template <typename ... T>
   call_params_type_t<void(T...)> make_params_type_obj(T&& ... t)
@@ -1529,7 +1531,7 @@ namespace trompeloeil
   TROMPELOEIL_ID(tag_type_trompeloeil) trompeloeil_tag_ ## name params constness; \
                                                                               \
   TROMPELOEIL_ID(matcher_list_type)&                                          \
-  trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil)) constness    \
+  trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil)) constness noexcept   \
   {                                                                           \
     return TROMPELOEIL_ID(matcher_list);                                      \
   }                                                                           \
