@@ -1220,6 +1220,15 @@ namespace trompeloeil
   };
 
   template <typename P>
+  struct throw_injector : public P
+  {
+    static const bool throws = true;
+    using P::P;
+
+    template <typename ... A>
+    throw_injector(A&& ... a) : P(std::forward<A>(a)...) {}
+  };
+  template <typename P>
   struct call_limit_injector : public P
   {
     static const bool call_limit_set = true;
@@ -1243,6 +1252,7 @@ namespace trompeloeil
     using typename Parent::return_type;
     using Parent::call_limit_set;
     using Parent::sequence_set;
+    using Parent::throws;
     call_data(Parent&& p) : Parent(std::move(p)) {}
     call_data(Parent&& p, U&& d) : Parent(std::move(p)), data(std::move(d))
     {
@@ -1285,11 +1295,17 @@ namespace trompeloeil
                     "RETURN value is not convertible to the return type of the function");
       static_assert(!std::is_same<return_type, decltype(h(std::declval<call_params_type_t<Sig>&>()))>::value || std::is_same<return_type, void>::value,
                     "Multiple RETURN does not make sense");
+      static_assert(!throws,
+                    "THROW and RETURN does not make sense");
       return {return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
     }
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_data>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
+    call_data<throw_injector<call_data>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
     {
+      static_assert(!throws,
+                    "Multiple THROW does not make sense");
+      static_assert(std::is_same<return_type, void>::value,
+                    "THROW and RETURN does not make sense");
       return { return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), throw_handler<Sig, H>(str, std::move(h))};
     }
     template <unsigned long long L,
@@ -1298,8 +1314,8 @@ namespace trompeloeil
     call_data<call_limit_injector<call_data>, std::tuple<>, Sig> times()
     {
       static_assert(!verboten,
-                    "A TIMES call limit is already given");
-      static_assert(H >= L, "In TIMES Higher limit must exceed lower limit");
+                    "Only one TIMES call limit is allowed, but it can express an interval");
+      static_assert(H >= L, "In TIMES the first value must not exceed the second");
       this->min_calls = L;
       this->max_calls = H;
       return { std::move(*this), {} };
@@ -1308,7 +1324,7 @@ namespace trompeloeil
     template <typename ... T, bool b = sequence_set, typename = std::enable_if<all_are<sequence_matcher, T...>::value> >
     call_data<sequence_injector<call_data>,sequence_handler<std::tuple<T...> >,Sig> in_sequence(T&& ... t)
     {
-      static_assert(!b, "a SEQUENCE limit is already in place");
+      static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
       return { std::move(*this), { std::tuple<typename std::remove_reference<T>::type...>(std::forward<T>(t)...) } };
     }
 
@@ -1323,6 +1339,7 @@ namespace trompeloeil
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
     using return_type = void;
+    static const bool throws = false;
 
     template<typename ... U>
     call_matcher(U &&... u) : val(value_matcher<U>(std::forward<U>(u))...) {}
@@ -1446,14 +1463,14 @@ namespace trompeloeil
       return {std::move(*this), {str, std::move(h)}};
     }
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
+    call_data<throw_injector<call_matcher>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
     {
       return { std::move(*this), {str, std::move(h)}};
     }
     template <unsigned long long L, unsigned long long H = L>
     call_data<call_limit_injector<call_matcher>, std::tuple<>, Sig> times()
     {
-      static_assert(H >= L, "In TIMES Higher limit must exceed lower limit");
+      static_assert(H >= L, "In TIMES the first value must not exceed the second");
       min_calls = L;
       max_calls = H;
       return { std::move(*this), {} };
@@ -1550,7 +1567,7 @@ namespace trompeloeil
     template <typename Sig, typename T>
     static void assert_return_type(T&)
     {
-      static_assert(std::is_same<typename T::return_type, return_of_t<Sig> >::value,
+      static_assert(T::throws || std::is_same<typename T::return_type, return_of_t<Sig> >::value,
                     "RETURN missing for non-void function");
     }
     template <typename Sig>
