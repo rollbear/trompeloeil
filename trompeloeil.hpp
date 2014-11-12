@@ -357,33 +357,32 @@ namespace trompeloeil
   {
     list_elem(T *list) noexcept : n(list), p(list->p)
     {
+      list->invariant_check();
+
       p->n = n->p = this;
-      assert(list->p->n == list);
-      assert(list->n->p == list);
-      assert(n->p == this);
-      assert(p->n == this);
+
+      invariant_check();
+      list->invariant_check();
     }
 
-    list_elem() noexcept : n(this), p(this) { }
+    list_elem() noexcept : n(this), p(this) { invariant_check(); }
 
     list_elem(const list_elem &) = delete;
 
     list_elem(list_elem &&r) noexcept : n(r.n), p(&r)
     {
-      r.n->p = this;
+      r.invariant_check();
+
+      n->p = this;
       r.n = this;
 
-      assert(r.n->p == &r);
-      assert(r.p->n == &r);
       assert(n->p == this);
       assert(p->n == this);
 
       r.unlink();
 
-      assert(r.n == &r);
-      assert(r.p == &r);
-      assert(n->p == this);
-      assert(p->n == this);
+      assert(r.is_empty());
+      invariant_check();
     }
 
     ~list_elem()
@@ -391,13 +390,33 @@ namespace trompeloeil
       unlink();
     }
 
+    void invariant_check() const
+    {
+      assert(n->p == this);
+      assert(p->n == this);
+      assert((n == this) == (p == this));
+      assert((p->n == n) == (n == this));
+      assert((n->p == p) == (p == this));
+      auto pp = p;
+      auto nn = n;
+      do {
+        assert((nn == this) == (pp == this));
+        assert(nn->n->p == nn);
+        assert(nn->p->n == nn);
+        assert(pp->n->p == pp);
+        assert(pp->p->n == pp);
+        assert((nn->n == nn) == (nn == this));
+        assert((pp->p == pp) == (pp == this));
+        nn = nn->n;
+        pp = pp->p;
+      } while (nn != this);
+    }
     list_elem &operator=(const list_elem &) = delete;
     list_elem &operator=(list_elem&&) = delete;
 
     bool is_empty() const noexcept
     {
-      assert(n->p == this);
-      assert(p->n == this);
+      invariant_check();
       return n == this;
     }
 
@@ -408,31 +427,35 @@ namespace trompeloeil
 
     void unlink() noexcept
     {
-      assert(n->p == this);
-      assert(p->n == this);
+      invariant_check();
       auto pp = p;
       auto nn = n;
       nn->p = pp;
       pp->n = nn;
       n = p = this;
-      assert(pp->n == nn);
-      assert(nn->p == pp);
+      invariant_check();
     }
 
     void link_before(T &b) noexcept
     {
-      auto nn = n;
+      invariant_check();
+      b.invariant_check();
+
+      for (auto i = n; i != this; i = i->n)
+      {
+        assert(i != &b);
+      }
+
+      auto pp = p;
       auto bn = b.n;
-      nn->n = b.n;
-      bn->p = nn;
+      pp->n = bn;
+      bn->p = pp;
       b.n = this;
       p = &b;
-      assert(p->n == this);
-      assert(n->p == this);
-      assert(b.n->p == &b);
-      assert(b.p->n == &b);
-    };
 
+      invariant_check();
+    };
+  private:
     list_elem *n;
     list_elem *p;
   };
