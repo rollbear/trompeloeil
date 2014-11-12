@@ -1282,9 +1282,9 @@ namespace trompeloeil
       static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of_t<Sig>, void>::value,
                     "RETURN does not make sense for void-function");
       static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
-                    "given RETURN type is not convertible to that of the function");
+                    "RETURN value is not convertible to the return type of the function");
       static_assert(!std::is_same<return_type, decltype(h(std::declval<call_params_type_t<Sig>&>()))>::value || std::is_same<return_type, void>::value,
-                    "A RETURN is already given");
+                    "Multiple RETURN does not make sense");
       return {return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
     }
     template <typename H>
@@ -1440,10 +1440,9 @@ namespace trompeloeil
     {
       static_assert(!std::is_same<return_of_t<Sig>, void>::value || std::is_same<H, void>::value,
                     "RETURN does not make sense for void-function");
-#if 0
-      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig> >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
-                    "given RETURN type is not convertible to that of the function");
-#endif
+
+      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
+                    "RETURN value is not convertible to the return type of the function");
       return {std::move(*this), {str, std::move(h)}};
     }
     template <typename H>
@@ -1533,18 +1532,35 @@ namespace trompeloeil
     return call_params_type_t<void(T...)>(t...);
   }
 
+  template <typename T>
+  struct is_call_matcher
+  {
+    struct no {};
+    struct yes {};
+    static no func(...);
+    template <typename U, typename P, typename Sig>
+    static Sig func(const call_data<P, U, Sig>*);
+    using TT = typename std::remove_reference<T>::type;
+    static const bool value = std::is_same<decltype(func(std::declval<TT*>())), yes>::value;
+    using Sig = decltype(func(std::declval<TT*>()));
+  };
+
   struct call_validator
   {
+    template <typename Sig, typename T>
+    static void assert_return_type(T&)
+    {
+      static_assert(std::is_same<typename T::return_type, return_of_t<Sig> >::value,
+                    "RETURN missing for non-void function");
+    }
     template <typename Sig>
     call_matcher<Sig> operator+(trompeloeil::call_matcher<Sig>& t) {
-      static_assert(std::is_same<typename call_matcher<Sig>::return_type, return_of_t<Sig> >::value,
-                    "missig RETURN for non-void function");
+      assert_return_type<Sig>(t);
       return std::move(t);
     }
     template <typename P, typename U, typename Sig>
     call_data<P, U, Sig> operator+(::trompeloeil::call_data<P, U, Sig>&& t) {
-      static_assert(std::is_same<return_of_t<Sig>, typename call_data<P, U, Sig>::return_type>::value,
-                    "RETURN missing for non-void function");
+      assert_return_type<Sig>(t);
       return std::move(t);
     }
   };
