@@ -899,6 +899,13 @@ namespace trompeloeil
   template <typename T, typename U, typename ... A>
   struct all_are<T, U, A...> : public std::false_type {};
 
+  template <typename Sig>
+  return_of_t<Sig> default_return()
+  {
+    typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
+    return std::forward<return_of_t<Sig>>(*p);
+  }
+
   template<typename Sig>
   struct call_matcher_list : public call_matcher_base<Sig>
   {
@@ -914,8 +921,7 @@ namespace trompeloeil
 
     virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &)
     {
-      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
-      return std::forward<return_of_t<Sig>>(*p);
+      return default_return<Sig>();
     }
 
     virtual void report_missed() {}
@@ -1058,8 +1064,7 @@ namespace trompeloeil
   {
     return_of_t<Sig> return_value(call_params_type_t<Sig> &)
     {
-      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
-      return std::forward<return_of_t<Sig> >(*p);
+      return default_return<Sig>();
     }
   };
 
