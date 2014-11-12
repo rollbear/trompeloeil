@@ -297,6 +297,23 @@ TESTSUITE(sequences)
   }
 }
 
+TEST(side_effects_are_executed_in_the_order_declared)
+{
+  std::string s;
+
+  mock_c obj;
+
+  REQUIRE_CALL(obj, getter(ANY(int)))
+    .SIDE_EFFECT(s = std::to_string(_1))
+    .SIDE_EFFECT(s += "_")
+    .SIDE_EFFECT(s += s)
+    .RETURN(_1);
+
+  obj.getter(3);
+
+  ASSERT_TRUE(s == "3_3_");
+}
+
 TESTSUITE(return_values)
 {
   TEST(return_by_reference_returns_object_given)
