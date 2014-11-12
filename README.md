@@ -80,7 +80,7 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
     auto s = out.work(3);
 
-    ASSERT(s == "cat");
+    ASSERT_TRUE(s == "cat");
   }
 
 }
@@ -88,7 +88,6 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
 Limitations (TODO-list)
 -----------------------
-- Even if you throw as a side-effect, you need a .RETURN() in non-void functions
 - Private methods cannot be mocked
 - Mock function parameter types must not include commas (i.e. must not be of
   template types with more than one template parameter.)
@@ -195,7 +194,14 @@ Set the return value after having evaluated every **`.SIDE_EFFECT`** . For `void
 functions **`.RETURN`** is illegal. For non-`void` functions **`.RETURN`** is
 required exactly once. *expr* may refer to parameters in the call with their
 positional names `_1`, `_2`, etc. This code may alter out-parameters. If you
-need to return an lvalue reference, use `std::ref()`.
+need to return an lvalue reference, use `std::ref()`.  It is not legal to
+combine both **`.THROW`** and **`.RETURN`**.
+
+**`.THROW`(** *expr* **)**  
+Throw after having evaluated every **`.SIDE_EFFECT`** . *expr* may refer to
+parameters in the call with their positional names `_1`, `_2`, etc. This code
+may alter out-parameters. It is not legal to combine both **`.THROW`** and
+**`.RETURN`**.
 
 **`.TIMES`(** *limit* **)**  
 Set the number of times the call is allowed. *limits* must be `constexpr`.

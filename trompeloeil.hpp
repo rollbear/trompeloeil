@@ -7,7 +7,7 @@
 
 
 // Deficiencies and missing features
-// * Implement A .THROW(expr) to use instead of .RETURN(expr) when desired
+// * No good compilation error with THROW/RETURN combined
 // * Mocking private methods is not supported
 // * Mocking function templates is not supported
 // * implement tracing
@@ -840,7 +840,7 @@ namespace trompeloeil
     virtual void run_actions(call_params_type_t<void(A...)> &, call_matcher_list<void(A...)> &) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&, const call_params_type_t<void(A...)> &) = 0;
-    void return_value(call_params_type_t<void(A...)> &) {};
+    virtual void return_value(call_params_type_t<void(A...)> &) {};
 
     virtual void report_missed() = 0;
 
@@ -900,10 +900,24 @@ namespace trompeloeil
   struct all_are<T, U, A...> : public std::false_type {};
 
   template <typename Sig>
+  struct default_return_t
+  {
+    static return_of_t<Sig> value()
+    {
+      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
+      return std::forward<return_of_t<Sig>>(*p);
+    }
+  };
+
+  template <typename ... A>
+  struct default_return_t<void(A...)>
+  {
+    static void value() {}
+  };
+  template <typename Sig>
   return_of_t<Sig> default_return()
   {
-    typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
-    return std::forward<return_of_t<Sig>>(*p);
+    return default_return_t<Sig>::value();
   }
 
   template<typename Sig>
@@ -1086,6 +1100,16 @@ namespace trompeloeil
     const char *str;
   };
 
+  template <typename Sig, typename Handler>
+  struct throw_handler : public return_handler_base<Sig>
+  {
+    throw_handler(const char *str_, Handler h_) : h(h_), str(str_) {}
+
+    return_of_t<Sig> return_value(call_params_type_t<Sig>& t) { h(t); return default_return<Sig>(); }
+
+    Handler h;
+    const char *str;
+  };
   template <typename T, std::size_t N, size_t M>
   struct sequence_validator_t;
 
@@ -1240,6 +1264,11 @@ namespace trompeloeil
                     "A RETURN is already given");
       return {return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
     }
+    template <typename H>
+    call_data<return_type_injector<return_of_t<Sig>, call_data>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
+    {
+      return { return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), throw_handler<Sig, H>(str, std::move(h))};
+    }
     template <unsigned long long L,
               unsigned long long H = L,
               bool               verboten = call_limit_set>
@@ -1393,6 +1422,11 @@ namespace trompeloeil
                     "given RETURN type is not convertible to that of the function");
 #endif
       return {std::move(*this), {str, std::move(h)}};
+    }
+    template <typename H>
+    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
+    {
+      return { std::move(*this), {str, std::move(h)}};
     }
     template <unsigned long long L, unsigned long long H = L>
     call_data<call_limit_injector<call_matcher>, std::tuple<>, Sig> times()
@@ -1676,6 +1710,29 @@ namespace trompeloeil
   return __VA_ARGS__;                                                      \
     })
 
+#define TROMPELOEIL_THROW(...) \
+  TROMPELOEIL_THROW_(#__VA_ARGS__, __VA_ARGS__)
+
+#define TROMPELOEIL_THROW_(arg_s, ...) handle_throw(arg_s, [&](auto& x) { \
+  auto& _1 = ::trompeloeil::mkarg<1>(x);                                     \
+  auto& _2 = ::trompeloeil::mkarg<2>(x);                                     \
+  auto& _3 = ::trompeloeil::mkarg<3>(x);                                     \
+  auto& _4 = ::trompeloeil::mkarg<4>(x);                                     \
+  auto& _5 = ::trompeloeil::mkarg<5>(x);                                     \
+  auto& _6 = ::trompeloeil::mkarg<6>(x);                                     \
+  auto& _7 = ::trompeloeil::mkarg<7>(x);                                     \
+  auto& _8 = ::trompeloeil::mkarg<8>(x);                                     \
+  auto& _9 = ::trompeloeil::mkarg<9>(x);                                     \
+  auto&_10 = ::trompeloeil::mkarg<10>(x);                                    \
+  auto&_11 = ::trompeloeil::mkarg<11>(x);                                    \
+  auto&_12 = ::trompeloeil::mkarg<12>(x);                                    \
+  auto&_13 = ::trompeloeil::mkarg<13>(x);                                    \
+  auto&_14 = ::trompeloeil::mkarg<14>(x);                                    \
+  auto&_15 = ::trompeloeil::mkarg<15>(x);                                    \
+  ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+  throw __VA_ARGS__;                                                      \
+    })
+
 
 #define TROMPELOEIL_TIMES(...) times<__VA_ARGS__>()
 
@@ -1717,6 +1774,7 @@ namespace trompeloeil
 #define WITH(...)                     TROMPELOEIL_WITH_(#__VA_ARGS__, __VA_ARGS__)
 #define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(#__VA_ARGS__, __VA_ARGS__)
 #define RETURN(...)                   TROMPELOEIL_RETURN_(#__VA_ARGS__, __VA_ARGS__)
+#define THROW(...)                    TROMPELOEIL_THROW_(#__VA_ARGS__, __VA_ARGS__)
 #define TIMES(...)                    TROMPELOEIL_TIMES(__VA_ARGS__)
 #define IN_SEQUENCE(...)              TROMPELOEIL_IN_SEQUENCE(__VA_ARGS__)
 #define ANY(type)                     TROMPELOEIL_ANY(type)

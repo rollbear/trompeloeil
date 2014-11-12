@@ -324,6 +324,48 @@ TESTSUITE(return_values)
     }
     ASSERT_TRUE(reports.empty());
   }
+
+  TEST(THROW_throws_after_side_effect_when_replacing_return_for_non_void_functions)
+  {
+    int thrown = 0;
+    int global = 0;
+    try {
+      mock_c obj;
+      REQUIRE_CALL(obj, getter(ANY(int)))
+        .THROW(8)
+        .SIDE_EFFECT(global = _1);
+      obj.getter(8);
+      FAIL << "didn't throw";
+    }
+    catch (int n)
+    {
+      thrown = n;
+    }
+    ASSERT_TRUE(thrown == 8);
+    ASSERT_TRUE(global == 8);
+  }
+
+  TEST(THROW_throws_after_side_effect_in_void_functions)
+  {
+    int thrown = 0;
+    std::string s;
+    try {
+      mock_c obj;
+
+      REQUIRE_CALL(obj, func(_,_))
+        .SIDE_EFFECT(_2 = std::to_string(_1))
+        .THROW(8);
+
+      obj.func(8, s);
+      FAIL << "didn't throw";
+    }
+    catch (int n)
+    {
+      thrown = n;
+    }
+    ASSERT_TRUE(thrown == 8);
+    ASSERT_TRUE(s == "8");
+  }
 }
 
 TESTSUITE(matching)
