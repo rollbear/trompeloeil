@@ -835,9 +835,29 @@ namespace trompeloeil
     using type = std::tuple<value_matcher<T> ...>;
   };
 
-
   template<typename Sig>
   using value_match_type_t = typename value_match_type<Sig>::type;
+
+  template <typename Sig>
+  struct default_return_t
+  {
+    static return_of_t<Sig> value()
+    {
+      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
+      return std::forward<return_of_t<Sig>>(*p);
+    }
+  };
+
+  template <typename ... A>
+  struct default_return_t<void(A...)>
+  {
+    static void value() {}
+  };
+  template <typename Sig>
+  return_of_t<Sig> default_return()
+  {
+    return default_return_t<Sig>::value();
+  }
 
 
   template<typename Sig>
@@ -857,29 +877,9 @@ namespace trompeloeil
     virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &saturated_list) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &params) = 0;
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig>&) {
+      return default_return<Sig>(); }
     virtual void report_missed() = 0;
-  };
-
-  template<typename ... A>
-  struct call_matcher_base<void(A...)>
-    : public list_elem<call_matcher_base<void(A...)> >
-  {
-    call_matcher_base() = default;
-
-    call_matcher_base(call_matcher_base *list)
-      : list_elem<call_matcher_base>(list)
-    {
-    }
-
-    virtual bool matches(const call_params_type_t<void(A...)> &) const = 0;
-    virtual void run_actions(call_params_type_t<void(A...)> &, call_matcher_list<void(A...)> &) = 0;
-    virtual std::ostream& report_signature(std::ostream&) const = 0;
-    virtual std::ostream& report_mismatch(std::ostream&, const call_params_type_t<void(A...)> &) = 0;
-    virtual void return_value(call_params_type_t<void(A...)> &) {};
-
-    virtual void report_missed() = 0;
-
   };
 
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
@@ -935,26 +935,6 @@ namespace trompeloeil
   template <typename T, typename U, typename ... A>
   struct all_are<T, U, A...> : public std::false_type {};
 
-  template <typename Sig>
-  struct default_return_t
-  {
-    static return_of_t<Sig> value()
-    {
-      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
-      return std::forward<return_of_t<Sig>>(*p);
-    }
-  };
-
-  template <typename ... A>
-  struct default_return_t<void(A...)>
-  {
-    static void value() {}
-  };
-  template <typename Sig>
-  return_of_t<Sig> default_return()
-  {
-    return default_return_t<Sig>::value();
-  }
 
   template<typename Sig>
   struct call_matcher_list : public call_matcher_base<Sig>
@@ -974,18 +954,6 @@ namespace trompeloeil
       return default_return<Sig>();
     }
 
-    virtual void report_missed() {}
-  };
-
-  template<typename ... A>
-  struct call_matcher_list<void(A...)> : public call_matcher_base<void(A...)>
-  {
-    template<typename ... U>
-    call_matcher_list &operator()(const U &...) { return *this;}
-    virtual bool matches(const call_params_type_t<void(A...)> &) const { return false; }
-    virtual void run_actions(call_params_type_t<void(A...)> &, call_matcher_list<void(A...)> &) { }
-    virtual std::ostream& report_signature(std::ostream& r) const override { return r; }
-    virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<void(A...)> &) override {return r;}
     virtual void report_missed() {}
   };
 
@@ -1116,13 +1084,6 @@ namespace trompeloeil
     {
       return default_return<Sig>();
     }
-  };
-
-  template<typename ... A>
-  struct return_handler_list<void(A...)>
-    : public return_handler_base<void(A...)>
-  {
-    void return_value(call_params_type_t<void(A...)> &) {}
   };
 
   template<typename Sig, typename Handler>
@@ -1613,8 +1574,6 @@ namespace trompeloeil
 
 #define TROMPELOEIL_MOCK_CONST(name, params)    \
   TROMPELOEIL_MOCK_(name, const, params, #name, #params)
-
-
 
 #define TROMPELOEIL_MOCK_(name, constness, params, name_s, params_s)          \
   using TROMPELOEIL_ID(matcher_type) =                                        \
