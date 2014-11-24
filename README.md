@@ -74,8 +74,7 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
       .IN_SEQUENCE(seq1)
       .TIMES(AT_LEAST(1));
 
-    FORBID_CALL(*raw_i, bar(0))
-      .RETURN(false);
+    FORBID_CALL(*raw_i, bar(0));
 
     REQUIRE_CALL(*raw_i, bar("word"))
       .RETURN(true)
@@ -233,11 +232,11 @@ is 0..~0ULL, but that is for all practical purposes "infinity"_)
 
 **`FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching call
-an error.
+an error. No **`.RETURN`**() is needed for non-void functions.
 
 **`NAMED_FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching
-call an error.
+call an error. No **`.RETURN`**() is needed for non-void functions.
 
 ## Printing values
 

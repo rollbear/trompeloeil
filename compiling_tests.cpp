@@ -512,8 +512,7 @@ TESTSUITE(overloads)
 
       REQUIRE_CALL(obj, getter(ANY(unmovable&)))
         .RETURN(std::ref(_1));
-      FORBID_CALL(obj, getter(ANY(int)))
-        .RETURN(_1);
+      FORBID_CALL(obj, getter(ANY(int)));
       REQUIRE_CALL(obj, getter(_,_))
         .SIDE_EFFECT(_2 = std::to_string(_1));
 
@@ -834,8 +833,7 @@ Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
       ALLOW_CALL(obj, getter(ANY(int)))
         .RETURN(0);
 
-      FORBID_CALL(obj, getter(3))
-        .RETURN(0);
+      FORBID_CALL(obj, getter(3));
 
       obj.getter(4);
       obj.getter(2);

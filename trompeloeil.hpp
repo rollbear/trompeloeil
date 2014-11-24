@@ -1553,13 +1553,13 @@ namespace trompeloeil
   TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_FORBID_CALL_(obj, func, obj_s, func_s)     \
-  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0)
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0).THROW(false)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL(obj, func) \
   TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, obj_s, func_s)       \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0).THROW(false)
 
 
 
