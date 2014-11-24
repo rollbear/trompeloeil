@@ -49,10 +49,10 @@ public:
   std::string work(int n);
 };
 
-class MI : public trompeloeil::mocked_class<I>
+class MI : public I
 {
 public:
-  using mocked_class::mocked_class;
+  using I::I
   MAKE_MOCK2(foo, bool(int, std::string&));
   MAKE_MOCK1(bar, bool(int));
   MAKE_MOCK1(bar, bool(std::string));
