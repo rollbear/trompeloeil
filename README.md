@@ -15,13 +15,17 @@ A header only mocking framework for C++14.
 are missing. Code breaking changes are no longer expected, but may still
 occur.**
 
-**NOTE!! A code breaking change did just occur. MOCK(obj, params) and
-MOCK_CONST(obj, params) are no longer. Instead use MAKE_MOCKn(obj, signature)
-and MAKE_MOCK_CONSTn(obj, signature), where n is the number of parameters in the
-signature. Check the example below, and the description of the macros.**
+**NOTE!! Two code breaking change did just occur.**
 
-**NOTE!! Another code breaking change is in the pipe and is likely to appear
-soon. Watch this space!**
+- **`MOCK`**(obj, params) and **`MOCK_CONST`**(obj, params) are no longer.
+  Instead use **`MAKE_MOCKn`**(obj, signature) and
+  **`MAKE_MOCK_CONSTn`**(obj, signature), where n is  the number of parameters
+  in the signature. Check the example below, and the description of the macros.
+- The **`DEATHWATCH`** macro and the **`mocked_class<T>`** template is removed.
+  Let mock classes inherit directly from their interface when desired. To
+  monitor the lifetime of a mock object, instantiate the object as
+  **`trompeloeil::deathwatched<T>`**.
+
 
 Example usage
 -------------
@@ -58,12 +62,9 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 {
   using trompeloeil::_; // wild card for matching any value
 
-  auto raw_i = new MI("word");
-
-  DEATHWATCH(*raw_i);
+  auto raw_i = new trompeloeil::deathwatched<MI>("word");
 
   CUT out(raw_i);
-
 
   trompeloeil::sequence seq1, seq2;
 
@@ -108,6 +109,11 @@ The example above shows most currently supported functionality.
 
 ## Types & Templates
 
+**`trompeloeil::deathwatched<T>`**  
+Template used when monitoring the lifetime of a mock object. If a
+**`deathwatched`** object is destroyed before a **`REQUIRE_DESTRUCTION`**
+is active, an error is reported.
+
 **`trompeloeil::sequence`**  
 Type of sequence objects, used to impose an order of matching invocations of
 **`REQUIRE_CALL`** instances. Several sequence objects can be used to denote
@@ -123,6 +129,10 @@ constructors of `T`.
 **`trompeloeil::wildcard`**  
 The type of the wild card object `trompeloeil::_` . You typically never see
 the type itself.
+
+**`trompeloeil::expectation`**
+Base type of a named expectation object, as created by **`NAMED_REQUIRE_CALL`**,
+**`NAMED_FORBID_CALL`** and **`NAMED_ALLOW_CALL`**.
 
 ## Macros
 
@@ -167,14 +177,9 @@ Same as **`REQUIRE_CALL`**, except it instantiates a
 *std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a
 variable.
 
-**`DEATHWATCH`(** *mock_object* **)**  
-Set up a deathwatch for *mock_object*, meaning its destruction is monitored.
-It is an error if *mock_object* is destroyed before a
-**`REQUIRE_DESTRUCTION`()** is active.
-
 **`REQUIRE_DESTRUCTION`(** *mock_object* **)**  
-Makes it legal for *mock_object* to be destroyed when a **`DEATHWATCH`**() is
-active for it. It is an error if *mock_object* is still alive at end of scope.
+Makes it legal for a **`deathwatched`** *mock_object* to be destroyed. An erro
+is reported if *mock_object* is still alive at end of scope.
 
 **`NAMED_REQUIRE_DESTRUCTION`(** *mock_object* **)**  
 Same as **`REQUIRE_DESTRUCTION`**, except it instantiates a

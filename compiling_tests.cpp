@@ -90,19 +90,18 @@ protected:
   C(const char*) {}
 };
 
-class mock_c : public trompeloeil::mocked_class<C>
+class mock_c : public C
 {
  public:
-  mock_c() : mocked_class() {}
-  mock_c(int i) : mocked_class(i) {}
-  mock_c(const char* p) : mocked_class(p) {}
+  mock_c() {}
+  mock_c(int i) : C(i) {}
+  mock_c(const char* p) : C(p) {}
   MAKE_MOCK1(ptr,  std::unique_ptr<int>(std::unique_ptr<int>&&));
   MAKE_MOCK0(count,  int());
   MAKE_MOCK2(func,   void(int, std::string&));
   MAKE_MOCK1(getter, unmovable&(unmovable&));
   MAKE_MOCK1(getter, int(int));
   MAKE_MOCK2(getter, void(int, std::string&));
-  //MOCK(ptr,    (std::unique_ptr<int>&&));
 };
 
 
@@ -611,8 +610,7 @@ TESTSUITE(destruction)
   TEST(an_unexpected_destruction_of_monitored_object_is_reported)
   {
     {
-      mock_c obj;
-      DEATHWATCH(obj);
+      trompeloeil::deathwatched<mock_c> obj;
     }
     ASSERT_TRUE(reports.size() == 1U);
     ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Unexpected destruction of.*@"));
@@ -621,8 +619,7 @@ TESTSUITE(destruction)
   TEST(an_expected_destruction_of_monitored_object_is_not_reported)
   {
     {
-      auto obj = new mock_c;
-      DEATHWATCH(*obj);
+      auto obj = new trompeloeil::deathwatched<mock_c>;
       REQUIRE_DESTRUCTION(*obj);
       delete obj;
     }
@@ -631,8 +628,7 @@ TESTSUITE(destruction)
 
   TEST(object_alive_when_destruction_expectation_goes_out_of_scope_is_reported)
   {
-    mock_c obj;
-    DEATHWATCH(obj);
+    trompeloeil::deathwatched<mock_c> obj;
     {
       auto p = NAMED_REQUIRE_DESTRUCTION(obj);
     }
@@ -643,24 +639,13 @@ TESTSUITE(destruction)
   TEST(require_destruction_succeeds_also_without_deathwatch)
   {
     {
-      auto obj = new mock_c;
+      auto obj = new trompeloeil::deathwatched<mock_c>;
       REQUIRE_DESTRUCTION(*obj);
       delete obj;
     }
     ASSERT_TRUE(reports.empty());
   }
 
-  TEST(non_watched_object_still_alive_after_require_destruction_is_reported)
-  {
-    {
-      mock_c obj;
-      {
-        REQUIRE_DESTRUCTION(obj);
-      }
-    }
-    ASSERT_TRUE(reports.size() > 0U);
-    ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Object obj is still alive"));
-  }
 }
 
 TESTSUITE(mismatches)
