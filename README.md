@@ -15,11 +15,19 @@ A header only mocking framework for C++14.
 are missing. Code breaking changes are no longer expected, but may still
 occur.**
 
+**NOTE!! A code breaking change did just occur. MOCK(obj, params) and
+MOCK_CONST(obj, params) are no longer. Instead use MAKE_MOCKn(obj, signature)
+and MAKE_MOCK_CONSTn(obj, signature), where n is the number of parameters in the
+signature. Check the example below, and the description of the macros.**
+
+**NOTE!! Another code breaking change is in the pipe and is likely to appear
+soon. Watch this space!**
+
 Example usage
 -------------
 
 ```Cpp
-#include "trompeloeil.hpp"
+#include <trompeloeil.hpp>
 
 class I
 {
@@ -41,9 +49,9 @@ class MI : public trompeloeil::mocked_class<I>
 {
 public:
   using mocked_class::mocked_class;
-  MOCK(foo, (int, std::string&));
-  MOCK(bar, (int));
-  MOCK(bar, (std::string));
+  MAKE_MOCK2(foo, bool(int, std::string&));
+  MAKE_MOCK1(bar, bool(int));
+  MAKE_MOCK1(bar, bool(std::string));
 };
 
 TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
@@ -51,9 +59,11 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
   using trompeloeil::_; // wild card for matching any value
 
   auto raw_i = new MI("word");
-  CUT out(raw_i);
 
   DEATHWATCH(*raw_i);
+
+  CUT out(raw_i);
+
 
   trompeloeil::sequence seq1, seq2;
 
@@ -88,16 +98,9 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
 Limitations (TODO-list)
 -----------------------
-- Private methods cannot be mocked
-- Mock function parameter types must not include commas (i.e. must not be of
-  template types with more than one template parameter.)
-  * use a typedef as a simple work-around
 - Function templates cannot be mocked
 - Tracing
-- WAY too many macros...  
-  * uses empty __VA_ARGS__, which is illegal (although harmless)
-    - With `GCC`, don't use `-pedantic` on the command line
-    - With `clang`, add `-Wno-gnu-zero-variadic-macro-argument` to the command line
+- WAY too many macros... but I think we'll have to make do with most of them.
 
 How to use
 ----------
@@ -139,24 +142,27 @@ Used in **`.TIMES`()** to set the range *number*..infinity. *number* must be
 Used in **`.TIMES`()** to set the range 0..*number*. *number* must be
 `constexpr`.
 
-**`MOCK`(** *method_name*, *parameter_list* **)**  
-Make a mock implementation of the method named *method_name*. *method_name*
-must be virtual, and may currently not be overloaded with several signatures.
+**`MAKE_MOCKn`(** *name*, *signature* **)**  
+Make a mock implementation of the member function named *name*. It is a good
+idea for this to implement a pure virtual function from an interface, but
+it is not a requirement. If no virtual member function from a base class
+matches the signature, a new member function is made.
 
-**`MOCK_CONST`(** *method_name*, *parameter_list* **)**  
-Same as **`MOCK`(** *method_name*, *parameter_list* **)** for `const` methods.
+**`MAKE_CONST_MOCKn`(** *method_name*, *signature* **)**  
+Same as **`MAKE_MOCKn`(** *method_name*, *signature* **)** for `const`
+member functions.
 
-**`REQUIRE_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
-Set up an expectation that the method *method_name* is called on the object
-*mock_object*. The parameter list may include exact match values, or the
-wild card `trompeloeil::_`. The expectation has scope lifetime and must be
-met by the time the scope ends. When there are several expectations active on
-the same object and method, they are tried in the reversed order they were
-defined, i.e. last defined is tried first, until a match is found. This allows
-you to specify a wide default early, and narrow specializations in short
-scopes.
+**`REQUIRE_CALL`(** *mock_object*, *func_name*(*parameter_list*)**)**  
+Set up an expectation that the member function *func_name* is called on the
+object *mock_object*. The parameter list may include exact match values, the
+wild card `trompeloeil::_`, or the **`ANY`(** *type* **) wildcard. The
+expectation has scope lifetime and must be met by the time the scope ends.
+When there are several expectations active on the same object and method, they
+are tried in the reversed order they were defined, i.e. last defined is tried
+first, until a match is found. This allows you to specify a wide default early,
+and narrow specializations in short scopes.
 
-**`NAMED_REQUIRE_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**
+**`NAMED_REQUIRE_CALL`(** *mock_object*, *func_name*(*parameter_list*)**)**
 Same as **`REQUIRE_CALL`**, except it instantiates a
 *std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a
 variable.

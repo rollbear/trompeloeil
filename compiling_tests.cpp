@@ -96,12 +96,13 @@ class mock_c : public trompeloeil::mocked_class<C>
   mock_c() : mocked_class() {}
   mock_c(int i) : mocked_class(i) {}
   mock_c(const char* p) : mocked_class(p) {}
-  MOCK(count,  ());
-  MOCK(func,   (int, std::string&));
-  MOCK(getter, (unmovable&));
-  MOCK(getter, (int));
-  MOCK(getter, (int, std::string&));
-  MOCK(ptr,    (std::unique_ptr<int>&&));
+  MAKE_MOCK1(ptr,  std::unique_ptr<int>(std::unique_ptr<int>&&));
+  MAKE_MOCK0(count,  int());
+  MAKE_MOCK2(func,   void(int, std::string&));
+  MAKE_MOCK1(getter, unmovable&(unmovable&));
+  MAKE_MOCK1(getter, int(int));
+  MAKE_MOCK2(getter, void(int, std::string&));
+  //MOCK(ptr,    (std::unique_ptr<int>&&));
 };
 
 
@@ -674,7 +675,7 @@ TESTSUITE(mismatches)
     catch (reported)
     {
       ASSERT_TRUE(reports.size() == 1U);
-      auto re = R"(No match for call of getter(int) with\.
+      auto re = R"(No match for call of getter with signature int(int) with\.
   param  _1 = 7)";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
@@ -710,7 +711,7 @@ TESTSUITE(mismatches)
       ASSERT_TRUE(count == 9U);
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
-        R"_(No match for call of getter(int) with\.
+        R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 3
 
 Matches saturated call requirement
@@ -759,7 +760,7 @@ Matches saturated call requirement
       ASSERT_TRUE(count == 6U);
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
-        R"_(No match for call of getter(int) with\.
+        R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 3
 
 Matches saturated call requirement
@@ -782,7 +783,7 @@ Matches saturated call requirement
     {
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
-        R"_(No match for call of getter(int) with\.
+        R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 3
 
 Tried obj.getter(5) at [a-z_.]*:[0-9]*
@@ -808,7 +809,7 @@ Tried obj.getter(4) at [a-z_.]*:[0-9]*
     {
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
-        R"_(No match for call of getter(int) with\.
+        R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 4
 
 Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
@@ -832,7 +833,7 @@ Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
     {
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
-        R"_(No match for call of getter(int) with\.
+        R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 4
 
 Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*

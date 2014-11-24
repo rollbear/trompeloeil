@@ -21,7 +21,7 @@ struct S
 
 struct MS : trompeloeil::mocked_class<S>
 {
-  MOCK(f, ());
+  MAKE_MOCK0(f, int());
 };
 
 int main()
