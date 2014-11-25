@@ -87,7 +87,8 @@ public:
   virtual void getter(int, std::string&) = 0;
   virtual std::unique_ptr<int> ptr(std::unique_ptr<int>&&) = 0;
 protected:
-  C(const char*) {}
+  C(const char* s) : p{s} {}
+  const char *p = nullptr;
 };
 
 class mock_c : public C
@@ -102,6 +103,7 @@ class mock_c : public C
   MAKE_MOCK1(getter, unmovable&(unmovable&));
   MAKE_MOCK1(getter, int(int));
   MAKE_MOCK2(getter, void(int, std::string&));
+  using C::p;
 };
 
 
@@ -645,6 +647,13 @@ TESTSUITE(destruction)
     ASSERT_TRUE(reports.empty());
   }
 
+  TEST(a_deathwatched_objects_constructor_passes_params_to_mock)
+  {
+    auto obj = new trompeloeil::deathwatched<mock_c>{"apa"};
+    ASSERT_TRUE(obj->p == std::string("apa"));
+    REQUIRE_DESTRUCTION(*obj);
+    delete obj;
+  }
 }
 
 TESTSUITE(mismatches)
