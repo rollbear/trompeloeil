@@ -14,12 +14,7 @@
 //In TIMES the first value must not exceed the second
 #include "../trompeloeil.hpp"
 
-struct S
-{
-  virtual int f() = 0;
-};
-
-struct MS : trompeloeil::mocked_class<S>
+struct MS
 {
   MAKE_MOCK0(f, int());
 };

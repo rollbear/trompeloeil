@@ -15,12 +15,7 @@
 
 #include "../trompeloeil.hpp"
 
-struct S
-{
-  virtual void f() = 0;
-};
-
-struct MS : trompeloeil::mocked_class<S>
+struct MS
 {
   MAKE_MOCK0(f, void());
 };

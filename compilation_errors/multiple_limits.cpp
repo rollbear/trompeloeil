@@ -14,12 +14,7 @@
 //Only one TIMES call limit is allowed, but it can express an interval
 #include "../trompeloeil.hpp"
 
-struct S
-{
-  virtual int f() = 0;
-};
-
-struct MS : trompeloeil::mocked_class<S>
+struct MS
 {
   MAKE_MOCK0(f, int());
 };
