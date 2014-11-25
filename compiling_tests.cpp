@@ -859,6 +859,81 @@ Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
   }
 }
 
+TESTSUITE(parameters)
+{
+  class T
+  {
+  public:
+    MAKE_MOCK15(concats, std::string(int,int,int,int,
+                                     int,int,int,int,
+                                     int,int,int,int,
+                                     int,int,int));
+  };
+
+  TEST(parameters_are_passed_in_correct_order_when_matching)
+  {
+    T obj;
+    REQUIRE_CALL(obj, concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15))
+      .RETURN("");
+    auto s = obj.concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    ASSERT_TRUE(s == "");
+  }
+
+  TEST(parameters_are_passed_in_correct_order_to_WITH)
+  {
+    T obj;
+    REQUIRE_CALL(obj, concats(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_))
+      .WITH(_1 == 1 && _2 == 2 && _3 == 3 && _4 == 4 &&
+            _5 == 5 && _6 == 6 && _7 == 7 && _8 == 8 &&
+            _9 == 9 && _10 == 10 && _11 == 11 && _12 == 12 &&
+            _13 == 13 && _14 == 14 && _15 == 15)
+      .RETURN("");
+    auto s = obj.concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    ASSERT_TRUE(s == "");
+  }
+  TEST(parametess_are_passed_in_correct_order_to_SIDE_EFFECT)
+  {
+    T obj;
+    int n = 0;
+    REQUIRE_CALL(obj, concats(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_))
+      .SIDE_EFFECT(n = _1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15)
+      .RETURN("");
+    auto s = obj.concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    ASSERT_TRUE(n == -6);
+  }
+  TEST(parameters_are_passed_in_correct_order_to_RETURN)
+  {
+    T obj;
+    REQUIRE_CALL(obj, concats(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_))
+      .RETURN(std::to_string(_1)+
+              std::to_string(_2)+
+              std::to_string(_3)+
+              std::to_string(_4)+
+              std::to_string(_5)+
+              std::to_string(_6)+
+              std::to_string(_7)+
+              std::to_string(_8)+
+              std::to_string(_9)+
+              std::to_string(_10)+
+              std::to_string(_11)+
+              std::to_string(_12)+
+              std::to_string(_13)+
+              std::to_string(_14)+
+              std::to_string(_15));
+    auto s = obj.concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    ASSERT_TRUE(s == "123456789101112131415");
+  }
+  TEST(parametess_are_passed_in_correct_order_to_THROW)
+  {
+    T obj;
+
+    REQUIRE_CALL(obj, concats(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_))
+      .THROW(_1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15);
+    ASSERT_THROW(obj.concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
+                 int,
+                 [](int n) { return n == -6; });
+  }
+}
 int main(int argc, char *argv[])
 {
   trompeloeil::set_reporter(send_report);
