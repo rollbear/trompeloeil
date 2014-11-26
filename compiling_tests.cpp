@@ -617,6 +617,69 @@ Expected obj.foo("bar") to be called once, actually never called
   param  _1 = bar)_";
     ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
   }
+  TESTSUITE(multiplicity)
+  {
+    TEST(no_calls_reported_as_never_called)
+    {
+      mock_c obj;
+      {
+        REQUIRE_CALL(obj, count())
+          .RETURN(1);
+      }
+      ASSERT_TRUE(reports.size() == 1U);
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("actually never called"));
+    }
+
+    TEST(undersatisfied_with_one_call_reported_as_once)
+    {
+      mock_c obj;
+      {
+        REQUIRE_CALL(obj, count())
+          .RETURN(1)
+          .TIMES(2);
+        obj.count();
+      }
+      ASSERT_TRUE(reports.size() == 1U);
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("actually called once"));
+    }
+
+    TEST(undersatisfied_with_two_call_reported_as_count)
+    {
+      mock_c obj;
+      {
+        REQUIRE_CALL(obj, count())
+          .RETURN(1)
+          .TIMES(3);
+        obj.count();
+        obj.count();
+      }
+      ASSERT_TRUE(reports.size() == 1U);
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("actually called 2 times"));
+    }
+
+    TEST(no_calls_when_one_required_reported_as_expected_once)
+    {
+      mock_c obj;
+      {
+        REQUIRE_CALL(obj, count())
+          .RETURN(1);
+      }
+      ASSERT_TRUE(reports.size() == 1U);
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("to be called once"));
+    }
+
+    TEST(no_calls_when_two_required_reported_as_expected_2_times)
+    {
+      mock_c obj;
+      {
+        REQUIRE_CALL(obj, count())
+          .TIMES(2)
+          .RETURN(1);
+      }
+      ASSERT_TRUE(reports.size() == 1U);
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("to be called 2 times"));
+    }
+  }
 
 }
 
