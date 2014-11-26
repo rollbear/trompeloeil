@@ -819,12 +819,6 @@ namespace trompeloeil
     return nullptr;
   }
 
-  template <typename ... P>
-  void print_params(std::ostream& os, const std::tuple<P...>& p)
-  {
-    tuple_print<std::tuple<P...> >::missed(os, p);
-  }
-
   template <typename Sig>
   void report_mismatch(const char                    *name,
                        const call_params_type_t<Sig> &p,
@@ -833,7 +827,7 @@ namespace trompeloeil
   {
     std::ostringstream os;
     os << "No match for call of " << name << " with.\n";
-    print_params(os, p);
+    tuple_print<call_params_type_t<Sig>>::missed(os, p);
     bool saturated_match = false;
     for (auto i = saturated_list.next(); i != &saturated_list; i = i->next())
     {
@@ -856,7 +850,7 @@ namespace trompeloeil
         i->report_mismatch(os, p);
       }
     }
-    send_report(severity::fatal, "", os.str());
+    trompeloeil::send_report(severity::fatal, "", os.str());
   }
 
   template<typename Sig>
