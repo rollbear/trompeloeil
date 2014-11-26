@@ -432,44 +432,43 @@ namespace trompeloeil
   template<typename T>
   class optional
   {
+    template <typename ... U>
+    void init(U&& ... u) { new (buffer)T(std::forward<U>(u)...); valid = true;}
+    void destroy() { if (valid) value().~T(); valid = false; }
   public:
-    optional() noexcept : valid(false) { }
+    optional() noexcept = default;
 
-    optional(const T &t) : valid(true) { new(buffer) T(t);  }
+    optional(const T &t) { init(t);  }
 
-    optional(T &&t) : valid(true) { new(buffer) T(std::move(t)); }
+    optional(T &&t) { init(std::move(t)); }
 
-    optional(const optional &c) : valid(c.valid)
-    {
-      if (valid) new(buffer) T(c.value());
-    }
+    optional(const optional &c) { if (c.is_valid()) init(c.value()); }
 
-    optional(optional &&c) : valid(c.valid)
-    {
-      if (valid) new(buffer) T(c.rvalue());
-    }
+    optional(optional &&c) { if (c.is_valid()) init(std::move(c.value()));  }
 
+    template <typename U>
+    optional(const optional<U>& u) { if (u.is_valid()) init(u.value()); }
+    template <typename U>
+    optional(optional<U>&& u) { if (u.is_valid()) init(std::move(u.value())); }
     ~optional()
     {
-      if (valid) value().~T();
+      destroy();
     }
 
     optional &operator=(const optional &c)
     {
       if (&c != this)
       {
-        if (valid) value().~T();
-        valid = c.valid;
-        if (valid) new(buffer)T(c.value());
+        destroy();
+        if (c.is_valid()) init(c.value());
       }
       return *this;
     }
 
     optional &operator=(optional &&c)
     {
-      if (valid) value().~T();
-      valid = c.valid;
-      if (valid) new(buffer)T(std::move(c.rvalue()));
+      destroy();
+      if (c.is_valid()) init(c.value());
       return *this;
     }
 
@@ -493,11 +492,6 @@ namespace trompeloeil
       return *reinterpret_cast<T *>(buffer);
     }
 
-    T &&rvalue() noexcept
-    {
-      return std::move(value());
-    }
-
     bool is_valid() const noexcept { return valid; }
 
     operator T &()
@@ -506,7 +500,7 @@ namespace trompeloeil
     }
   private:
     alignas(T) char buffer[sizeof(T)];
-    bool valid;
+    bool valid = false;
   };
 
   template <typename T>
@@ -543,14 +537,25 @@ namespace trompeloeil
     template <typename U>
     friend struct value_matcher;
   public:
-    value_matcher(const ::trompeloeil::wildcard&) noexcept { }
+    value_matcher(const wildcard&) noexcept { }
+    template <typename U, typename = typename std::enable_if<std::is_constructible<T, U>::value>::type>
+    value_matcher(const typed_wildcard<U>&) noexcept {}
 
-    value_matcher(const ::trompeloeil::typed_wildcard<T>&) noexcept {}
+    template <typename U>
+    value_matcher(const value_matcher<typed_wildcard<U>>&) noexcept {}
+    template <typename U>
+    value_matcher(value_matcher<typed_wildcard<U>>&&) noexcept {}
 
-    template <typename U, typename = typename std::enable_if<std::is_same<wildcard, typename std::remove_cv<typename std::remove_reference<U>::type>::type>::value > >
-    value_matcher(value_matcher<U>&&) noexcept {}
+    value_matcher(const value_matcher<const wildcard&>&) noexcept {}
+    value_matcher(value_matcher<const wildcard&>&&) noexcept {}
 
-    template<typename U>
+    template <typename U>
+    value_matcher(const value_matcher<U>& u) : desired(u.desired) {}
+
+    template <typename U>
+    value_matcher(value_matcher<U>&& u) : desired(std::move(u.desired)) {}
+
+    template <typename U>
     value_matcher(U &&u) : desired(std::forward<U>(u))  { }
 
     template<typename U>

@@ -99,6 +99,7 @@ class mock_c : public C
   mock_c(const char* p) : C(p) {}
   MAKE_MOCK1(ptr,  std::unique_ptr<int>(std::unique_ptr<int>&&));
   MAKE_MOCK0(count,  int());
+  MAKE_MOCK1(foo, void(std::string));
   MAKE_MOCK2(func,   void(int, std::string&));
   MAKE_MOCK1(getter, unmovable&(unmovable&));
   MAKE_MOCK1(getter, int(int));
@@ -603,6 +604,19 @@ TESTSUITE(scoping)
     ASSERT_TRUE(reports.empty());
   }
 
+  TEST(an_unsatisfied_require_call_is_reported_at_end_of_scope)
+  {
+    mock_c obj;
+    {
+      REQUIRE_CALL(obj, foo("bar"));
+    }
+    ASSERT_TRUE(reports.size() == 1U);
+
+    auto re = R"_(Unfulfilled expectation:
+Expected obj.foo("bar") to be called once, actually never called
+  param  _1 = bar)_";
+    ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+  }
 
 }
 
