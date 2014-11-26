@@ -1251,9 +1251,21 @@ namespace trompeloeil
       reported = true;
       std::ostringstream os;
       os << "Unfulfilled expectation:\n"
-         << "Expected " << name << " to be called " << min_calls
-         << " times, actually called " << call_count << " time"
-         << (call_count > 1 ? "s\n" : "\n");
+         << "Expected " << name << " to be called ";
+      if (min_calls == 1)
+        os << "once";
+      else
+        os << min_calls << " times";
+      os << ", actually ";
+      switch (call_count)
+      {
+      case 0:
+        os << "never called\n"; break;
+      case 1:
+        os << "called once\n"; break;
+      default:
+        os << "called " << call_count << " times\n";
+      }
       tuple_print<decltype(val)>::missed(os, val);
       send_report(severity::nonfatal, location, os.str());
     }
