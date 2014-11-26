@@ -367,7 +367,7 @@ namespace trompeloeil
     sequence() noexcept = default;
     virtual void print_expectation(std::ostream&) const {}
   protected:
-    sequence(sequence* p) noexcept : list_elem(p) {}
+    sequence(sequence* obj) noexcept : list_elem(obj) {}
   };
 
   struct sequence_elem : public sequence
@@ -395,10 +395,10 @@ namespace trompeloeil
     }
     void check_match(const char *match_name, const char* loc) const
     {
-      auto next = seq.next();
-      if (next != &seq_elem)
+      auto next_seq = seq.next();
+      if (next_seq != &seq_elem)
       {
-        auto ns = static_cast<sequence_elem*>(next);
+        auto ns = static_cast<sequence_elem*>(next_seq);
         std::ostringstream os;
         os << "Sequence mismatch for sequence \"" << seq_name
            << "\" with matching call of " << match_name << " at " << loc
@@ -1074,8 +1074,8 @@ namespace trompeloeil
     using Parent::call_limit_set;
     using Parent::sequence_set;
     using Parent::throws;
-    call_data(Parent&& p) : Parent(std::move(p)) {}
-    call_data(Parent&& p, U&& d) : Parent(std::move(p)), data(std::move(d))
+    call_data(Parent&& parent) : Parent(std::move(parent)) {}
+    call_data(Parent&& parent, U&& d) : Parent(std::move(parent)), data(std::move(d))
     {
       add_last(data);
     }
@@ -1185,9 +1185,9 @@ namespace trompeloeil
 
     bool match_conditions(const call_params_type_t<Sig>& params) const
     {
-      for (auto p = conditions.next(); p != &conditions; p = p->next())
+      for (auto c = conditions.next(); c != &conditions; c = c->next())
       {
-        if (!p->check(params)) return false;
+        if (!c->check(params)) return false;
       }
       return true;
     }
@@ -1220,9 +1220,9 @@ namespace trompeloeil
         this->unlink();
         saturated_list.link_before(*this);
       }
-      for (auto p = actions.next(); p != &actions; p = p->next())
+      for (auto a = actions.next(); a != &actions; a = a->next())
       {
-        p->action(params);
+        a->action(params);
       }
     }
     std::ostream& report_signature(std::ostream& os) const override
@@ -1321,9 +1321,9 @@ namespace trompeloeil
       location = loc;
       return *this;
     }
-    call_matcher& set_name(const char* n) noexcept
+    call_matcher& set_name(const char* func_name) noexcept
     {
-      name = n;
+      name = func_name;
       return *this;
     }
     virtual std::tuple<unsigned long long, unsigned long long> call_limits() const noexcept
@@ -1418,7 +1418,7 @@ namespace trompeloeil
   struct heap_elevator
   {
     template <typename T>
-    std::unique_ptr<T> operator^(T&& t)
+    std::unique_ptr<T> operator&&(T&& t) const
     {
       return std::unique_ptr<T>(new T(std::move(t)));
     }
@@ -1537,7 +1537,7 @@ namespace trompeloeil
   TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func, #obj, #func)
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)              \
-  ::trompeloeil::heap_elevator{} ^ TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
+  ::trompeloeil::heap_elevator{} && TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
   ::trompeloeil::call_validator{} +                                     \
@@ -1577,94 +1577,98 @@ namespace trompeloeil
 #define TROMPELOEIL_WITH(...) \
   TROMPELOEIL_WITH(#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_WITH_(arg_s, ...) with(arg_s, [&](const auto& x) { \
-  auto& _1 = ::trompeloeil::mkarg<1>(x);                    \
-  auto& _2 = ::trompeloeil::mkarg<2>(x);                    \
-  auto& _3 = ::trompeloeil::mkarg<3>(x);                    \
-  auto& _4 = ::trompeloeil::mkarg<4>(x);                    \
-  auto& _5 = ::trompeloeil::mkarg<5>(x);                    \
-  auto& _6 = ::trompeloeil::mkarg<6>(x);                    \
-  auto& _7 = ::trompeloeil::mkarg<7>(x);                    \
-  auto& _8 = ::trompeloeil::mkarg<8>(x);                    \
-  auto& _9 = ::trompeloeil::mkarg<9>(x);                    \
-  auto&_10 = ::trompeloeil::mkarg<10>(x);                   \
-  auto&_11 = ::trompeloeil::mkarg<11>(x);                   \
-  auto&_12 = ::trompeloeil::mkarg<12>(x);                   \
-  auto&_13 = ::trompeloeil::mkarg<13>(x);                   \
-  auto&_14 = ::trompeloeil::mkarg<14>(x);                   \
-  auto&_15 = ::trompeloeil::mkarg<15>(x);                   \
-  ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-  return __VA_ARGS__;\
+#define TROMPELOEIL_WITH_(arg_s, ...)                                   \
+  with(arg_s, [&](const auto& trompeloeil_x) {                          \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+    ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+    return __VA_ARGS__;                                                 \
   })
 
 #define TROMPELOEIL_SIDE_EFFECT(...) \
   TROMPELOEIL_SIDE_EFFECT_(#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_SIDE_EFFECT_(arg_s, ...) sideeffect(arg_s, [&](auto& x) { \
-  auto& _1 = ::trompeloeil::mkarg<1>(x);                    \
-  auto& _2 = ::trompeloeil::mkarg<2>(x);                    \
-  auto& _3 = ::trompeloeil::mkarg<3>(x);                    \
-  auto& _4 = ::trompeloeil::mkarg<4>(x);                    \
-  auto& _5 = ::trompeloeil::mkarg<5>(x);                    \
-  auto& _6 = ::trompeloeil::mkarg<6>(x);                    \
-  auto& _7 = ::trompeloeil::mkarg<7>(x);                    \
-  auto& _8 = ::trompeloeil::mkarg<8>(x);                    \
-  auto& _9 = ::trompeloeil::mkarg<9>(x);                    \
-  auto&_10 = ::trompeloeil::mkarg<10>(x);                   \
-  auto&_11 = ::trompeloeil::mkarg<11>(x);                   \
-  auto&_12 = ::trompeloeil::mkarg<12>(x);                   \
-  auto&_13 = ::trompeloeil::mkarg<13>(x);                   \
-  auto&_14 = ::trompeloeil::mkarg<14>(x);                   \
-  auto&_15 = ::trompeloeil::mkarg<15>(x);                   \
-  ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-  __VA_ARGS__;\
+#define TROMPELOEIL_SIDE_EFFECT_(arg_s, ...) \
+  sideeffect(arg_s, [&](auto& trompeloeil_x) {                          \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+    ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+    __VA_ARGS__;                                                        \
   })
 
 #define TROMPELOEIL_RETURN(...) \
   TROMPELOEIL_RETURN_(#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_RETURN_(arg_s, ...) handle_return(arg_s, [&](auto& x) { \
-  auto& _1 = ::trompeloeil::mkarg<1>(x);                                     \
-  auto& _2 = ::trompeloeil::mkarg<2>(x);                                     \
-  auto& _3 = ::trompeloeil::mkarg<3>(x);                                     \
-  auto& _4 = ::trompeloeil::mkarg<4>(x);                                     \
-  auto& _5 = ::trompeloeil::mkarg<5>(x);                                     \
-  auto& _6 = ::trompeloeil::mkarg<6>(x);                                     \
-  auto& _7 = ::trompeloeil::mkarg<7>(x);                                     \
-  auto& _8 = ::trompeloeil::mkarg<8>(x);                                     \
-  auto& _9 = ::trompeloeil::mkarg<9>(x);                                     \
-  auto&_10 = ::trompeloeil::mkarg<10>(x);                                    \
-  auto&_11 = ::trompeloeil::mkarg<11>(x);                                    \
-  auto&_12 = ::trompeloeil::mkarg<12>(x);                                    \
-  auto&_13 = ::trompeloeil::mkarg<13>(x);                                    \
-  auto&_14 = ::trompeloeil::mkarg<14>(x);                                    \
-  auto&_15 = ::trompeloeil::mkarg<15>(x);                                    \
-  ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-  return __VA_ARGS__;                                                      \
-    })
+#define TROMPELOEIL_RETURN_(arg_s, ...)                                 \
+  handle_return(arg_s, [&](auto& trompeloeil_x) {                       \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+    ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+    return __VA_ARGS__;                                                 \
+  })
 
 #define TROMPELOEIL_THROW(...) \
   TROMPELOEIL_THROW_(#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_THROW_(arg_s, ...) handle_throw(arg_s, [&](auto& x) { \
-  auto& _1 = ::trompeloeil::mkarg<1>(x);                                     \
-  auto& _2 = ::trompeloeil::mkarg<2>(x);                                     \
-  auto& _3 = ::trompeloeil::mkarg<3>(x);                                     \
-  auto& _4 = ::trompeloeil::mkarg<4>(x);                                     \
-  auto& _5 = ::trompeloeil::mkarg<5>(x);                                     \
-  auto& _6 = ::trompeloeil::mkarg<6>(x);                                     \
-  auto& _7 = ::trompeloeil::mkarg<7>(x);                                     \
-  auto& _8 = ::trompeloeil::mkarg<8>(x);                                     \
-  auto& _9 = ::trompeloeil::mkarg<9>(x);                                     \
-  auto&_10 = ::trompeloeil::mkarg<10>(x);                                    \
-  auto&_11 = ::trompeloeil::mkarg<11>(x);                                    \
-  auto&_12 = ::trompeloeil::mkarg<12>(x);                                    \
-  auto&_13 = ::trompeloeil::mkarg<13>(x);                                    \
-  auto&_14 = ::trompeloeil::mkarg<14>(x);                                    \
-  auto&_15 = ::trompeloeil::mkarg<15>(x);                                    \
-  ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-  throw __VA_ARGS__;                                                      \
-    })
+#define TROMPELOEIL_THROW_(arg_s, ...)                                  \
+  handle_throw(arg_s, [&](auto& trompeloeil_x) {                        \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+    ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+    throw __VA_ARGS__;                                                  \
+ })
 
 
 #define TROMPELOEIL_TIMES(...) times<__VA_ARGS__>()
