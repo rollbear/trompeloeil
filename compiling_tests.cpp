@@ -74,6 +74,8 @@ struct unmovable
   }
 };
 
+struct uncomparable { };
+
 class C
 {
 public:
@@ -432,6 +434,26 @@ TESTSUITE(matching)
       ASSERT_TRUE(p.get() == pi);
     }
     ASSERT_TRUE(reports.empty());
+  }
+
+  class U
+  {
+  public:
+    MAKE_MOCK1(func, void(const uncomparable&));
+  };
+
+  TEST(uncomparable_parameter_matches_wildcard)
+  {
+    U u;
+    REQUIRE_CALL(u, func(_));
+    u.func(uncomparable{});
+  }
+
+  TEST(uncomparable_parameter_matches_typed_wildcard)
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(uncomparable)));
+    u.func(uncomparable{});
   }
 }
 

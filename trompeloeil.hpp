@@ -196,6 +196,17 @@ namespace trompeloeil
     reporter_obj()(s, loc, msg);
   }
 
+  template <typename T, typename U>
+  struct is_equal_comparable
+  {
+    struct no {};
+    template <typename T1, typename T2>
+    static no func(...);
+    template <typename T1, typename T2>
+    static auto func(T1* p1, T2* p2) -> decltype(*p1 == *p2);
+    static const bool value = !std::is_same<no, decltype(func<T,U>(nullptr, nullptr))>::value;
+  };
+
   template <typename T>
   class is_output_streamable
   {
@@ -559,11 +570,16 @@ namespace trompeloeil
     value_matcher(U &&u) : desired(std::forward<U>(u))  { }
 
     template<typename U>
-    bool operator==(const U &u) const
+    auto operator==(const U &u) const -> typename std::enable_if<is_equal_comparable<T,U>::value, bool>::type
     {
       return !desired.is_valid() || desired.value() == u;
     }
 
+    template <typename U>
+    auto operator==(const U&) const -> typename std::enable_if<!is_equal_comparable<T,U>::value, bool>::type
+    {
+      return !desired.is_valid();
+    }
     friend std::ostream &operator<<(std::ostream &os, const value_matcher &v)
     {
       if (!v.desired.is_valid()) return os << "_";
