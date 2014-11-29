@@ -15,17 +15,6 @@ A header only mocking framework for C++14.
 are missing. Code breaking changes are no longer expected, but may still
 occur.**
 
-**NOTE!! Two code breaking change did just occur.**
-
-- **`MOCK`**(obj, params) and **`MOCK_CONST`**(obj, params) are no longer.
-  Instead use **`MAKE_MOCKn`**(obj, signature) and
-  **`MAKE_MOCK_CONSTn`**(obj, signature), where n is  the number of parameters
-  in the signature. Check the example below, and the description of the macros.
-- The **`DEATHWATCH`** macro and the **`mocked_class<T>`** template is removed.
-  Let mock classes inherit directly from their interface when desired. To
-  monitor the lifetime of a mock object, instantiate the object as
-  **`trompeloeil::deathwatched<T>`**.
-
 
 Example usage
 -------------
@@ -98,6 +87,8 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
 Limitations (TODO-list)
 -----------------------
+- BUG! Move-only types cannot be used by value in REQUIRE_CALL.
+- BUG! Sequences cannnot discriminate between multeple matching expectations.
 - Function templates cannot be mocked
 - Tracing
 - WAY too many macros... but I think we'll have to make do with most of them.
