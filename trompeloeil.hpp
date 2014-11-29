@@ -434,6 +434,11 @@ namespace trompeloeil
     operator T&() const;
   };
 
+  template <typename T>
+  bool operator==(const wildcard&, const T&) { return true; }
+  template <typename T>
+  bool operator==(const T&, const wildcard&) { return true; }
+
   static constexpr const wildcard _{};
 
   template <typename T>
@@ -441,200 +446,19 @@ namespace trompeloeil
   {
     operator T() const;
   };
-  template<typename T, bool b = std::is_copy_constructible<T>::value>
-  class optional
-  {
-    using type = typename std::remove_reference<T>::type;
 
-    template <typename U = type>
-    typename std::enable_if<std::is_pod<U>::value>::type
-    init(const U& u) { std::memcpy(buffer, &u, sizeof(type)); }
-    template <typename ... U>
-    void init(U&& ... u) { new (buffer)type(std::forward<U>(u)...); valid = true;}
-    template <typename U = type>
-    typename std::enable_if<!std::is_pod<U>::value>::type
-    destroy() { if (valid) value().~type(); valid = false; }
-    template <typename U = type>
-    typename std::enable_if<std::is_pod<U>::value>::type
-    destroy() { }
-  public:
-    optional() noexcept = default;
+  template <typename T, typename U>
+  auto operator==(const typed_wildcard<T>&, const U&) -> typename std::enable_if<std::is_same<typename std::decay<T>::type, typename std::decay<U>::type>::value, bool>::type
+  { return true; }
 
-    optional(const type &t) { init(t);  }
-
-    optional(type &&t) { init(std::move(t)); }
-
-    optional(const optional &c) { if (c.is_valid()) init(c.value()); }
-
-    optional(optional &&c) { if (c.is_valid()) init(std::move(c.value()));  }
-
-    template <typename U>
-    optional(const optional<U>& u) { if (u.is_valid()) init(u.value()); }
-    template <typename U>
-    optional(optional<U>&& u) { if (u.is_valid()) init(std::move(u.value())); }
-    ~optional()
-    {
-      destroy();
-    }
-
-    optional &operator=(const optional &c)
-    {
-      if (&c != this)
-      {
-        destroy();
-        if (c.is_valid()) init(c.value());
-      }
-      return *this;
-    }
-
-    optional &operator=(optional &&c)
-    {
-      destroy();
-      if (c.is_valid()) init(c.value());
-      return *this;
-    }
-
-    optional &operator=(const type &t)
-    {
-      return operator=(optional(t));
-    }
-
-    optional &operator=(type &&t)
-    {
-      return operator=(optional(std::move(t)));
-    }
-
-    const type &value() const noexcept
-    {
-      return *reinterpret_cast<const type *>(buffer);
-    }
-
-    type &value() noexcept
-    {
-      return *reinterpret_cast<type *>(buffer);
-    }
-
-    bool is_valid() const noexcept { return valid; }
-
-    operator type &()
-    {
-      return value();
-    }
-  private:
-    alignas(type) char buffer[sizeof(type)];
-    bool valid = false;
-  };
+  template <typename T, typename U>
+  auto operator==(const T&, const typed_wildcard<U>&) -> typename std::enable_if<std::is_same<typename std::decay<T>::type, typename std::decay<U>::type>::value, bool>::type
+  { return true; }
 
   template <typename T>
-  class optional<T, false> : public optional<std::reference_wrapper<typename std::remove_reference<T>::type> >
+  std::ostream& operator<<(std::ostream& os, const typed_wildcard<T>&)
   {
-  public:
-    using optional_impl = optional<std::reference_wrapper<typename std::remove_reference<T>::type> >;
-    using optional_impl::optional_impl;
-  };
-
-  template <typename T, bool b>
-  class optional<T&, b> : public optional<typename std::reference_wrapper<T>::type>
-  {
-  public:
-    using optional_impl = optional<typename std::reference_wrapper<T>::type>;
-    using optional_impl::optional_impl;
-  };
-  
-#if 0
-  template <typename T>
-  class optional<T&>
-  {
-  public:
-    optional() noexcept = default;
-    optional(T& t) noexcept : ptr(&t) {}
-    const T& value() const noexcept { return *ptr; }
-    T& value() noexcept { return *ptr; }
-    bool is_valid() const noexcept { return ptr; }
-    operator T&() noexcept { return value(); }
-  private:
-    T* ptr = nullptr;
-  };
-
-  template <typename T>
-  class optional<T&&>
-  {
-  public:
-    optional() noexcept = default;
-    optional(T& t) noexcept : ptr(&t) {}
-    const T& value() const noexcept { return *ptr; }
-    T& value() noexcept { return *ptr; }
-    bool is_valid() const noexcept { return ptr; }
-    operator T&() noexcept { return value(); }
-  private:
-    T* ptr = nullptr;
-  };
-#endif
-  template<typename T>
-  struct value_matcher
-  {
-    template <typename U>
-    friend struct value_matcher;
-  public:
-    value_matcher(const wildcard&) noexcept { }
-    template <typename U, typename = typename std::enable_if<std::is_constructible<T, U>::value>::type>
-    value_matcher(const typed_wildcard<U>&) noexcept {}
-
-    template <typename U>
-    value_matcher(const value_matcher<typed_wildcard<U>>&) noexcept {}
-    template <typename U>
-    value_matcher(value_matcher<typed_wildcard<U>>&&) noexcept {}
-
-    value_matcher(const value_matcher<const wildcard&>&) noexcept {}
-    value_matcher(value_matcher<const wildcard&>&&) noexcept {}
-
-    template <typename U>
-    value_matcher(const value_matcher<U>& u) : desired(u.desired) {}
-
-    template <typename U>
-    value_matcher(value_matcher<U>&& u) : desired(std::move(u.desired)) {}
-
-    template <typename U>
-    value_matcher(U &&u) : desired(std::forward<U>(u))  { }
-
-    template<typename U>
-    auto operator==(const U &u) const -> typename std::enable_if<is_equal_comparable<T,U>::value, bool>::type
-    {
-      return !desired.is_valid() || desired.value() == u;
-    }
-
-    template <typename U>
-    auto operator==(const U&) const -> typename std::enable_if<!is_equal_comparable<T,U>::value, bool>::type
-    {
-      return !desired.is_valid();
-    }
-    friend std::ostream &operator<<(std::ostream &os, const value_matcher &v)
-    {
-      if (!v.desired.is_valid()) return os << "_";
-      print(os, v.desired.value());
-      return os;
-    }
-
-  private:
-    optional<T> desired;
-  };
-
-  template <typename T>
-  bool operator==(const T& t, const value_matcher<T>& v)
-  {
-    return v == t;
-  }
-
-  template <typename T>
-  bool operator==(const T& t, const value_matcher<T&>& v)
-  {
-    return v == t;
-  }
-
-  template <typename T>
-  bool operator==(const T& t, const value_matcher<T&&>& v)
-  {
-    return v == t;
+    return os << '_';
   }
 
   struct lifetime_monitor;
@@ -722,18 +546,6 @@ namespace trompeloeil
 
   template<typename T>
   using call_params_type_t = typename call_params_type<T>::type;
-
-  template<typename T>
-  struct value_match_type;
-
-  template<typename R, typename ... T>
-  struct value_match_type<R(T...)>
-  {
-    using type = std::tuple<value_matcher<T> ...>;
-  };
-
-  template<typename Sig>
-  using value_match_type_t = typename value_match_type<Sig>::type;
 
   template <typename Sig>
   struct default_return_t
@@ -1200,14 +1012,14 @@ namespace trompeloeil
     virtual ~expectation() = default;
   };
 
-  template<typename Sig>
+  template<typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
     using return_type = void;
     static const bool throws = false;
 
     template<typename ... U>
-    call_matcher(U &&... u) : val(value_matcher<U>(std::forward<U>(u))...) {}
+    call_matcher(U &&... u) : val(std::forward<U>(u)...) {}
 
     call_matcher(call_matcher &&r) = default;
 
@@ -1377,7 +1189,7 @@ namespace trompeloeil
 
     static const bool         call_limit_set = false;
     static const bool         sequence_set = false;
-    value_match_type_t<Sig>   val;
+    Value                     val;
     condition_list<Sig>       conditions;
     side_effect_list<Sig>     actions;
     return_handler_list<Sig>  return_handler;
@@ -1447,8 +1259,8 @@ namespace trompeloeil
       static_assert(T::throws || std::is_same<typename T::return_type, return_of_t<Sig> >::value,
                     "RETURN missing for non-void function");
     }
-    template <typename Sig>
-    call_matcher<Sig> operator+(trompeloeil::call_matcher<Sig>& t) {
+    template <typename Sig, typename Val>
+    call_matcher<Sig, Val> operator+(trompeloeil::call_matcher<Sig, Val>& t) {
       assert_return_type<Sig>(t);
       return std::move(t);
     }
@@ -1534,15 +1346,28 @@ namespace trompeloeil
 #define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig) \
   TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
 
+namespace trompeloeil {
+  template <typename sig, typename ... U>
+  auto make_call_matcher(U&& ... u) -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>
+  {
+    return { std::forward<U>(u)... };
+  }
+}
+
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s) \
-  using TROMPELOEIL_ID(matcher_type) = ::trompeloeil::call_matcher<sig>; \
-  TROMPELOEIL_ID(matcher_type) trompeloeil_matcher_type_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness; \
+  /*using TROMPELOEIL_ID(matcher_type) = ::trompeloeil::call_matcher<sig>;*/ \
+  /*TROMPELOEIL_ID(matcher_type) trompeloeil_matcher_type_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness;*/ \
   using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
   {                                                                     \
-    using name = TROMPELOEIL_ID(matcher_type);                          \
+    template <typename ... U>                                           \
+      static auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
+    {                                                                   \
+      return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
+    }                                                                   \
+  /* using name = TROMPELOEIL_ID(matcher_type); */                      \
   };                                                                    \
   TROMPELOEIL_ID(tag_type_trompeloeil) trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness; \
   TROMPELOEIL_ID(matcher_list_type)&                                    \
