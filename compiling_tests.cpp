@@ -1047,6 +1047,18 @@ TESTSUITE(parameters)
     ASSERT_TRUE(s.use_count() == 1U);
   }
 
+  TEST(unique_ptr_by_value_is_matched_with_raw_ptr_in_WITH)
+  {
+    T obj;
+    auto s = std::unique_ptr<int>(new int(3));
+    {
+      auto sr = s.get();
+      REQUIRE_CALL(obj, ptr(ANY(std::unique_ptr<int>)))
+        .WITH(_1.get() == sr);
+      obj.ptr(std::move(s));
+      ASSERT_FALSE(s);
+    }
+  }
 }
 int main(int argc, char *argv[])
 {
