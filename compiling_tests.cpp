@@ -967,6 +967,8 @@ TESTSUITE(parameters)
                                      int,int,int,int,
                                      int,int,int,int,
                                      int,int,int));
+    MAKE_MOCK1(ptr, void(std::shared_ptr<int>));
+    MAKE_MOCK1(ptr, void(std::unique_ptr<int>));
   };
 
   TEST(parameters_are_passed_in_correct_order_when_matching)
@@ -1032,6 +1034,19 @@ TESTSUITE(parameters)
                  int,
                  [](int n) { return n == -6; });
   }
+
+  TEST(shared_ptr_by_value_in_expectation_is_copied)
+  {
+    T obj;
+    auto s = std::make_shared<int>(3);
+    {
+      REQUIRE_CALL(obj, ptr(s));
+      ASSERT_TRUE(s.use_count() == 2U);
+      obj.ptr(s);
+    }
+    ASSERT_TRUE(s.use_count() == 1U);
+  }
+
 }
 int main(int argc, char *argv[])
 {

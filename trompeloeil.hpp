@@ -36,6 +36,7 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <cstring>
 #include <cassert>
 
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
@@ -440,18 +441,28 @@ namespace trompeloeil
   {
     operator T() const;
   };
-  template<typename T>
+  template<typename T, bool b = std::is_copy_constructible<T>::value>
   class optional
   {
+    using type = typename std::remove_reference<T>::type;
+
+    template <typename U = type>
+    typename std::enable_if<std::is_pod<U>::value>::type
+    init(const U& u) { std::memcpy(buffer, &u, sizeof(type)); }
     template <typename ... U>
-    void init(U&& ... u) { new (buffer)T(std::forward<U>(u)...); valid = true;}
-    void destroy() { if (valid) value().~T(); valid = false; }
+    void init(U&& ... u) { new (buffer)type(std::forward<U>(u)...); valid = true;}
+    template <typename U = type>
+    typename std::enable_if<!std::is_pod<U>::value>::type
+    destroy() { if (valid) value().~type(); valid = false; }
+    template <typename U = type>
+    typename std::enable_if<std::is_pod<U>::value>::type
+    destroy() { }
   public:
     optional() noexcept = default;
 
-    optional(const T &t) { init(t);  }
+    optional(const type &t) { init(t);  }
 
-    optional(T &&t) { init(std::move(t)); }
+    optional(type &&t) { init(std::move(t)); }
 
     optional(const optional &c) { if (c.is_valid()) init(c.value()); }
 
@@ -483,37 +494,54 @@ namespace trompeloeil
       return *this;
     }
 
-    optional &operator=(const T &t)
+    optional &operator=(const type &t)
     {
       return operator=(optional(t));
     }
 
-    optional &operator=(T &&t)
+    optional &operator=(type &&t)
     {
       return operator=(optional(std::move(t)));
     }
 
-    const T &value() const noexcept
+    const type &value() const noexcept
     {
-      return *reinterpret_cast<const T *>(buffer);
+      return *reinterpret_cast<const type *>(buffer);
     }
 
-    T &value() noexcept
+    type &value() noexcept
     {
-      return *reinterpret_cast<T *>(buffer);
+      return *reinterpret_cast<type *>(buffer);
     }
 
     bool is_valid() const noexcept { return valid; }
 
-    operator T &()
+    operator type &()
     {
       return value();
     }
   private:
-    alignas(T) char buffer[sizeof(T)];
+    alignas(type) char buffer[sizeof(type)];
     bool valid = false;
   };
 
+  template <typename T>
+  class optional<T, false> : public optional<std::reference_wrapper<typename std::remove_reference<T>::type> >
+  {
+  public:
+    using optional_impl = optional<std::reference_wrapper<typename std::remove_reference<T>::type> >;
+    using optional_impl::optional_impl;
+  };
+
+  template <typename T, bool b>
+  class optional<T&, b> : public optional<typename std::reference_wrapper<T>::type>
+  {
+  public:
+    using optional_impl = optional<typename std::reference_wrapper<T>::type>;
+    using optional_impl::optional_impl;
+  };
+  
+#if 0
   template <typename T>
   class optional<T&>
   {
@@ -541,7 +569,7 @@ namespace trompeloeil
   private:
     T* ptr = nullptr;
   };
-
+#endif
   template<typename T>
   struct value_matcher
   {
