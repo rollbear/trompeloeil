@@ -782,20 +782,20 @@ namespace trompeloeil
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
   struct tuple_print
   {
-    template <typename stream>
-    static stream &mismatch(stream &os, const T &t1, const T &t2)
+    template <typename stream, typename U>
+    static stream &mismatch(stream &os, const T &t1, const U &t2)
     {
       if (!(std::get<N>(t1) == std::get<N>(t2)))
       {
         os << "  Expected " << std::setw((N<9)+1) << '_' << N+1 << " = ";
-        print(os, std::get<N>(t2));
+        print(os, std::get<N>(t1));
         os << '\n';
       }
       return tuple_print<T, N + 1>::mismatch(os, t1, t2);
     }
 
-    template <typename stream>
-    static stream &missed(stream &os, const T &t)
+    template <typename stream, typename U>
+    static stream &missed(stream &os, const U &t)
     {
       os << "  param " << std::setw((N<9)+1) << "_" << N+1 << " = ";
       print(os, std::get<N>(t));
@@ -807,14 +807,14 @@ namespace trompeloeil
   template<typename T, size_t N>
   struct tuple_print<T, N, true>
   {
-    template <typename stream>
-    static stream &mismatch(stream &os, const T &, const T &)
+    template <typename stream, typename U>
+    static stream &mismatch(stream &os, const T &, const U &)
     {
       return os;
     }
 
-    template <typename stream>
-    static stream& missed(stream &os, const T &)
+    template <typename stream, typename U>
+    static stream& missed(stream &os, const U &)
     {
       return os;
     }
@@ -1290,7 +1290,7 @@ namespace trompeloeil
       else
       {
         os << '\n';
-        tuple_print<decltype(val)>::mismatch(os, params, val);
+        tuple_print<decltype(val)>::mismatch(os, val, params);
       }
       return os;
     }
