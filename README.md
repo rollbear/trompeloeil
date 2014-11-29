@@ -158,7 +158,7 @@ member functions.
 **`REQUIRE_CALL`(** *mock_object*, *func_name*(*parameter_list*)**)**  
 Set up an expectation that the member function *func_name* is called on the
 object *mock_object*. The parameter list may include exact match values, the
-wild card `trompeloeil::_`, or the **`ANY`(** *type* **) wildcard. The
+wild card `trompeloeil::_`, or the **`ANY`(** *type* **)** wildcard. The
 expectation has scope lifetime and must be met by the time the scope ends.
 When there are several expectations active on the same object and method, they
 are tried in the reversed order they were defined, i.e. last defined is tried
