@@ -1047,6 +1047,18 @@ TESTSUITE(parameters)
     ASSERT_TRUE(s.use_count() == 1U);
   }
 
+  TEST(shared_ptr_by_std_ref_in_expectation_is_not_copied)
+  {
+    T obj;
+    auto s = std::make_shared<int>(3);
+    {
+      REQUIRE_CALL(obj, ptr(std::ref(s)));
+      ASSERT_TRUE(s.use_count() == 1U);
+      obj.ptr(s);
+    }
+    ASSERT_TRUE(s.use_count() == 1U);
+  }
+
   TEST(unique_ptr_by_value_is_matched_with_raw_ptr_in_WITH)
   {
     T obj;
