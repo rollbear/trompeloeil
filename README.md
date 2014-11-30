@@ -87,12 +87,10 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
 Limitations (TODO-list)
 -----------------------
-- **BUG**! Sequences cannnot discriminate between multiple matching
-  expectations.
+
 - Function templates cannot be mocked
 - Tracing
 - WAY too many macros... but I think we'll have to make do with most of them.
-
 
 - Quirk! Matching a move-only type passed by value requires a bit of trickery
   in the expectation. Use a wild card in the **`REQUIRE_CALL`()**, and match
