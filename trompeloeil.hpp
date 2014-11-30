@@ -420,6 +420,11 @@ namespace trompeloeil
         send_report(severity::fatal, loc, os.str());
       }
     }
+    bool is_first() const
+    {
+      auto next_seq = seq.next();
+      return next_seq == &seq_elem;
+    }
     void retire() noexcept { seq_elem.unlink(); }
     const char    *seq_name;
     sequence&      seq;
@@ -583,6 +588,7 @@ namespace trompeloeil
     }
 
     virtual bool matches(const call_params_type_t<Sig>&) const = 0;
+    virtual bool first_in_sequence() const = 0;
     virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &saturated_list) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
@@ -652,6 +658,7 @@ namespace trompeloeil
     call_matcher_list &operator()(const U &...) { return *this; }
 
     virtual bool matches(const call_params_type_t<Sig> &) const { return false; }
+    virtual bool first_in_sequence() const { return false; }
 
     virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &) {}
 
@@ -670,6 +677,13 @@ namespace trompeloeil
   call_matcher_base<Sig>* find(const call_params_type_t<Sig> &p,
                                call_matcher_list<Sig>        &list)
   {
+    for (auto i = list.prev(); i != &list; i = i->prev())
+    {
+      if (i->matches(p) && i->first_in_sequence())
+      {
+        return i;
+      }
+    }
     for (auto i = list.prev(); i != &list; i = i->prev())
     {
       if (i->matches(p))
@@ -826,6 +840,10 @@ namespace trompeloeil
       std::get<N>(t).check_match(match_name, loc);
       sequence_validator_t<std::tuple<T...>, N + 1, M>::validate(match_name, loc, t);
     }
+    static bool is_first(const std::tuple<T...>& t)
+    {
+      return std::get<N>(t).is_first() && sequence_validator_t<std::tuple<T...>, N + 1, M>::is_first(t);
+    }
     static void retire(std::tuple<T...>& t) noexcept
     {
       std::get<N>(t).retire();
@@ -838,6 +856,7 @@ namespace trompeloeil
   {
     static void set_expectation(const char*, const char*, std::tuple<T...>&) noexcept {}
     static void validate(const char*, const char*, const std::tuple<T...>& ) {}
+    static bool is_first(const std::tuple<T...>&) { return true; }
     static void retire(std::tuple<T...>& ) noexcept {}
   };
 
@@ -852,6 +871,7 @@ namespace trompeloeil
   {
     virtual void set_expectation(const char *, const char*) noexcept = 0;
     virtual void validate(const char*, const char*) = 0;
+    virtual bool is_first() const = 0;
     virtual void retire() noexcept = 0;
   };
 
@@ -859,6 +879,7 @@ namespace trompeloeil
   {
     void set_expectation(const char*, const char*) noexcept override {}
     void validate(const char*, const char*) override {}
+    bool is_first() const override { return true; }
     void retire() noexcept override {}
   };
 
@@ -879,6 +900,11 @@ namespace trompeloeil
     {
       sequence_validator<seq_tuple>::validate(match_name, loc, sequences);
     }
+    bool is_first() const
+    {
+      return sequence_validator<seq_tuple>::is_first(sequences);
+    }
+
     void retire() noexcept
     {
       sequence_validator<seq_tuple>::retire(sequences);
@@ -1046,6 +1072,11 @@ namespace trompeloeil
         if (!c->check(params)) return false;
       }
       return true;
+    }
+    bool first_in_sequence() const
+    {
+      auto saturated = call_count >= std::get<0>(call_limits());
+      return  saturated || sequence_handler.next()->is_first();
     }
 
     return_of_t<Sig> return_value(call_params_type_t<Sig>& params)
@@ -1378,7 +1409,7 @@ namespace trompeloeil {
     auto i = ::trompeloeil::find(param_value, TROMPELOEIL_ID(matcher_list));\
     if (!i)                                                             \
     {                                                                   \
-      ::trompeloeil::report_mismatch(name_s " with signature " sig_s,   \
+      ::trompeloeil::report_mismatch(name_s " with signature " sig_s, \
                                      param_value,                       \
                                      TROMPELOEIL_ID(matcher_list),      \
                                      TROMPELOEIL_ID(saturated_matcher_list)); \

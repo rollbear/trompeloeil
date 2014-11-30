@@ -230,7 +230,7 @@ TESTSUITE(sequences)
     catch (reported)
     {
       ASSERT_TRUE(!reports.empty());
-      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq2.*of obj1.count().*has obj2.func(_,_).*first"));
+      ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq2.*of obj2.count().*has obj1.count().*first"));
     }
   }
 
@@ -312,6 +312,31 @@ TESTSUITE(sequences)
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq1.*of obj1.func(_,_).*has obj1.count().*first"));
       INFO << reports.front().loc << "\n" << reports.front().msg;
     }
+  }
+
+  TEST(sequences_impose_order_between_multiple_matching_expectations)
+  {
+    mock_c obj;
+
+    trompeloeil::sequence seq;
+
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .RETURN(1)
+      .IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .RETURN(2)
+      .IN_SEQUENCE(seq);
+
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .RETURN(3)
+      .IN_SEQUENCE(seq);
+
+    std::string s;
+    s+= std::to_string(obj.getter(1));
+    s+= std::to_string(obj.getter(1));
+    s+= std::to_string(obj.getter(1));
+    ASSERT_TRUE(s == "123");
   }
 }
 
