@@ -89,13 +89,19 @@ Limitations (TODO-list)
 -----------------------
 
 - Function templates cannot be mocked
-- Tracing
-- WAY too many macros... but I think we'll have to make do with most of them.
+- Tracing would be a nice addition
+- WAY too many macros... but I think we'll have to make do with most of them
 
-- Quirk! Matching a move-only type passed by value requires a bit of trickery
-  in the expectation. Use a wild card in the **`REQUIRE_CALL`()**, and match
-  in **`.WITH()`** with alternative means. For example, a `std::unique_ptr<T>`
-  passed by value can be matched with the raw pointer value in **`.WITH()`**.
+- Quirk! Matching a move-only type passed by value or by rvalue-refenence
+  requires a bit of trickery in the expectation. Use a wild card in the
+  **`REQUIRE_CALL`()**, and match in **`.WITH()`** with alternative means.
+  For example, a `std::unique_ptr<T>` passed by value can be matched with the
+  raw pointer value in **`.WITH()`**.
+
+- Quirk! All named objects referenced in **`.WITH()`**, **`.SIDE_EFFECT()`**,
+  **`.RETURN()`** and **`.THROW()`** are captured by reference. This makes
+  lifetime an important issue when dealing with **`NAMED_REQUIRE_CALL()`**,
+  **`NAMED_ALLOW_CALL()`** and **`NAMED_FORBID_CALL()`**.
 
 How to use
 ----------
@@ -164,6 +170,9 @@ and narrow specializations in short scopes.
 Same as **`REQUIRE_CALL`**, except it instantiates a
 *std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a
 variable.
+**NOTE!** Any named objects referenced in attached **`.WITH()`**,
+**`.SIDE_EFFECT()`**, **`.RETURN()`** and **`.THROW()`** are captured by
+reference, so lifetime management is important.
 
 **`REQUIRE_DESTRUCTION`(** *mock_object* **)**  
 Makes it legal for a **`deathwatched`** *mock_object* to be destroyed. An erro
@@ -180,13 +189,15 @@ wild card `trompeloeil::_` has been used. *expr* can refer to parameters in the
 call with their positional names `_1`, `_2`, etc. Even if the
 function signature has parameter as non-`const` references, they are
 immutable in this context. Several **`.WITH`** clauses can be added to a single
-**`REQUIRE_CALL`**
+**`REQUIRE_CALL`**. Note that named objects referenced here are captured by
+reference.
 
 **`.SIDE_EFFECT`(** *expr* **)**  
 Code to cause side effects. *expr* is only evaluated when all **`.WITH`**
 clauses are matched. *expr* may refer to parameters in the call with their
 positional names `_1`, `_2`, etc. This code may alter out-parameters.
-Several **`.SIDE_EFFECT`** clauses can be added to a single **`REQUIRE_CALL`**
+Several **`.SIDE_EFFECT`** clauses can be added to a single **`REQUIRE_CALL`**.
+Note that named objects referenced here are captured by reference.
 
 **`.RETURN`(** *expr* **)**  
 Set the return value after having evaluated every **`.SIDE_EFFECT`** . For `void`
@@ -194,13 +205,15 @@ functions **`.RETURN`** is illegal. For non-`void` functions **`.RETURN`** is
 required exactly once. *expr* may refer to parameters in the call with their
 positional names `_1`, `_2`, etc. This code may alter out-parameters. If you
 need to return an lvalue reference, use `std::ref()`.  It is not legal to
-combine both **`.THROW`** and **`.RETURN`**.
+combine both **`.THROW`** and **`.RETURN`**. Note that named objects referenced
+here are captured by reference.
 
 **`.THROW`(** *expr* **)**  
 Throw after having evaluated every **`.SIDE_EFFECT`** . *expr* may refer to
 parameters in the call with their positional names `_1`, `_2`, etc. This code
 may alter out-parameters. It is not legal to combine both **`.THROW`** and
-**`.RETURN`**.
+**`.RETURN`**. Note that named objects referenced here are captured by
+reference.
 
 **`.TIMES`(** *limit* **)**  
 Set the number of times the call is allowed. *limits* must be `constexpr`.
@@ -223,7 +236,10 @@ number of times, but is not required to match. (_actually the limit is
 **`NAMED_ALLOW_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0, infinity **)**.
 Matches any number of times, but is not required to match. (_actually the limit
-is 0..~0ULL, but that is for all practical purposes "infinity"_)
+is 0..~0ULL, but that is for all practical purposes "infinity"_).
+**NOTE!** Any named objects referenced in attached **`.WITH()`**,
+**`.SIDE_EFFECT()`**, **`.RETURN()`** and **`.THROW()`** are captured by
+reference, so lifetime management is important.
 
 **`FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching call
@@ -232,6 +248,8 @@ an error. No **`.RETURN`**() is needed for non-void functions.
 **`NAMED_FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching
 call an error. No **`.RETURN`**() is needed for non-void functions.
+**NOTE!** Any named objects referenced in attached **`.WITH()`** are captured
+by reference, so lifetime management is important.
 
 ## Printing values
 
