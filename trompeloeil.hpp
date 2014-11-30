@@ -1355,8 +1355,6 @@ namespace trompeloeil {
 }
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s) \
-  /*using TROMPELOEIL_ID(matcher_type) = ::trompeloeil::call_matcher<sig>;*/ \
-  /*TROMPELOEIL_ID(matcher_type) trompeloeil_matcher_type_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness;*/ \
   using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
@@ -1367,7 +1365,6 @@ namespace trompeloeil {
     {                                                                   \
       return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
     }                                                                   \
-  /* using name = TROMPELOEIL_ID(matcher_type); */                      \
   };                                                                    \
   TROMPELOEIL_ID(tag_type_trompeloeil) trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness; \
   TROMPELOEIL_ID(matcher_list_type)&                                    \
