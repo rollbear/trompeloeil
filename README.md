@@ -11,10 +11,6 @@ What is it?
 
 A header only mocking framework for C++14.
 
-**NOTE! These are still early days. Bugs will be found, and important features
-are missing. Code breaking changes are no longer expected, but may still
-occur.**
-
 
 Example usage
 -------------
