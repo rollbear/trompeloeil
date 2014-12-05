@@ -464,22 +464,97 @@ TESTSUITE(matching)
   class U
   {
   public:
-    MAKE_MOCK1(func, void(const uncomparable&));
+    MAKE_MOCK1(func_u, void(const uncomparable&));
+    MAKE_MOCK1(func_v, void(int));
+    MAKE_MOCK1(func_cv, void(const int));
+    MAKE_MOCK1(func_lr, void(int&));
+    MAKE_MOCK1(func_clr, void(const int&));
+    MAKE_MOCK1(func_rr, void(int&&));
+    MAKE_MOCK1(func_crr, void(const int&&));
+    MAKE_MOCK1(func, void(int&));
+    MAKE_MOCK1(func, void(const int&));
+    MAKE_MOCK1(func, void(int&&));
   };
 
   TEST(uncomparable_parameter_matches_wildcard)
   {
     U u;
-    REQUIRE_CALL(u, func(_));
-    u.func(uncomparable{});
+    REQUIRE_CALL(u, func_u(_));
+    u.func_u(uncomparable{});
   }
 
   TEST(uncomparable_parameter_matches_typed_wildcard)
   {
     U u;
-    REQUIRE_CALL(u, func(ANY(uncomparable)));
-    u.func(uncomparable{});
+    REQUIRE_CALL(u, func_u(ANY(uncomparable)));
+    u.func_u(uncomparable{});
   }
+
+  TEST(wildcard_matches_parameter_value_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func_v(_));
+    u.func_v(1);
+  }
+
+  TEST(wildcard_matches_parameter_const_value_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func_cv(_));
+    u.func_cv(1);
+  }
+
+  TEST(wildcard_matches_parameter_lvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func_lr(_));
+    int v = 1;
+    u.func_lr(v);
+  }
+
+  TEST(wildcard_matches_parameter_const_lvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func_clr(_));
+    int v = 1;
+    u.func_clr(v);
+  }
+
+  TEST(wildcard_matches_parameter_rvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func_rr(_));
+    u.func_rr(1);
+  }
+
+  TEST(wildcard_matches_parameter_const_rvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func_crr(_));
+    u.func_crr(1);
+  }
+
+  TEST(ANY_can_select_overload_on_lvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(int&)));
+    int i = 1;
+    u.func(i);
+  }
+  TEST(ANY_can_select_overload_on_const_lvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(const int&)));
+    const int i = 1;
+    u.func(i);
+  }
+  TEST(ANY_can_select_overload_on_rvalue_reference_type)
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(int&&)));
+    u.func(1);
+  }
+
 }
 
 TESTSUITE(streaming)
