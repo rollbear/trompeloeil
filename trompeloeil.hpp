@@ -1095,7 +1095,7 @@ namespace trompeloeil
         reported = true;
         std::ostringstream os;
         os << "Match of forbidden call of " << name << " at " << location << '\n';
-        tuple_print<decltype(val)>::missed(os, params);
+        tuple_print<Value>::missed(os, params);
         send_report(severity::fatal, location, os.str());
       }
       if (++call_count == std::get<0>(limits))
@@ -1133,7 +1133,7 @@ namespace trompeloeil
       else
       {
         os << '\n';
-        tuple_print<decltype(val)>::mismatch(os, val, params);
+        tuple_print<Value>::mismatch(os, val, params);
       }
       return os;
     }
@@ -1158,7 +1158,7 @@ namespace trompeloeil
       default:
         os << "called " << call_count << " times\n";
       }
-      tuple_print<decltype(val)>::missed(os, val);
+      tuple_print<Value>::missed(os, val);
       send_report(severity::nonfatal, location, os.str());
     }
     template <typename D>
