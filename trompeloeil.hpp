@@ -1038,6 +1038,30 @@ namespace trompeloeil
     virtual ~expectation() = default;
   };
 
+  inline void
+  unfulfilled_header(std::ostream& os,
+                     const char*   name,
+                     unsigned      min_calls,
+                     unsigned      call_count)
+  {
+    os << "Unfulfilled expectation:\n"
+       << "Expected " << name << " to be called ";
+    if (min_calls == 1)
+      os << "once";
+    else
+      os << min_calls << " times";
+    os << ", actually ";
+    switch (call_count)
+    {
+    case 0:
+      os << "never called\n"; break;
+    case 1:
+      os << "called once\n"; break;
+    default:
+      os << "called " << call_count << " times\n";
+    }
+  }
+
   template<typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
@@ -1142,22 +1166,7 @@ namespace trompeloeil
     {
       reported = true;
       std::ostringstream os;
-      os << "Unfulfilled expectation:\n"
-         << "Expected " << name << " to be called ";
-      if (min_calls == 1)
-        os << "once";
-      else
-        os << min_calls << " times";
-      os << ", actually ";
-      switch (call_count)
-      {
-      case 0:
-        os << "never called\n"; break;
-      case 1:
-        os << "called once\n"; break;
-      default:
-        os << "called " << call_count << " times\n";
-      }
+      unfulfilled_header(os, name, min_calls, call_count);
       tuple_print<Value>::missed(os, val);
       send_report(severity::nonfatal, location, os.str());
     }
