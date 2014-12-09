@@ -809,18 +809,10 @@ namespace trompeloeil
   };
 
   template<typename Sig>
-  struct return_handler_base : public list_elem<return_handler_base<Sig> >
+  struct return_handler_base
   {
+    virtual ~return_handler_base() = default;
     virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &) = 0;
-  };
-
-  template<typename Sig>
-  struct return_handler_list : public return_handler_base<Sig>
-  {
-    return_of_t<Sig> return_value(call_params_type_t<Sig> &)
-    {
-      return default_return<Sig>();
-    }
   };
 
   template<typename Sig, typename Handler>
@@ -973,10 +965,6 @@ namespace trompeloeil
     {
       add_last(data);
     }
-    void add_last(return_handler_base<Sig>& s) noexcept
-    {
-      this->return_handler.link_before(s);
-    }
     void add_last(std::tuple<>) noexcept {}
     template <typename D>
     call_data<call_data, std::tuple<>, Sig> with(const char* str, D&& d)
@@ -993,7 +981,7 @@ namespace trompeloeil
       return std::move(*this);
     }
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_data>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
+    call_data<return_type_injector<return_of_t<Sig>, call_data>, std::tuple<>, Sig> handle_return(const char* str, H&& h)
     {
       static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of_t<Sig>, void>::value,
                     "RETURN does not make sense for void-function");
@@ -1003,16 +991,20 @@ namespace trompeloeil
                     "Multiple RETURN does not make sense");
       static_assert(!throws,
                     "THROW and RETURN does not make sense");
-      return {return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), return_handler<Sig, H>(str, std::move(h))};
+      auto r = new return_handler<Sig, H>(str, std::move(h));
+      this->set_return(r);
+      return {std::move(*this) };
     }
     template <typename H>
-    call_data<throw_injector<call_data>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
+    call_data<throw_injector<call_data>, std::tuple<>, Sig> handle_throw(const char* str, H&& h)
     {
       static_assert(!throws,
                     "Multiple THROW does not make sense");
       static_assert(std::is_same<return_type, void>::value,
                     "THROW and RETURN does not make sense");
-      return { return_type_injector<return_of_t<Sig>, call_data>(std::move(*this)), throw_handler<Sig, H>(str, std::move(h))};
+      auto r = new throw_handler<Sig, H>(str, std::move(h));
+      this->set_return(r);
+      return {std::move(*this)};
     }
     template <unsigned long long L,
               unsigned long long H = L,
@@ -1112,7 +1104,9 @@ namespace trompeloeil
 
     return_of_t<Sig> return_value(call_params_type_t<Sig>& params)
     {
-      return return_handler.next()->return_value(params);
+      return return_handler
+        ? return_handler->return_value(params)
+        : default_return<Sig>();
     }
     void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list)
     {
@@ -1193,19 +1187,23 @@ namespace trompeloeil
     }
 
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
+    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, std::tuple<>, Sig> handle_return(const char* str, H&& h)
     {
       static_assert(!std::is_same<return_of_t<Sig>, void>::value || std::is_same<H, void>::value,
                     "RETURN does not make sense for void-function");
 
       static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
                     "RETURN value is not convertible to the return type of the function");
-      return {std::move(*this), {str, std::move(h)}};
+      auto r = new ::trompeloeil::return_handler<Sig, H>(str, std::move(h));
+      set_return(r);
+      return {std::move(*this) };
     }
     template <typename H>
-    call_data<throw_injector<call_matcher>, throw_handler<Sig, H>, Sig> handle_throw(const char* str, H&& h)
+    call_data<throw_injector<call_matcher>, std::tuple<>, Sig> handle_throw(const char* str, H&& h)
     {
-      return { std::move(*this), {str, std::move(h)}};
+      auto r = new ::trompeloeil::throw_handler<Sig, H>(str, std::move(h));
+      set_return(r);
+      return {std::move(*this)};
     }
     template <unsigned long long L, unsigned long long H = L>
     call_data<call_limit_injector<call_matcher>, std::tuple<>, Sig> times()
@@ -1252,19 +1250,23 @@ namespace trompeloeil
       s->set_expectation(this->name, this->location);
       sequences.reset(s);
     }
-    static const bool                      call_limit_set = false;
-    static const bool                      sequence_set = false;
-    Value                                  val;
-    condition_list<Sig>                    conditions;
-    side_effect_list<Sig>                  actions;
-    return_handler_list<Sig>               return_handler;
-    std::unique_ptr<sequence_handler_base> sequences;
-    const char                            *location;
-    const char                            *name;
-    unsigned long long                     call_count = 0;
-    unsigned long long                     min_calls = 1;
-    unsigned long long                     max_calls = 1;
-    bool                                   reported = false;
+    void set_return(return_handler_base<Sig>* r) noexcept
+    {
+      return_handler.reset(r);
+    }
+    static const bool                         call_limit_set = false;
+    static const bool                         sequence_set = false;
+    Value                                     val;
+    condition_list<Sig>                       conditions;
+    side_effect_list<Sig>                     actions;
+    std::unique_ptr<return_handler_base<Sig>> return_handler;
+    std::unique_ptr<sequence_handler_base>    sequences;
+    const char                               *location;
+    const char                               *name;
+    unsigned long long                        call_count = 0;
+    unsigned long long                        min_calls = 1;
+    unsigned long long                        max_calls = 1;
+    bool                                      reported = false;
   };
 
 
