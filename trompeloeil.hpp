@@ -732,7 +732,8 @@ namespace trompeloeil
   struct condition_base : public list_elem<condition_base<Sig> >
   {
     condition_base() = default;
-    condition_base(condition_base&& r) : list_elem<condition_base<Sig> >(std::move(r)) {}
+    condition_base(condition_base&& r) = default;
+    virtual ~condition_base() = default;
     virtual bool check(const call_params_type_t<Sig>&) const = 0;
     virtual const char* name() const noexcept = 0;
   };
@@ -741,7 +742,14 @@ namespace trompeloeil
   struct condition_list : public condition_base<Sig>
   {
     condition_list() = default;
-    condition_list(condition_list&& r) : condition_base<Sig>(std::move(r)) {}
+    condition_list(condition_list&& r) = default;
+    ~condition_list()
+    {
+      while (!this->is_empty())
+      {
+        delete this->next();
+      }
+    }
     bool check(const call_params_type_t<Sig>&) const override
     {
       return false;
@@ -965,10 +973,6 @@ namespace trompeloeil
     {
       this->actions.link_before(s);
     }
-    void add_last(condition_base<Sig>& s) noexcept
-    {
-      this->conditions.link_before(s);
-    }
     void add_last(return_handler_base<Sig>& s) noexcept
     {
       this->return_handler.link_before(s);
@@ -980,9 +984,11 @@ namespace trompeloeil
     }
     void add_last(std::tuple<>) noexcept {}
     template <typename D>
-    call_data<call_data, condition<Sig, D>, Sig> with(const char* str, D&& d)
+    call_data<call_data, std::tuple<>, Sig> with(const char* str, D&& d)
     {
-      return {std::move(*this), condition<Sig, D>(str, std::move(d))};
+      auto cond = new condition<Sig, D>(str, std::move(d));
+      Parent::add_condition(cond);
+      return std::move(*this);
     }
     template <typename A>
     call_data<call_data, side_effect<Sig, A>, Sig> sideeffect(const char* str, A&& a)
@@ -1171,9 +1177,11 @@ namespace trompeloeil
       send_report(severity::nonfatal, location, os.str());
     }
     template <typename D>
-    call_data<call_matcher, condition<Sig, D>, Sig> with(const char* str, D&& d)
+    call_data<call_matcher, std::tuple<>, Sig> with(const char* str, D&& d)
     {
-      return { std::move(*this), condition<Sig, D>(str, std::move(d)) };
+      auto cond = new condition<Sig, D>(str, std::move(d));
+      add_condition(cond);
+      return std::move(*this);
     }
     template <typename A>
     call_data<call_matcher, side_effect<Sig, A>, Sig> sideeffect(const char* str, A&& a)
@@ -1227,6 +1235,10 @@ namespace trompeloeil
       return std::make_tuple(min_calls, max_calls);
     }
 
+    void add_condition(condition_base<Sig>* c) noexcept
+    {
+      conditions.link_before(*c);
+    }
     static const bool         call_limit_set = false;
     static const bool         sequence_set = false;
     Value                     val;
