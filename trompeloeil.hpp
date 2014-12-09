@@ -776,12 +776,24 @@ namespace trompeloeil
   template<typename Sig>
   struct side_effect_base : public list_elem<side_effect_base<Sig> >
   {
+    side_effect_base() = default;
+    side_effect_base(side_effect_base&&) = default;
+    virtual ~side_effect_base() = default;
     virtual void action(call_params_type_t<Sig> &) = 0;
   };
 
   template<typename Sig>
   struct side_effect_list : public side_effect_base<Sig>
   {
+    side_effect_list() = default;
+    side_effect_list(side_effect_list&&) = default;
+    ~side_effect_list()
+    {
+      while (!this->is_empty())
+      {
+        delete this->next();
+      }
+    }
     void action(call_params_type_t<Sig> &) {}
   };
 
@@ -969,10 +981,6 @@ namespace trompeloeil
     {
       add_last(data);
     }
-    void add_last(side_effect_base<Sig>& s) noexcept
-    {
-      this->actions.link_before(s);
-    }
     void add_last(return_handler_base<Sig>& s) noexcept
     {
       this->return_handler.link_before(s);
@@ -991,9 +999,11 @@ namespace trompeloeil
       return std::move(*this);
     }
     template <typename A>
-    call_data<call_data, side_effect<Sig, A>, Sig> sideeffect(const char* str, A&& a)
+    call_data<call_data, std::tuple<>, Sig> sideeffect(const char* str, A&& a)
     {
-      return {std::move(*this), side_effect<Sig, A>(str, std::move(a))};
+      auto effect = new side_effect<Sig, A>(str, std::move(a));
+      this->add_side_effect(effect);
+      return std::move(*this);
     }
     template <typename H>
     call_data<return_type_injector<return_of_t<Sig>, call_data>, return_handler<Sig, H>, Sig> handle_return(const char* str, H&& h)
@@ -1184,9 +1194,11 @@ namespace trompeloeil
       return std::move(*this);
     }
     template <typename A>
-    call_data<call_matcher, side_effect<Sig, A>, Sig> sideeffect(const char* str, A&& a)
+    call_data<call_matcher, std::tuple<>, Sig> sideeffect(const char* str, A&& a)
     {
-      return {std::move(*this), side_effect<Sig, A>(str, std::move(a))};
+      auto effect = new side_effect<Sig, A>(str, std::move(a));
+      add_side_effect(effect);
+      return std::move(*this);
     }
 
     template <typename H>
@@ -1238,6 +1250,10 @@ namespace trompeloeil
     void add_condition(condition_base<Sig>* c) noexcept
     {
       conditions.link_before(*c);
+    }
+    void add_side_effect(side_effect_base<Sig>* c) noexcept
+    {
+      actions.link_before(*c);
     }
     static const bool         call_limit_set = false;
     static const bool         sequence_set = false;
