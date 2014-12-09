@@ -1024,7 +1024,7 @@ namespace trompeloeil
       return { std::move(*this), {} };
     }
 
-    template <typename ... T, bool b = sequence_set, typename = std::enable_if<all_are<sequence_matcher, T...>::value> >
+    template <typename ... T, bool b = sequence_set, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
     call_data<sequence_injector<call_data>,sequence_handler<std::tuple<T...> >,Sig> in_sequence(T&& ... t)
     {
       static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
@@ -1205,7 +1205,7 @@ namespace trompeloeil
       return { std::move(*this), {} };
     }
 
-    template <typename ... T, typename = std::enable_if<all_are<sequence_matcher, T...>::value> >
+    template <typename ... T, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
     call_data<sequence_injector<call_matcher>,sequence_handler<std::tuple<T...> >,Sig> in_sequence(T&& ... t)
     {
       std::tuple<T...> tup(std::forward<T>(t)...);
