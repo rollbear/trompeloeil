@@ -887,22 +887,14 @@ namespace trompeloeil
   {
   };
 
-  struct sequence_handler_base : public list_elem<sequence_handler_base >
+  struct sequence_handler_base
   {
+    virtual ~sequence_handler_base() noexcept = default;
     virtual void set_expectation(const char *, const char*) noexcept = 0;
     virtual void validate(const char*, const char*) = 0;
     virtual bool is_first() const = 0;
     virtual void retire() noexcept = 0;
   };
-
-  struct sequence_handler_list : public sequence_handler_base
-  {
-    void set_expectation(const char*, const char*) noexcept override {}
-    void validate(const char*, const char*) override {}
-    bool is_first() const override { return true; }
-    void retire() noexcept override {}
-  };
-
 
   template <typename T>
   struct sequence_handler;
@@ -985,11 +977,6 @@ namespace trompeloeil
     {
       this->return_handler.link_before(s);
     }
-    void add_last(sequence_handler_base& s) noexcept
-    {
-      this->sequence_handler.link_before(s);
-      s.set_expectation(this->name, this->location);
-    }
     void add_last(std::tuple<>) noexcept {}
     template <typename D>
     call_data<call_data, std::tuple<>, Sig> with(const char* str, D&& d)
@@ -1041,10 +1028,14 @@ namespace trompeloeil
     }
 
     template <typename ... T, bool b = sequence_set, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_data<sequence_injector<call_data>,sequence_handler<std::tuple<T...> >,Sig> in_sequence(T&& ... t)
+    call_data<sequence_injector<call_data>,std::tuple<>,Sig> in_sequence(T&& ... t)
     {
       static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
-      return { std::move(*this), { std::tuple<typename std::remove_reference<T>::type...>(std::forward<T>(t)...) } };
+
+      std::tuple<T...> tup(std::forward<T>(t)...);
+      auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
+      this->set_sequence(seq);
+      return {std::move(*this)};
     }
 
     U data;
@@ -1116,7 +1107,7 @@ namespace trompeloeil
     bool first_in_sequence() const
     {
       auto saturated = call_count >= std::get<0>(call_limits());
-      return  saturated || sequence_handler.next()->is_first();
+      return saturated || !sequences || sequences->is_first();
     }
 
     return_of_t<Sig> return_value(call_params_type_t<Sig>& params)
@@ -1126,9 +1117,9 @@ namespace trompeloeil
     void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list)
     {
       auto limits = call_limits();
-      if (call_count < std::get<0>(limits))
+      if (call_count < std::get<0>(limits) && sequences)
       {
-        sequence_handler.next()->validate(name, location);
+        sequences->validate(name, location);
       }
       if (std::get<1>(limits) == 0)
       {
@@ -1138,9 +1129,9 @@ namespace trompeloeil
         tuple_print<Value>::missed(os, params);
         send_report(severity::fatal, location, os.str());
       }
-      if (++call_count == std::get<0>(limits))
+      if (++call_count == std::get<0>(limits) && sequences)
       {
-        sequence_handler.next()->retire();
+        sequences->retire();
       }
       if (call_count == std::get<1>(limits))
       {
@@ -1226,11 +1217,12 @@ namespace trompeloeil
     }
 
     template <typename ... T, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_data<sequence_injector<call_matcher>,sequence_handler<std::tuple<T...> >,Sig> in_sequence(T&& ... t)
+    call_data<sequence_injector<call_matcher>,std::tuple<>,Sig> in_sequence(T&& ... t)
     {
       std::tuple<T...> tup(std::forward<T>(t)...);
-      using h = ::trompeloeil::sequence_handler<std::tuple<T...> >;
-      return { std::move(*this), h( std::move(tup) ) };
+      auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
+      set_sequence(seq);
+      return {std::move(*this)};
     }
     call_matcher &set_location(const char *loc) noexcept
     {
@@ -1255,19 +1247,24 @@ namespace trompeloeil
     {
       actions.link_before(*c);
     }
-    static const bool         call_limit_set = false;
-    static const bool         sequence_set = false;
-    Value                     val;
-    condition_list<Sig>       conditions;
-    side_effect_list<Sig>     actions;
-    return_handler_list<Sig>  return_handler;
-    sequence_handler_list     sequence_handler;
-    const char               *location;
-    const char               *name;
-    unsigned long long        call_count = 0;
-    unsigned long long        min_calls = 1;
-    unsigned long long        max_calls = 1;
-    bool                      reported = false;
+    void set_sequence(sequence_handler_base* s) noexcept
+    {
+      s->set_expectation(this->name, this->location);
+      sequences.reset(s);
+    }
+    static const bool                      call_limit_set = false;
+    static const bool                      sequence_set = false;
+    Value                                  val;
+    condition_list<Sig>                    conditions;
+    side_effect_list<Sig>                  actions;
+    return_handler_list<Sig>               return_handler;
+    std::unique_ptr<sequence_handler_base> sequences;
+    const char                            *location;
+    const char                            *name;
+    unsigned long long                     call_count = 0;
+    unsigned long long                     min_calls = 1;
+    unsigned long long                     max_calls = 1;
+    bool                                   reported = false;
   };
 
 
