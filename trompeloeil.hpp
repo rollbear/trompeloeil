@@ -953,7 +953,7 @@ namespace trompeloeil
     template <typename ... A>
     sequence_injector(A&& ... a) : P(std::forward<A>(a)...) {}
   };
-  template <typename Parent, typename U, typename Sig>
+  template <typename Parent, typename Sig>
   struct call_data : public Parent
   {
     using typename Parent::return_type;
@@ -961,27 +961,20 @@ namespace trompeloeil
     using Parent::sequence_set;
     using Parent::throws;
     call_data(Parent&& parent) : Parent(std::move(parent)) {}
-    call_data(Parent&& parent, U&& d) : Parent(std::move(parent)), data(std::move(d))
-    {
-      add_last(data);
-    }
-    void add_last(std::tuple<>) noexcept {}
     template <typename D>
-    call_data<call_data, std::tuple<>, Sig> with(const char* str, D&& d)
+    call_data<call_data, Sig> with(const char* str, D&& d)
     {
-      auto cond = new condition<Sig, D>(str, std::move(d));
-      Parent::add_condition(cond);
+      Parent::add_condition(str, std::move(d));
       return std::move(*this);
     }
     template <typename A>
-    call_data<call_data, std::tuple<>, Sig> sideeffect(const char* str, A&& a)
+    call_data<call_data, Sig> sideeffect(const char* str, A&& a)
     {
-      auto effect = new side_effect<Sig, A>(str, std::move(a));
-      this->add_side_effect(effect);
+      this->add_side_effect(str, std::move(a));
       return std::move(*this);
     }
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_data>, std::tuple<>, Sig> handle_return(const char* str, H&& h)
+    call_data<return_type_injector<return_of_t<Sig>, call_data>, Sig> handle_return(const char* str, H&& h)
     {
       static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of_t<Sig>, void>::value,
                     "RETURN does not make sense for void-function");
@@ -996,7 +989,7 @@ namespace trompeloeil
       return {std::move(*this) };
     }
     template <typename H>
-    call_data<throw_injector<call_data>, std::tuple<>, Sig> handle_throw(const char* str, H&& h)
+    call_data<throw_injector<call_data>, Sig> handle_throw(const char* str, H&& h)
     {
       static_assert(!throws,
                     "Multiple THROW does not make sense");
@@ -1009,28 +1002,24 @@ namespace trompeloeil
     template <unsigned long long L,
               unsigned long long H = L,
               bool               verboten = call_limit_set>
-    call_data<call_limit_injector<call_data>, std::tuple<>, Sig> times()
+    call_data<call_limit_injector<call_data>, Sig> times()
     {
       static_assert(!verboten,
                     "Only one TIMES call limit is allowed, but it can express an interval");
       static_assert(H >= L, "In TIMES the first value must not exceed the second");
       this->min_calls = L;
       this->max_calls = H;
-      return { std::move(*this), {} };
-    }
-
-    template <typename ... T, bool b = sequence_set, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_data<sequence_injector<call_data>,std::tuple<>,Sig> in_sequence(T&& ... t)
-    {
-      static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
-
-      std::tuple<T...> tup(std::forward<T>(t)...);
-      auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
-      this->set_sequence(seq);
       return {std::move(*this)};
     }
 
-    U data;
+    template <typename ... T, bool b = sequence_set, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
+    call_data<sequence_injector<call_data>,Sig> in_sequence(T&& ... t)
+    {
+      static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
+
+      this->set_sequence(std::forward<T>(t)...);
+      return {std::move(*this)};
+    }
   };
 
   struct expectation {
@@ -1172,22 +1161,20 @@ namespace trompeloeil
       send_report(severity::nonfatal, location, os.str());
     }
     template <typename D>
-    call_data<call_matcher, std::tuple<>, Sig> with(const char* str, D&& d)
+    call_data<call_matcher, Sig> with(const char* str, D&& d)
     {
-      auto cond = new condition<Sig, D>(str, std::move(d));
-      add_condition(cond);
+      add_condition(str, std::move(d));
       return std::move(*this);
     }
     template <typename A>
-    call_data<call_matcher, std::tuple<>, Sig> sideeffect(const char* str, A&& a)
+    call_data<call_matcher, Sig> sideeffect(const char* str, A&& a)
     {
-      auto effect = new side_effect<Sig, A>(str, std::move(a));
-      add_side_effect(effect);
+      add_side_effect(str, std::move(a));
       return std::move(*this);
     }
 
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, std::tuple<>, Sig> handle_return(const char* str, H&& h)
+    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, Sig> handle_return(const char* str, H&& h)
     {
       static_assert(!std::is_same<return_of_t<Sig>, void>::value || std::is_same<H, void>::value,
                     "RETURN does not make sense for void-function");
@@ -1199,27 +1186,25 @@ namespace trompeloeil
       return {std::move(*this) };
     }
     template <typename H>
-    call_data<throw_injector<call_matcher>, std::tuple<>, Sig> handle_throw(const char* str, H&& h)
+    call_data<throw_injector<call_matcher>, Sig> handle_throw(const char* str, H&& h)
     {
       auto r = new ::trompeloeil::throw_handler<Sig, H>(str, std::move(h));
       set_return(r);
       return {std::move(*this)};
     }
     template <unsigned long long L, unsigned long long H = L>
-    call_data<call_limit_injector<call_matcher>, std::tuple<>, Sig> times()
+    call_data<call_limit_injector<call_matcher>, Sig> times()
     {
       static_assert(H >= L, "In TIMES the first value must not exceed the second");
       min_calls = L;
       max_calls = H;
-      return { std::move(*this), {} };
+    return {std::move(*this)};
     }
 
     template <typename ... T, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_data<sequence_injector<call_matcher>,std::tuple<>,Sig> in_sequence(T&& ... t)
+    call_data<sequence_injector<call_matcher>, Sig> in_sequence(T&& ... t)
     {
-      std::tuple<T...> tup(std::forward<T>(t)...);
-      auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
-      set_sequence(seq);
+      set_sequence(std::forward<T>(t)...);
       return {std::move(*this)};
     }
     call_matcher &set_location(const char *loc) noexcept
@@ -1237,18 +1222,25 @@ namespace trompeloeil
       return std::make_tuple(min_calls, max_calls);
     }
 
-    void add_condition(condition_base<Sig>* c) noexcept
+    template <typename C>
+    void add_condition(const char* str, C&& c) noexcept
     {
-      conditions.link_before(*c);
+      auto cond = new condition<Sig, C>(str, std::move(c));
+      conditions.link_before(*cond);
     }
-    void add_side_effect(side_effect_base<Sig>* c) noexcept
+    template <typename S>
+    void add_side_effect(const char* str, S&& s) noexcept
     {
-      actions.link_before(*c);
+      auto effect = new side_effect<Sig, S>(str, std::move(s));
+      actions.link_before(*effect);
     }
-    void set_sequence(sequence_handler_base* s) noexcept
+    template <typename ... T>
+    void set_sequence(T&& ... t) noexcept
     {
-      s->set_expectation(this->name, this->location);
-      sequences.reset(s);
+      std::tuple<T...> tup(std::forward<T>(t)...);
+      auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
+      seq->set_expectation(this->name, this->location);
+      sequences.reset(seq);
     }
     void set_return(return_handler_base<Sig>* r) noexcept
     {
@@ -1311,8 +1303,8 @@ namespace trompeloeil
     struct no {};
     struct yes {};
     static no func(...);
-    template <typename U, typename P, typename Sig>
-    static Sig func(const call_data<P, U, Sig>*);
+    template <typename P, typename Sig>
+    static Sig func(const call_data<P, Sig>*);
     using TT = typename std::remove_reference<T>::type;
     static const bool value = std::is_same<decltype(func(std::declval<TT*>())), yes>::value;
     using Sig = decltype(func(std::declval<TT*>()));
@@ -1331,8 +1323,8 @@ namespace trompeloeil
       assert_return_type<Sig>(t);
       return std::move(t);
     }
-    template <typename P, typename U, typename Sig>
-    call_data<P, U, Sig> operator+(::trompeloeil::call_data<P, U, Sig>&& t) {
+    template <typename P, typename Sig>
+    call_data<P, Sig> operator+(::trompeloeil::call_data<P, Sig>&& t) {
       assert_return_type<Sig>(t);
       return std::move(t);
     }
