@@ -731,8 +731,6 @@ namespace trompeloeil
   template<typename Sig>
   struct condition_base : public list_elem<condition_base<Sig> >
   {
-    condition_base() = default;
-    condition_base(condition_base&& r) = default;
     virtual ~condition_base() = default;
     virtual bool check(const call_params_type_t<Sig>&) const = 0;
     virtual const char* name() const noexcept = 0;
@@ -741,8 +739,6 @@ namespace trompeloeil
   template<typename Sig>
   struct condition_list : public condition_base<Sig>
   {
-    condition_list() = default;
-    condition_list(condition_list&& r) = default;
     ~condition_list()
     {
       while (!this->is_empty())
@@ -776,8 +772,6 @@ namespace trompeloeil
   template<typename Sig>
   struct side_effect_base : public list_elem<side_effect_base<Sig> >
   {
-    side_effect_base() = default;
-    side_effect_base(side_effect_base&&) = default;
     virtual ~side_effect_base() = default;
     virtual void action(call_params_type_t<Sig> &) = 0;
   };
@@ -785,8 +779,6 @@ namespace trompeloeil
   template<typename Sig>
   struct side_effect_list : public side_effect_base<Sig>
   {
-    side_effect_list() = default;
-    side_effect_list(side_effect_list&&) = default;
     ~side_effect_list()
     {
       while (!this->is_empty())
@@ -836,6 +828,7 @@ namespace trompeloeil
     Handler h;
     const char *str;
   };
+
   template <typename T, std::size_t N, size_t M>
   struct sequence_validator_t;
 
@@ -916,110 +909,106 @@ namespace trompeloeil
     seq_tuple sequences;
   };
 
-  template<typename R, typename P>
-  struct return_type_injector : public P
+  template<typename R, typename Parent>
+  struct return_injector : Parent
   {
     using return_type = R;
-    using P::P;
-
-    template<typename ... A>
-    return_type_injector(A &&... a) : P(std::forward<A>(a)...) {}
   };
 
-  template <typename P>
-  struct throw_injector : public P
+  template <typename Parent>
+  struct throw_injector : Parent
   {
     static const bool throws = true;
-    using P::P;
-
-    template <typename ... A>
-    throw_injector(A&& ... a) : P(std::forward<A>(a)...) {}
   };
-  template <typename P>
-  struct call_limit_injector : public P
+
+  template <typename Parent>
+  struct call_limit_injector : Parent
   {
     static const bool call_limit_set = true;
-    using P::P;
-
-    template <typename ... A>
-     call_limit_injector(A && ... a) : P(std::forward<A>(a)...) {}
   };
 
-  template <typename P>
-  struct sequence_injector : public P
+  template <typename Parent>
+  struct sequence_injector : Parent
   {
     static const bool sequence_set = true;
-    using P::P;
-    template <typename ... A>
-    sequence_injector(A&& ... a) : P(std::forward<A>(a)...) {}
   };
-  template <typename Parent, typename Sig>
-  struct call_data : public Parent
+
+  template <typename Matcher, typename Parent = std::tuple<>>
+  struct call_modifier : public Parent
   {
+    using typename Parent::signature;
     using typename Parent::return_type;
     using Parent::call_limit_set;
     using Parent::sequence_set;
     using Parent::throws;
-    call_data(Parent&& parent) : Parent(std::move(parent)) {}
+    call_modifier(Matcher& m) : matcher(m) {}
     template <typename D>
-    call_data<call_data, Sig> with(const char* str, D&& d)
+    call_modifier& with(const char* str, D&& d)
     {
-      Parent::add_condition(str, std::move(d));
-      return std::move(*this);
+      matcher.add_condition(str, std::move(d));
+      return *this;
     }
     template <typename A>
-    call_data<call_data, Sig> sideeffect(const char* str, A&& a)
+    call_modifier& sideeffect(const char* str, A&& a)
     {
-      this->add_side_effect(str, std::move(a));
-      return std::move(*this);
+      matcher.add_side_effect(str, std::move(a));
+      return *this;
     }
     template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_data>, Sig> handle_return(const char* str, H&& h)
+    call_modifier<Matcher, return_injector<return_of_t<signature>, Parent > >
+    handle_return(const char* str, H&& h)
     {
-      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || !std::is_same<return_of_t<Sig>, void>::value,
+      using ret = decltype(h(std::declval<call_params_type_t<signature>& >()));
+      static_assert(std::is_constructible<return_of_t<signature>, ret>::value
+                    || !std::is_same<return_of_t<signature>, void>::value,
                     "RETURN does not make sense for void-function");
-      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
+      static_assert(std::is_constructible<return_of_t<signature>, ret>::value
+                    || std::is_same<return_of_t<signature>, void>::value,
                     "RETURN value is not convertible to the return type of the function");
-      static_assert(!std::is_same<return_type, decltype(h(std::declval<call_params_type_t<Sig>&>()))>::value || std::is_same<return_type, void>::value,
+      static_assert(!std::is_same<return_type, ret>::value
+                    || std::is_same<return_type, void>::value,
                     "Multiple RETURN does not make sense");
       static_assert(!throws,
                     "THROW and RETURN does not make sense");
-      auto r = new return_handler<Sig, H>(str, std::move(h));
-      this->set_return(r);
-      return {std::move(*this) };
+      auto r = new return_handler<signature, H>(str, std::move(h));
+      matcher.set_return(r);
+      return {matcher};
     }
     template <typename H>
-    call_data<throw_injector<call_data>, Sig> handle_throw(const char* str, H&& h)
+    call_modifier<Matcher, throw_injector<Parent> >
+    handle_throw(const char* str, H&& h)
     {
       static_assert(!throws,
                     "Multiple THROW does not make sense");
       static_assert(std::is_same<return_type, void>::value,
                     "THROW and RETURN does not make sense");
-      auto r = new throw_handler<Sig, H>(str, std::move(h));
-      this->set_return(r);
-      return {std::move(*this)};
+      auto r = new throw_handler<signature, H>(str, std::move(h));
+      matcher.set_return(r);
+      return {matcher};
     }
     template <unsigned long long L,
               unsigned long long H = L,
               bool               verboten = call_limit_set>
-    call_data<call_limit_injector<call_data>, Sig> times()
+    call_modifier<Matcher, call_limit_injector<Parent> >
+    times()
     {
       static_assert(!verboten,
                     "Only one TIMES call limit is allowed, but it can express an interval");
       static_assert(H >= L, "In TIMES the first value must not exceed the second");
-      this->min_calls = L;
-      this->max_calls = H;
-      return {std::move(*this)};
+      matcher.min_calls = L;
+      matcher.max_calls = H;
+      return {matcher};
     }
 
     template <typename ... T, bool b = sequence_set, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_data<sequence_injector<call_data>,Sig> in_sequence(T&& ... t)
+    call_modifier<Matcher, sequence_injector<Parent> > in_sequence(T&& ... t)
     {
       static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
 
-      this->set_sequence(std::forward<T>(t)...);
-      return {std::move(*this)};
+      matcher.set_sequence(std::forward<T>(t)...);
+      return {matcher};
     }
+    Matcher& matcher;
   };
 
   struct expectation {
@@ -1027,10 +1016,10 @@ namespace trompeloeil
   };
 
   inline void
-  unfulfilled_header(std::ostream& os,
-                     const char*   name,
-                     unsigned      min_calls,
-                     unsigned      call_count)
+  unfulfilled_header(std::ostream&      os,
+                     const char*        name,
+                     unsigned long long min_calls,
+                     unsigned long long call_count)
   {
     os << "Unfulfilled expectation:\n"
        << "Expected " << name << " to be called ";
@@ -1050,20 +1039,30 @@ namespace trompeloeil
     }
   }
 
+  template <typename Sig>
+  struct matcher_info
+  {
+    using signature = Sig;
+    using return_type = void;
+    static const bool throws = false;
+    static const bool call_limit_set = false;
+    static const bool sequence_set = false;
+  };
+
   template<typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
-    using return_type = void;
-    static const bool throws = false;
-
     template<typename ... U>
     call_matcher(U &&... u) : val(std::forward<U>(u)...) {}
 
-    call_matcher(call_matcher &&r) = default;
+    call_matcher(call_matcher &&r) = delete;
 
     ~call_matcher()
     {
-      if (!reported && !this->is_empty() && call_count < min_calls) report_missed();
+      if (!reported && !this->is_empty() && call_count < min_calls)
+      {
+        report_missed();
+      }
     }
 
     call_matcher& hook_last(call_matcher_list<Sig> &list) noexcept
@@ -1160,53 +1159,6 @@ namespace trompeloeil
       tuple_print<Value>::missed(os, val);
       send_report(severity::nonfatal, location, os.str());
     }
-    template <typename D>
-    call_data<call_matcher, Sig> with(const char* str, D&& d)
-    {
-      add_condition(str, std::move(d));
-      return std::move(*this);
-    }
-    template <typename A>
-    call_data<call_matcher, Sig> sideeffect(const char* str, A&& a)
-    {
-      add_side_effect(str, std::move(a));
-      return std::move(*this);
-    }
-
-    template <typename H>
-    call_data<return_type_injector<return_of_t<Sig>, call_matcher>, Sig> handle_return(const char* str, H&& h)
-    {
-      static_assert(!std::is_same<return_of_t<Sig>, void>::value || std::is_same<H, void>::value,
-                    "RETURN does not make sense for void-function");
-
-      static_assert(std::is_constructible<return_of_t<Sig>, decltype(h(std::declval<call_params_type_t<Sig>& >()))>::value || std::is_same<return_of_t<Sig>, void>::value,
-                    "RETURN value is not convertible to the return type of the function");
-      auto r = new ::trompeloeil::return_handler<Sig, H>(str, std::move(h));
-      set_return(r);
-      return {std::move(*this) };
-    }
-    template <typename H>
-    call_data<throw_injector<call_matcher>, Sig> handle_throw(const char* str, H&& h)
-    {
-      auto r = new ::trompeloeil::throw_handler<Sig, H>(str, std::move(h));
-      set_return(r);
-      return {std::move(*this)};
-    }
-    template <unsigned long long L, unsigned long long H = L>
-    call_data<call_limit_injector<call_matcher>, Sig> times()
-    {
-      static_assert(H >= L, "In TIMES the first value must not exceed the second");
-      min_calls = L;
-      max_calls = H;
-    return {std::move(*this)};
-    }
-
-    template <typename ... T, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_data<sequence_injector<call_matcher>, Sig> in_sequence(T&& ... t)
-    {
-      set_sequence(std::forward<T>(t)...);
-      return {std::move(*this)};
-    }
     call_matcher &set_location(const char *loc) noexcept
     {
       location = loc;
@@ -1246,8 +1198,6 @@ namespace trompeloeil
     {
       return_handler.reset(r);
     }
-    static const bool                         call_limit_set = false;
-    static const bool                         sequence_set = false;
     Value                                     val;
     condition_list<Sig>                       conditions;
     side_effect_list<Sig>                     actions;
@@ -1297,47 +1247,36 @@ namespace trompeloeil
     return call_params_type_t<void(T...)>(t...);
   }
 
-  template <typename T>
-  struct is_call_matcher
-  {
-    struct no {};
-    struct yes {};
-    static no func(...);
-    template <typename P, typename Sig>
-    static Sig func(const call_data<P, Sig>*);
-    using TT = typename std::remove_reference<T>::type;
-    static const bool value = std::is_same<decltype(func(std::declval<TT*>())), yes>::value;
-    using Sig = decltype(func(std::declval<TT*>()));
-  };
-
   struct call_validator
   {
-    template <typename Sig, typename T>
+    template <typename T>
     static void assert_return_type(T&)
     {
-      static_assert(T::throws || std::is_same<typename T::return_type, return_of_t<Sig> >::value,
+      static_assert(T::throws || std::is_same<typename T::return_type, return_of_t<typename T::signature> >::value,
                     "RETURN missing for non-void function");
     }
-    template <typename Sig, typename Val>
-    call_matcher<Sig, Val> operator+(trompeloeil::call_matcher<Sig, Val>& t) {
-      assert_return_type<Sig>(t);
-      return std::move(t);
+    template <typename M, typename Info>
+    std::unique_ptr<expectation> operator+(call_modifier<M, Info>& t) const {
+      assert_return_type(t);
+      return std::unique_ptr<expectation>(&t.matcher);
     }
-    template <typename P, typename Sig>
-    call_data<P, Sig> operator+(::trompeloeil::call_data<P, Sig>&& t) {
-      assert_return_type<Sig>(t);
-      return std::move(t);
+    template <typename M, typename Info>
+    std::unique_ptr<expectation> operator+(call_modifier<M, Info>&& t) const {
+      return operator+(t);
     }
   };
 
-  struct heap_elevator
+  template <typename Sig, typename Value>
+  auto make_call_modifier(call_matcher<Sig, Value>& m) -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
   {
-    template <typename T>
-    std::unique_ptr<T> operator&&(T&& t) const
-    {
-      return std::unique_ptr<T>(new T(std::move(t)));
-    }
-  };
+    return {m};
+  }
+
+  template <typename sig, typename ... U>
+  auto make_call_matcher(U&& ... u) -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>&
+  {
+    return * new ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>( std::forward<U>(u)... );
+  }
 }
 
 #define TROMPELOEIL_ID(name) \
@@ -1405,13 +1344,6 @@ namespace trompeloeil
 #define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig) \
   TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
 
-namespace trompeloeil {
-  template <typename sig, typename ... U>
-  auto make_call_matcher(U&& ... u) -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>
-  {
-    return { std::forward<U>(u)... };
-  }
-}
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s) \
   using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
@@ -1461,15 +1393,15 @@ namespace trompeloeil {
 #define TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func) \
   TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func, #obj, #func)
 
-#define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)              \
-  ::trompeloeil::heap_elevator{} && TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
+#define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)       \
+  TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
   ::trompeloeil::call_validator{} +                                     \
-  decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func     \
+  ::trompeloeil::make_call_modifier(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func \
   .set_location(__FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))           \
-  .set_name(obj_s "." func_s)                                             \
-  .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){}))
+  .set_name(obj_s "." func_s)                                           \
+                                .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){})))
 
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func) \
