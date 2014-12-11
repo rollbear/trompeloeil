@@ -53,8 +53,11 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 
   trompeloeil::sequence seq1, seq2;
 
+  int local_var;
+
   {
     REQUIRE_CALL(*raw_i, bar(ANY(int)))
+      .LR_SIDE_EFFECT(local_var = _1)
       .RETURN(_1 > 0)
       .IN_SEQUENCE(seq1)
       .TIMES(AT_LEAST(1));
@@ -90,14 +93,9 @@ Limitations (TODO-list)
 
 - Quirk! Matching a move-only type passed by value or by rvalue-refenence
   requires a bit of trickery in the expectation. Use a wild card in the
-  **`REQUIRE_CALL`()**, and match in **`.WITH()`** with alternative means.
-  For example, a `std::unique_ptr<T>` passed by value can be matched with the
-  raw pointer value in **`.WITH()`**.
-
-- Quirk! All named objects referenced in **`.WITH()`**, **`.SIDE_EFFECT()`**,
-  **`.RETURN()`** and **`.THROW()`** are captured by reference. This makes
-  lifetime an important issue when dealing with **`NAMED_REQUIRE_CALL()`**,
-  **`NAMED_ALLOW_CALL()`** and **`NAMED_FORBID_CALL()`**.
+  **`REQUIRE_CALL`()**, and match in **`.WITH()`** or **`.LR_WITH()`** using
+  alternative means. For example, a `std::unique_ptr<T>` passed by value can be
+  matched with the raw pointer value in **`.WITH()`**.
 
 How to use
 ----------
@@ -185,30 +183,43 @@ wild card `trompeloeil::_` has been used. *expr* can refer to parameters in the
 call with their positional names `_1`, `_2`, etc. Even if the
 function signature has parameter as non-`const` references, they are
 immutable in this context. Several **`.WITH`** clauses can be added to a single
-**`REQUIRE_CALL`**. Note that named objects referenced here are captured by
-reference.
+**`REQUIRE_CALL`**. Named local objects accessed here refers to a copy.
+
+**`.LR_WITH`(** *expr* **)**  
+Same as **`.WITH`**, except that named local objects are accessed by reference.
 
 **`.SIDE_EFFECT`(** *expr* **)**  
 Code to cause side effects. *expr* is only evaluated when all **`.WITH`**
 clauses are matched. *expr* may refer to parameters in the call with their
 positional names `_1`, `_2`, etc. This code may alter out-parameters.
 Several **`.SIDE_EFFECT`** clauses can be added to a single **`REQUIRE_CALL`**.
-Note that named objects referenced here are captured by reference.
+Named local objects accessed here refers to a copy.
+
+**`.LR_SIDE_EFFECT`(** *expr* **)**  
+Same as **`.SIDE_EFFECT`**, except that named local objects are accessed by
+reference.
 
 **`.RETURN`(** *expr* **)**  
-Set the return value after having evaluated every **`.SIDE_EFFECT`** . For `void`
-functions **`.RETURN`** is illegal. For non-`void` functions **`.RETURN`** is
-required exactly once. *expr* may refer to parameters in the call with their
-positional names `_1`, `_2`, etc. This code may alter out-parameters. If you
-need to return an lvalue reference, use `std::ref()`.  It is not legal to
-combine both **`.THROW`** and **`.RETURN`**. Note that named objects referenced
-here are captured by reference.
+Set the return value after having evaluated every **`.SIDE_EFFECT`** . For
+`void` functions **`.RETURN`** is illegal. For non-`void` functions
+**`.RETURN`** is required exactly once. *expr* may refer to parameters in the
+call with their positional names `_1`, `_2`, etc. This code may alter
+out-parameters. If you need to return an lvalue reference, use `std::ref()`.
+It is not legal to combine both **`.THROW`** and **`.RETURN`**.
+Named local objects accessed here refers to a copy.
+
+**`.LR_RETURN`(** *expr* **)**  
+Same as **`.RETURN`**, except that named local objects are accessed by
+reference.
 
 **`.THROW`(** *expr* **)**  
 Throw after having evaluated every **`.SIDE_EFFECT`** . *expr* may refer to
 parameters in the call with their positional names `_1`, `_2`, etc. This code
 may alter out-parameters. It is not legal to combine both **`.THROW`** and
-**`.RETURN`**. Note that named objects referenced here are captured by
+**`.RETURN`**. Named local objects accessed here refers to a copy.
+
+**`.LR_THROW`(** *expr* **)**  
+Same as **`.THROW`**, except that named local objects are accessed by
 reference.
 
 **`.TIMES`(** *limit* **)**  

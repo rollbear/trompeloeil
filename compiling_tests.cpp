@@ -340,32 +340,77 @@ TESTSUITE(sequences)
   }
 }
 
-TEST(side_effects_are_executed_in_the_order_declared)
+TESTSUITE(side_effects)
 {
-  std::string s;
+  int global_n = 0;
+  TEST(side_effect_access_copy_of_local_object)
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .SIDE_EFFECT(global_n = n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(n);
+    ASSERT_TRUE(global_n == 1);
+  }
+  TEST(lr_side_effect_access_reference_of_local_object)
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_SIDE_EFFECT(global_n = n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(n);
+    ASSERT_TRUE(global_n == 2);
+  }
+  TEST(multiple_side_effects_are_executed_in_the_order_declared)
+  {
+    std::string s;
 
-  mock_c obj;
+    mock_c obj;
 
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .SIDE_EFFECT(s = std::to_string(_1))
-    .SIDE_EFFECT(s += "_")
-    .SIDE_EFFECT(s += s)
-    .RETURN(_1);
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_SIDE_EFFECT(s = std::to_string(_1))
+      .LR_SIDE_EFFECT(s += "_")
+      .LR_SIDE_EFFECT(s += s)
+      .RETURN(_1);
 
-  obj.getter(3);
+    obj.getter(3);
 
-  ASSERT_TRUE(s == "3_3_");
+    ASSERT_TRUE(s == "3_3_");
+  }
 }
-
 TESTSUITE(return_values)
 {
+  TEST(return_access_copy_of_local_object)
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .RETURN(n);
+    n = 2;
+    auto m = obj.getter(n);
+    ASSERT_TRUE(m == 1);
+  }
+  TEST(lr_return_access_copy_of_local_object)
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_RETURN(n);
+    n = 2;
+    auto m = obj.getter(n);
+    ASSERT_TRUE(m == 2);
+  }
   TEST(return_by_reference_returns_object_given)
   {
     {
       mock_c obj;
       unmovable s;
       REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-        .RETURN(std::ref(s));
+        .LR_RETURN(std::ref(s));
 
       ASSERT_TRUE(&obj.getter(s) == &s);
     }
@@ -384,6 +429,24 @@ TESTSUITE(return_values)
     }
     ASSERT_TRUE(reports.empty());
   }
+  TEST(throw_access_copy_of_local_object)
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .THROW(n);
+    n = 2;
+    ASSERT_THROW(obj.getter(n), int, [](int m){return m == 1;});
+  }
+  TEST(lr_throw_access_copy_of_local_object)
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_THROW(n);
+    n = 2;
+    ASSERT_THROW(obj.getter(n), int, [](int m){return m == 2;});
+  }
 
   TEST(THROW_throws_after_side_effect_when_replacing_return_for_non_void_functions)
   {
@@ -393,7 +456,7 @@ TESTSUITE(return_values)
       mock_c obj;
       REQUIRE_CALL(obj, getter(ANY(int)))
         .THROW(8)
-        .SIDE_EFFECT(global = _1);
+        .LR_SIDE_EFFECT(global = _1);
       obj.getter(8);
       FAIL << "didn't throw";
     }
@@ -430,6 +493,26 @@ TESTSUITE(return_values)
 
 TESTSUITE(matching)
 {
+  TEST(with_matches_copy_of_local_object)
+  {
+    mock_c obj;
+    int n = 1;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .WITH(_1 == n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(1);
+  }
+  TEST(lr_with_matches_reference_to_local_object)
+  {
+    mock_c obj;
+    int n = 1;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_WITH(_1 == n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(2);
+  }
   TEST(rvalue_reference_parameter_can_be_compared_with_nullptr)
   {
     {
@@ -1097,7 +1180,7 @@ TESTSUITE(parameters)
     T obj;
     int n = 0;
     REQUIRE_CALL(obj, concats(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_))
-      .SIDE_EFFECT(n = _1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15)
+      .LR_SIDE_EFFECT(n = _1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15)
       .RETURN("");
     auto s = obj.concats(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     ASSERT_TRUE(n == -6);

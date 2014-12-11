@@ -1432,10 +1432,12 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_WITH(...) \
-  TROMPELOEIL_WITH(#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_WITH(=,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_LR_WITH(...) \
+  TROMPELOEIL_WITH(&,#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_WITH_(arg_s, ...)                                   \
-  with(arg_s, [&](const auto& trompeloeil_x) {                          \
+#define TROMPELOEIL_WITH_(capture, arg_s, ...)                          \
+  with(arg_s, [capture](const auto& trompeloeil_x) {                    \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1456,10 +1458,12 @@ namespace trompeloeil
   })
 
 #define TROMPELOEIL_SIDE_EFFECT(...) \
-  TROMPELOEIL_SIDE_EFFECT_(#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_SIDE_EFFECT_(=,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_LR_SIDE_EFFECT(...) \
+  TROMPELOEIL_SIDE_EFFECT_(&,#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_SIDE_EFFECT_(arg_s, ...) \
-  sideeffect(arg_s, [&](auto& trompeloeil_x) {                          \
+#define TROMPELOEIL_SIDE_EFFECT_(capture, arg_s, ...)                   \
+  sideeffect(arg_s, [capture](auto& trompeloeil_x) {                    \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1480,10 +1484,12 @@ namespace trompeloeil
   })
 
 #define TROMPELOEIL_RETURN(...) \
-  TROMPELOEIL_RETURN_(#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_RETULR_(=,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_LR_RETURN(...) \
+  TROMPELOEIL_RETULR_(&,#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_RETURN_(arg_s, ...)                                 \
-  handle_return(arg_s, [&](auto& trompeloeil_x) {                       \
+#define TROMPELOEIL_RETULR_(capture, arg_s, ...)                        \
+  handle_return(arg_s, [capture](auto& trompeloeil_x) {                 \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1504,10 +1510,12 @@ namespace trompeloeil
   })
 
 #define TROMPELOEIL_THROW(...) \
-  TROMPELOEIL_THROW_(#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_THROW_(=,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_LR_THROW(...) \
+  TROMPELOEIL_THROW_(&,#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_THROW_(arg_s, ...)                                  \
-  handle_throw(arg_s, [&](auto& trompeloeil_x) {                        \
+#define TROMPELOEIL_THROW_(capture, arg_s, ...)                         \
+  handle_throw(arg_s, [capture](auto& trompeloeil_x) {                  \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1623,10 +1631,14 @@ namespace trompeloeil
 #define NAMED_ALLOW_CALL(obj, func)   TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, #obj, #func)
 #define FORBID_CALL(obj, func)        TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
 #define NAMED_FORBID_CALL(obj, func)  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
-#define WITH(...)                     TROMPELOEIL_WITH_(#__VA_ARGS__, __VA_ARGS__)
-#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(#__VA_ARGS__, __VA_ARGS__)
-#define RETURN(...)                   TROMPELOEIL_RETURN_(#__VA_ARGS__, __VA_ARGS__)
-#define THROW(...)                    TROMPELOEIL_THROW_(#__VA_ARGS__, __VA_ARGS__)
+#define WITH(...)                     TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
+#define LR_WITH(...)                     TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
+#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(=,#__VA_ARGS__, __VA_ARGS__)
+#define LR_SIDE_EFFECT(...)           TROMPELOEIL_SIDE_EFFECT_(&,#__VA_ARGS__, __VA_ARGS__)
+#define RETURN(...)                   TROMPELOEIL_RETULR_(=,#__VA_ARGS__, __VA_ARGS__)
+#define LR_RETURN(...)                TROMPELOEIL_RETULR_(&,#__VA_ARGS__, __VA_ARGS__)
+#define THROW(...)                    TROMPELOEIL_THROW_(=,#__VA_ARGS__, __VA_ARGS__)
+#define LR_THROW(...)                 TROMPELOEIL_THROW_(&,#__VA_ARGS__, __VA_ARGS__)
 #define TIMES(...)                    TROMPELOEIL_TIMES(__VA_ARGS__)
 #define IN_SEQUENCE(...)              TROMPELOEIL_IN_SEQUENCE(__VA_ARGS__)
 #define ANY(type)                     TROMPELOEIL_ANY(type)
