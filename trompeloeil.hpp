@@ -568,7 +568,7 @@ namespace trompeloeil
     static void value() {}
   };
   template <typename Sig>
-  return_of_t<Sig> default_return()
+  return_of_t<Sig> default_return(call_params_type_t<Sig>&)
   {
     return default_return_t<Sig>::value();
   }
@@ -592,8 +592,8 @@ namespace trompeloeil
     virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &saturated_list) = 0;
     virtual std::ostream& report_signature(std::ostream&) const = 0;
     virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig>&) {
-      return default_return<Sig>(); }
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig>& p) {
+      return default_return<Sig>(p); }
     virtual void report_missed() = 0;
   };
 
@@ -665,9 +665,9 @@ namespace trompeloeil
     virtual std::ostream& report_signature(std::ostream& r ) const  override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
 
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &)
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &p)
     {
-      return default_return<Sig>();
+      return default_return<Sig>(p);
     }
 
     virtual void report_missed() {}
@@ -800,34 +800,8 @@ namespace trompeloeil
     const char *str;
   };
 
-  template<typename Sig>
-  struct return_handler_base
-  {
-    virtual ~return_handler_base() = default;
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &) = 0;
-  };
-
-  template<typename Sig, typename Handler>
-  struct return_handler : public return_handler_base<Sig>
-  {
-    return_handler(const char *str_, Handler h_) : h(h_), str(str_) {}
-
-    return_of_t<Sig> return_value(call_params_type_t<Sig> &t) { return h(t); }
-
-    Handler h;
-    const char *str;
-  };
-
-  template <typename Sig, typename Handler>
-  struct throw_handler : public return_handler_base<Sig>
-  {
-    throw_handler(const char *str_, Handler h_) : h(h_), str(str_) {}
-
-    return_of_t<Sig> return_value(call_params_type_t<Sig>& t) { h(t); return default_return<Sig>(); }
-
-    Handler h;
-    const char *str;
-  };
+  template <typename Sig>
+  using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
 
   template <typename T, std::size_t N, size_t M>
   struct sequence_validator_t;
@@ -956,7 +930,7 @@ namespace trompeloeil
     }
     template <typename H>
     call_modifier<Matcher, return_injector<return_of_t<signature>, Parent > >
-    handle_return(const char* str, H&& h)
+    handle_return(H&& h)
     {
       using ret = decltype(h(std::declval<call_params_type_t<signature>& >()));
       static_assert(std::is_constructible<return_of_t<signature>, ret>::value
@@ -970,20 +944,18 @@ namespace trompeloeil
                     "Multiple RETURN does not make sense");
       static_assert(!throws,
                     "THROW and RETURN does not make sense");
-      auto r = new return_handler<signature, H>(str, std::move(h));
-      matcher.set_return(r);
+      matcher.set_return(std::move(h));
       return {matcher};
     }
     template <typename H>
     call_modifier<Matcher, throw_injector<Parent> >
-    handle_throw(const char* str, H&& h)
+    handle_throw(H&& h)
     {
       static_assert(!throws,
                     "Multiple THROW does not make sense");
       static_assert(std::is_same<return_type, void>::value,
                     "THROW and RETURN does not make sense");
-      auto r = new throw_handler<signature, H>(str, std::move(h));
-      matcher.set_return(r);
+      matcher.set_return([=](auto& p){ h(p); return default_return<signature>(p); });
       return {matcher};
     }
     template <unsigned long long L,
@@ -1092,9 +1064,7 @@ namespace trompeloeil
 
     return_of_t<Sig> return_value(call_params_type_t<Sig>& params)
     {
-      return return_handler
-        ? return_handler->return_value(params)
-        : default_return<Sig>();
+      return return_handler(params);
     }
     void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list)
     {
@@ -1194,21 +1164,22 @@ namespace trompeloeil
       seq->set_expectation(this->name, this->location);
       sequences.reset(seq);
     }
-    void set_return(return_handler_base<Sig>* r) noexcept
+    inline
+    void set_return(std::function<return_handler_sig<Sig> >&& h) noexcept
     {
-      return_handler.reset(r);
+      return_handler = std::move(h);
     }
-    Value                                     val;
-    condition_list<Sig>                       conditions;
-    side_effect_list<Sig>                     actions;
-    std::unique_ptr<return_handler_base<Sig>> return_handler;
-    std::unique_ptr<sequence_handler_base>    sequences;
-    const char                               *location;
-    const char                               *name;
-    unsigned long long                        call_count = 0;
-    unsigned long long                        min_calls = 1;
-    unsigned long long                        max_calls = 1;
-    bool                                      reported = false;
+    Value                                  val;
+    condition_list<Sig>                    conditions;
+    side_effect_list<Sig>                  actions;
+    std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
+    std::unique_ptr<sequence_handler_base> sequences;
+    const char                            *location;
+    const char                            *name;
+    unsigned long long                     call_count = 0;
+    unsigned long long                     min_calls = 1;
+    unsigned long long                     max_calls = 1;
+    bool                                   reported = false;
   };
 
 
@@ -1484,12 +1455,12 @@ namespace trompeloeil
   })
 
 #define TROMPELOEIL_RETURN(...) \
-  TROMPELOEIL_RETULR_(=,#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_RETURN_(=, __VA_ARGS__)
 #define TROMPELOEIL_LR_RETURN(...) \
-  TROMPELOEIL_RETULR_(&,#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_RETURN_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_RETULR_(capture, arg_s, ...)                        \
-  handle_return(arg_s, [capture](auto& trompeloeil_x) {                 \
+#define TROMPELOEIL_RETURN_(capture, ...)                               \
+  handle_return([capture](auto& trompeloeil_x) {                        \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1510,12 +1481,12 @@ namespace trompeloeil
   })
 
 #define TROMPELOEIL_THROW(...) \
-  TROMPELOEIL_THROW_(=,#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_THROW_(=, __VA_ARGS__)
 #define TROMPELOEIL_LR_THROW(...) \
-  TROMPELOEIL_THROW_(&,#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_THROW_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_THROW_(capture, arg_s, ...)                         \
-  handle_throw(arg_s, [capture](auto& trompeloeil_x) {                  \
+#define TROMPELOEIL_THROW_(capture, ...)                                \
+  handle_throw([capture](auto& trompeloeil_x) {                         \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1635,10 +1606,10 @@ namespace trompeloeil
 #define LR_WITH(...)                     TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
 #define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(=,#__VA_ARGS__, __VA_ARGS__)
 #define LR_SIDE_EFFECT(...)           TROMPELOEIL_SIDE_EFFECT_(&,#__VA_ARGS__, __VA_ARGS__)
-#define RETURN(...)                   TROMPELOEIL_RETULR_(=,#__VA_ARGS__, __VA_ARGS__)
-#define LR_RETURN(...)                TROMPELOEIL_RETULR_(&,#__VA_ARGS__, __VA_ARGS__)
-#define THROW(...)                    TROMPELOEIL_THROW_(=,#__VA_ARGS__, __VA_ARGS__)
-#define LR_THROW(...)                 TROMPELOEIL_THROW_(&,#__VA_ARGS__, __VA_ARGS__)
+#define RETURN(...)                   TROMPELOEIL_RETURN_(=,__VA_ARGS__)
+#define LR_RETURN(...)                TROMPELOEIL_RETURN_(&, __VA_ARGS__)
+#define THROW(...)                    TROMPELOEIL_THROW_(=, __VA_ARGS__)
+#define LR_THROW(...)                 TROMPELOEIL_THROW_(&, __VA_ARGS__)
 #define TIMES(...)                    TROMPELOEIL_TIMES(__VA_ARGS__)
 #define IN_SEQUENCE(...)              TROMPELOEIL_IN_SEQUENCE(__VA_ARGS__)
 #define ANY(type)                     TROMPELOEIL_ANY(type)
