@@ -18,6 +18,8 @@
 // Style of representation in which a painted object is intended
 // to deceive the viewer into believing it is the object itself...
 
+// project home: https://github.com/rollbear/trompeloeil
+
 
 // Deficiencies and missing features
 // * Mocking function templates is not supported

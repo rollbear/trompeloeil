@@ -11,6 +11,7 @@ What is it?
 
 A header only mocking framework for C++14.
 
+See this [introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html) to get up to speed
 
 Example usage
 -------------
