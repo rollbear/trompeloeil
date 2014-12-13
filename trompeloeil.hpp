@@ -1032,7 +1032,7 @@ namespace trompeloeil
     }
     bool first_in_sequence() const
     {
-      auto saturated = call_count >= std::get<0>(call_limits());
+      auto saturated = call_count >= min_calls;
       return saturated || !sequences || sequences->is_first();
     }
 
@@ -1042,12 +1042,11 @@ namespace trompeloeil
     }
     void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list)
     {
-      auto limits = call_limits();
-      if (call_count < std::get<0>(limits) && sequences)
+      if (call_count < min_calls && sequences)
       {
         sequences->validate(name, location);
       }
-      if (std::get<1>(limits) == 0)
+      if (max_calls == 0)
       {
         reported = true;
         std::ostringstream os;
@@ -1055,11 +1054,11 @@ namespace trompeloeil
         tuple_print<Value>::missed(os, params);
         send_report(severity::fatal, location, os.str());
       }
-      if (++call_count == std::get<0>(limits) && sequences)
+      if (++call_count == min_calls && sequences)
       {
         sequences->retire();
       }
-      if (call_count == std::get<1>(limits))
+      if (call_count == max_calls)
       {
         this->unlink();
         saturated_list.link_before(*this);
@@ -1110,11 +1109,6 @@ namespace trompeloeil
       name = func_name;
       return *this;
     }
-    virtual std::tuple<unsigned long long, unsigned long long> call_limits() const noexcept
-    {
-      return std::make_tuple(min_calls, max_calls);
-    }
-
     template <typename C>
     void add_condition(const char* str, C&& c) noexcept
     {
