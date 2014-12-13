@@ -38,6 +38,7 @@
 #include <memory>
 #include <cassert>
 #include <list>
+#include <algorithm>
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
 #define TROMPELOEIL_COUNT(...) TROMPELOEIL_ARG16(__VA_ARGS__, 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
@@ -727,46 +728,17 @@ namespace trompeloeil
     trompeloeil::send_report(severity::fatal, "", os.str());
   }
 
-  template<typename Sig>
-  struct condition_base : public list_elem<condition_base<Sig> >
+  template <typename Sig>
+  class condition
   {
-    virtual ~condition_base() = default;
-    virtual bool check(const call_params_type_t<Sig>&) const = 0;
-    virtual const char* name() const noexcept = 0;
+  public:
+    template <typename T>
+    condition(const char *str, T&& t) : name(str), func(std::forward<T>(t)) {}
+    const char* const name;
+    bool operator()(const call_params_type_t<Sig>& t) const { return func(t); }
+  private:
+    std::function<bool(const call_params_type_t<Sig>&)> func;
   };
-
-  template<typename Sig>
-  struct condition_list : public condition_base<Sig>
-  {
-    ~condition_list()
-    {
-      while (!this->is_empty())
-      {
-        delete this->next();
-      }
-    }
-    bool check(const call_params_type_t<Sig>&) const override
-    {
-      return false;
-    }
-    const char *name() const noexcept override { return nullptr; }
-  };
-
-  template<typename Sig, typename Cond>
-  struct condition : public condition_base<Sig>
-  {
-    condition(const char *str_, Cond c_) : c(c_), str(str_) {};
-
-    bool check(const call_params_type_t<Sig>& t) const override
-    {
-      return c(t);
-    }
-
-    const char *name() const noexcept override { return str; }
-    Cond c;
-    const char *str;
-  };
-
 
   template <typename Sig>
   using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
@@ -893,7 +865,7 @@ namespace trompeloeil
     template <typename D>
     call_modifier& with(const char* str, D&& d)
     {
-      matcher.add_condition(str, std::move(d));
+      matcher.add_condition(str, std::forward<D>(d));
       return *this;
     }
     template <typename A>
@@ -1024,11 +996,8 @@ namespace trompeloeil
 
     bool match_conditions(const call_params_type_t<Sig>& params) const
     {
-      for (auto c = conditions.next(); c != &conditions; c = c->next())
-      {
-        if (!c->check(params)) return false;
-      }
-      return true;
+      return std::all_of(conditions.begin(), conditions.end(),
+                         [&](auto& c) { return c(params); });
     }
     bool first_in_sequence() const
     {
@@ -1075,11 +1044,11 @@ namespace trompeloeil
       report_signature(os);
       if (val == params)
       {
-        for (auto i = conditions.next(); i != &conditions; i = i->next())
+        for (auto& c : conditions)
         {
-          if (!i->check(params))
+          if (!c(params))
           {
-            os << "\n  Failed WITH(" << i->name() << ')';
+            os << "\n  Failed WITH(" << c.name << ')';
           }
         }
       }
@@ -1112,8 +1081,7 @@ namespace trompeloeil
     template <typename C>
     void add_condition(const char* str, C&& c) noexcept
     {
-      auto cond = new condition<Sig, C>(str, std::move(c));
-      conditions.link_before(*cond);
+      conditions.emplace_back(str, std::forward<C>(c));
     }
     template <typename S>
     void add_side_effect(S&& s) noexcept
@@ -1134,7 +1102,7 @@ namespace trompeloeil
       return_handler = std::move(h);
     }
     Value                                  val;
-    condition_list<Sig>                    conditions;
+    std::list<condition<Sig> >             conditions;
     std::list<side_effect<Sig> >           actions;
     std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
     std::unique_ptr<sequence_handler_base> sequences;
