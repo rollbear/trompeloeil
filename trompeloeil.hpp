@@ -1161,7 +1161,7 @@ namespace trompeloeil
     {
       std::tuple<T...> tup(std::forward<T>(t)...);
       auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
-      seq->set_expectation(this->name, this->location);
+      seq->set_expectation(name, location);
       sequences.reset(seq);
     }
     inline
@@ -1603,7 +1603,7 @@ namespace trompeloeil
 #define FORBID_CALL(obj, func)        TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
 #define NAMED_FORBID_CALL(obj, func)  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
 #define WITH(...)                     TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
-#define LR_WITH(...)                     TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
+#define LR_WITH(...)                  TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
 #define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(=,#__VA_ARGS__, __VA_ARGS__)
 #define LR_SIDE_EFFECT(...)           TROMPELOEIL_SIDE_EFFECT_(&,#__VA_ARGS__, __VA_ARGS__)
 #define RETURN(...)                   TROMPELOEIL_RETURN_(=,__VA_ARGS__)
