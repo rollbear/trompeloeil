@@ -36,9 +36,8 @@
 #include <exception>
 #include <functional>
 #include <memory>
-#include <cstring>
 #include <cassert>
-
+#include <list>
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
 #define TROMPELOEIL_COUNT(...) TROMPELOEIL_ARG16(__VA_ARGS__, 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
@@ -769,39 +768,14 @@ namespace trompeloeil
   };
 
 
-  template<typename Sig>
-  struct side_effect_base : public list_elem<side_effect_base<Sig> >
-  {
-    virtual ~side_effect_base() = default;
-    virtual void action(call_params_type_t<Sig> &) = 0;
-  };
-
-  template<typename Sig>
-  struct side_effect_list : public side_effect_base<Sig>
-  {
-    ~side_effect_list()
-    {
-      while (!this->is_empty())
-      {
-        delete this->next();
-      }
-    }
-    void action(call_params_type_t<Sig> &) {}
-  };
-
-  template<typename Sig, typename Action>
-  struct side_effect : public side_effect_base<Sig>
-  {
-    side_effect(const char *str_, Action a_) : a(a_), str(str_) {};
-
-    void action(call_params_type_t<Sig> &t) { a(t); }
-
-    Action a;
-    const char *str;
-  };
-
   template <typename Sig>
   using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
+
+  template <typename Sig>
+  using side_effect_sig = void(call_params_type_t<Sig>&);
+
+  template <typename Sig>
+  using side_effect = std::function<side_effect_sig<Sig> >;
 
   template <typename T, std::size_t N, size_t M>
   struct sequence_validator_t;
@@ -923,9 +897,9 @@ namespace trompeloeil
       return *this;
     }
     template <typename A>
-    call_modifier& sideeffect(const char* str, A&& a)
+    call_modifier& sideeffect(A&& a)
     {
-      matcher.add_side_effect(str, std::move(a));
+      matcher.add_side_effect(std::forward<A>(a));
       return *this;
     }
     template <typename H>
@@ -1090,10 +1064,7 @@ namespace trompeloeil
         this->unlink();
         saturated_list.link_before(*this);
       }
-      for (auto a = actions.next(); a != &actions; a = a->next())
-      {
-        a->action(params);
-      }
+      for (auto& a : actions) a(params);
     }
     std::ostream& report_signature(std::ostream& os) const override
     {
@@ -1151,10 +1122,9 @@ namespace trompeloeil
       conditions.link_before(*cond);
     }
     template <typename S>
-    void add_side_effect(const char* str, S&& s) noexcept
+    void add_side_effect(S&& s) noexcept
     {
-      auto effect = new side_effect<Sig, S>(str, std::move(s));
-      actions.link_before(*effect);
+      actions.emplace_back(std::forward<S>(s));
     }
     template <typename ... T>
     void set_sequence(T&& ... t) noexcept
@@ -1171,7 +1141,7 @@ namespace trompeloeil
     }
     Value                                  val;
     condition_list<Sig>                    conditions;
-    side_effect_list<Sig>                  actions;
+    std::list<side_effect<Sig> >           actions;
     std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
     std::unique_ptr<sequence_handler_base> sequences;
     const char                            *location;
@@ -1429,12 +1399,12 @@ namespace trompeloeil
   })
 
 #define TROMPELOEIL_SIDE_EFFECT(...) \
-  TROMPELOEIL_SIDE_EFFECT_(=,#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
 #define TROMPELOEIL_LR_SIDE_EFFECT(...) \
-  TROMPELOEIL_SIDE_EFFECT_(&,#__VA_ARGS__, __VA_ARGS__)
+  TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_SIDE_EFFECT_(capture, arg_s, ...)                   \
-  sideeffect(arg_s, [capture](auto& trompeloeil_x) {                    \
+#define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                          \
+  sideeffect([capture](auto& trompeloeil_x) {                           \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
@@ -1604,8 +1574,8 @@ namespace trompeloeil
 #define NAMED_FORBID_CALL(obj, func)  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
 #define WITH(...)                     TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
 #define LR_WITH(...)                  TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
-#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(=,#__VA_ARGS__, __VA_ARGS__)
-#define LR_SIDE_EFFECT(...)           TROMPELOEIL_SIDE_EFFECT_(&,#__VA_ARGS__, __VA_ARGS__)
+#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
+#define LR_SIDE_EFFECT(...)           TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
 #define RETURN(...)                   TROMPELOEIL_RETURN_(=,__VA_ARGS__)
 #define LR_RETURN(...)                TROMPELOEIL_RETURN_(&, __VA_ARGS__)
 #define THROW(...)                    TROMPELOEIL_THROW_(=, __VA_ARGS__)
