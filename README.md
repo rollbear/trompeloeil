@@ -165,8 +165,8 @@ and narrow specializations in short scopes.
 Same as **`REQUIRE_CALL`**, except it instantiates a
 *std::unique_ptr&lt;trompeloeil::expectation&gt;* which you can bind to a
 variable.
-**NOTE!** Any named objects referenced in attached **`.WITH()`**,
-**`.SIDE_EFFECT()`**, **`.RETURN()`** and **`.THROW()`** are captured by
+**NOTE!** Any named local objects referenced in attached **`.LR_WITH()`**,
+**`.LR_SIDE_EFFECT()`**, **`.LR_RETURN()`** and **`.LR_THROW()`** are captured by
 reference, so lifetime management is important.
 
 **`REQUIRE_DESTRUCTION`(** *mock_object* **)**  
@@ -245,9 +245,9 @@ number of times, but is not required to match. (_actually the limit is
 Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0, infinity **)**.
 Matches any number of times, but is not required to match. (_actually the limit
 is 0..~0ULL, but that is for all practical purposes "infinity"_).
-**NOTE!** Any named objects referenced in attached **`.WITH()`**,
-**`.SIDE_EFFECT()`**, **`.RETURN()`** and **`.THROW()`** are captured by
-reference, so lifetime management is important.
+**NOTE!** Any named local objects referenced in attached **`.LR_WITH()`**,
+**`.LR_SIDE_EFFECT()`**, **`.LR_RETURN()`** and **`.LR_THROW()`** are captured
+by reference, so lifetime management is important.
 
 **`FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching call
@@ -256,8 +256,8 @@ an error. No **`.RETURN`**() is needed for non-void functions.
 **`NAMED_FORBID_CALL`(** *mock_object*, *method_name*(*parameter_list*)**)**  
 Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching
 call an error. No **`.RETURN`**() is needed for non-void functions.
-**NOTE!** Any named objects referenced in attached **`.WITH()`** are captured
-by reference, so lifetime management is important.
+**NOTE!** Any named local objects referenced in attached **`.LR_WITH()`** are
+captured by reference, so lifetime management is important.
 
 ## Printing values
 
