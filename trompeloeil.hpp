@@ -640,6 +640,14 @@ namespace trompeloeil
     }
   };
 
+  template <typename T>
+  std::string missed_values(const T& t)
+  {
+    std::ostringstream os;
+    tuple_print<T>::missed(os, t);
+    return os.str();
+  }
+
   template <typename T, typename ... A>
   struct all_are;
 
@@ -703,8 +711,7 @@ namespace trompeloeil
                        call_matcher_list<Sig>        &saturated_list)
   {
     std::ostringstream os;
-    os << "No match for call of " << name << " with.\n";
-    tuple_print<call_params_type_t<Sig>>::missed(os, p);
+    os << "No match for call of " << name << " with.\n" << missed_values(p);
     bool saturated_match = false;
     for (auto i = saturated_list.next(); i != &saturated_list; i = i->next())
     {
@@ -936,11 +943,13 @@ namespace trompeloeil
   };
 
   inline void
-  unfulfilled_header(std::ostream&      os,
-                     const char*        name,
+  report_unfulfilled(const char*        name,
+                     const std::string& values,
                      unsigned long long min_calls,
-                     unsigned long long call_count)
+                     unsigned long long call_count,
+                     const char*        location)
   {
+    std::ostringstream os;
     os << "Unfulfilled expectation:\n"
        << "Expected " << name << " to be called ";
     if (min_calls == 1)
@@ -957,6 +966,17 @@ namespace trompeloeil
     default:
       os << "called " << call_count << " times\n";
     }
+    os << values;
+    send_report(severity::nonfatal, location, os.str());
+  }
+
+  inline void
+  report_forbidden_call(const char *name, const char *loc, const std::string& values)
+  {
+    std::ostringstream os;
+    os << "Match of forbidden call of " << name << " at " << loc << '\n'
+       << values;
+    send_report(severity::fatal, loc, os.str());
   }
 
   template <typename Sig>
@@ -1020,10 +1040,7 @@ namespace trompeloeil
       if (max_calls == 0)
       {
         reported = true;
-        std::ostringstream os;
-        os << "Match of forbidden call of " << name << " at " << location << '\n';
-        tuple_print<Value>::missed(os, params);
-        send_report(severity::fatal, location, os.str());
+        report_forbidden_call(name, location, missed_values(params));
       }
       if (++call_count == min_calls && sequences)
       {
@@ -1061,14 +1078,10 @@ namespace trompeloeil
       }
       return os;
     }
-
     void report_missed() override
     {
       reported = true;
-      std::ostringstream os;
-      unfulfilled_header(os, name, min_calls, call_count);
-      tuple_print<Value>::missed(os, val);
-      send_report(severity::nonfatal, location, os.str());
+      report_unfulfilled(name, missed_values(val), min_calls, call_count, location);
     }
     call_matcher &set_location(const char *loc) noexcept
     {
