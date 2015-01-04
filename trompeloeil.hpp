@@ -181,7 +181,10 @@ namespace trompeloeil
     static std::function<void(severity, const std::string& loc, const std::string&)> obj
       = [](severity, const std::string& loc, const std::string& msg)
       {
-        throw expectation_violation(loc + "\n" + msg);
+        if (!std::current_exception())
+        {
+          throw expectation_violation(loc + "\n" + msg);
+        }
       };
     return obj;
   }
@@ -508,7 +511,7 @@ namespace trompeloeil
         object_name(obj_name)
     {
     }
-    ~lifetime_monitor()
+    ~lifetime_monitor() noexcept(false)
     {
       if (!died)
       {
