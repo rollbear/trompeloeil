@@ -942,6 +942,8 @@ namespace trompeloeil
       static_assert(!verboten,
                     "Only one TIMES call limit is allowed, but it can express an interval");
       static_assert(H >= L, "In TIMES the first value must not exceed the second");
+      static_assert(H > 0 || !throws, "THROW and TIMES(0) does not make sense");
+      static_assert(H > 0 || std::is_same<return_type, void>::value, "RETURN and TIMES(0) does not make sense");
       matcher.min_calls = L;
       matcher.max_calls = H;
       return {matcher};
