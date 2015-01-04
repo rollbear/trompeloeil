@@ -380,7 +380,7 @@ namespace trompeloeil
       p = &b;
 
       invariant_check();
-    };
+    }
   private:
     list_elem *n;
     list_elem *p;
@@ -389,6 +389,8 @@ namespace trompeloeil
   struct sequence : public list_elem<sequence>
   {
     sequence() noexcept = default;
+    sequence(sequence&&) = default;
+    virtual ~sequence() = default;
     virtual void print_expectation(std::ostream&) const {}
   protected:
     sequence(sequence* obj) noexcept : list_elem(obj) {}
@@ -598,7 +600,7 @@ namespace trompeloeil
       : list_elem<call_matcher_base>(list)
     {
     }
-
+    virtual ~call_matcher_base() = default;
     virtual bool matches(const call_params_type_t<Sig>&) const = 0;
     virtual bool first_in_sequence() const = 0;
     virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &saturated_list) = 0;
@@ -1127,7 +1129,6 @@ namespace trompeloeil
     {
       return_handler = std::move(h);
     }
-    Value                                  val;
     std::list<condition<Sig> >             conditions;
     std::list<side_effect<Sig> >           actions;
     std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
@@ -1137,6 +1138,7 @@ namespace trompeloeil
     unsigned long long                     call_count = 0;
     unsigned long long                     min_calls = 1;
     unsigned long long                     max_calls = 1;
+    Value                                  val;
     bool                                   reported = false;
   };
 
@@ -1305,7 +1307,8 @@ namespace trompeloeil
     }                                                                   \
     i->run_actions(param_value, TROMPELOEIL_ID(saturated_matcher_list)); \
     return i->return_value(param_value);                                \
-  }
+  }                                                                     \
+  using TROMPELOEIL_ID(signature_trompeloeil_ ## name) = sig
 
 
 

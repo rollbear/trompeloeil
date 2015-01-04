@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014
+ * Copyright Björn Fahller 2014,2015
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -61,7 +61,7 @@ struct uncopyable
 
 struct unmovable
 {
-  unmovable() {};
+  unmovable() {}
   unmovable(unmovable&&) = delete;
   unmovable(const unmovable&) = delete;
   unmovable& operator=(unmovable&&) = delete;
@@ -89,8 +89,8 @@ public:
   virtual void getter(int, std::string&) = 0;
   virtual std::unique_ptr<int> ptr(std::unique_ptr<int>&&) = 0;
 protected:
-  C(const char* s) : p{s} {}
-  const char *p = nullptr;
+  C(const char* s) : p_{s} {}
+  const char *p_ = nullptr;
 };
 
 class mock_c : public C
@@ -106,7 +106,7 @@ class mock_c : public C
   MAKE_MOCK1(getter, unmovable&(unmovable&));
   MAKE_MOCK1(getter, int(int));
   MAKE_MOCK2(getter, void(int, std::string&));
-  using C::p;
+  using C::p_;
 };
 
 
@@ -932,7 +932,7 @@ TESTSUITE(destruction)
   TEST(a_deathwatched_objects_constructor_passes_params_to_mock)
   {
     auto obj = new trompeloeil::deathwatched<mock_c>{"apa"};
-    ASSERT_TRUE(obj->p == std::string("apa"));
+    ASSERT_TRUE(obj->p_ == std::string("apa"));
     REQUIRE_DESTRUCTION(*obj);
     delete obj;
   }
@@ -958,7 +958,7 @@ TESTSUITE(mismatches)
 
   TEST(match_of_saturated_call_is_reported)
   {
-    unsigned count = 0;
+    int count = 0;
     try {
       mock_c obj;
       ALLOW_CALL(obj, getter(ANY(int)))
@@ -983,7 +983,7 @@ TESTSUITE(mismatches)
     }
     catch (reported)
     {
-      ASSERT_TRUE(count == 9U);
+      ASSERT_TRUE(count == 9);
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
         R"_(No match for call of getter with signature int(int) with\.
@@ -997,7 +997,7 @@ Matches saturated call requirement
 
   TEST(a_matching_call_that_throws_is_saturated)
   {
-    unsigned count = 0;
+    int count = 0;
     try {
       mock_c obj;
       ALLOW_CALL(obj, getter(ANY(int)))
@@ -1032,7 +1032,7 @@ Matches saturated call requirement
     }
     catch (reported)
     {
-      ASSERT_TRUE(count == 6U);
+      ASSERT_TRUE(count == 6);
       ASSERT_TRUE(reports.size() == 1U);
       auto re =
         R"_(No match for call of getter with signature int(int) with\.
