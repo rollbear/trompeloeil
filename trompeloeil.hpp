@@ -865,6 +865,12 @@ namespace trompeloeil
     static const bool throws = true;
   };
 
+  template <typename Parent>
+  struct sideeffect_injector : Parent
+  {
+    static const bool side_effects = true;
+  };
+
   template <typename Parent, unsigned long long H>
   struct call_limit_injector : Parent
   {
@@ -887,6 +893,8 @@ namespace trompeloeil
     using Parent::upper_call_limit;
     using Parent::sequence_set;
     using Parent::throws;
+    using Parent::side_effects;
+
     call_modifier(Matcher& m) : matcher(m) {}
     template <typename D>
     call_modifier& with(const char* str, D&& d)
@@ -895,10 +903,12 @@ namespace trompeloeil
       return *this;
     }
     template <typename A>
-    call_modifier& sideeffect(A&& a)
+    call_modifier<Matcher, sideeffect_injector<Parent>>
+    sideeffect(A&& a)
     {
+      static_assert(upper_call_limit > 0, "SIDE_EFFECT for forbidden call does not make sense");
       matcher.add_side_effect(std::forward<A>(a));
-      return *this;
+      return {matcher};
     }
     template <typename H,
               typename = typename std::enable_if<is_value_type<H>::value>::type>
@@ -944,6 +954,7 @@ namespace trompeloeil
       static_assert(H >= L, "In TIMES the first value must not exceed the second");
       static_assert(H > 0 || !throws, "THROW and TIMES(0) does not make sense");
       static_assert(H > 0 || std::is_same<return_type, void>::value, "RETURN and TIMES(0) does not make sense");
+      static_assert(H > 0 || !side_effects, "SIDE_EFFECT and TIMES(0) does not make sense");
       matcher.min_calls = L;
       matcher.max_calls = H;
       return {matcher};
@@ -1010,6 +1021,7 @@ namespace trompeloeil
     static const bool throws = false;
     static const bool call_limit_set = false;
     static const bool sequence_set = false;
+    static const bool side_effects = false;
   };
 
   template<typename Sig, typename Value>
