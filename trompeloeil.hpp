@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014
+ * Copyright Björn Fahller 2014,2015
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -208,6 +208,16 @@ namespace trompeloeil
     template <typename T1, typename T2>
     static auto func(T1* p1, T2* p2) -> decltype(*p1 == *p2);
     static const bool value = !std::is_same<no, decltype(func<T,U>(nullptr, nullptr))>::value;
+  };
+
+  template <typename T>
+  struct is_value_type :
+    std::integral_constant<bool,
+                           std::is_same<T,
+                                        typename std::decay<T>::type
+                                        >::value
+                           >
+  {
   };
 
   template <typename T>
@@ -883,7 +893,8 @@ namespace trompeloeil
       matcher.add_side_effect(std::forward<A>(a));
       return *this;
     }
-    template <typename H>
+    template <typename H,
+              typename = typename std::enable_if<is_value_type<H>::value>::type>
     call_modifier<Matcher, return_injector<return_of_t<signature>, Parent > >
     handle_return(H&& h)
     {
