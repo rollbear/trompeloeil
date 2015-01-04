@@ -865,10 +865,11 @@ namespace trompeloeil
     static const bool throws = true;
   };
 
-  template <typename Parent>
+  template <typename Parent, unsigned long long H>
   struct call_limit_injector : Parent
   {
     static const bool call_limit_set = true;
+    static const unsigned long long upper_call_limit = H;
   };
 
   template <typename Parent>
@@ -883,6 +884,7 @@ namespace trompeloeil
     using typename Parent::signature;
     using typename Parent::return_type;
     using Parent::call_limit_set;
+    using Parent::upper_call_limit;
     using Parent::sequence_set;
     using Parent::throws;
     call_modifier(Matcher& m) : matcher(m) {}
@@ -915,6 +917,8 @@ namespace trompeloeil
                     "Multiple RETURN does not make sense");
       static_assert(!throws,
                     "THROW and RETURN does not make sense");
+      static_assert(upper_call_limit > 0ULL,
+                    "RETURN for forbidden call does not make sense");
       matcher.set_return(std::move(h));
       return {matcher};
     }
@@ -932,7 +936,7 @@ namespace trompeloeil
     template <unsigned long long L,
               unsigned long long H = L,
               bool               verboten = call_limit_set>
-    call_modifier<Matcher, call_limit_injector<Parent> >
+    call_modifier<Matcher, call_limit_injector<Parent, H> >
     times()
     {
       static_assert(!verboten,
@@ -1000,6 +1004,7 @@ namespace trompeloeil
   {
     using signature = Sig;
     using return_type = void;
+    static const unsigned long long upper_call_limit = 1;
     static const bool throws = false;
     static const bool call_limit_set = false;
     static const bool sequence_set = false;
