@@ -11,7 +11,8 @@ What is it?
 
 A header only mocking framework for C++14.
 
-See this [introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html) to get up to speed
+See this [introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html) to get up to speed.  
+Follow up with the post on [sequencing](http://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html) for examples on how to restrict or relax allowed sequences of matching calls.
 
 Example usage
 -------------
