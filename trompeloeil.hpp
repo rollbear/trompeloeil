@@ -1175,7 +1175,12 @@ namespace trompeloeil
   };
 
   template <int N>
-  struct illegal_argument {};
+  struct illegal_argument {
+    illegal_argument(illegal_argument&&) = delete;
+    illegal_argument operator&() const = delete;
+    template <typename T>
+    operator T() const = delete;
+  };
 
   template <typename T, int N>
   struct arg<T, N, false>
@@ -1355,7 +1360,7 @@ namespace trompeloeil
   ::trompeloeil::make_call_modifier(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func \
   .set_location(__FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))           \
   .set_name(obj_s "." func_s)                                           \
-                                .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){})))
+  .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){})))
 
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func) \
