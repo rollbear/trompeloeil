@@ -915,7 +915,7 @@ namespace trompeloeil
     call_modifier<Matcher, return_injector<return_of_t<signature>, Parent > >
     handle_return(H&& h)
     {
-      using ret = decltype(h(std::declval<call_params_type_t<signature>& >()));
+      using ret = typename std::result_of<H(call_params_type_t<signature>&)>::type;
       static_assert(std::is_constructible<return_of_t<signature>, ret>::value
                     || !std::is_same<return_of_t<signature>, void>::value,
                     "RETURN does not make sense for void-function");
