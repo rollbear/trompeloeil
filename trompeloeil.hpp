@@ -922,10 +922,9 @@ namespace trompeloeil
       static_assert(std::is_constructible<return_of_t<signature>, ret>::value
                     || std::is_same<return_of_t<signature>, void>::value,
                     "RETURN value is not convertible to the return type of the function");
-      static_assert(!std::is_same<return_type, ret>::value
-                    || std::is_same<return_type, void>::value,
+      static_assert(std::is_same<return_type, void>::value,
                     "Multiple RETURN does not make sense");
-      static_assert(!throws,
+      static_assert(!throws || upper_call_limit == 0,
                     "THROW and RETURN does not make sense");
       static_assert(upper_call_limit > 0ULL,
                     "RETURN for forbidden call does not make sense");
