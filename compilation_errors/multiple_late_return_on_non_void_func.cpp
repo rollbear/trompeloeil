@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014
+ * Copyright Björn Fahller 2014,2015
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -25,7 +25,7 @@ int main()
   MS obj;
   int n;
   REQUIRE_CALL(obj, f())
-    .SIDE_EFFECT(n = 1)
+    .LR_SIDE_EFFECT(n = 1)
     .RETURN(1)
     .RETURN(2);
 }
