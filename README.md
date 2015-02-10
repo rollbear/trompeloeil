@@ -12,7 +12,12 @@ What is it?
 A header only mocking framework for C++14.
 
 See this [introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html) to get up to speed.  
-Follow up with the post on [sequencing](http://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html) for examples on how to restrict or relax allowed sequences of matching calls.
+
+Follow up with the post on [sequencing](http://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html) for examples on how to restrict or relax allowed sequences of matching calls.  
+
+If you want to contribute, read ACCU
+[overload 125](http://accu.org/var/uploads/journals/Overload125.pdf)
+to learn the internals.
 
 Example usage
 -------------
