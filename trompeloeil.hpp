@@ -36,8 +36,8 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <cstring>
 #include <cassert>
-#include <list>
 
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
@@ -791,14 +791,39 @@ namespace trompeloeil
   };
 
 
+  template<typename Sig>
+  struct side_effect_base : public list_elem<side_effect_base<Sig> >
+  {
+    virtual ~side_effect_base() = default;
+    virtual void action(call_params_type_t<Sig> &) = 0;
+  };
+
+  template<typename Sig>
+  struct side_effect_list : public side_effect_base<Sig>
+  {
+    ~side_effect_list()
+    {
+      while (!this->is_empty())
+      {
+        delete this->next();
+      }
+    }
+    void action(call_params_type_t<Sig> &) {}
+  };
+
+  template<typename Sig, typename Action>
+  struct side_effect : public side_effect_base<Sig>
+  {
+    template <typename A>
+    side_effect(A&& a_) : a(std::forward<A>(a_)) {};
+
+    void action(call_params_type_t<Sig> &t) { a(t); }
+
+    Action a;
+  };
+
   template <typename Sig>
   using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
-
-  template <typename Sig>
-  using side_effect_sig = void(call_params_type_t<Sig>&);
-
-  template <typename Sig>
-  using side_effect = std::function<side_effect_sig<Sig> >;
 
   template <typename T, std::size_t N, size_t M>
   struct sequence_validator_t;
@@ -1115,7 +1140,10 @@ namespace trompeloeil
         this->unlink();
         saturated_list.link_before(*this);
       }
-      for (auto& a : actions) a(params);
+      for (auto a = actions.next(); a != &actions; a = a->next())
+      {
+        a->action(params);
+      }
     }
     std::ostream& report_signature(std::ostream& os) const override
     {
@@ -1166,7 +1194,8 @@ namespace trompeloeil
     template <typename S>
     void add_side_effect(S&& s) noexcept
     {
-      actions.emplace_back(std::forward<S>(s));
+      auto effect = new side_effect<Sig, S>(std::forward<S>(s));
+      actions.link_before(*effect);
     }
     template <typename ... T>
     void set_sequence(T&& ... t) noexcept
@@ -1182,7 +1211,7 @@ namespace trompeloeil
       return_handler = std::move(h);
     }
     condition_list<Sig>                    conditions;
-    std::list<side_effect<Sig> >           actions;
+    side_effect_list<Sig>                  actions;
     std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
     std::unique_ptr<sequence_handler_base> sequences;
     const char                            *location;
