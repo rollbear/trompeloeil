@@ -778,7 +778,7 @@ namespace trompeloeil
   template<typename Sig, typename Cond>
   struct condition : public condition_base<Sig>
   {
-    condition(const char *str_, Cond c_) : c(c_), str(str_) {};
+    condition(const char *str_, Cond c_) : c(c_), str(str_) {}
 
     bool check(const call_params_type_t<Sig>& t) const override
     {
@@ -815,7 +815,7 @@ namespace trompeloeil
   struct side_effect : public side_effect_base<Sig>
   {
     template <typename A>
-    side_effect(A&& a_) : a(std::forward<A>(a_)) {};
+    side_effect(A&& a_) : a(std::forward<A>(a_)) {}
 
     void action(call_params_type_t<Sig> &t) { a(t); }
 
