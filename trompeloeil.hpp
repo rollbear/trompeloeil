@@ -680,20 +680,20 @@ namespace trompeloeil
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this; }
 
-    virtual bool matches(const call_params_type_t<Sig> &) const { return false; }
-    virtual bool first_in_sequence() const { return false; }
+    virtual bool matches(const call_params_type_t<Sig> &) const override { return false; }
+    virtual bool first_in_sequence() const override { return false; }
 
-    virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &) {}
+    virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &) override {}
 
     virtual std::ostream& report_signature(std::ostream& r ) const  override { return r; }
     virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
 
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &p)
+    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &p) override
     {
       return default_return<Sig>(p);
     }
 
-    virtual void report_missed() {}
+    virtual void report_missed() override {}
   };
 
   template <typename Sig>
@@ -1110,17 +1110,17 @@ namespace trompeloeil
       }
       return true;
     }
-    bool first_in_sequence() const
+    bool first_in_sequence() const override
     {
       auto saturated = call_count >= min_calls;
       return saturated || !sequences || sequences->is_first();
     }
 
-    return_of_t<Sig> return_value(call_params_type_t<Sig>& params)
+    return_of_t<Sig> return_value(call_params_type_t<Sig>& params) override
     {
       return return_handler(params);
     }
-    void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list)
+    void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list) override
     {
       if (call_count < min_calls && sequences)
       {
