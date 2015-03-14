@@ -173,11 +173,14 @@ namespace trompeloeil
 
   enum class severity { fatal, nonfatal };
 
+  using reporter_func = std::function<void(severity,
+                                           const std::string& loc,
+                                           const std::string& msg)>;
   inline
-  std::function<void(severity, const std::string& loc, const std::string&)>& reporter_obj()
+  reporter_func&
+  reporter_obj()
   {
-    static std::function<void(severity, const std::string& loc, const std::string&)> obj
-      = [](severity, const std::string& loc, const std::string& msg)
+    static reporter_func obj = [](severity, const auto& loc, const auto& msg)
       {
         if (!std::current_exception())
         {
@@ -188,9 +191,9 @@ namespace trompeloeil
   }
 
   inline
-  void set_reporter(std::function<void(severity, const std::string& loc, const std::string& s)> f)
+  void set_reporter(reporter_func f)
   {
-    reporter_obj() = f;
+    reporter_obj() = std::move(f);
   }
 
 
@@ -208,7 +211,8 @@ namespace trompeloeil
     static no func(...);
     template <typename T1, typename T2>
     static auto func(T1* p1, T2* p2) -> decltype(*p1 == *p2);
-    static const bool value = !std::is_same<no, decltype(func<T,U>(nullptr, nullptr))>::value;
+    static const bool value
+      = !std::is_same<no, decltype(func<T,U>(nullptr, nullptr))>::value;
   };
 
   template <typename T>
@@ -230,13 +234,20 @@ namespace trompeloeil
     template <typename U>
     static auto func(U* u) -> decltype(std::declval<std::ostream&>() << *u);
   public:
-    static const bool value = !std::is_same<no, decltype(func<T>(nullptr))>::value;
+    static const bool value
+      = !std::is_same<no, decltype(func<T>(nullptr))>::value;
   };
 
   struct stream_sentry
   {
-    stream_sentry(std::ostream& os_) : os(os_), width(os.width(0)), flags(os.flags(std::ios_base::dec | std::ios_base::left)), fill(os.fill(' ')) {  }
+    stream_sentry(std::ostream& os_)
+      : os(os_)
+      , width(os.width(0))
+      , flags(os.flags(std::ios_base::dec | std::ios_base::left))
+      , fill(os.fill(' '))
+      {  }
     ~stream_sentry() { os.flags(flags); os.fill(fill); os.width(width);}
+  private:
     std::ostream& os;
     std::streamsize width;
     std::ios_base::fmtflags flags;
@@ -317,7 +328,7 @@ namespace trompeloeil
       unlink();
     }
 
-    void invariant_check() const
+    void invariant_check() const noexcept
     {
       assert(n->p == this);
       assert(p->n == this);
@@ -410,17 +421,26 @@ namespace trompeloeil
 
   struct sequence_matcher : public list_elem<sequence_matcher>
   {
-    sequence_matcher(const char* name_, sequence& s) noexcept
+    sequence_matcher(
+      const char* name_,
+      sequence& s)
+    noexcept
     : seq_name(name_)
     , seq(s)
     , seq_elem(s)
     {}
-    void set_expectation(const char *name, const char *loc) noexcept
+
+    void
+    set_expectation(const char *name, const char *loc)
+    noexcept
     {
       seq_elem.exp_name = name;
       seq_elem.exp_loc = loc;
     }
-    void check_match(const char *match_name, const char* loc) const
+
+    void
+    check_match(const char *match_name, const char* loc)
+    const
     {
       auto next_seq = seq.next();
       if (next_seq != &seq_elem)
@@ -435,12 +455,21 @@ namespace trompeloeil
         send_report(severity::fatal, loc, os.str());
       }
     }
-    bool is_first() const
+    bool
+    is_first()
+    const noexcept
     {
       auto next_seq = seq.next();
       return next_seq == &seq_elem;
     }
-    void retire() noexcept { seq_elem.unlink(); }
+
+    void
+    retire()
+    noexcept
+    {
+      seq_elem.unlink();
+    }
+  private:
     const char    *seq_name;
     sequence&      seq;
     sequence_elem  seq_elem;
@@ -455,9 +484,9 @@ namespace trompeloeil
   };
 
   template <typename T>
-  bool operator==(const wildcard&, const T&) { return true; }
+  bool operator==(const wildcard&, const T&) noexcept { return true; }
   template <typename T>
-  bool operator==(const T&, const wildcard&) { return true; }
+  bool operator==(const T&, const wildcard&) noexcept { return true; }
 
   static constexpr const wildcard _{};
 
@@ -468,12 +497,22 @@ namespace trompeloeil
   };
 
   template <typename T, typename U>
-  auto operator==(const typed_wildcard<T>&, const U&) -> typename std::enable_if<std::is_same<typename std::decay<T>::type, typename std::decay<U>::type>::value, bool>::type
-  { return true; }
+  auto operator==(const typed_wildcard<T>&, const U&) noexcept ->
+    typename std::enable_if<std::is_same<typename std::decay<T>::type,
+                                         typename std::decay<U>::type>::value,
+                            bool>::type
+  {
+    return true;
+  }
 
   template <typename T, typename U>
-  auto operator==(const T&, const typed_wildcard<U>&) -> typename std::enable_if<std::is_same<typename std::decay<T>::type, typename std::decay<U>::type>::value, bool>::type
-  { return true; }
+  auto operator==(const T&, const typed_wildcard<U>&) noexcept ->
+    typename std::enable_if<std::is_same<typename std::decay<T>::type,
+                                         typename std::decay<U>::type>::value,
+                            bool>::type
+  {
+    return true;
+  }
 
   template <typename T>
   std::ostream& operator<<(std::ostream& os, const typed_wildcard<T>&)
@@ -489,24 +528,28 @@ namespace trompeloeil
   public:
     using T::T;
     ~deathwatched();
-    lifetime_monitor*& trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor) const noexcept
+    trompeloeil::lifetime_monitor*&
+    trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor)
+    const noexcept
     {
       return trompeloeil_lifetime_monitor = monitor;
     }
   private:
-    mutable trompeloeil::lifetime_monitor *trompeloeil_lifetime_monitor = nullptr;
+    mutable trompeloeil::lifetime_monitor *trompeloeil_lifetime_monitor=nullptr;
 
   };
 
   struct lifetime_monitor
   {
     template <typename T>
-    lifetime_monitor(const ::trompeloeil::deathwatched<T>&obj,
-                     const char* obj_name,
-                     const char *loc) noexcept
-      : object_monitor(obj.trompeloeil_expect_death(this)),
-        location(loc),
-        object_name(obj_name)
+    lifetime_monitor(
+      const ::trompeloeil::deathwatched<T>&obj,
+      const char* obj_name,
+      const char *loc)
+    noexcept
+      : object_monitor(obj.trompeloeil_expect_death(this))
+      , location(loc)
+      , object_name(obj_name)
     {
     }
     ~lifetime_monitor() noexcept(false)
@@ -582,6 +625,7 @@ namespace trompeloeil
   {
     static void value() {}
   };
+
   template <typename Sig>
   return_of_t<Sig> default_return(call_params_type_t<Sig>&)
   {
@@ -601,15 +645,43 @@ namespace trompeloeil
       : list_elem<call_matcher_base>(list)
     {
     }
-    virtual ~call_matcher_base() = default;
-    virtual bool matches(const call_params_type_t<Sig>&) const = 0;
-    virtual bool first_in_sequence() const = 0;
-    virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &saturated_list) = 0;
-    virtual std::ostream& report_signature(std::ostream&) const = 0;
-    virtual std::ostream& report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig>& p) {
-      return default_return<Sig>(p); }
-    virtual void report_missed() = 0;
+
+    virtual
+    ~call_matcher_base() = default;
+
+    virtual
+    bool
+    matches(const call_params_type_t<Sig>&) const = 0;
+
+    virtual
+    bool
+    first_in_sequence() const noexcept = 0;
+
+    virtual
+    void
+    run_actions(
+      call_params_type_t<Sig> &,
+      call_matcher_list<Sig> &saturated_list
+    ) = 0;
+
+    virtual
+    std::ostream&
+    report_signature(std::ostream&) const = 0;
+
+    virtual
+    std::ostream&
+    report_mismatch(std::ostream&,const call_params_type_t<Sig> &) = 0;
+
+    virtual
+    return_of_t<Sig>
+    return_value(call_params_type_t<Sig>& p)
+    {
+      return default_return<Sig>(p);
+    }
+
+    virtual
+    void
+    report_missed() = 0;
   };
 
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
@@ -680,25 +752,68 @@ namespace trompeloeil
     template<typename ... U>
     call_matcher_list &operator()(const U &...) { return *this; }
 
-    virtual bool matches(const call_params_type_t<Sig> &) const override { return false; }
-    virtual bool first_in_sequence() const override { return false; }
+    virtual
+    bool
+    matches(const call_params_type_t<Sig> &)
+    const override
+    {
+      return false;
+    }
 
-    virtual void run_actions(call_params_type_t<Sig> &, call_matcher_list<Sig> &) override {}
+    virtual
+    bool
+    first_in_sequence()
+    const noexcept override
+    {
+      return false;
+    }
 
-    virtual std::ostream& report_signature(std::ostream& r ) const  override { return r; }
-    virtual std::ostream& report_mismatch(std::ostream& r, const call_params_type_t<Sig> &) override { return r;}
+    virtual
+    void
+    run_actions(
+      call_params_type_t<Sig> &,
+      call_matcher_list<Sig> &)
+    override
+    {}
 
-    virtual return_of_t<Sig> return_value(call_params_type_t<Sig> &p) override
+    virtual
+    std::ostream&
+    report_signature(std::ostream& r )
+    const  override
+    {
+      return r;
+    }
+
+    virtual
+    std::ostream&
+    report_mismatch(
+      std::ostream& r,
+      const call_params_type_t<Sig> &)
+    override
+    {
+      return r;
+    }
+
+    virtual
+    return_of_t<Sig>
+    return_value(call_params_type_t<Sig> &p)
+    override
     {
       return default_return<Sig>(p);
     }
 
-    virtual void report_missed() override {}
+    virtual
+    void
+    report_missed()
+    override
+    {}
   };
 
   template <typename Sig>
-  call_matcher_base<Sig>* find(const call_params_type_t<Sig> &p,
-                               call_matcher_list<Sig>        &list)
+  call_matcher_base<Sig>*
+  find(const call_params_type_t<Sig> &p,
+       call_matcher_list<Sig>        &list)
+  noexcept
   {
     for (auto i = list.prev(); i != &list; i = i->prev())
     {
@@ -718,10 +833,11 @@ namespace trompeloeil
   }
 
   template <typename Sig>
-  void report_mismatch(const char                    *name,
-                       const call_params_type_t<Sig> &p,
-                       call_matcher_list<Sig>        &matcher_list,
-                       call_matcher_list<Sig>        &saturated_list)
+  void
+  report_mismatch(const char                    *name,
+                  const call_params_type_t<Sig> &p,
+                  call_matcher_list<Sig>        &matcher_list,
+                  call_matcher_list<Sig>        &saturated_list)
   {
     std::ostringstream os;
     os << "No match for call of " << name << " with.\n" << missed_values(p);
@@ -786,6 +902,7 @@ namespace trompeloeil
     }
 
     const char *name() const noexcept override { return str; }
+  private:
     Cond c;
     const char *str;
   };
@@ -818,7 +935,7 @@ namespace trompeloeil
     side_effect(A&& a_) : a(std::forward<A>(a_)) {}
 
     void action(call_params_type_t<Sig> &t) { a(t); }
-
+  private:
     Action a;
   };
 
@@ -831,40 +948,82 @@ namespace trompeloeil
   template <typename ... T, size_t N, size_t M>
   struct sequence_validator_t<std::tuple<T...>, N, M>
   {
-    static void set_expectation(const char *exp_name, const char *exp_loc, std::tuple<T...>& t) noexcept
+    using next = sequence_validator_t<std::tuple<T...>, N + 1, M>;
+
+    static
+    void
+    set_expectation(
+      const char *exp_name,
+      const char *exp_loc,
+      std::tuple<T...>& t)
+    noexcept
     {
       std::get<N>(t).set_expectation(exp_name, exp_loc);
-      sequence_validator_t<std::tuple<T...>, N + 1, M>::set_expectation(exp_name, exp_loc, t);
+      next::set_expectation(exp_name, exp_loc, t);
     }
-    static void validate(const char*match_name, const char *loc, const std::tuple<T...>& t)
+
+    static
+    void
+    validate(
+      const char*match_name,
+      const char *loc,
+      const std::tuple<T...>& t)
     {
       std::get<N>(t).check_match(match_name, loc);
-      sequence_validator_t<std::tuple<T...>, N + 1, M>::validate(match_name, loc, t);
+      next::validate(match_name, loc, t);
     }
-    static bool is_first(const std::tuple<T...>& t)
+
+    static
+    bool
+    is_first(const std::tuple<T...>& t)
+    noexcept
     {
-      return std::get<N>(t).is_first() && sequence_validator_t<std::tuple<T...>, N + 1, M>::is_first(t);
+      return std::get<N>(t).is_first() && next::is_first(t);
     }
-    static void retire(std::tuple<T...>& t) noexcept
+
+    static
+    void
+    retire(std::tuple<T...>& t)
+    noexcept
     {
       std::get<N>(t).retire();
-      sequence_validator_t<std::tuple<T...>, N + 1, M>::retire(t);
+      next::retire(t);
     }
   };
 
   template <typename ... T, size_t N>
   struct sequence_validator_t<std::tuple<T...>, N, N>
   {
-    static void set_expectation(const char*, const char*, std::tuple<T...>&) noexcept {}
-    static void validate(const char*, const char*, const std::tuple<T...>& ) {}
-    static bool is_first(const std::tuple<T...>&) { return true; }
-    static void retire(std::tuple<T...>& ) noexcept {}
+    static
+    void
+    set_expectation(const char*, const char*, std::tuple<T...>&)
+    noexcept
+    {}
+
+    static
+    void
+    validate(const char*, const char*, const std::tuple<T...>& )
+    {}
+
+    static
+    bool
+    is_first(const std::tuple<T...>&)
+    noexcept
+    {
+      return true;
+    }
+
+    static
+    void
+    retire(std::tuple<T...>& )
+    noexcept
+    { }
   };
 
 
   template <typename T>
   struct sequence_validator
-  : sequence_validator_t<T, 0, std::tuple_size<T>::value>
+    : sequence_validator_t<T, 0, std::tuple_size<T>::value>
   {
   };
 
@@ -873,7 +1032,7 @@ namespace trompeloeil
     virtual ~sequence_handler_base() noexcept = default;
     virtual void set_expectation(const char *, const char*) noexcept = 0;
     virtual void validate(const char*, const char*) = 0;
-    virtual bool is_first() const = 0;
+    virtual bool is_first() const noexcept = 0;
     virtual void retire() noexcept = 0;
   };
 
@@ -884,24 +1043,27 @@ namespace trompeloeil
   struct sequence_handler<std::tuple<Seq...> > : public sequence_handler_base
   {
     using seq_tuple = std::tuple<Seq...>;
+    using validator = sequence_validator<seq_tuple>;
+
     sequence_handler(seq_tuple&& t) : sequences(std::move(t)) {}
     void set_expectation(const char *exp_name, const char *exp_loc) noexcept
     {
-      sequence_validator<seq_tuple>::set_expectation(exp_name, exp_loc, sequences);
+      validator::set_expectation(exp_name, exp_loc, sequences);
     }
     void validate(const char* match_name, const char *loc)
     {
-      sequence_validator<seq_tuple>::validate(match_name, loc, sequences);
+      validator::validate(match_name, loc, sequences);
     }
-    bool is_first() const
+    bool is_first() const noexcept
     {
-      return sequence_validator<seq_tuple>::is_first(sequences);
+      return validator::is_first(sequences);
     }
 
     void retire() noexcept
     {
-      sequence_validator<seq_tuple>::retire(sequences);
+      validator::retire(sequences);
     }
+  private:
     seq_tuple sequences;
   };
 
@@ -948,26 +1110,33 @@ namespace trompeloeil
     using Parent::side_effects;
 
     call_modifier(Matcher& m) : matcher(m) {}
+
     template <typename D>
-    call_modifier& with(const char* str, D&& d)
+    call_modifier&
+    with(const char* str, D&& d)
     {
       matcher.add_condition(str, std::forward<D>(d));
       return *this;
     }
+
     template <typename A>
     call_modifier<Matcher, sideeffect_injector<Parent>>
     sideeffect(A&& a)
     {
-      static_assert(upper_call_limit > 0, "SIDE_EFFECT for forbidden call does not make sense");
+      static_assert(upper_call_limit > 0,
+                    "SIDE_EFFECT for forbidden call does not make sense");
       matcher.add_side_effect(std::forward<A>(a));
       return {matcher};
     }
+
     template <typename H,
               typename = typename std::enable_if<is_value_type<H>::value>::type>
     call_modifier<Matcher, return_injector<return_of_t<signature>, Parent > >
     handle_return(H&& h)
     {
-      using ret = typename std::result_of<H(call_params_type_t<signature>&)>::type;
+      using params_type = call_params_type_t<signature>&;
+      using ret = typename std::result_of<H(params_type)>::type;
+
       static_assert(std::is_constructible<return_of_t<signature>, ret>::value
                     || !std::is_same<return_of_t<signature>, void>::value,
                     "RETURN does not make sense for void-function");
@@ -983,6 +1152,7 @@ namespace trompeloeil
       matcher.set_return(std::move(h));
       return {matcher};
     }
+
     template <typename H>
     call_modifier<Matcher, throw_injector<Parent> >
     handle_throw(H&& h)
@@ -991,7 +1161,11 @@ namespace trompeloeil
                     "Multiple THROW does not make sense");
       static_assert(std::is_same<return_type, void>::value,
                     "THROW and RETURN does not make sense");
-      matcher.set_return([=](auto& p){ h(p); return default_return<signature>(p); });
+      matcher.set_return([=](auto& p)
+                         {
+                           h(p);
+                           return default_return<signature>(p);
+                         });
       return {matcher};
     }
     template <unsigned long long L,
@@ -1002,19 +1176,34 @@ namespace trompeloeil
     {
       static_assert(!verboten,
                     "Only one TIMES call limit is allowed, but it can express an interval");
-      static_assert(H >= L, "In TIMES the first value must not exceed the second");
-      static_assert(H > 0 || !throws, "THROW and TIMES(0) does not make sense");
-      static_assert(H > 0 || std::is_same<return_type, void>::value, "RETURN and TIMES(0) does not make sense");
-      static_assert(H > 0 || !side_effects, "SIDE_EFFECT and TIMES(0) does not make sense");
+
+      static_assert(H >= L,
+                    "In TIMES the first value must not exceed the second");
+
+      static_assert(H > 0 || !throws,
+                    "THROW and TIMES(0) does not make sense");
+
+      static_assert(H > 0 || std::is_same<return_type, void>::value,
+                    "RETURN and TIMES(0) does not make sense");
+
+      static_assert(H > 0 || !side_effects,
+                    "SIDE_EFFECT and TIMES(0) does not make sense");
+
       matcher.min_calls = L;
       matcher.max_calls = H;
       return {matcher};
     }
 
-    template <typename ... T, bool b = sequence_set, typename = typename std::enable_if<all_are<sequence_matcher, T...>::value>::type >
-    call_modifier<Matcher, sequence_injector<Parent> > in_sequence(T&& ... t)
+    template <typename ... T,
+              bool b = sequence_set>
+    typename std::enable_if<all_are<sequence_matcher, T...>::value,
+                            call_modifier<Matcher, sequence_injector<Parent> >
+                            >::type
+    in_sequence(T&& ... t)
     {
-      static_assert(!b, "Multiple IN_SEQUENCE does not make sense. You can list several sequence objects at once");
+      static_assert(!b,
+                    "Multiple IN_SEQUENCE does not make sense."
+                    " You can list several sequence objects at once");
 
       matcher.set_sequence(std::forward<T>(t)...);
       return {matcher};
@@ -1026,7 +1215,8 @@ namespace trompeloeil
     virtual ~expectation() = default;
   };
 
-  inline void
+  inline
+  void
   report_unfulfilled(const char*        name,
                      const std::string& values,
                      unsigned long long min_calls,
@@ -1054,8 +1244,12 @@ namespace trompeloeil
     send_report(severity::nonfatal, location, os.str());
   }
 
-  inline void
-  report_forbidden_call(const char *name, const char *loc, const std::string& values)
+  inline
+  void
+  report_forbidden_call(
+    const char *name,
+    const char *loc,
+    const std::string& values)
   {
     std::ostringstream os;
     os << "Match of forbidden call of " << name << " at " << loc << '\n'
@@ -1097,12 +1291,16 @@ namespace trompeloeil
       return *this;
     }
 
-    virtual bool matches(const call_params_type_t<Sig>& params) const override
+    bool
+    matches(const call_params_type_t<Sig>& params)
+    const override
     {
       return val == params && match_conditions(params);
     }
 
-    bool match_conditions(const call_params_type_t<Sig>& params) const
+    bool
+    match_conditions(const call_params_type_t<Sig>& params)
+    const
     {
       for (auto c = conditions.next(); c != &conditions; c = c->next())
       {
@@ -1110,17 +1308,27 @@ namespace trompeloeil
       }
       return true;
     }
-    bool first_in_sequence() const override
+
+    bool
+    first_in_sequence()
+    const noexcept override
     {
       auto saturated = call_count >= min_calls;
       return saturated || !sequences || sequences->is_first();
     }
 
-    return_of_t<Sig> return_value(call_params_type_t<Sig>& params) override
+    return_of_t<Sig>
+    return_value(call_params_type_t<Sig>& params)
+    override
     {
       return return_handler(params);
     }
-    void run_actions(call_params_type_t<Sig>& params, call_matcher_list<Sig> &saturated_list) override
+
+    void
+    run_actions(
+      call_params_type_t<Sig>& params,
+      call_matcher_list<Sig> &saturated_list)
+    override
     {
       if (call_count < min_calls && sequences)
       {
@@ -1145,11 +1353,19 @@ namespace trompeloeil
         a->action(params);
       }
     }
-    std::ostream& report_signature(std::ostream& os) const override
+
+    std::ostream&
+    report_signature(std::ostream& os)
+    const override
     {
       return os << name << " at " << location;
     }
-    std::ostream& report_mismatch(std::ostream& os, const call_params_type_t<Sig>& params) override
+
+    std::ostream&
+    report_mismatch(
+      std::ostream& os,
+      const call_params_type_t<Sig>& params)
+    override
     {
       reported = true;
       report_signature(os);
@@ -1170,46 +1386,67 @@ namespace trompeloeil
       }
       return os;
     }
-    void report_missed() override
+
+    void
+    report_missed()
+    override
     {
       reported = true;
-      report_unfulfilled(name, missed_values(val), min_calls, call_count, location);
+      report_unfulfilled(name,
+                         missed_values(val),
+                         min_calls,
+                         call_count,
+                         location);
     }
-    call_matcher &set_location(const char *loc) noexcept
+
+    call_matcher
+    &set_location(const char *loc)
+    noexcept
     {
       location = loc;
       return *this;
     }
-    call_matcher& set_name(const char* func_name) noexcept
+
+    call_matcher&
+    set_name(const char* func_name)
+    noexcept
     {
       name = func_name;
       return *this;
     }
+
     template <typename C>
-    void add_condition(const char* str, C&& c) noexcept
+    void
+    add_condition(const char* str, C&& c)
     {
       auto cond = new condition<Sig, C>(str, std::forward<C>(c));
       conditions.link_before(*cond);
     }
     template <typename S>
-    void add_side_effect(S&& s) noexcept
+    void
+    add_side_effect(S&& s)
     {
       auto effect = new side_effect<Sig, S>(std::forward<S>(s));
       actions.link_before(*effect);
     }
+
     template <typename ... T>
-    void set_sequence(T&& ... t) noexcept
+    void
+    set_sequence(T&& ... t)
     {
       std::tuple<T...> tup(std::forward<T>(t)...);
       auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
       seq->set_expectation(name, location);
       sequences.reset(seq);
     }
+
     inline
-    void set_return(std::function<return_handler_sig<Sig> >&& h) noexcept
+    void
+    set_return(std::function<return_handler_sig<Sig> >&& h)
     {
       return_handler = std::move(h);
     }
+
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
     std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
@@ -1253,7 +1490,10 @@ namespace trompeloeil
   };
 
   template <int N, typename T>
-  auto mkarg(T& t) noexcept -> decltype(arg<T, N>::value(t)) { return arg<T, N>::value(t); }
+  auto mkarg(T& t) noexcept -> decltype(arg<T, N>::value(t))
+  {
+    return arg<T, N>::value(t);
+  }
 
   template <typename ... T>
   void ignore(const T& ...) noexcept {}
@@ -1267,30 +1507,45 @@ namespace trompeloeil
   struct call_validator
   {
     template <typename T>
-    static void assert_return_type(T&)
+    static
+    void
+    assert_return_type(T&)
+    noexcept
     {
-      static_assert(T::throws || std::is_same<typename T::return_type, return_of_t<typename T::signature> >::value,
+      static_assert(T::throws
+                    || std::is_same<typename T::return_type,
+                                    return_of_t<typename T::signature> >::value,
                     "RETURN missing for non-void function");
     }
+
     template <typename M, typename Info>
-    std::unique_ptr<expectation> operator+(call_modifier<M, Info>& t) const {
+    std::unique_ptr<expectation>
+    operator+(call_modifier<M, Info>& t)
+    const
+    {
       assert_return_type(t);
       return std::unique_ptr<expectation>(&t.matcher);
     }
+
     template <typename M, typename Info>
-    std::unique_ptr<expectation> operator+(call_modifier<M, Info>&& t) const {
+    std::unique_ptr<expectation>
+    operator+(call_modifier<M, Info>&& t)
+    const
+    {
       return operator+(t);
     }
   };
 
   template <typename Sig, typename Value>
-  auto make_call_modifier(call_matcher<Sig, Value>& m) -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
+  auto make_call_modifier(call_matcher<Sig, Value>& m)
+    -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
   {
     return {m};
   }
 
   template <typename sig, typename ... U>
-  auto make_call_matcher(U&& ... u) -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>&
+  auto make_call_matcher(U&& ... u)
+    -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>&
   {
     return * new ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>( std::forward<U>(u)... );
   }
