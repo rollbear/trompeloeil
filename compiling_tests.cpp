@@ -25,9 +25,9 @@ struct report
   std::string           loc;
   std::string           msg;
 };
-std::vector<report> reports;
+static std::vector<report> reports;
 
-void send_report(trompeloeil::severity s, const std::string& loc, const std::string msg)
+static void send_report(trompeloeil::severity s, const std::string& loc, const std::string msg)
 {
 #if 0
       auto location = loc.empty()
@@ -342,7 +342,7 @@ TESTSUITE(sequences)
 
 TESTSUITE(side_effects)
 {
-  int global_n = 0;
+  static int global_n = 0;
   TEST(side_effect_access_copy_of_local_object)
   {
     int n = 1;
