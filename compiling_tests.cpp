@@ -990,7 +990,7 @@ TESTSUITE(mismatches)
   param  _1 = 3
 
 Matches saturated call requirement
-  obj.getter(3) at [a-z_.]*:[0-9]*)_";
+  obj.getter(3) at [a-z_./]*:[0-9]*)_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
   }
@@ -1039,7 +1039,7 @@ Matches saturated call requirement
   param  _1 = 3
 
 Matches saturated call requirement
-  obj.getter(3) at [a-z_.]*:[0-9]*)_";
+  obj.getter(3) at [a-z_./]*:[0-9]*)_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
   }
@@ -1061,10 +1061,10 @@ Matches saturated call requirement
         R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 3
 
-Tried obj.getter(5) at [a-z_.]*:[0-9]*
+Tried obj.getter(5) at [a-z_./]*:[0-9]*
   Expected  _1 = 5
 
-Tried obj.getter(4) at [a-z_.]*:[0-9]*
+Tried obj.getter(4) at [a-z_./]*:[0-9]*
   Expected  _1 = 4)_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
@@ -1087,7 +1087,7 @@ Tried obj.getter(4) at [a-z_.]*:[0-9]*
         R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 4
 
-Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
+Tried obj.getter(ANY(int)) at [a-z_./]*:[0-9]*
   Failed WITH(_1 < 3)
   Failed WITH(_1 > 5))_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
@@ -1111,7 +1111,7 @@ Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
         R"_(No match for call of getter with signature int(int) with\.
   param  _1 = 4
 
-Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
+Tried obj.getter(ANY(int)) at [a-z_./]*:[0-9]*
   Failed WITH(_1 < 3))_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
@@ -1134,7 +1134,7 @@ Tried obj.getter(ANY(int)) at [a-z_.]*:[0-9]*
     catch (reported)
     {
       ASSERT_TRUE(reports.size() == 1U);
-      auto re = R"_(Match of forbidden call of obj.getter(3) at [a-z_.]*:[0-9]*
+      auto re = R"_(Match of forbidden call of obj.getter(3) at [a-z_./]*:[0-9]*
   param  _1 = 3)_";
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
     }
