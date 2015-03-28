@@ -198,13 +198,17 @@ namespace trompeloeil
 
   class logger;
 
-  logger*& logger_obj()
+  inline
+  logger*&
+  logger_obj()
   {
     static logger* ptr = nullptr;
     return ptr;
   }
 
-  logger* set_logger(logger* logger)
+  inline
+  logger*
+  set_logger(logger* logger)
   {
     auto& ptr = logger_obj();
     auto rv = ptr;
