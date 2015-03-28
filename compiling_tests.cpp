@@ -1255,6 +1255,53 @@ TESTSUITE(parameters)
     }
   }
 }
+
+TESTSUITE(logging)
+{
+  TEST(matching_calls_are_logged)
+  {
+    std::ostringstream os;
+    trompeloeil::stream_logger logger(os);
+    mock_c obj1;
+    mock_c obj2;
+    REQUIRE_CALL(obj1, getter(_, _));
+    REQUIRE_CALL(obj2, foo("bar"));
+    std::string s = "foo";
+    obj1.getter(3, s);
+    obj2.foo("bar");
+    auto re =
+"^[a-z_./]*:[0-9]*\n"
+"obj1.getter(_, _) with.\n"
+"  param  _1 = 3\n"
+"  param  _2 = foo\n"
+"\n"
+"[a-z_./]*:[0-9]*\n"
+"obj2.foo(\"bar\") with.\n"
+"  param  _1 = bar\n$";
+    ASSERT_TRUE(os.str() =~ crpcut::regex(re, crpcut::regex::m));
+  }
+
+  TEST(logging_is_only_active_when_logger_obj_is_alive)
+  {
+    std::ostringstream os;
+    mock_c obj1;
+    mock_c obj2;
+    ALLOW_CALL(obj1, getter(_, _));
+    REQUIRE_CALL(obj2, foo("bar"));
+    std::string s = "foo";
+    obj1.getter(3, s);
+    {
+      trompeloeil::stream_logger logger(os);
+      obj2.foo("bar");
+    }
+    obj1.getter(4, s);
+    auto re =
+"^[a-z_./]*:[0-9]*\n"
+"obj2.foo(\"bar\") with.\n"
+"  param  _1 = bar\n$";
+    ASSERT_TRUE(os.str() =~ crpcut::regex(re, crpcut::regex::m));
+  }
+}
 int main(int argc, char *argv[])
 {
   trompeloeil::set_reporter(send_report);

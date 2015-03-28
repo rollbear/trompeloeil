@@ -196,6 +196,47 @@ namespace trompeloeil
     reporter_obj() = std::move(f);
   }
 
+  class logger;
+
+  logger*& logger_obj()
+  {
+    static logger* ptr = nullptr;
+    return ptr;
+  }
+
+  logger* set_logger(logger* logger)
+  {
+    auto& ptr = logger_obj();
+    auto rv = ptr;
+    ptr = logger;
+    return rv;
+  }
+
+  class logger
+  {
+  public:
+    virtual void log(const char *location, const std::string& call) = 0;
+  protected:
+    logger() : previous(set_logger(this)) {}
+    logger(const logger&) = delete;
+    logger& operator=(const logger&) = delete;
+    virtual ~logger() { set_logger(previous); }
+  private:
+    logger* previous = nullptr;
+  };
+
+  class stream_logger : public logger
+  {
+  public:
+    stream_logger(std::ostream& stream_) : stream(stream_) {}
+    void log(const char* location, const std::string& call) override
+    {
+      stream << location << '\n' << call << '\n';
+    }
+  private:
+    std::ostream& stream;
+  };
+
 
   inline
   void send_report(severity s, char const *loc, std::string const &msg)
@@ -659,6 +700,10 @@ namespace trompeloeil
 
     virtual
     void
+    log_call(logger* obj, call_params_type_t<Sig>& p) const = 0;
+
+    virtual
+    void
     run_actions(
       call_params_type_t<Sig> &,
       call_matcher_list<Sig> &saturated_list
@@ -767,6 +812,12 @@ namespace trompeloeil
     {
       return false;
     }
+
+    virtual
+    void
+    log_call(logger*, call_params_type_t<Sig>&)
+    const override
+    {}
 
     virtual
     void
@@ -1325,6 +1376,17 @@ namespace trompeloeil
     }
 
     void
+    log_call(
+      logger* obj,
+      call_params_type_t<Sig>& params
+    )
+    const override
+    {
+      std::ostringstream os;
+      os << name << " with.\n" << missed_values(params);
+      obj->log(location, os.str());
+    }
+    void
     run_actions(
       call_params_type_t<Sig>& params,
       call_matcher_list<Sig> &saturated_list)
@@ -1549,6 +1611,7 @@ namespace trompeloeil
   {
     return * new ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>( std::forward<U>(u)... );
   }
+
 }
 
 #define TROMPELOEIL_ID(name) \
@@ -1641,10 +1704,14 @@ namespace trompeloeil
     auto i = ::trompeloeil::find(param_value, TROMPELOEIL_ID(matcher_list));\
     if (!i)                                                             \
     {                                                                   \
-      ::trompeloeil::report_mismatch(name_s " with signature " sig_s, \
+      ::trompeloeil::report_mismatch(name_s " with signature " sig_s,   \
                                      param_value,                       \
                                      TROMPELOEIL_ID(matcher_list),      \
                                      TROMPELOEIL_ID(saturated_matcher_list)); \
+    }                                                                   \
+    if (auto obj = ::trompeloeil::logger_obj())                         \
+    {                                                                   \
+      i->log_call(obj, param_value);   \
     }                                                                   \
     i->run_actions(param_value, TROMPELOEIL_ID(saturated_matcher_list)); \
     return i->return_value(param_value);                                \

@@ -52,6 +52,8 @@ public:
 
 TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 {
+  trompeloeil::stream_logger log(std::cout);
+
   using trompeloeil::_; // wild card for matching any value
 
   auto raw_i = new trompeloeil::deathwatched<MI>("word");
@@ -95,7 +97,6 @@ Limitations (TODO-list)
 -----------------------
 
 - Function templates cannot be mocked
-- Tracing would be a nice addition
 - WAY too many macros... but I think we'll have to make do with most of them
 
 - Quirk! Matching a move-only type passed by value or by rvalue-refenence
@@ -125,9 +126,19 @@ parallel sequences, and several sequence objects can be joined in one
 The type of the wild card object `trompeloeil::_` . You typically never see
 the type itself.
 
-**`trompeloeil::expectation`**
+**`trompeloeil::expectation`**  
 Base type of a named expectation object, as created by **`NAMED_REQUIRE_CALL`**,
 **`NAMED_FORBID_CALL`** and **`NAMED_ALLOW_CALL`**.
+
+**`trompeloeil::stream_logger`**  
+An object that logs matching calls to the `std::ostream` instance provided in
+the constructor. Mostly useful with **`ALLOW_CALL`** when doing exploratory
+testing of legacy code.
+
+**`trompeloel::logger`**  
+Base class for loggers. Override the member function
+`void log(const char* location, const std::string& call)` in your own log class
+if a **`trompeloeil::stream_logger`** is not right for you.
 
 ## Macros
 
