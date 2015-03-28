@@ -341,4 +341,4 @@ Compatibility
 Trompeloeil is known to work with:
 
 * GCC 4.9
-* Clang 3.5
+* Clang 3.5, 3.6
