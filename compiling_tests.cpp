@@ -1256,12 +1256,12 @@ TESTSUITE(parameters)
   }
 }
 
-TESTSUITE(logging)
+TESTSUITE(tracing)
 {
-  TEST(matching_calls_are_logged)
+  TEST(matching_calls_are_traced)
   {
     std::ostringstream os;
-    trompeloeil::stream_logger logger(os);
+    trompeloeil::stream_tracer logger(os);
     mock_c obj1;
     mock_c obj2;
     REQUIRE_CALL(obj1, getter(_, _));
@@ -1281,7 +1281,7 @@ TESTSUITE(logging)
     ASSERT_TRUE(os.str() =~ crpcut::regex(re, crpcut::regex::m));
   }
 
-  TEST(logging_is_only_active_when_logger_obj_is_alive)
+  TEST(tracing_is_only_active_when_tracer_obj_is_alive)
   {
     std::ostringstream os;
     mock_c obj1;
@@ -1291,7 +1291,7 @@ TESTSUITE(logging)
     std::string s = "foo";
     obj1.getter(3, s);
     {
-      trompeloeil::stream_logger logger(os);
+      trompeloeil::stream_tracer logger(os);
       obj2.foo("bar");
     }
     obj1.getter(4, s);

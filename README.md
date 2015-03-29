@@ -52,7 +52,7 @@ public:
 
 TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 {
-  trompeloeil::stream_logger log(std::cout);
+  trompeloeil::stream_tracer log(std::cout);
 
   using trompeloeil::_; // wild card for matching any value
 
@@ -130,15 +130,15 @@ the type itself.
 Base type of a named expectation object, as created by **`NAMED_REQUIRE_CALL`**,
 **`NAMED_FORBID_CALL`** and **`NAMED_ALLOW_CALL`**.
 
-**`trompeloeil::stream_logger`**  
-An object that logs matching calls to the `std::ostream` instance provided in
+**`trompeloeil::stream_tracer`**  
+An object that traces matching calls to the `std::ostream` instance provided in
 the constructor. Mostly useful with **`ALLOW_CALL`** when doing exploratory
 testing of legacy code.
 
-**`trompeloel::logger`**  
-Base class for loggers. Override the member function
-`void log(const char* location, const std::string& call)` in your own log class
-if a **`trompeloeil::stream_logger`** is not right for you.
+**`trompeloel::tracer`**  
+Base class for tracers. Override the member function
+`void trace(const char* location, const std::string& call)` in your own trace
+class if a **`trompeloeil::stream_tracer`** is not right for you.
 
 ## Macros
 

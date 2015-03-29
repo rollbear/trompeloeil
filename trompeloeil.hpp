@@ -23,7 +23,6 @@
 
 // Deficiencies and missing features
 // * Mocking function templates is not supported
-// * implement tracing
 // * If a macro kills a kitten, this threatens extinction of all felines!
 
 #if (!defined(__cplusplus) || __cplusplus <= 201103)
@@ -196,44 +195,44 @@ namespace trompeloeil
     reporter_obj() = std::move(f);
   }
 
-  class logger;
+  class tracer;
 
   inline
-  logger*&
-  logger_obj()
+  tracer*&
+  tracer_obj()
   {
-    static logger* ptr = nullptr;
+    static tracer* ptr = nullptr;
     return ptr;
   }
 
   inline
-  logger*
-  set_logger(logger* logger)
+  tracer*
+  set_tracer(tracer* obj)
   {
-    auto& ptr = logger_obj();
+    auto& ptr = tracer_obj();
     auto rv = ptr;
-    ptr = logger;
+    ptr = obj;
     return rv;
   }
 
-  class logger
+  class tracer
   {
   public:
-    virtual void log(const char *location, const std::string& call) = 0;
+    virtual void trace(const char *location, const std::string& call) = 0;
   protected:
-    logger() : previous(set_logger(this)) {}
-    logger(const logger&) = delete;
-    logger& operator=(const logger&) = delete;
-    virtual ~logger() { set_logger(previous); }
+    tracer() : previous(set_tracer(this)) {}
+    tracer(const tracer&) = delete;
+    tracer& operator=(const tracer&) = delete;
+    virtual ~tracer() { set_tracer(previous); }
   private:
-    logger* previous = nullptr;
+    tracer* previous = nullptr;
   };
 
-  class stream_logger : public logger
+  class stream_tracer : public tracer
   {
   public:
-    stream_logger(std::ostream& stream_) : stream(stream_) {}
-    void log(const char* location, const std::string& call) override
+    stream_tracer(std::ostream& stream_) : stream(stream_) {}
+    void trace(const char* location, const std::string& call) override
     {
       stream << location << '\n' << call << '\n';
     }
@@ -704,7 +703,7 @@ namespace trompeloeil
 
     virtual
     void
-    log_call(logger* obj, call_params_type_t<Sig>& p) const = 0;
+    log_call(tracer* obj, call_params_type_t<Sig>& p) const = 0;
 
     virtual
     void
@@ -819,7 +818,7 @@ namespace trompeloeil
 
     virtual
     void
-    log_call(logger*, call_params_type_t<Sig>&)
+    log_call(tracer*, call_params_type_t<Sig>&)
     const override
     {}
 
@@ -1381,14 +1380,14 @@ namespace trompeloeil
 
     void
     log_call(
-      logger* obj,
+      tracer* obj,
       call_params_type_t<Sig>& params
     )
     const override
     {
       std::ostringstream os;
       os << name << " with.\n" << missed_values(params);
-      obj->log(location, os.str());
+      obj->trace(location, os.str());
     }
     void
     run_actions(
@@ -1713,9 +1712,9 @@ namespace trompeloeil
                                      TROMPELOEIL_ID(matcher_list),      \
                                      TROMPELOEIL_ID(saturated_matcher_list)); \
     }                                                                   \
-    if (auto obj = ::trompeloeil::logger_obj())                         \
+    if (auto obj = ::trompeloeil::tracer_obj())                         \
     {                                                                   \
-      i->log_call(obj, param_value);   \
+      i->log_call(obj, param_value);                                    \
     }                                                                   \
     i->run_actions(param_value, TROMPELOEIL_ID(saturated_matcher_list)); \
     return i->return_value(param_value);                                \
