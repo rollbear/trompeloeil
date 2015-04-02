@@ -1,0 +1,26 @@
+v2   2015-04-02
+
+	* Improved compilation time performance. 20% drop in compilation time
+	  has been seen in some test programs.
+
+	* Improved the compiler's chance to provide good warning messages
+	  when values in expectations don't quite the types used in the
+	  function signature (for example signed/unsigned mismatch.)
+
+	* Added support for tracing matching calls. This is an aid when
+	  doing exploratory tests of legacy code. A trace can often
+	  drastically reduce the time required to understand how the legacy
+	  code works.
+
+	  To use it, create an object of a tracer type, for example:
+
+	    TEST(atest)
+	    {
+	      trompeloeil::stream_tracer trace(std::cout);
+
+	      // normal test code
+	    }
+
+v1   2015-01-10
+
+	First official release.
