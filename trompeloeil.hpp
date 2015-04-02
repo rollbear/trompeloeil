@@ -1695,8 +1695,8 @@ namespace trompeloeil
       /* provoke warnings for sign mismatch with applicable compiler flags*/ \
       using param_type = ::trompeloeil::call_params_type_t<sig>;        \
       using call_type = decltype(std::make_tuple(std::forward<U>(u)...)); \
-      ::trompeloeil::ignore(                                            \
-         ::trompeloeil::is_equal_comparable<param_type, call_type>::value); \
+      auto check = ::trompeloeil::is_equal_comparable<param_type, call_type>::value; \
+      ::trompeloeil::ignore(check);                                     \
       return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
     }                                                                   \
   };                                                                    \
