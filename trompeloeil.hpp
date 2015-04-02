@@ -1690,8 +1690,13 @@ namespace trompeloeil
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
   {                                                                     \
     template <typename ... U>                                           \
-      static auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
+    static auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
     {                                                                   \
+      /* provoke warnings for sign mismatch with applicable compiler flags*/ \
+      using param_type = ::trompeloeil::call_params_type_t<sig>;        \
+      using call_type = decltype(std::make_tuple(std::forward<U>(u)...)); \
+      ::trompeloeil::ignore(                                            \
+         ::trompeloeil::is_equal_comparable<param_type, call_type>::value); \
       return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
     }                                                                   \
   };                                                                    \
@@ -1992,4 +1997,3 @@ namespace trompeloeil
 #endif
 
 #endif // include guard
-
