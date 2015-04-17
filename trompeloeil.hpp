@@ -250,13 +250,11 @@ namespace trompeloeil
   template <typename T, typename U>
   struct is_equal_comparable
   {
-    struct no {};
     template <typename T1, typename T2>
-    static no func(...);
+    static std::false_type func(...);
     template <typename T1, typename T2>
-    static auto func(T1* p1, T2* p2) -> decltype(*p1 == *p2);
-    static bool const value
-      = !std::is_same<no, decltype(func<T,U>(nullptr, nullptr))>::value;
+    static auto func(T1* p1, T2* p2) -> std::integral_constant<decltype(*p1 == *p2), true>;
+    static bool const value = decltype(func<T,U>(nullptr, nullptr))::value;
   };
 
   template <typename T>
@@ -272,14 +270,12 @@ namespace trompeloeil
   template <typename T>
   class is_output_streamable
   {
-    struct no;
     template <typename U>
-    static no func(...);
+    static std::false_type func(...);
     template <typename U>
-    static auto func(U* u) -> decltype(std::declval<std::ostream&>() << *u);
+    static auto func(U* u) -> std::is_same<std::ostream&, decltype(std::declval<std::ostream&>() << *u)>;
   public:
-    static bool const value
-      = !std::is_same<no, decltype(func<T>(nullptr))>::value;
+    static bool const value = decltype(func<T>(nullptr))::value;
   };
 
   struct stream_sentry
