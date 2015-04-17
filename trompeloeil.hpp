@@ -565,6 +565,8 @@ namespace trompeloeil
   template <typename T>
   class deathwatched : public T
   {
+    static_assert(std::has_virtual_destructor<T>::value,
+                  "virtual destructor is a necessity for deathwatched to work");
   public:
     using T::T;
     ~deathwatched();
