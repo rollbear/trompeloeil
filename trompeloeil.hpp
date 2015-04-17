@@ -778,17 +778,11 @@ namespace trompeloeil
   }
 
   template <typename T, typename ... A>
-  struct all_are;
-
-  template <typename T>
-  struct all_are<T> : public std::true_type {};
-
-  template <typename T, typename ... A>
-  struct all_are<T, T, A...> : public all_are<T, A...> {};
-
-  template <typename T, typename U, typename ... A>
-  struct all_are<T, U, A...> : public std::false_type {};
-
+  struct all_are
+    : std::is_same<std::tuple<A...>,
+                   std::tuple<typename std::conditional<true, T, A>::type...>>
+  {
+  };
 
   template<typename Sig>
   struct call_matcher_list : public call_matcher_base<Sig>
