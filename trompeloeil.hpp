@@ -37,6 +37,7 @@
 #include <memory>
 #include <cstring>
 #include <cassert>
+#include <algorithm>
 
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
@@ -330,6 +331,191 @@ namespace trompeloeil
     streamer<T>::print(os, t);
   }
 
+  template <typename T, typename Deleter>
+  class lista;
+
+  template <typename T>
+  class lista_elem
+  {
+  public:
+    lista_elem(const lista_elem&) = delete;
+    lista_elem& operator=(const lista_elem&) = delete;
+    lista_elem(lista_elem &&r) noexcept : next(r.next), prev(&r)
+    {
+      r.invariant_check();
+
+      next->prev = this;
+      r.next = this;
+
+      assert(next->prev == this);
+      assert(prev->next == this);
+
+      r.unlink();
+
+      assert(r.is_empty());
+      invariant_check();
+    }
+    ~lista_elem() { unlink(); }
+    void unlink() noexcept
+    {
+      invariant_check();
+      auto n = next;
+      auto p = prev;
+      n->prev = p;
+      p->next = n;
+      next = this;
+      prev = this;
+      invariant_check();
+    };
+    void invariant_check() const noexcept
+    {
+      assert(next->prev == this);
+      assert(prev->next == this);
+      assert((next == this) == (prev == this));
+      assert((prev->next == next) == (next == this));
+      assert((next->prev == prev) == (prev == this));
+      auto pp = prev;
+      auto nn = next;
+      do {
+        assert((nn == this) == (pp == this));
+        assert(nn->next->prev == nn);
+        assert(nn->prev->next == nn);
+        assert(pp->next->prev == pp);
+        assert(pp->prev->next == pp);
+        assert((nn->next == nn) == (nn == this));
+        assert((pp->prev == pp) == (pp == this));
+        nn = nn->next;
+        pp = pp->prev;
+      } while (nn != this);
+    }
+    bool is_linked() const noexcept
+    {
+      invariant_check();
+      return next != this;
+    }
+  protected:
+    lista_elem() noexcept = default;
+  public:
+    lista_elem* next = this;
+    lista_elem* prev = this;
+  };
+
+  class ignore_disposer
+  {
+  protected:
+    template <typename T>
+    void dispose(T*) const {}
+  };
+
+  class delete_disposer
+  {
+  protected:
+    template <typename T>
+    void dispose(T* t) const { delete t; }
+  };
+  template <typename T, typename Disposer = ignore_disposer>
+  class lista : private lista_elem<T>, private Disposer
+  {
+  public:
+    ~lista();
+    class iterator;
+    iterator begin() const noexcept;
+    iterator end() const noexcept;
+    iterator push_front(T* t) noexcept;
+    iterator push_back(T* t) noexcept;
+    void erase(iterator i) noexcept;
+    auto empty() const noexcept { return begin() == end(); };
+  private:
+    using lista_elem<T>::invariant_check;
+    using lista_elem<T>::next;
+    using lista_elem<T>::prev;
+  };
+
+  template <typename T, typename Disposer>
+  class lista<T, Disposer>::iterator
+    : public std::iterator<std::bidirectional_iterator_tag, T>
+  {
+    friend class lista<T, Disposer>;
+  public:
+    iterator() noexcept = default;
+    bool operator==(const iterator& rh) const noexcept { return p == rh.p; }
+    bool operator!=(const iterator& rh) const noexcept { return !(*this == rh); }
+    iterator& operator++() noexcept
+    {
+      p = p->next;
+      return *this;
+    }
+    iterator operator++(int) noexcept
+    {
+      auto rv = *this;
+      operator++();
+      return rv;
+    }
+    T& operator*() noexcept
+    {
+      return static_cast<T&>(*p);
+    }
+    T* operator->() noexcept
+    {
+      return static_cast<T*>(p);
+    }
+  private:
+    iterator(const lista_elem<T>* t) noexcept : p{const_cast<lista_elem<T>*>(t)} {}
+    lista_elem<T>* p;
+  };
+
+  template <typename T, typename Disposer>
+  lista<T, Disposer>::~lista()
+  {
+    auto i = this->begin();
+    while (i != this->end())
+    {
+      auto prev = i++;
+      Disposer::dispose(&*prev);
+    }
+  }
+  template <typename T, typename Disposer>
+  auto lista<T, Disposer>::begin() const noexcept -> iterator
+  {
+    return {next};
+  }
+
+  template <typename T, typename Disposer>
+  auto lista<T, Disposer>::end() const noexcept -> iterator
+  {
+    return {this};
+  }
+
+  template <typename T, typename Disposer>
+  auto lista<T, Disposer>::push_front(T* t) noexcept -> iterator
+  {
+    invariant_check();
+    t->next = next;
+    t->prev = this;
+    next->prev = t;
+    next = t;
+    invariant_check();
+    return {t};
+  }
+
+  template <typename T, typename Disposer>
+  auto lista<T, Disposer>::push_back(T* t) noexcept -> iterator
+  {
+    invariant_check();
+    t->prev = prev;
+    t->next = this;
+    prev->next = t;
+    prev = t;
+    invariant_check();
+    return {t};
+  }
+
+  template <typename T, typename Disposer>
+  void lista<T, Disposer>::erase(iterator i) noexcept
+  {
+    i->unlink();
+  }
+
   template<typename T>
   struct list_elem
   {
@@ -399,9 +585,6 @@ namespace trompeloeil
     }
 
     T       *next()       noexcept { return static_cast<T       *>(n); }
-    T const *next() const noexcept { return static_cast<T const *>(n); }
-    T       *prev()       noexcept { return static_cast<T       *>(p); }
-    T const *prev() const noexcept { return static_cast<T const *>(p); }
 
     void unlink() noexcept
     {
@@ -414,25 +597,6 @@ namespace trompeloeil
       invariant_check();
     }
 
-    void link_before(T &b) noexcept
-    {
-      invariant_check();
-      b.invariant_check();
-
-      for (auto i = n; i != this; i = i->n)
-      {
-        assert(i != &b);
-      }
-
-      auto pp = p;
-      auto bn = b.n;
-      pp->n = bn;
-      bn->p = pp;
-      b.n = this;
-      p = &b;
-
-      invariant_check();
-    }
   private:
     list_elem *n;
     list_elem *p;
@@ -459,7 +623,7 @@ namespace trompeloeil
     char const *exp_loc;
   };
 
-  struct sequence_matcher : public list_elem<sequence_matcher>
+  struct sequence_matcher
   {
     sequence_matcher(
       char const* name_,
@@ -578,7 +742,6 @@ namespace trompeloeil
     }
   private:
     mutable trompeloeil::lifetime_monitor *trompeloeil_lifetime_monitor=nullptr;
-
   };
 
   struct lifetime_monitor
@@ -679,15 +842,9 @@ namespace trompeloeil
   struct call_matcher_list;
 
   template<typename Sig>
-  struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
+  struct call_matcher_base : public lista_elem<call_matcher_base<Sig> >
   {
     call_matcher_base() = default;
-
-    call_matcher_base(call_matcher_base *list)
-      : list_elem<call_matcher_base>(list)
-    {
-    }
-
     virtual
     ~call_matcher_base() = default;
 
@@ -787,72 +944,10 @@ namespace trompeloeil
   };
 
   template<typename Sig>
-  struct call_matcher_list : public call_matcher_base<Sig>
+  struct call_matcher_list : public lista<call_matcher_base<Sig>>
   {
     template<typename ... U>
     call_matcher_list &operator()(U const &...) { return *this; }
-
-    virtual
-    bool
-    matches(call_params_type_t<Sig> const &)
-    const override
-    {
-      return false;
-    }
-
-    virtual
-    bool
-    first_in_sequence()
-    const noexcept override
-    {
-      return false;
-    }
-
-    virtual
-    void
-    log_call(tracer*, call_params_type_t<Sig>&)
-    const override
-    {}
-
-    virtual
-    void
-    run_actions(
-      call_params_type_t<Sig> &,
-      call_matcher_list<Sig> &)
-    override
-    {}
-
-    virtual
-    std::ostream&
-    report_signature(std::ostream& r )
-    const  override
-    {
-      return r;
-    }
-
-    virtual
-    std::ostream&
-    report_mismatch(
-      std::ostream& r,
-      call_params_type_t<Sig> const &)
-    override
-    {
-      return r;
-    }
-
-    virtual
-    return_of_t<Sig>
-    return_value(call_params_type_t<Sig> &p)
-    override
-    {
-      return default_return<Sig>(p);
-    }
-
-    virtual
-    void
-    report_missed()
-    override
-    {}
   };
 
   template <typename Sig>
@@ -861,19 +956,16 @@ namespace trompeloeil
        call_matcher_list<Sig>        &list)
   noexcept
   {
-    for (auto i = list.prev(); i != &list; i = i->prev())
     {
-      if (i->matches(p) && i->first_in_sequence())
-      {
-        return i;
-      }
+      auto i = std::find_if(list.begin(), list.end(),
+                            [&](auto& m)
+                            { return m.matches(p) && m.first_in_sequence(); });
+      if (i != list.end()) return &*i;
     }
-    for (auto i = list.prev(); i != &list; i = i->prev())
     {
-      if (i->matches(p))
-      {
-        return i;
-      }
+      auto i = std::find_if(list.begin(), list.end(),
+                            [&](auto& m) { return m.matches(p); });
+      if (i != list.end()) return &*i;
     }
     return nullptr;
   }
@@ -888,9 +980,9 @@ namespace trompeloeil
     std::ostringstream os;
     os << "No match for call of " << name << " with.\n" << missed_values(p);
     bool saturated_match = false;
-    for (auto i = saturated_list.next(); i != &saturated_list; i = i->next())
+    for (auto& m : saturated_list)
     {
-      if (i->matches(p))
+      if (m.matches(p))
       {
         if (!saturated_match)
         {
@@ -898,44 +990,30 @@ namespace trompeloeil
           saturated_match = true;
         }
         os << "  ";
-        i->report_signature(os) << '\n';
+        m.report_signature(os) << '\n';
       }
     }
     if (!saturated_match)
     {
-      for (auto i = matcher_list.prev(); i != &matcher_list; i = i->prev())
+      for (auto& m : matcher_list)
       {
         os << "\nTried ";
-        i->report_mismatch(os, p);
+        m.report_mismatch(os, p);
       }
     }
     trompeloeil::send_report(severity::fatal, "", os.str());
   }
 
   template<typename Sig>
-  struct condition_base : public list_elem<condition_base<Sig> >
+  struct condition_base : public lista_elem<condition_base<Sig> >
   {
     virtual ~condition_base() = default;
     virtual bool check(call_params_type_t<Sig> const&) const = 0;
     virtual char const* name() const noexcept = 0;
   };
 
-  template<typename Sig>
-  struct condition_list : public condition_base<Sig>
-  {
-    ~condition_list()
-    {
-      while (!this->is_empty())
-      {
-        delete this->next();
-      }
-    }
-    bool check(call_params_type_t<Sig> const &) const override
-    {
-      return false;
-    }
-    char const *name() const noexcept override { return nullptr; }
-  };
+  template <typename Sig>
+  using condition_list = lista<condition_base<Sig>, delete_disposer >;
 
   template<typename Sig, typename Cond>
   struct condition : public condition_base<Sig>
@@ -955,24 +1033,14 @@ namespace trompeloeil
 
 
   template<typename Sig>
-  struct side_effect_base : public list_elem<side_effect_base<Sig> >
+  struct side_effect_base : public lista_elem<side_effect_base<Sig> >
   {
     virtual ~side_effect_base() = default;
-    virtual void action(call_params_type_t<Sig> &) = 0;
+    virtual void action(call_params_type_t<Sig> &) const = 0;
   };
 
   template<typename Sig>
-  struct side_effect_list : public side_effect_base<Sig>
-  {
-    ~side_effect_list()
-    {
-      while (!this->is_empty())
-      {
-        delete this->next();
-      }
-    }
-    void action(call_params_type_t<Sig> &) {}
-  };
+  using side_effect_list = lista<side_effect_base<Sig>, delete_disposer>;
 
   template<typename Sig, typename Action>
   struct side_effect : public side_effect_base<Sig>
@@ -980,7 +1048,7 @@ namespace trompeloeil
     template <typename A>
     side_effect(A&& a_) : a(std::forward<A>(a_)) {}
 
-    void action(call_params_type_t<Sig> &t) { a(t); }
+    void action(call_params_type_t<Sig> &t) const { a(t); }
   private:
     Action a;
   };
@@ -1245,7 +1313,7 @@ namespace trompeloeil
 
     ~call_matcher()
     {
-      if (!reported && !this->is_empty() && call_count < min_calls)
+      if (!reported && this->is_linked() && call_count < min_calls)
       {
         report_missed();
       }
@@ -1253,7 +1321,7 @@ namespace trompeloeil
 
     call_matcher& hook_last(call_matcher_list<Sig> &list) noexcept
     {
-      list.link_before(*this);
+      list.push_front(this);
       return *this;
     }
 
@@ -1268,11 +1336,8 @@ namespace trompeloeil
     match_conditions(call_params_type_t<Sig> const & params)
     const
     {
-      for (auto c = conditions.next(); c != &conditions; c = c->next())
-      {
-        if (!c->check(params)) return false;
-      }
-      return true;
+      return std::all_of(conditions.begin(), conditions.end(),
+                         [&](auto& c) { return c.check(params); });
     }
 
     bool
@@ -1323,12 +1388,9 @@ namespace trompeloeil
       if (call_count == max_calls)
       {
         this->unlink();
-        saturated_list.link_before(*this);
+        saturated_list.push_back(this);
       }
-      for (auto a = actions.next(); a != &actions; a = a->next())
-      {
-        a->action(params);
-      }
+      for (auto& a : actions) a.action(params);
     }
 
     std::ostream&
@@ -1348,11 +1410,11 @@ namespace trompeloeil
       report_signature(os);
       if (val == params)
       {
-        for (auto i = conditions.next(); i != &conditions; i = i->next())
+        for (auto& cond : conditions)
         {
-          if (!i->check(params))
+          if (!cond.check(params))
           {
-            os << "\n  Failed WITH(" << i->name() << ')';
+            os << "\n  Failed WITH(" << cond.name() << ')';
           }
         }
       }
@@ -1397,14 +1459,14 @@ namespace trompeloeil
     add_condition(char const *str, C&& c)
     {
       auto cond = new condition<Sig, C>(str, std::forward<C>(c));
-      conditions.link_before(*cond);
+      conditions.push_back(cond);
     }
     template <typename S>
     void
     add_side_effect(S&& s)
     {
       auto effect = new side_effect<Sig, S>(std::forward<S>(s));
-      actions.link_before(*effect);
+      actions.push_back(effect);
     }
 
     template <typename ... T>
