@@ -332,15 +332,15 @@ namespace trompeloeil
   }
 
   template <typename T, typename Deleter>
-  class lista;
+  class list;
 
   template <typename T>
-  class lista_elem
+  class list_elem
   {
   public:
-    lista_elem(const lista_elem&) = delete;
-    lista_elem& operator=(const lista_elem&) = delete;
-    lista_elem(lista_elem &&r) noexcept : next(r.next), prev(&r)
+    list_elem(const list_elem&) = delete;
+    list_elem& operator=(const list_elem&) = delete;
+    list_elem(list_elem &&r) noexcept : next(r.next), prev(&r)
     {
       r.invariant_check();
 
@@ -355,7 +355,7 @@ namespace trompeloeil
       assert(!r.is_linked());
       invariant_check();
     }
-    ~lista_elem() { unlink(); }
+    ~list_elem() { unlink(); }
     void unlink() noexcept
     {
       invariant_check();
@@ -394,10 +394,10 @@ namespace trompeloeil
       return next != this;
     }
   protected:
-    lista_elem() noexcept = default;
+    list_elem() noexcept = default;
   public:
-    lista_elem* next = this;
-    lista_elem* prev = this;
+    list_elem* next = this;
+    list_elem* prev = this;
   };
 
   class ignore_disposer
@@ -414,10 +414,10 @@ namespace trompeloeil
     void dispose(T* t) const { delete t; }
   };
   template <typename T, typename Disposer = ignore_disposer>
-  class lista : private lista_elem<T>, private Disposer
+  class list : private list_elem<T>, private Disposer
   {
   public:
-    ~lista();
+    ~list();
     class iterator;
     iterator begin() const noexcept;
     iterator end() const noexcept;
@@ -426,16 +426,16 @@ namespace trompeloeil
     void erase(iterator i) noexcept;
     auto empty() const noexcept { return begin() == end(); };
   private:
-    using lista_elem<T>::invariant_check;
-    using lista_elem<T>::next;
-    using lista_elem<T>::prev;
+    using list_elem<T>::invariant_check;
+    using list_elem<T>::next;
+    using list_elem<T>::prev;
   };
 
   template <typename T, typename Disposer>
-  class lista<T, Disposer>::iterator
+  class list<T, Disposer>::iterator
     : public std::iterator<std::bidirectional_iterator_tag, T>
   {
-    friend class lista<T, Disposer>;
+    friend class list<T, Disposer>;
   public:
     iterator() noexcept = default;
     bool operator==(const iterator& rh) const noexcept { return p == rh.p; }
@@ -460,12 +460,12 @@ namespace trompeloeil
       return static_cast<T*>(p);
     }
   private:
-    iterator(const lista_elem<T>* t) noexcept : p{const_cast<lista_elem<T>*>(t)} {}
-    lista_elem<T>* p;
+    iterator(const list_elem<T>* t) noexcept : p{const_cast<list_elem<T>*>(t)} {}
+    list_elem<T>* p;
   };
 
   template <typename T, typename Disposer>
-  lista<T, Disposer>::~lista()
+  list<T, Disposer>::~list()
   {
     auto i = this->begin();
     while (i != this->end())
@@ -475,19 +475,19 @@ namespace trompeloeil
     }
   }
   template <typename T, typename Disposer>
-  auto lista<T, Disposer>::begin() const noexcept -> iterator
+  auto list<T, Disposer>::begin() const noexcept -> iterator
   {
     return {next};
   }
 
   template <typename T, typename Disposer>
-  auto lista<T, Disposer>::end() const noexcept -> iterator
+  auto list<T, Disposer>::end() const noexcept -> iterator
   {
     return {this};
   }
 
   template <typename T, typename Disposer>
-  auto lista<T, Disposer>::push_front(T* t) noexcept -> iterator
+  auto list<T, Disposer>::push_front(T* t) noexcept -> iterator
   {
     invariant_check();
     t->next = next;
@@ -499,7 +499,7 @@ namespace trompeloeil
   }
 
   template <typename T, typename Disposer>
-  auto lista<T, Disposer>::push_back(T* t) noexcept -> iterator
+  auto list<T, Disposer>::push_back(T* t) noexcept -> iterator
   {
     invariant_check();
     t->prev = prev;
@@ -511,7 +511,7 @@ namespace trompeloeil
   }
 
   template <typename T, typename Disposer>
-  void lista<T, Disposer>::erase(iterator i) noexcept
+  void list<T, Disposer>::erase(iterator i) noexcept
   {
     i->unlink();
   }
@@ -537,10 +537,10 @@ namespace trompeloeil
     const;
 
   private:
-    lista<sequence_matcher> matchers;
+    list<sequence_matcher> matchers;
   };
 
-  struct sequence_matcher : lista_elem<sequence_matcher>
+  struct sequence_matcher : list_elem<sequence_matcher>
   {
     sequence_matcher(
       char const* name_,
@@ -782,7 +782,7 @@ namespace trompeloeil
   struct call_matcher_list;
 
   template<typename Sig>
-  struct call_matcher_base : public lista_elem<call_matcher_base<Sig> >
+  struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
   {
     call_matcher_base() = default;
     virtual
@@ -884,7 +884,7 @@ namespace trompeloeil
   };
 
   template<typename Sig>
-  struct call_matcher_list : public lista<call_matcher_base<Sig>>
+  struct call_matcher_list : public list<call_matcher_base<Sig>>
   {
     template<typename ... U>
     call_matcher_list &operator()(U const &...) { return *this; }
@@ -945,7 +945,7 @@ namespace trompeloeil
   }
 
   template<typename Sig>
-  struct condition_base : public lista_elem<condition_base<Sig> >
+  struct condition_base : public list_elem<condition_base<Sig> >
   {
     virtual ~condition_base() = default;
     virtual bool check(call_params_type_t<Sig> const&) const = 0;
@@ -953,7 +953,7 @@ namespace trompeloeil
   };
 
   template <typename Sig>
-  using condition_list = lista<condition_base<Sig>, delete_disposer >;
+  using condition_list = list<condition_base<Sig>, delete_disposer >;
 
   template<typename Sig, typename Cond>
   struct condition : public condition_base<Sig>
@@ -973,14 +973,14 @@ namespace trompeloeil
 
 
   template<typename Sig>
-  struct side_effect_base : public lista_elem<side_effect_base<Sig> >
+  struct side_effect_base : public list_elem<side_effect_base<Sig> >
   {
     virtual ~side_effect_base() = default;
     virtual void action(call_params_type_t<Sig> &) const = 0;
   };
 
   template<typename Sig>
-  using side_effect_list = lista<side_effect_base<Sig>, delete_disposer>;
+  using side_effect_list = list<side_effect_base<Sig>, delete_disposer>;
 
   template<typename Sig, typename Action>
   struct side_effect : public side_effect_base<Sig>
