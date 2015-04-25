@@ -988,91 +988,6 @@ namespace trompeloeil
   template <typename Sig>
   using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
 
-  template <typename T, std::size_t N, size_t M>
-  struct sequence_validator_t;
-
-  template <typename ... T, size_t N, size_t M>
-  struct sequence_validator_t<std::tuple<T...>, N, M>
-  {
-    using next = sequence_validator_t<std::tuple<T...>, N + 1, M>;
-
-    static
-    void
-    set_expectation(
-      char const *exp_name,
-      char const *exp_loc,
-      std::tuple<T...>& t)
-    noexcept
-    {
-      std::get<N>(t).set_expectation(exp_name, exp_loc);
-      next::set_expectation(exp_name, exp_loc, t);
-    }
-
-    static
-    void
-    validate(
-      char const*match_name,
-      char const *loc,
-      std::tuple<T...> const& t)
-    {
-      std::get<N>(t).check_match(match_name, loc);
-      next::validate(match_name, loc, t);
-    }
-
-    static
-    bool
-    is_first(std::tuple<T...> const & t)
-    noexcept
-    {
-      return std::get<N>(t).is_first() && next::is_first(t);
-    }
-
-    static
-    void
-    retire(std::tuple<T...>& t)
-    noexcept
-    {
-      std::get<N>(t).retire();
-      next::retire(t);
-    }
-  };
-
-  template <typename ... T, size_t N>
-  struct sequence_validator_t<std::tuple<T...>, N, N>
-  {
-    static
-    void
-    set_expectation(char const*, char const*, std::tuple<T...>&)
-    noexcept
-    {}
-
-    static
-    void
-    validate(char const*, char const*, std::tuple<T...> const& )
-    {}
-
-    static
-    bool
-    is_first(std::tuple<T...> const &)
-    noexcept
-    {
-      return true;
-    }
-
-    static
-    void
-    retire(std::tuple<T...>& )
-    noexcept
-    { }
-  };
-
-
-  template <typename T>
-  struct sequence_validator
-    : sequence_validator_t<T, 0, std::tuple_size<T>::value>
-  {
-  };
-
   struct sequence_handler_base
   {
     virtual ~sequence_handler_base() noexcept = default;
@@ -1082,35 +997,40 @@ namespace trompeloeil
     virtual void retire() noexcept = 0;
   };
 
-  template <typename T>
-  struct sequence_handler;
-
   template <typename ... Seq>
-  struct sequence_handler<std::tuple<Seq...> > : public sequence_handler_base
+  struct sequence_handler : public sequence_handler_base
   {
-    using seq_tuple = std::tuple<Seq...>;
-    using validator = sequence_validator<seq_tuple>;
-
-    sequence_handler(seq_tuple&& t) : sequences(std::move(t)) {}
+  public:
+    template <typename ... S>
+    sequence_handler(S&& ... s) : matchers{std::forward<S>(s)...} {}
     void set_expectation(char const *exp_name, char const *exp_loc) noexcept
     {
-      validator::set_expectation(exp_name, exp_loc, sequences);
+      for (auto& e : matchers)
+      {
+        e.set_expectation(exp_name, exp_loc);
+      }
     }
-    void validate(char const* match_name, char const *loc)
+    void validate(char const *match_name, char const *loc)
     {
-      validator::validate(match_name, loc, sequences);
+      for (auto& e : matchers)
+      {
+        e.check_match(match_name, loc);
+      }
     }
     bool is_first() const noexcept
     {
-      return validator::is_first(sequences);
+      return std::all_of(std::begin(matchers), std::end(matchers),
+                         [](auto& e) { return e.is_first(); });
     }
-
     void retire() noexcept
     {
-      validator::retire(sequences);
+      for (auto& e : matchers)
+      {
+        e.retire();
+      }
     }
   private:
-    seq_tuple sequences;
+    sequence_matcher matchers[sizeof...(Seq)];
   };
 
   template<typename R, typename Parent>
@@ -1491,8 +1411,7 @@ namespace trompeloeil
     void
     set_sequence(T&& ... t)
     {
-      std::tuple<T...> tup(std::forward<T>(t)...);
-      auto seq = new sequence_handler<std::tuple<T...>>(std::move(tup));
+      auto seq = new sequence_handler<T...>(std::forward<T>(t)...);
       seq->set_expectation(name, location);
       sequences.reset(seq);
     }
