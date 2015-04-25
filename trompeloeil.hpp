@@ -404,7 +404,7 @@ namespace trompeloeil
   {
   protected:
     template <typename T>
-    void dispose(T*) const {}
+    void dispose(T*) const noexcept {}
   };
 
   class delete_disposer
@@ -413,6 +413,7 @@ namespace trompeloeil
     template <typename T>
     void dispose(T* t) const { delete t; }
   };
+
   template <typename T, typename Disposer = ignore_disposer>
   class list : private list_elem<T>, private Disposer
   {
@@ -423,7 +424,6 @@ namespace trompeloeil
     iterator end() const noexcept;
     iterator push_front(T* t) noexcept;
     iterator push_back(T* t) noexcept;
-    void erase(iterator i) noexcept;
     auto empty() const noexcept { return begin() == end(); };
   private:
     using list_elem<T>::invariant_check;
@@ -438,13 +438,23 @@ namespace trompeloeil
     friend class list<T, Disposer>;
   public:
     iterator() noexcept = default;
-    bool operator==(const iterator& rh) const noexcept { return p == rh.p; }
-    bool operator!=(const iterator& rh) const noexcept { return !(*this == rh); }
+    friend
+    bool operator==(iterator const &lh, iterator const &rh) noexcept
+    {
+      return lh.p == rh.p;
+    }
+    friend
+    bool operator!=(iterator const &lh, iterator const &rh) noexcept
+    {
+      return !(lh == rh);
+    }
+
     iterator& operator++() noexcept
     {
       p = p->next;
       return *this;
     }
+
     iterator operator++(int) noexcept
     {
       auto rv = *this;
@@ -455,12 +465,11 @@ namespace trompeloeil
     {
       return static_cast<T&>(*p);
     }
-    T* operator->() noexcept
-    {
-      return static_cast<T*>(p);
-    }
   private:
-    iterator(const list_elem<T>* t) noexcept : p{const_cast<list_elem<T>*>(t)} {}
+    iterator(list_elem<T> const *t) noexcept
+    : p{const_cast<list_elem<T>*>(t)}
+    {}
+
     list_elem<T>* p;
   };
 
@@ -510,27 +519,22 @@ namespace trompeloeil
     return {t};
   }
 
-  template <typename T, typename Disposer>
-  void list<T, Disposer>::erase(iterator i) noexcept
-  {
-    i->unlink();
-  }
-
   class sequence_matcher;
 
   class sequence
   {
   public:
     sequence() noexcept = default;
-    sequence(sequence&&) = default;
-    virtual ~sequence() = default;
+    sequence(sequence&&) = delete;
+    ~sequence() = default;
     bool is_first(sequence_matcher const *m) const noexcept
     {
       return !matchers.empty() && &*matchers.begin() == m;
     }
     void add_last(sequence_matcher *m) noexcept;
 
-    void check_match(
+    void validate_match(
+      sequence_matcher const *matcher,
       char const *seq_name,
       char const* match_name,
       char const* loc)
@@ -551,20 +555,22 @@ namespace trompeloeil
     {
       s.add_last(this);
     }
-
     void
-    set_expectation(char const *name, char const *loc)
+    set_expectation(
+      char const *name,
+      char const *loc)
     noexcept
     {
       exp_name = name;
       exp_loc = loc;
     }
-
     void
-    check_match(char const *match_name, char const* loc)
+    validate_match(
+      char const *match_name,
+      char const* loc)
     const
     {
-      seq.check_match(seq_name, match_name, loc);
+      seq.validate_match(this, seq_name, match_name, loc);
     }
     bool
     is_first()
@@ -572,14 +578,15 @@ namespace trompeloeil
     {
       return seq.is_first(this);
     }
-
     void
     retire()
     noexcept
     {
       this->unlink();
     }
-    void print_expectation(std::ostream& os) const
+    void
+    print_expectation(std::ostream& os)
+    const
     {
       os << exp_name << " at " << exp_loc;
     }
@@ -592,12 +599,14 @@ namespace trompeloeil
 
   inline
   void
-  sequence::check_match(
+  sequence::validate_match(
+    sequence_matcher const *matcher,
     char const* seq_name,
     char const* match_name,
     char const* loc)
   const
   {
+    if (is_first(matcher)) return;
     for (auto& m : matchers)
     {
       std::ostringstream os;
@@ -999,7 +1008,6 @@ namespace trompeloeil
   struct sequence_handler_base
   {
     virtual ~sequence_handler_base() noexcept = default;
-    virtual void set_expectation(char const *, char const*) noexcept = 0;
     virtual void validate(char const*, char const*) = 0;
     virtual bool is_first() const noexcept = 0;
     virtual void retire() noexcept = 0;
@@ -1010,20 +1018,19 @@ namespace trompeloeil
   {
   public:
     template <typename ... S>
-    sequence_handler(S&& ... s) : matchers{std::forward<S>(s)...} {}
-    void set_expectation(char const *exp_name, char const *exp_loc) noexcept
+    sequence_handler(
+      char const *name,
+      char const *loc,
+      S&& ... s)
+    : matchers{std::forward<S>(s)...}
     {
-      for (auto& e : matchers)
-      {
-        e.set_expectation(exp_name, exp_loc);
-      }
+      for (auto& m : matchers) m.set_expectation(name, loc);
     }
     void validate(char const *match_name, char const *loc)
     {
-      if (is_first()) return;
       for (auto& e : matchers)
       {
-        e.check_match(match_name, loc);
+        e.validate_match(match_name, loc);
       }
     }
     bool is_first() const noexcept
@@ -1414,8 +1421,7 @@ namespace trompeloeil
     void
     set_sequence(T&& ... t)
     {
-      auto seq = new sequence_handler<T...>(std::forward<T>(t)...);
-      seq->set_expectation(name, location);
+      auto seq = new sequence_handler<T...>(name, location, std::forward<T>(t)...);
       sequences.reset(seq);
     }
 
