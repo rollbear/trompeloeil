@@ -352,7 +352,7 @@ namespace trompeloeil
 
       r.unlink();
 
-      assert(r.is_empty());
+      assert(!r.is_linked());
       invariant_check();
     }
     ~lista_elem() { unlink(); }
@@ -516,114 +516,31 @@ namespace trompeloeil
     i->unlink();
   }
 
-  template<typename T>
-  struct list_elem
+  class sequence_matcher;
+
+  class sequence
   {
-    list_elem(T *list) noexcept : n(list), p(list->p)
-    {
-      list->invariant_check();
-
-      p->n = n->p = this;
-
-      invariant_check();
-      list->invariant_check();
-    }
-
-    list_elem() noexcept : n(this), p(this) { invariant_check(); }
-
-    list_elem(list_elem const&) = delete;
-
-    list_elem(list_elem &&r) noexcept : n(r.n), p(&r)
-    {
-      r.invariant_check();
-
-      n->p = this;
-      r.n = this;
-
-      assert(n->p == this);
-      assert(p->n == this);
-
-      r.unlink();
-
-      assert(r.is_empty());
-      invariant_check();
-    }
-
-    ~list_elem()
-    {
-      unlink();
-    }
-
-    void invariant_check() const noexcept
-    {
-      assert(n->p == this);
-      assert(p->n == this);
-      assert((n == this) == (p == this));
-      assert((p->n == n) == (n == this));
-      assert((n->p == p) == (p == this));
-      auto pp = p;
-      auto nn = n;
-      do {
-        assert((nn == this) == (pp == this));
-        assert(nn->n->p == nn);
-        assert(nn->p->n == nn);
-        assert(pp->n->p == pp);
-        assert(pp->p->n == pp);
-        assert((nn->n == nn) == (nn == this));
-        assert((pp->p == pp) == (pp == this));
-        nn = nn->n;
-        pp = pp->p;
-      } while (nn != this);
-    }
-    list_elem &operator=(list_elem const &) = delete;
-    list_elem &operator=(list_elem&&) = delete;
-
-    bool is_empty() const noexcept
-    {
-      invariant_check();
-      return n == this;
-    }
-
-    T       *next()       noexcept { return static_cast<T       *>(n); }
-
-    void unlink() noexcept
-    {
-      invariant_check();
-      auto pp = p;
-      auto nn = n;
-      nn->p = pp;
-      pp->n = nn;
-      n = p = this;
-      invariant_check();
-    }
-
-  private:
-    list_elem *n;
-    list_elem *p;
-  };
-
-  struct sequence : public list_elem<sequence>
-  {
+  public:
     sequence() noexcept = default;
     sequence(sequence&&) = default;
     virtual ~sequence() = default;
-    virtual void print_expectation(std::ostream&) const {}
-  protected:
-    sequence(sequence* obj) noexcept : list_elem(obj) {}
-  };
-
-  struct sequence_elem : public sequence
-  {
-    sequence_elem(sequence& r) noexcept : sequence(&r) {}
-    void print_expectation(std::ostream& os) const override
+    bool is_first(sequence_matcher const *m) const noexcept
     {
-      os << exp_name << " at " << exp_loc;
+      return !matchers.empty() && &*matchers.begin() == m;
     }
-    char const *exp_name;
-    char const *exp_loc;
+    void add_last(sequence_matcher *m) noexcept;
+
+    void check_match(
+      char const *seq_name,
+      char const* match_name,
+      char const* loc)
+    const;
+
+  private:
+    lista<sequence_matcher> matchers;
   };
 
-  struct sequence_matcher
+  struct sequence_matcher : lista_elem<sequence_matcher>
   {
     sequence_matcher(
       char const* name_,
@@ -631,53 +548,76 @@ namespace trompeloeil
     noexcept
     : seq_name(name_)
     , seq(s)
-    , seq_elem(s)
-    {}
+    {
+      s.add_last(this);
+    }
 
     void
     set_expectation(char const *name, char const *loc)
     noexcept
     {
-      seq_elem.exp_name = name;
-      seq_elem.exp_loc = loc;
+      exp_name = name;
+      exp_loc = loc;
     }
 
     void
     check_match(char const *match_name, char const* loc)
     const
     {
-      auto next_seq = seq.next();
-      if (next_seq != &seq_elem)
-      {
-        auto ns = static_cast<sequence_elem*>(next_seq);
-        std::ostringstream os;
-        os << "Sequence mismatch for sequence \"" << seq_name
-           << "\" with matching call of " << match_name << " at " << loc
-           << ". Sequence \"" << seq_name << "\" has ";
-        ns->print_expectation(os);
-        os << " first in line\n";
-        send_report(severity::fatal, loc, os.str());
-      }
+      seq.check_match(seq_name, match_name, loc);
     }
     bool
     is_first()
     const noexcept
     {
-      auto next_seq = seq.next();
-      return next_seq == &seq_elem;
+      return seq.is_first(this);
     }
 
     void
     retire()
     noexcept
     {
-      seq_elem.unlink();
+      this->unlink();
+    }
+    void print_expectation(std::ostream& os) const
+    {
+      os << exp_name << " at " << exp_loc;
     }
   private:
     char const    *seq_name;
+    char const    *exp_name = nullptr;
+    char const    *exp_loc = nullptr;
     sequence&      seq;
-    sequence_elem  seq_elem;
   };
+
+  inline
+  void
+  sequence::check_match(
+    char const* seq_name,
+    char const* match_name,
+    char const* loc)
+  const
+  {
+    for (auto& m : matchers)
+    {
+      std::ostringstream os;
+      os << "Sequence mismatch for sequence \"" << seq_name
+         << "\" with matching call of " << match_name << " at " << loc
+         << ". Sequence \"" << seq_name << "\" has ";
+      m.print_expectation(os);
+      os << " first in line\n";
+      send_report(severity::fatal, loc, os.str());
+    }
+  }
+
+  inline
+  void
+  sequence::add_last(
+    sequence_matcher *m)
+  noexcept
+  {
+    matchers.push_back(m);
+  }
 
   struct wildcard
   {
@@ -1080,6 +1020,7 @@ namespace trompeloeil
     }
     void validate(char const *match_name, char const *loc)
     {
+      if (is_first()) return;
       for (auto& e : matchers)
       {
         e.check_match(match_name, loc);
