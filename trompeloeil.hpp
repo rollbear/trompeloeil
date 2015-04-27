@@ -788,12 +788,16 @@ namespace trompeloeil
 
 
   template<typename Sig>
-  struct call_matcher_list;
+  struct call_matcher_base;
+
+  template<typename Sig>
+  using call_matcher_list = list<call_matcher_base<Sig>>;
 
   template<typename Sig>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
   {
     call_matcher_base() = default;
+    call_matcher_base(call_matcher_base&&) = delete;
     virtual
     ~call_matcher_base() = default;
 
@@ -885,19 +889,6 @@ namespace trompeloeil
     return os.str();
   }
 
-  template <typename T, typename ... A>
-  struct all_are
-    : std::is_same<std::tuple<A...>,
-                   std::tuple<typename std::conditional<true, T, A>::type...>>
-  {
-  };
-
-  template<typename Sig>
-  struct call_matcher_list : public list<call_matcher_base<Sig>>
-  {
-    template<typename ... U>
-    call_matcher_list &operator()(U const &...) { return *this; }
-  };
 
   template <typename Sig>
   call_matcher_base<Sig>*
@@ -1178,9 +1169,7 @@ namespace trompeloeil
 
     template <typename ... T,
               bool b = sequence_set>
-    typename std::enable_if<all_are<sequence_matcher, T...>::value,
-                            call_modifier<Matcher, sequence_injector<Parent> >
-                            >::type
+    call_modifier<Matcher, sequence_injector<Parent> >
     in_sequence(T&& ... t)
     {
       static_assert(!b,
