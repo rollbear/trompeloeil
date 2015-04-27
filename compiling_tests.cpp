@@ -10,7 +10,7 @@
  *
  * Project home: https://github.com/rollbear/trompeloeil
  */
-
+#define TROMPELOEIL_SANITY_CHECKS
 #include "trompeloeil.hpp"
 #include <crpcut.hpp>
 

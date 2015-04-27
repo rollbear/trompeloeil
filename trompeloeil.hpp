@@ -36,8 +36,15 @@
 #include <functional>
 #include <memory>
 #include <cstring>
-#include <cassert>
 #include <algorithm>
+
+
+#ifdef TROMPELOEIL_SANITY_CHECKS
+#include <cassert>
+#define TROMPELOEIL_ASSERT(x) assert(x)
+#else
+#define TROMPELOEIL_ASSERT(x) do {} while (false)
+#endif
 
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
@@ -347,12 +354,12 @@ namespace trompeloeil
       next->prev = this;
       r.next = this;
 
-      assert(next->prev == this);
-      assert(prev->next == this);
+      TROMPELOEIL_ASSERT(next->prev == this);
+      TROMPELOEIL_ASSERT(prev->next == this);
 
       r.unlink();
 
-      assert(!r.is_linked());
+      TROMPELOEIL_ASSERT(!r.is_linked());
       invariant_check();
     }
     ~list_elem() { unlink(); }
@@ -369,24 +376,26 @@ namespace trompeloeil
     };
     void invariant_check() const noexcept
     {
-      assert(next->prev == this);
-      assert(prev->next == this);
-      assert((next == this) == (prev == this));
-      assert((prev->next == next) == (next == this));
-      assert((next->prev == prev) == (prev == this));
+#ifdef TROMPELOEIL_SANITY_CHECKS
+      TROMPELOEIL_ASSERT(next->prev == this);
+      TROMPELOEIL_ASSERT(prev->next == this);
+      TROMPELOEIL_ASSERT((next == this) == (prev == this));
+      TROMPELOEIL_ASSERT((prev->next == next) == (next == this));
+      TROMPELOEIL_ASSERT((next->prev == prev) == (prev == this));
       auto pp = prev;
       auto nn = next;
       do {
-        assert((nn == this) == (pp == this));
-        assert(nn->next->prev == nn);
-        assert(nn->prev->next == nn);
-        assert(pp->next->prev == pp);
-        assert(pp->prev->next == pp);
-        assert((nn->next == nn) == (nn == this));
-        assert((pp->prev == pp) == (pp == this));
+        TROMPELOEIL_ASSERT((nn == this) == (pp == this));
+        TROMPELOEIL_ASSERT(nn->next->prev == nn);
+        TROMPELOEIL_ASSERT(nn->prev->next == nn);
+        TROMPELOEIL_ASSERT(pp->next->prev == pp);
+        TROMPELOEIL_ASSERT(pp->prev->next == pp);
+        TROMPELOEIL_ASSERT((nn->next == nn) == (nn == this));
+        TROMPELOEIL_ASSERT((pp->prev == pp) == (pp == this));
         nn = nn->next;
         pp = pp->prev;
       } while (nn != this);
+#endif
     }
     bool is_linked() const noexcept
     {
