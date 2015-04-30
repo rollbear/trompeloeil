@@ -710,6 +710,7 @@ namespace trompeloeil
       , object_name(obj_name)
     {
     }
+    lifetime_monitor(const lifetime_monitor&) = delete;
     ~lifetime_monitor() noexcept(false)
     {
       if (!died)
