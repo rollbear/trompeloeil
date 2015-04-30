@@ -833,10 +833,7 @@ namespace trompeloeil
 
     virtual
     return_of_t<Sig>
-    return_value(call_params_type_t<Sig>& p)
-    {
-      return default_return<Sig>(p);
-    }
+    return_value(call_params_type_t<Sig>& p) = 0;
 
     virtual
     void
@@ -951,6 +948,26 @@ namespace trompeloeil
     trompeloeil::send_report(severity::fatal, "", os.str());
   }
 
+  template <typename Sig>
+  class return_handler
+  {
+  public:
+    virtual ~return_handler() = default;
+    virtual return_of_t<Sig> call(call_params_type_t<Sig>& params) = 0;
+  };
+
+  template <typename Sig, typename T>
+  class return_handler_t : public return_handler<Sig>
+  {
+  public:
+    return_handler_t(T&& t) : func(std::move(t)) {}
+    return_of_t<Sig> call(call_params_type_t<Sig>& params) override
+    {
+      return func(params);
+    }
+  private:
+    T func;
+  };
   template<typename Sig>
   struct condition_base : public list_elem<condition_base<Sig> >
   {
@@ -1308,7 +1325,8 @@ namespace trompeloeil
     return_value(call_params_type_t<Sig>& params)
     override
     {
-      return return_handler(params);
+      if (!return_handler_obj) return default_return<Sig>(params);
+      return return_handler_obj->call(params);
     }
 
     void
@@ -1433,16 +1451,19 @@ namespace trompeloeil
       sequences.reset(seq);
     }
 
+    template <typename T>
     inline
     void
-    set_return(std::function<return_handler_sig<Sig> >&& h)
+    set_return(T&& h)
     {
-      return_handler = std::move(h);
+      using basic_t = typename std::remove_reference<T>::type;
+      using handler = return_handler_t<Sig, basic_t>;
+      return_handler_obj.reset(new handler(std::forward<T>(h)));
     }
 
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
-    std::function<return_handler_sig<Sig>> return_handler = default_return<Sig>;
+    std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
     char const                            *location;
     char const                            *name;
