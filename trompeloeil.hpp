@@ -555,23 +555,18 @@ namespace trompeloeil
 
   struct sequence_matcher : list_elem<sequence_matcher>
   {
+    using init_type = std::pair<const char*, sequence&>;
     sequence_matcher(
-      char const* name_,
-      sequence& s)
+      char const *exp,
+      char const *loc,
+      init_type i)
     noexcept
-    : seq_name(name_)
-    , seq(s)
+    : seq_name(i.first)
+    , exp_name(exp)
+    , exp_loc(loc)
+    , seq(i.second)
     {
-      s.add_last(this);
-    }
-    void
-    set_expectation(
-      char const *name,
-      char const *loc)
-    noexcept
-    {
-      exp_name = name;
-      exp_loc = loc;
+      seq.add_last(this);
     }
     void
     validate_match(
@@ -1013,7 +1008,7 @@ namespace trompeloeil
     virtual void retire() noexcept = 0;
   };
 
-  template <typename ... Seq>
+  template <size_t N>
   struct sequence_handler : public sequence_handler_base
   {
   public:
@@ -1022,9 +1017,9 @@ namespace trompeloeil
       char const *name,
       char const *loc,
       S&& ... s)
-    : matchers{std::forward<S>(s)...}
+    noexcept
+      : matchers{{name, loc, std::forward<S>(s)}...}
     {
-      for (auto& m : matchers) m.set_expectation(name, loc);
     }
     void validate(char const *match_name, char const *loc)
     {
@@ -1046,7 +1041,7 @@ namespace trompeloeil
       }
     }
   private:
-    sequence_matcher matchers[sizeof...(Seq)];
+    sequence_matcher matchers[N];
   };
 
   template<typename R, typename Parent>
@@ -1419,7 +1414,7 @@ namespace trompeloeil
     void
     set_sequence(T&& ... t)
     {
-      auto seq = new sequence_handler<T...>(name, location, std::forward<T>(t)...);
+      auto seq = new sequence_handler<sizeof...(T)>(name, location, std::forward<T>(t)...);
       sequences.reset(seq);
     }
 
@@ -1805,7 +1800,7 @@ namespace trompeloeil
 #define TROMPELOEIL_TIMES(...) times<__VA_ARGS__>()
 
 #define TROMPELOEIL_IN_SEQUENCE(...) \
-  in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher, __VA_ARGS__))
+  in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))
 
 #define TROMPELOEIL_ANY(type) ::trompeloeil::typed_wildcard<type>()
 
