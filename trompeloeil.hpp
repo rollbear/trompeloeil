@@ -901,18 +901,22 @@ namespace trompeloeil
        call_matcher_list<Sig>        &list)
   noexcept
   {
+    call_matcher_base<Sig>* first_match = nullptr;
+    for (auto& i : list)
     {
-      auto i = std::find_if(list.begin(), list.end(),
-                            [&](auto& m)
-                            { return m.matches(p) && m.first_in_sequence(); });
-      if (i != list.end()) return &*i;
+      if (i.matches(p))
+      {
+        if (i.first_in_sequence())
+        {
+          return &i;
+        }
+        if (!first_match)
+        {
+          first_match = &i;
+        }
+      }
     }
-    {
-      auto i = std::find_if(list.begin(), list.end(),
-                            [&](auto& m) { return m.matches(p); });
-      if (i != list.end()) return &*i;
-    }
-    return nullptr;
+    return first_match;
   }
 
   template <typename Sig>
