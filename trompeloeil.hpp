@@ -36,8 +36,6 @@
 #include <functional>
 #include <memory>
 #include <cstring>
-#include <algorithm>
-
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -1035,8 +1033,14 @@ namespace trompeloeil
     }
     bool is_first() const noexcept
     {
-      return std::all_of(std::begin(matchers), std::end(matchers),
-                         [](auto& e) { return e.is_first(); });
+      // std::all_of() is almost always preferable. The only reason
+      // for using a hand rolled loop is because it cuts compilation
+      // times quite noticeably (almost 10% with g++5.1)
+      for (auto& m : matchers)
+      {
+        if (!m.is_first()) return false;
+      }
+      return true;
     }
     void retire() noexcept
     {
@@ -1282,8 +1286,14 @@ namespace trompeloeil
     match_conditions(call_params_type_t<Sig> const & params)
     const
     {
-      return std::all_of(conditions.begin(), conditions.end(),
-                         [&](auto& c) { return c.check(params); });
+      // std::all_of() is almost always preferable. The only reason
+      // for using a hand rolled loop is because it cuts compilation
+      // times quite noticeably (almost 10% with g++5.1)
+      for (auto& c : conditions)
+      {
+        if (!c.check(params)) return false;
+      }
+      return true;
     }
 
     bool
