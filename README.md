@@ -114,7 +114,9 @@ The example above shows most currently supported functionality.
 **`trompeloeil::deathwatched<T>`**  
 Template used when monitoring the lifetime of a mock object. If a
 **`deathwatched`** object is destroyed before a **`REQUIRE_DESTRUCTION`**
-is active, an error is reported.
+is active, an error is reported. Copying or moving a **`deathwatched`** object
+does not transfer a death expectation.
+**NOTE!** **`T`** must have a virtual destructor.
 
 **`trompeloeil::sequence`**  
 Type of sequence objects, used to impose an order of matching invocations of
