@@ -969,11 +969,15 @@ namespace trompeloeil
     T func;
   };
   template<typename Sig>
-  struct condition_base : public list_elem<condition_base<Sig> >
+  class condition_base : public list_elem<condition_base<Sig> >
   {
+  public:
+    condition_base(const char* n) : id(n) {}
     virtual ~condition_base() = default;
     virtual bool check(call_params_type_t<Sig> const&) const = 0;
-    virtual char const* name() const noexcept = 0;
+    virtual char const* name() const noexcept { return id; }
+  private:
+    char const *id;
   };
 
   template <typename Sig>
@@ -982,17 +986,15 @@ namespace trompeloeil
   template<typename Sig, typename Cond>
   struct condition : public condition_base<Sig>
   {
-    condition(char const *str_, Cond c_) : c(c_), str(str_) {}
+    condition(char const *str_, Cond c_) : condition_base<Sig>(str_), c(c_) {}
 
     bool check(call_params_type_t<Sig> const & t) const override
     {
       return c(t);
     }
 
-    char const *name() const noexcept override { return str; }
   private:
     Cond c;
-    char const *str;
   };
 
 
