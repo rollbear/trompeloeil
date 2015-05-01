@@ -224,11 +224,11 @@ namespace trompeloeil
   class tracer
   {
   public:
-    virtual void trace(const char *location, const std::string& call) = 0;
+    virtual void trace(char const *location, std::string const &call) = 0;
   protected:
     tracer() : previous(set_tracer(this)) {}
-    tracer(const tracer&) = delete;
-    tracer& operator=(const tracer&) = delete;
+    tracer(tracer const&) = delete;
+    tracer& operator=(tracer const&) = delete;
     virtual ~tracer() { set_tracer(previous); }
   private:
     tracer* previous = nullptr;
@@ -238,7 +238,7 @@ namespace trompeloeil
   {
   public:
     stream_tracer(std::ostream& stream_) : stream(stream_) {}
-    void trace(const char* location, const std::string& call) override
+    void trace(char const *location, std::string const &call) override
     {
       stream << location << '\n' << call << '\n';
     }
@@ -343,8 +343,8 @@ namespace trompeloeil
   class list_elem
   {
   public:
-    list_elem(const list_elem&) = delete;
-    list_elem& operator=(const list_elem&) = delete;
+    list_elem(list_elem const&) = delete;
+    list_elem& operator=(list_elem const&) = delete;
     list_elem(list_elem &&r) noexcept : next(r.next), prev(&r)
     {
       r.invariant_check();
@@ -553,7 +553,7 @@ namespace trompeloeil
 
   struct sequence_matcher : list_elem<sequence_matcher>
   {
-    using init_type = std::pair<const char*, sequence&>;
+    using init_type = std::pair<char const*, sequence&>;
     sequence_matcher(
       char const *exp,
       char const *loc,
@@ -593,10 +593,10 @@ namespace trompeloeil
       os << exp_name << " at " << exp_loc;
     }
   private:
-    char const    *seq_name;
-    char const    *exp_name = nullptr;
-    char const    *exp_loc = nullptr;
-    sequence&      seq;
+    char const *seq_name;
+    char const *exp_name = nullptr;
+    char const *exp_loc = nullptr;
+    sequence&   seq;
   };
 
   inline
@@ -708,7 +708,7 @@ namespace trompeloeil
       , object_name(obj_name)
     {
     }
-    lifetime_monitor(const lifetime_monitor&) = delete;
+    lifetime_monitor(lifetime_monitor const&) = delete;
     ~lifetime_monitor() noexcept(false)
     {
       if (!died)
@@ -972,7 +972,7 @@ namespace trompeloeil
   class condition_base : public list_elem<condition_base<Sig> >
   {
   public:
-    condition_base(const char* n) : id(n) {}
+    condition_base(char const *n) : id(n) {}
     virtual ~condition_base() = default;
     virtual bool check(call_params_type_t<Sig> const&) const = 0;
     virtual char const* name() const noexcept { return id; }
