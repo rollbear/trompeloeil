@@ -678,6 +678,23 @@ namespace trompeloeil
   struct lifetime_monitor;
 
   template <typename T>
+  struct null_on_move
+  {
+  public:
+    null_on_move(T* p_ = nullptr) noexcept : p{p_} {}
+    null_on_move(null_on_move&&) noexcept {}
+    null_on_move(null_on_move const&) noexcept {}
+    null_on_move& operator=(const null_on_move&) noexcept  { p = nullptr; return *this;}
+    null_on_move& operator=(null_on_move&&) noexcept { p = nullptr; return *this;}
+    null_on_move& operator=(T* t) noexcept { p = t; return *this; }
+    T*& leak() { return p; }
+    T& operator*() const noexcept { return *p; }
+    T* operator->() const noexcept { return p; }
+    explicit operator bool() const noexcept { return p; }
+  private:
+    T* p;
+  };
+  template <typename T>
   class deathwatched : public T
   {
     static_assert(std::has_virtual_destructor<T>::value,
@@ -689,10 +706,11 @@ namespace trompeloeil
     trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor)
     const noexcept
     {
-      return trompeloeil_lifetime_monitor = monitor;
+      trompeloeil_lifetime_monitor = monitor;
+      return trompeloeil_lifetime_monitor.leak();
     }
   private:
-    mutable trompeloeil::lifetime_monitor *trompeloeil_lifetime_monitor=nullptr;
+    mutable null_on_move<trompeloeil::lifetime_monitor> trompeloeil_lifetime_monitor=nullptr;
   };
 
   struct lifetime_monitor

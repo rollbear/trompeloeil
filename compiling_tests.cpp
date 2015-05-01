@@ -909,6 +909,39 @@ TESTSUITE(destruction)
     ASSERT_TRUE(reports.empty());
   }
 
+  class none
+  {
+  public:
+    virtual ~none() = default;
+  };
+  TEST(a_copy_of_a_deathwatched_object_with_expectation_is_not_expected_to_die)
+  {
+    auto orig = new trompeloeil::deathwatched<none>;
+    REQUIRE_DESTRUCTION(*orig);
+    auto copy = new trompeloeil::deathwatched<none>(*orig);
+
+    delete orig;
+    ASSERT_TRUE(reports.empty());
+
+    delete copy;
+    ASSERT_TRUE(reports.size() == 1U);
+    ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Unexpected destruction of .*@"));
+  }
+
+  TEST(a_deathwatched_object_move_constructed_from_original_with_expectation_is_not_expected_to_die_and_the_original_still_is)
+  {
+    auto orig = new trompeloeil::deathwatched<none>;
+    REQUIRE_DESTRUCTION(*orig);
+    auto copy = new trompeloeil::deathwatched<none>(std::move(*orig));
+
+    delete orig;
+    ASSERT_TRUE(reports.empty());
+
+    delete copy;
+    ASSERT_TRUE(reports.size() == 1U);
+    ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Unexpected destruction of .*@"));
+  }
+  
   TEST(object_alive_when_destruction_expectation_goes_out_of_scope_is_reported)
   {
     trompeloeil::deathwatched<mock_c> obj;
