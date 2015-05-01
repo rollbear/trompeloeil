@@ -1,5 +1,9 @@
+v4  2015-05-01
+
 	* Expectations of death do not follow move-constructed and
 	  copy-constructed deathwatched<T> objects.
+
+	* Internal rewrites to reduce compilation times
 
 v3   2015-04-02
 
