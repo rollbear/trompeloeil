@@ -25,11 +25,14 @@ Contents
 - [Example usage](#example-usage)
 - [Limitations](#Limitations)
 - [How to use](#how-to-use)
-  - [Report to test frameworks](#report-to-test-frameworks)
   - [Types and Templates](#types-and-templates)
   - [Macros](#macros)
   - [Printing values](#printing-values)
   - [Report to test frameworks](#report-to-test-frameworks)
+    - [Catch!](#catch)
+    - [crpcut](#crpcut)
+    - [gtest](#gtest)
+    - [boost Unit Test Framework](#boost-unit-test-framework)
 - [Compiler compatibility](#compiler-compatibility)
 
 Example usage
