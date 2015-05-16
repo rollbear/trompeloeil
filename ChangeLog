@@ -1,3 +1,9 @@
+	* The function registered to set_reporter() now must accept
+	  the source location as file, line instead of location as
+	  a combined string. Apologies for breaking existing code,
+	  but since this is more in line with how other frame works
+	  refers to source code locations, it improves compatibility.
+
 v4  2015-05-01
 
 	* Expectations of death do not follow move-constructed and
