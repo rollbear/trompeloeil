@@ -315,7 +315,7 @@ are no expectations. In these cases `file` will be an empty string and
 
 Some examples for popular C++ unit test frameworks are:
 
-### catch
+### [Catch!](https://github.com/philsquared/Catch)
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity s,
                                char const *file,
