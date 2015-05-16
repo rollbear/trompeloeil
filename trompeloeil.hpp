@@ -179,17 +179,20 @@ namespace trompeloeil
   enum class severity { fatal, nonfatal };
 
   using reporter_func = std::function<void(severity,
-                                           std::string const &loc,
+                                           char const *file,
+                                           unsigned line,
                                            std::string const &msg)>;
   inline
   reporter_func&
   reporter_obj()
   {
-    static reporter_func obj = [](severity, auto const &loc, auto const &msg)
+    static reporter_func obj = [](severity, char const *file, unsigned line, auto const &msg)
       {
         if (!std::current_exception())
         {
-          throw expectation_violation(loc + "\n" + msg);
+          std::ostringstream os;
+          os << file << ':' << line << "\n" << msg;
+          throw expectation_violation(os.str());
         }
       };
     return obj;
@@ -224,7 +227,7 @@ namespace trompeloeil
   class tracer
   {
   public:
-    virtual void trace(char const *location, std::string const &call) = 0;
+    virtual void trace(char const *file, unsigned line, std::string const &call) = 0;
   protected:
     tracer() : previous(set_tracer(this)) {}
     tracer(tracer const&) = delete;
@@ -238,9 +241,9 @@ namespace trompeloeil
   {
   public:
     stream_tracer(std::ostream& stream_) : stream(stream_) {}
-    void trace(char const *location, std::string const &call) override
+    void trace(char const *file, unsigned line, std::string const &call) override
     {
-      stream << location << '\n' << call << '\n';
+      stream << file << ':' << line << '\n' << call << '\n';
     }
   private:
     std::ostream& stream;
@@ -248,9 +251,9 @@ namespace trompeloeil
 
 
   inline
-  void send_report(severity s, char const *loc, std::string const &msg)
+  void send_report(severity s, char const *file, unsigned line, std::string const &msg)
   {
-    reporter_obj()(s, loc, msg);
+    reporter_obj()(s, file, line, msg);
   }
 
   template <typename T, typename U>
@@ -486,8 +489,8 @@ namespace trompeloeil
     auto i = this->begin();
     while (i != this->end())
     {
-      auto prev = i++;
-      Disposer::dispose(&*prev);
+      auto p = i++;
+      Disposer::dispose(&*p);
     }
   }
   template <typename T, typename Disposer>
@@ -543,8 +546,9 @@ namespace trompeloeil
     void validate_match(
       sequence_matcher const *matcher,
       char const *seq_name,
-      char const* match_name,
-      char const* loc)
+      char const *match_name,
+      char const *file,
+      unsigned line)
     const;
 
   private:
@@ -556,12 +560,14 @@ namespace trompeloeil
     using init_type = std::pair<char const*, sequence&>;
     sequence_matcher(
       char const *exp,
-      char const *loc,
+      char const *file,
+      unsigned line,
       init_type i)
     noexcept
     : seq_name(i.first)
     , exp_name(exp)
-    , exp_loc(loc)
+    , exp_file(file)
+    , exp_line(line)
     , seq(i.second)
     {
       seq.add_last(this);
@@ -569,10 +575,11 @@ namespace trompeloeil
     void
     validate_match(
       char const *match_name,
-      char const* loc)
+      char const *file,
+      unsigned line)
     const
     {
-      seq.validate_match(this, seq_name, match_name, loc);
+      seq.validate_match(this, seq_name, match_name, file, line);
     }
     bool
     is_first()
@@ -590,12 +597,13 @@ namespace trompeloeil
     print_expectation(std::ostream& os)
     const
     {
-      os << exp_name << " at " << exp_loc;
+      os << exp_name << " at " << exp_file << ':' << exp_line;
     }
   private:
     char const *seq_name;
     char const *exp_name = nullptr;
-    char const *exp_loc = nullptr;
+    char const *exp_file = nullptr;
+    unsigned    exp_line = 0;
     sequence&   seq;
   };
 
@@ -605,7 +613,8 @@ namespace trompeloeil
     sequence_matcher const *matcher,
     char const* seq_name,
     char const* match_name,
-    char const* loc)
+    char const* file,
+    unsigned line)
   const
   {
     if (is_first(matcher)) return;
@@ -613,11 +622,12 @@ namespace trompeloeil
     {
       std::ostringstream os;
       os << "Sequence mismatch for sequence \"" << seq_name
-         << "\" with matching call of " << match_name << " at " << loc
+         << "\" with matching call of " << match_name
+         << " at " << file << ':' << line
          << ". Sequence \"" << seq_name << "\" has ";
       m.print_expectation(os);
       os << " first in line\n";
-      send_report(severity::fatal, loc, os.str());
+      send_report(severity::fatal, file, line, os.str());
     }
   }
 
@@ -718,12 +728,14 @@ namespace trompeloeil
     template <typename T>
     lifetime_monitor(
       ::trompeloeil::deathwatched<T> const &obj,
-      char const* obj_name,
-      char const *loc)
+      char const* obj_name_,
+      char const *file_,
+      unsigned line_)
     noexcept
       : object_monitor(obj.trompeloeil_expect_death(this))
-      , location(loc)
-      , object_name(obj_name)
+      , file(file_)
+      , line(line_)
+      , object_name(obj_name_)
     {
     }
     lifetime_monitor(lifetime_monitor const&) = delete;
@@ -733,7 +745,7 @@ namespace trompeloeil
       {
         std::ostringstream os;
         os << "Object " << object_name << " is still alive";
-        send_report(severity::nonfatal, location, os.str());
+        send_report(severity::nonfatal, file, line, os.str());
         object_monitor = nullptr; // prevent its death poking this cadaver
       }
     }
@@ -741,7 +753,8 @@ namespace trompeloeil
 
     bool               died = false;
     lifetime_monitor *&object_monitor;
-    char const        *location;
+    char const        *file;
+    unsigned           line;
     char const        *object_name;
   };
 
@@ -757,7 +770,7 @@ namespace trompeloeil
     os << "Unexpected destruction of "
        << typeid(T).name() << "@" << this << '\n';
     trompeloeil::send_report(trompeloeil::severity::nonfatal,
-                             "",
+                             "", 0,
                              os.str());
   }
 
@@ -963,7 +976,7 @@ namespace trompeloeil
         m.report_mismatch(os, p);
       }
     }
-    trompeloeil::send_report(severity::fatal, "", os.str());
+    trompeloeil::send_report(severity::fatal, "", 0, os.str());
   }
 
   template <typename Sig>
@@ -1043,7 +1056,7 @@ namespace trompeloeil
   struct sequence_handler_base
   {
     virtual ~sequence_handler_base() noexcept = default;
-    virtual void validate(char const*, char const*) = 0;
+    virtual void validate(char const*, char const*, unsigned) = 0;
     virtual bool is_first() const noexcept = 0;
     virtual void retire() noexcept = 0;
   };
@@ -1055,17 +1068,18 @@ namespace trompeloeil
     template <typename ... S>
     sequence_handler(
       char const *name,
-      char const *loc,
+      char const *file,
+      unsigned line,
       S&& ... s)
     noexcept
-      : matchers{{name, loc, std::forward<S>(s)}...}
+      : matchers{{name, file, line, std::forward<S>(s)}...}
     {
     }
-    void validate(char const *match_name, char const *loc)
+    void validate(char const *match_name, char const *file, unsigned line)
     {
       for (auto& e : matchers)
       {
-        e.validate_match(match_name, loc);
+        e.validate_match(match_name, file, line);
       }
     }
     bool is_first() const noexcept
@@ -1242,7 +1256,8 @@ namespace trompeloeil
                      std::string const &values,
                      unsigned long long min_calls,
                      unsigned long long call_count,
-                     char const        *location)
+                     char const        *file,
+                     unsigned           line)
   {
     std::ostringstream os;
     os << "Unfulfilled expectation:\n"
@@ -1262,20 +1277,22 @@ namespace trompeloeil
       os << "called " << call_count << " times\n";
     }
     os << values;
-    send_report(severity::nonfatal, location, os.str());
+    send_report(severity::nonfatal, file, line, os.str());
   }
 
   inline
   void
   report_forbidden_call(
     char const *name,
-    char const *loc,
+    char const *file,
+    unsigned line,
     std::string const& values)
   {
     std::ostringstream os;
-    os << "Match of forbidden call of " << name << " at " << loc << '\n'
+    os << "Match of forbidden call of " << name
+       << " at " << file << ':' << line << '\n'
        << values;
-    send_report(severity::fatal, loc, os.str());
+    send_report(severity::fatal, file, line, os.str());
   }
 
   template <typename Sig>
@@ -1358,7 +1375,7 @@ namespace trompeloeil
     {
       std::ostringstream os;
       os << name << " with.\n" << missed_values(params);
-      obj->trace(location, os.str());
+      obj->trace(filename, line, os.str());
     }
     void
     run_actions(
@@ -1368,12 +1385,12 @@ namespace trompeloeil
     {
       if (call_count < min_calls && sequences)
       {
-        sequences->validate(name, location);
+        sequences->validate(name, filename, line);
       }
       if (max_calls == 0)
       {
         reported = true;
-        report_forbidden_call(name, location, missed_values(params));
+        report_forbidden_call(name, filename, line, missed_values(params));
       }
       if (++call_count == min_calls && sequences)
       {
@@ -1391,7 +1408,7 @@ namespace trompeloeil
     report_signature(std::ostream& os)
     const override
     {
-      return os << name << " at " << location;
+      return os << name << " at " << filename << ':' << line;
     }
 
     std::ostream&
@@ -1429,14 +1446,16 @@ namespace trompeloeil
                          missed_values(val),
                          min_calls,
                          call_count,
-                         location);
+                         filename,
+                         line);
     }
 
     call_matcher
-    &set_location(char const *loc)
+    &set_location(char const *file_, unsigned line_)
     noexcept
     {
-      location = loc;
+      filename = file_;
+      line = line_;
       return *this;
     }
 
@@ -1467,7 +1486,7 @@ namespace trompeloeil
     void
     set_sequence(T&& ... t)
     {
-      auto seq = new sequence_handler<sizeof...(T)>(name, location, std::forward<T>(t)...);
+      auto seq = new sequence_handler<sizeof...(T)>(name, filename, line, std::forward<T>(t)...);
       sequences.reset(seq);
     }
 
@@ -1485,7 +1504,8 @@ namespace trompeloeil
     side_effect_list<Sig>                  actions;
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
-    char const                            *location;
+    char const                            *filename;
+    unsigned                               line;
     char const                            *name;
     unsigned long long                     call_count = 0;
     unsigned long long                     min_calls = 1;
@@ -1697,9 +1717,6 @@ namespace trompeloeil
 
 
 
-#define TROMPELOEIL_STRINGIFY_(...) #__VA_ARGS__
-#define TROMPELOEIL_STRINGIFY(...) TROMPELOEIL_STRINGIFY_(__VA_ARGS__)
-
 #define TROMPELOEIL_REQUIRE_CALL(obj, func)                    \
   TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
 
@@ -1716,7 +1733,7 @@ namespace trompeloeil
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
   ::trompeloeil::call_validator{} +                                     \
   ::trompeloeil::make_call_modifier(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func \
-  .set_location(__FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))           \
+  .set_location(__FILE__, __LINE__)   \
   .set_name(obj_s "." func_s)                                           \
   .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){})))
 
@@ -1867,13 +1884,13 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                          \
-  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, obj_s, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__))
+  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, obj_s, __FILE__, __LINE__)
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj) \
   TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj, #obj)
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                    \
-  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, obj_s, __FILE__ ":" TROMPELOEIL_STRINGIFY(__LINE__)))
+  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, obj_s, __FILE__, __LINE__))
 
 #ifndef TROMPELOEIL_LONG_MACROS
 #define MAKE_MOCK0(name, sig) \

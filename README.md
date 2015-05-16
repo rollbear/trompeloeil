@@ -139,8 +139,8 @@ testing of legacy code.
 
 **`trompeloel::tracer`**  
 Base class for tracers. Override the member function
-`void trace(const char* location, const std::string& call)` in your own trace
-class if a **`trompeloeil::stream_tracer`** is not right for you.
+`void trace(const char* file, unsigned line, const std::string& call)` in your
+own trace class if a **`trompeloeil::stream_tracer`** is not right for you.
 
 ## Macros
 
@@ -299,7 +299,8 @@ is typically not what you want.
 There is a function  
 ```Cpp
 trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
-                                             const std::string& location
+                                             char const *file,
+                                             unsigned line,
                                              const std::string& msg)>)
 ```
 which can be used to control the reporting. `trompeloeil::severity` is an enum
@@ -310,27 +311,33 @@ expectations. Some examples are:
 ### catch
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity s,
-                               const std::string& loc,
+                               char const *file,
+                               unsigned line,
                                const std::string& msg)
     {
-      auto m = loc + "\n" + msg;
+      std::ostringstream os;
+      os << file << ':' << line << '\n' << msg;
       if (s == ::trompeloeil::severity::fatal)
         {
-          FAIL(m);
+          FAIL(os.str());
         }
-      CHECK(m == "");
+      CHECK(os.str() == "");
     });
 ```
 
 ### crpcut
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity,
-                               const std::string& loc,
+                               char const *file,
+                               unsigned line,
                                const std::string& msg)
     {
-      auto location = loc.empty()
+      std::ostringstream os;
+      os << file << ':' << line;
+      auto loc = os.str();
+      auto location = line == 0U
         ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
-        : ::crpcut::datatypes::fixed_string{loc.c_str(), loc.length()};
+        : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
       ::crpcut::comm::report(::crpcut::comm::exit_fail,
                              std::ostringstream(msg),
                              location);

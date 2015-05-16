@@ -22,22 +22,26 @@ class reported {};
 struct report
 {
   trompeloeil::severity s;
-  std::string           loc;
+  const char* file;
+  unsigned line;
   std::string           msg;
 };
 static std::vector<report> reports;
 
-static void send_report(trompeloeil::severity s, const std::string& loc, const std::string msg)
+static void send_report(trompeloeil::severity s, const char* file, unsigned line, const std::string msg)
 {
 #if 0
-      auto location = loc.empty()
-        ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
-        : ::crpcut::datatypes::fixed_string{loc.c_str(), loc.length()};
-      ::crpcut::comm::report(::crpcut::comm::exit_fail,
-                             std::ostringstream(msg),
-                             location);
+  std::ostringstream os;
+  os << file << ':' << line;
+  auto loc = os.str();
+  auto location = line == 0U
+    ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
+    : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
+  ::crpcut::comm::report(::crpcut::comm::exit_fail,
+                         std::ostringstream(msg),
+                         location);
 #else
-  reports.push_back(report{s, loc, msg});
+  reports.push_back(report{s, file, line, msg});
   if (s == trompeloeil::severity::fatal && !std::uncaught_exception())
   {
     throw reported{};
@@ -310,7 +314,8 @@ TESTSUITE(sequences)
     {
       ASSERT_TRUE(reports.size() == 1U);
       ASSERT_TRUE(reports.front().msg =~ crpcut::regex("Sequence mismatch.*seq1.*of obj1.func(_,_).*has obj1.count().*first"));
-      INFO << reports.front().loc << "\n" << reports.front().msg;
+      auto& first = reports.front();
+      INFO << first.file << ':' <<  first.line << "\n" << first.msg;
     }
   }
 
