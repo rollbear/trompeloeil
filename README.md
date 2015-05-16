@@ -19,6 +19,19 @@ If you want to contribute, read ACCU
 [overload 125](http://accu.org/var/uploads/journals/Overload125.pdf)
 to learn the internals.
 
+Contents
+--------
+
+- [Example usage](#example-usage)
+- [Limitations](#Limitations)
+- [How to use](#how-to-use)
+  - [Report to test frameworks](#report-to-test-frameworks)
+  - [Types and Templates](#types-and-templates)
+  - [Macros](#macros)
+  - [Printing values](#printing-values)
+  - [Report to test frameworks](#report-to-test-frameworks)
+- [Compiler compatibility](#compiler-compatibility)
+
 Example usage
 -------------
 
@@ -93,8 +106,8 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
 }
 ```
 
-Limitations (TODO-list)
------------------------
+Limitations
+-----------
 
 - Function templates cannot be mocked
 - WAY too many macros... but I think we'll have to make do with most of them
@@ -109,7 +122,7 @@ How to use
 ----------
 The example above shows most currently supported functionality.
 
-## Types & Templates
+## Types and Templates
 
 **`trompeloeil::deathwatched<T>`**  
 Template used when monitoring the lifetime of a mock object. If a
@@ -391,8 +404,8 @@ Some examples for popular C++ unit test frameworks are:
         BOOST_ERROR(text);
     });
 ```
-Compatibility
--------------
+Compiler compatibility
+----------------------
 
 Trompeloeil is known to work with:
 
