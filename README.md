@@ -374,6 +374,23 @@ Some examples for popular C++ unit test frameworks are:
 
 ```
 
+### [boost Unit Test Framework](http://www.boost.org/doc/libs/1_58_0/libs/test/doc/html/index.html)
+```Cpp
+  using trompeloeil::severity;
+  trompeloeil::set_reporter([](severity s,
+                               char const *file,
+                               unsigned line,
+                               const std::string& msg)
+    {
+      std::ostringstream os;
+      if (line != 0U) os << file << ':' << line << '\n';
+      auto text = os.str() + msg;
+      if (s == severity::fatal)
+        BOOST_FAIL(text);
+      else
+        BOOST_ERROR(text);
+    });
+```
 Compatibility
 -------------
 
