@@ -352,6 +352,28 @@ Some examples for popular C++ unit test frameworks are:
     });
 ```
 
+### [gtest](https://code.google.com/p/googletest/)
+```Cpp
+  trompeloeil::set_reporter([](trompeloeil::severity s,
+                               char const *file,
+                               unsigned line,
+                               const std::string& msg)
+    {
+      if (s == trompeloeil::severity::fatal)
+      {
+        std::ostringstream os;
+        if (line != 0U)
+        {
+          os << file << ':' << line << '\n';
+        }
+        throw trompeloeil::expectation_violation(os.str() + msg);
+      }
+
+      ADD_FAILURE_AT(file, line) << msg;
+    });
+
+```
+
 Compatibility
 -------------
 
