@@ -306,7 +306,14 @@ trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
 which can be used to control the reporting. `trompeloeil::severity` is an enum
 with the values `fatal` and `nonfatal`. Severity is `nonfatal` when called
 from the destructor of a **`REQUIRE_CALL`** object due to unfulfilled
-expectations. Some examples are:
+expectations.
+
+**NOTE!** There are some violation that cannot be attributed to a source code
+location. An example is an unexpected call to a mock function for which there
+are no expectations. In these cases `file` will be an empty string and
+`line` == 0.
+
+Some examples for popular C++ unit test frameworks are:
 
 ### catch
 ```Cpp
@@ -316,7 +323,8 @@ expectations. Some examples are:
                                const std::string& msg)
     {
       std::ostringstream os;
-      os << file << ':' << line << '\n' << msg;
+      if (line) os << file << ':' << line << '\n';
+      os << msg;
       if (s == ::trompeloeil::severity::fatal)
         {
           FAIL(os.str());
