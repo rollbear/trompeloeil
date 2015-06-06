@@ -568,8 +568,9 @@ namespace trompeloeil
     list<sequence_matcher> matchers;
   };
 
-  struct sequence_matcher : list_elem<sequence_matcher>
+  class sequence_matcher : public list_elem<sequence_matcher>
   {
+  public:
     using init_type = std::pair<char const*, sequence&>;
     sequence_matcher(
       char const *exp,
