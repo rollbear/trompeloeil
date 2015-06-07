@@ -643,6 +643,38 @@ TESTSUITE(matching)
     u.func(1);
   }
 
+  TESTSUITE(matchers)
+  {
+    TESTSUITE(ne)
+    {
+      TEST(a_non_equal_value_is_matched)
+      {
+        mock_c obj;
+        REQUIRE_CALL(obj, foo(trompeloeil::ne<std::string>("bar")));
+        obj.foo("baz");
+      }
+
+      TEST(an_equal_value_fails_with_report)
+      {
+        try {
+          mock_c obj;
+          REQUIRE_CALL(obj, foo(trompeloeil::ne<std::string>("bar")));
+          obj.foo("bar");
+          FAIL << "din't report";
+        }
+        catch(reported)
+        {
+          ASSERT_TRUE(reports.size() == 1U);
+          auto re = R"_(No match for call of foo with signature void(std::string) with.
+  param  _1 = bar
+
+Tried obj.foo(trompeloeil::ne<std::string>("bar")) at [a-z_./]*:[0-9]*
+  Expected  _1 != bar)_";
+          ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+        }
+      }
+    }
+  }
 }
 
 TESTSUITE(streaming)

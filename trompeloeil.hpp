@@ -372,7 +372,7 @@ namespace trompeloeil
   void
   print_expectation(std::ostream& os, T const& t)
   {
-    static const char* const description[] = { " = ", " matching " };
+    static const char* const description[] = { " = ", "" };
     os << description[is_matcher<T>::value];
     print(os, t);
     os << '\n';
@@ -700,6 +700,31 @@ namespace trompeloeil
     }
   };
 
+  template <typename T>
+  class ne_t : public matcher<T>
+  {
+  public:
+    ne_t(T t_) : t{t_} {}
+    template <typename U>
+    bool matches(U const& u) const noexcept(noexcept(u != t))
+    {
+      return u != t;
+    }
+    friend std::ostream& operator<<(std::ostream& os, ne_t<T> const& m)
+    {
+      os << " != ";
+      print(os, m.t);
+      return os;
+    }
+  private:
+    T t;
+  };
+
+  template <typename T>
+  ne_t<T> ne(T t)
+  {
+    return {t};
+  }
   struct lifetime_monitor;
 
   template <typename T>
