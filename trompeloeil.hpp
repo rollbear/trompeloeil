@@ -291,6 +291,21 @@ namespace trompeloeil
   };
 
   template <typename T>
+  struct matcher {
+    operator T() const;
+  };
+
+  template <typename T>
+  class is_matcher
+  {
+    static std::false_type func(...);
+    template <typename U>
+    static std::true_type func(matcher<U> const*);
+  public:
+    static const bool value = decltype(func(std::declval<T*>()))::value;
+  };
+
+  template <typename T>
   class is_output_streamable
   {
     template <typename U>
@@ -351,6 +366,16 @@ namespace trompeloeil
   void print(std::ostream& os, T const &t)
   {
     streamer<T>::print(os, t);
+  }
+
+  template <typename T>
+  void
+  print_expectation(std::ostream& os, T const& t)
+  {
+    static const char* const description[] = { " = ", " matching " };
+    os << description[is_matcher<T>::value];
+    print(os, t);
+    os << '\n';
   }
 
   template <typename T, typename Deleter>
@@ -665,34 +690,15 @@ namespace trompeloeil
   static constexpr wildcard const _{};
 
   template <typename T>
-  struct typed_wildcard
+  struct typed_wildcard : public matcher <T>
   {
-    operator T() const;
+    template <typename U>
+    bool matches(U const&) const noexcept { return true; }
+    friend std::ostream& operator<<(std::ostream& os, typed_wildcard<T> const&)
+    {
+      return os << '_';
+    }
   };
-
-  template <typename T, typename U>
-  auto operator==(typed_wildcard<T> const&, U const&) noexcept ->
-    typename std::enable_if<std::is_same<typename std::decay<T>::type,
-                                         typename std::decay<U>::type>::value,
-                            bool>::type
-  {
-    return true;
-  }
-
-  template <typename T, typename U>
-  auto operator==(T const&, typed_wildcard<U> const&) noexcept ->
-    typename std::enable_if<std::is_same<typename std::decay<T>::type,
-                                         typename std::decay<U>::type>::value,
-                            bool>::type
-  {
-    return true;
-  }
-
-  template <typename T>
-  std::ostream& operator<<(std::ostream& os, typed_wildcard<T> const&)
-  {
-    return os << '_';
-  }
 
   struct lifetime_monitor;
 
@@ -877,17 +883,35 @@ namespace trompeloeil
     report_missed() = 0;
   };
 
+  template <typename T, typename U>
+  typename std::enable_if<is_matcher<T>::value, bool>::type
+  param_matches(T const& t, U const& u) noexcept(noexcept(t.matches(u)))
+  {
+    return t.matches(u);
+  }
+
+  template <typename T, typename U>
+  typename std::enable_if<!is_matcher<T>::value, bool>::type
+  param_matches(T const& t, U const& u) noexcept(noexcept(t == u))
+  {
+    return t == u;
+  }
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
   struct parameters
   {
+    template <typename U>
+    static bool matches(T const& expected, U const& actual)
+    {
+      return param_matches(std::get<N>(expected), std::get<N>(actual))
+             && parameters<T, N + 1>::matches(expected, actual);
+    }
     template <typename stream, typename U>
     static stream &print_mismatch(stream &os, T const &t1, U const &t2)
     {
-      if (!(std::get<N>(t1) == std::get<N>(t2)))
+      if (!(param_matches(std::get<N>(t1), std::get<N>(t2))))
       {
-        os << "  Expected " << std::setw((N<9)+1) << '_' << N+1 << " = ";
-        print(os, std::get<N>(t1));
-        os << '\n';
+        os << "  Expected " << std::setw((N<9)+1) << '_' << N+1;
+        print_expectation(os, std::get<N>(t1));
       }
       return parameters<T, N + 1>::print_mismatch(os, t1, t2);
     }
@@ -905,6 +929,11 @@ namespace trompeloeil
   template<typename T, size_t N>
   struct parameters<T, N, true>
   {
+    template <typename U>
+    static bool matches(T const&, U const&)
+    {
+      return true;
+    }
     template <typename stream, typename U>
     static stream &print_mismatch(stream &os, T const &, U const &)
     {
@@ -917,6 +946,12 @@ namespace trompeloeil
       return os;
     }
   };
+
+  template <typename T, typename U>
+  bool match_parameters(T const& t, U const& u)
+  {
+    return parameters<T>::matches(t, u);
+  }
 
   template <typename T>
   std::string missed_values(T const &t)
@@ -1309,6 +1344,7 @@ namespace trompeloeil
     static bool const side_effects = false;
   };
 
+
   template<typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
@@ -1335,7 +1371,7 @@ namespace trompeloeil
     matches(call_params_type_t<Sig> const& params)
     const override
     {
-      return val == params && match_conditions(params);
+      return match_parameters(val, params) && match_conditions(params);
     }
 
     bool
@@ -1421,7 +1457,7 @@ namespace trompeloeil
     {
       reported = true;
       report_signature(os);
-      if (val == params)
+      if (match_parameters(val, params))
       {
         for (auto& cond : conditions)
         {
@@ -1684,8 +1720,8 @@ namespace trompeloeil
       /* provoke warnings for sign mismatch with applicable compiler flags*/ \
       using param_type = ::trompeloeil::call_params_type_t<sig>;        \
       using call_type = decltype(std::make_tuple(std::forward<U>(u)...)); \
-      auto check = ::trompeloeil::is_equal_comparable<param_type, call_type>::value; \
-      ::trompeloeil::ignore(check);                                     \
+      /*      auto check = ::trompeloeil::is_equal_comparable<param_type, call_type>::value; \
+              ::trompeloeil::ignore(check); */                          \
       return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
     }                                                                   \
   };                                                                    \
