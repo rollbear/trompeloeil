@@ -804,6 +804,32 @@ namespace trompeloeil
     return {t};
   }
 
+  template <typename T>
+  class le_t : public matcher<T>
+  {
+  public:
+    le_t(T t_) : t{t_} {}
+    template <typename U>
+    bool matches(U const& u) const noexcept(noexcept(u <= t))
+    {
+      return u <= t;
+    }
+    friend std::ostream& operator<<(std::ostream& os, le_t<T> const& m)
+    {
+      os << " <= ";
+      print(os, m.t);
+      return os;
+    }
+  private:
+    T t;
+  };
+
+  template <typename T>
+  le_t<T> le(T t)
+  {
+    return {t};
+  }
+
   struct lifetime_monitor;
 
   template <typename T>
