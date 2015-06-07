@@ -768,6 +768,59 @@ Tried obj.getter(trompeloeil::gt(3)) at [a-z_./]*:[0-9]*
         }
       }
     }
+
+    TESTSUITE(lt)
+    {
+      TEST(an_equal_value_is_reported)
+      {
+        try {
+          mock_c obj;
+          REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
+            .RETURN(0);
+          obj.getter(3);
+          FAIL << "din't report";
+        }
+        catch(reported)
+        {
+          ASSERT_TRUE(reports.size() == 1U);
+          auto re = R"_(No match for call of getter with signature int(int) with.
+  param  _1 = 3
+
+Tried obj.getter(trompeloeil::lt(3)) at [a-z_./]*:[0-9]*
+  Expected  _1 < 3)_";
+          ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+        }
+      }
+
+      TEST(a_greater_value_is_reported)
+      {
+        try {
+          mock_c obj;
+          REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
+            .RETURN(0);
+          obj.getter(4);
+          FAIL << "din't report";
+        }
+        catch(reported)
+        {
+          ASSERT_TRUE(reports.size() == 1U);
+          auto re = R"_(No match for call of getter with signature int(int) with.
+  param  _1 = 4
+
+Tried obj.getter(trompeloeil::lt(3)) at [a-z_./]*:[0-9]*
+  Expected  _1 < 3)_";
+          ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+        }
+      }
+
+      TEST(a_lesser_value_is_matched)
+      {
+        mock_c obj;
+        REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
+          .RETURN(0);
+        obj.getter(2);
+      }
+    }
   }
 }
 
