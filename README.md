@@ -27,6 +27,7 @@ Contents
 - [How to use](#how-to-use)
   - [Types and Templates](#types-and-templates)
   - [Macros](#macros)
+  - [Matchers](#matchers)
   - [Printing values](#printing-values)
   - [Report to test frameworks](#report-to-test-frameworks)
     - [Catch!](#catch)
@@ -71,6 +72,7 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
   trompeloeil::stream_tracer log(std::cout);
 
   using trompeloeil::_; // wild card for matching any value
+  using trompeloeil::gt; // greater-than match
 
   auto raw_i = new trompeloeil::deathwatched<MI>("word");
 
@@ -93,7 +95,7 @@ TEST(work_returns_the_string_obtained_from_I_foo_and_calls_I_bar)
       .RETURN(true)
       .IN_SEQUENCE(seq2);
 
-    REQUIRE_CALL(*raw_i, foo(3, _))
+    REQUIRE_CALL(*raw_i, foo(gt(2), _))
       .WITH(_2 == "")
       .IN_SEQUENCE(seq1, seq2)
       .SIDE_EFFECT(_2 = "cat")
@@ -293,6 +295,38 @@ Same as **`NAMED_REQUIRE_CALL`**().**`TIMES`(** 0 **)**, making any matching
 call an error. No **`.RETURN`**() is needed for non-void functions.
 **NOTE!** Any named local objects referenced in attached **`.LR_WITH()`** are
 captured by reference, so lifetime management is important.
+
+## Matchers
+
+In any expectation (**`REQUIRE_CALL`**, **`ALLOW_CALL`**, or **`FORBID_CALL`**,)
+you add the parameter values that signifies a matching call. Sometimes a
+simple equality check is not enough, though. You can then choose to eiter
+use **`WITH`** (or **`LR_WITH`**) clauses or matchers.
+
+The matchers supplied by `trompeloeil` are:
+
+**`trompeloeil::ne`(** `value` **)**  
+Match parameters that are not equal to `value`. The comparison used is
+`param != value`.
+
+**`trompeloeil::gt`(** `value` **)**  
+Match parameters that are greater than `value`. The comparison used is
+`param > value`.
+
+**`trompeoleil::ge`(** `value` **)**  
+Match parameters that are greater than or equal to `value`. The comparison used
+is `param >= value`.
+
+**`tropmeloeil::lt`(** `value` **)**  
+Match parameters that are less than `value`. The comparison used is
+`param < value`.
+
+**`trompeloeil::le`(** `value` **)**  
+Match parameters that are less than or equal to `value`. The comparison used
+is `param <= value`.
+
+A matcher cannot operate on several parameters together. For more complex
+matching conditions, **`WITH`** or **`LR_WITH`** clauses are required.
 
 ## Printing values
 
