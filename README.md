@@ -329,6 +329,9 @@ is `param <= value`.
 A matcher cannot operate on several parameters together. For more complex
 matching conditions, **`WITH`** or **`LR_WITH`** clauses are required.
 
+Also see [writing custom matchers](#writing-custom-matchers) for extending
+your tests with your own matchers.
+
 ## Printing values
 
 By default *`trompeloeil`* prints any values in violation reports using
