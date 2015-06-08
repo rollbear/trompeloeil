@@ -270,15 +270,6 @@ namespace trompeloeil
     reporter_obj()(s, loc.file, loc.line, msg);
   }
 
-  template <typename T, typename U>
-  struct is_equal_comparable
-  {
-    template <typename T1, typename T2>
-    static std::false_type func(...);
-    template <typename T1, typename T2>
-    static auto func(T1* p1, T2* p2) -> std::integral_constant<decltype(*p1 == *p2), true>;
-    static bool const value = decltype(func<T,U>(nullptr, nullptr))::value;
-  };
 
   template <typename T>
   struct is_value_type :
@@ -290,17 +281,13 @@ namespace trompeloeil
   {
   };
 
-  template <typename T>
-  struct matcher {
-    operator T() const;
-  };
+  struct matcher { };
 
   template <typename T>
   class is_matcher
   {
     static std::false_type func(...);
-    template <typename U>
-    static std::true_type func(matcher<U> const*);
+    static std::true_type func(matcher const*);
   public:
     static const bool value = decltype(func(std::declval<T*>()))::value;
   };
@@ -690,8 +677,9 @@ namespace trompeloeil
   static constexpr wildcard const _{};
 
   template <typename T>
-  struct typed_wildcard : public matcher <T>
+  struct typed_wildcard : public matcher
   {
+    operator T() const;
     template <typename U>
     bool matches(U const&) const noexcept { return true; }
     friend std::ostream& operator<<(std::ostream& os, typed_wildcard<T> const&)
@@ -701,10 +689,11 @@ namespace trompeloeil
   };
 
   template <typename T>
-  class ne_t : public matcher<T>
+  class ne_t : public matcher
   {
   public:
     ne_t(T t_) : t{t_} {}
+    operator T() const;
     template <typename U>
     bool matches(U const& u) const noexcept(noexcept(u != t))
     {
@@ -727,10 +716,11 @@ namespace trompeloeil
   }
 
   template <typename T>
-  class ge_t : public matcher<T>
+  class ge_t : public matcher
   {
   public:
     ge_t(T t_) : t{t_} {}
+    operator T() const;
     template <typename U>
     bool matches(U const& u) const noexcept(noexcept(u >= t))
     {
@@ -753,9 +743,10 @@ namespace trompeloeil
   }
 
   template <typename T>
-  class gt_t : public matcher<T>
+  class gt_t : public matcher
   {
   public:
+    operator T() const;
     gt_t(T t_) : t{t_} {}
     template <typename U>
     bool matches(U const& u) const noexcept(noexcept(u > t))
@@ -779,10 +770,11 @@ namespace trompeloeil
   }
 
   template <typename T>
-  class lt_t : public matcher<T>
+  class lt_t : public matcher
   {
   public:
     lt_t(T t_) : t{t_} {}
+    operator T() const;
     template <typename U>
     bool matches(U const& u) const noexcept(noexcept(u < t))
     {
@@ -805,10 +797,11 @@ namespace trompeloeil
   }
 
   template <typename T>
-  class le_t : public matcher<T>
+  class le_t : public matcher
   {
   public:
     le_t(T t_) : t{t_} {}
+    operator T() const;
     template <typename U>
     bool matches(U const& u) const noexcept(noexcept(u <= t))
     {
@@ -1014,17 +1007,23 @@ namespace trompeloeil
   };
 
   template <typename T, typename U>
-  typename std::enable_if<is_matcher<T>::value, bool>::type
-  param_matches(T const& t, U const& u) noexcept(noexcept(t.matches(u)))
+  bool
+  param_matches_impl(T const& t, U const& u, matcher const*) noexcept(noexcept(t.matches(u)))
   {
     return t.matches(u);
   }
 
   template <typename T, typename U>
-  typename std::enable_if<!is_matcher<T>::value, bool>::type
-  param_matches(T const& t, U const& u) noexcept(noexcept(t == u))
+  bool
+  param_matches_impl(T const& t, U const& u, ...) noexcept(noexcept(t == u))
   {
     return t == u;
+  }
+
+  template <typename T, typename U>
+  bool param_matches(T const& t, U const& u) noexcept(noexcept(param_matches_impl(t, u, &t)))
+  {
+    return param_matches_impl(t, u, &t);
   }
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
   struct parameters
@@ -1847,11 +1846,6 @@ namespace trompeloeil
     template <typename ... U>                                           \
     static auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
     {                                                                   \
-      /* provoke warnings for sign mismatch with applicable compiler flags*/ \
-      using param_type = ::trompeloeil::call_params_type_t<sig>;        \
-      using call_type = decltype(std::make_tuple(std::forward<U>(u)...)); \
-      /*      auto check = ::trompeloeil::is_equal_comparable<param_type, call_type>::value; \
-              ::trompeloeil::ignore(check); */                          \
       return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
     }                                                                   \
   };                                                                    \
