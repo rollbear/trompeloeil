@@ -447,7 +447,7 @@ Some examples for popular C++ unit test frameworks are:
 
 Writing a matcher for your own data types is easy.
 
-ALl matchers need to
+All matchers need to
 - inherit from `trompeloeil::matcher`
 - provide a signature for a type conversion operator
 - implement a `bool matches(parameter_value) const` member function
@@ -523,9 +523,9 @@ Troid obj.foo(any_of({x,y,z}) at file.cpp:8
 ```
 Where XXX is the output from the stream insertion operator.
 
-### duck typed matcher
+### Duck-typed matcher
 
-A duck typed matcher accepts any type that matches a required set of
+A duck-typed matcher accepts any type that matches a required set of
 operations. These have templatized type conversion operators and
 `matches` member functions. An example is a `not_empty` matcher,
 requiring that a `.empty()` member function of the parameter
@@ -551,7 +551,7 @@ returns false.
 
 Written like this, the duck-typed matcher is in many ways simpler than a typed
 matcher, but disambiguation between overloaded mock member functions becomes
-tricke. One alternative is to use
+tricky. One alternative is to use
 [`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if)
 on the conversion operator at **//1** to remove obviously illegal alternatives.
 
