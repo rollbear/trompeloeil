@@ -16,7 +16,7 @@
 
 #include <vector>
 #include <string>
-
+#include <algorithm>
 class reported {};
 
 struct report
@@ -859,6 +859,124 @@ Tried obj.getter(trompeloeil::le(3)) at [a-z_./]*:[0-9]*
         REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
           .RETURN(0);
         obj.getter(2);
+      }
+    }
+    TESTSUITE(custom)
+    {
+      template <typename T>
+      class any_of_t : public trompeloeil::matcher
+      {
+      public:
+        any_of_t(std::initializer_list<T> elements) : alternatives(std::begin(elements), std::end(elements)) {}
+        operator T() const;
+        bool matches(T const& t) const
+        {
+          return std::any_of(std::begin(alternatives), std::end(alternatives),
+                             [&](T val) { return t == val; });
+        }
+        friend std::ostream& operator<<(std::ostream& os, any_of_t<T> const& t)
+        {
+          os << " matching any_of({";
+          char const* prefix=" ";
+          for (auto& n : t.alternatives)
+          {
+            os << prefix << n;
+            prefix = ", ";
+          }
+          return os << " })";
+        }
+      private:
+        std::vector<T> alternatives;
+      };
+
+      template <typename T>
+      auto any_of(std::initializer_list<T> elements)
+      {
+        return any_of_t<T>(elements);
+      }
+      TEST(custom_matcher_of_first_element_is_not_reported)
+      {
+        mock_c obj;
+        REQUIRE_CALL(obj, getter(any_of({1, 5, 77})))
+          .RETURN(0);
+        obj.getter(1);
+      }
+      TEST(custom_matcher_of_last_element_is_not_reported)
+      {
+        mock_c obj;
+        REQUIRE_CALL(obj, getter(any_of({1, 5, 77})))
+          .RETURN(0);
+        obj.getter(77);
+      }
+      TEST(custom_matcher_of_mid_element_is_not_reported)
+      {
+        mock_c obj;
+        REQUIRE_CALL(obj, getter(any_of({1, 5, 77})))
+          .RETURN(0);
+        obj.getter(5);
+      }
+      TEST(custom_matcher_of_unlisted_element_is_reported)
+      {
+        try {
+          mock_c obj;
+          REQUIRE_CALL(obj, getter(any_of({1,5,77})))
+            .RETURN(0);
+          obj.getter(4);
+          FAIL << "din't report";
+        }
+        catch(reported)
+        {
+          ASSERT_TRUE(reports.size() == 1U);
+          auto re = R"_(No match for call of getter with signature int(int) with.
+  param  _1 = 4
+
+Tried obj.getter(any_of({1,5,77})) at [a-z_./]*:[0-9]*
+  Expected  _1 matching any_of({ 1, 5, 77 })_";
+          ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+        }
+      }
+
+      class not_empty : public trompeloeil::matcher
+      {
+      public:
+        template <typename T>
+        operator T() const;
+        template <typename T>
+        bool matches(T const& t) const
+        {
+          return !t.empty();
+        }
+        friend std::ostream& operator<<(std::ostream& os, not_empty const&)
+        {
+          return os << " is not empty";
+        }
+      };
+
+      TEST(a_non_empty_string_gives_no_report)
+      {
+        mock_c obj;
+        REQUIRE_CALL(obj, foo(not_empty{}));
+        obj.foo("bar");
+      }
+
+      TEST(an_empty_string_is_reported)
+      {
+        try {
+          mock_c obj;
+          REQUIRE_CALL(obj, foo(not_empty{}));
+          obj.foo("");
+          FAIL << "din't report";
+        }
+        catch(reported)
+        {
+          ASSERT_TRUE(reports.size() == 1U);
+          auto re = R"_(No match for call of foo with signature void(std::string) with.
+  param  _1 = 
+
+Tried obj.foo(not_empty{}) at [a-z_./]*:[0-9]*
+  Expected  _1 is not empty)_";
+          ASSERT_TRUE(reports.front().msg =~ crpcut::regex(re, crpcut::regex::m));
+        }
       }
     }
   }

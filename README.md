@@ -34,6 +34,7 @@ Contents
     - [crpcut](#crpcut)
     - [gtest](#gtest)
     - [boost Unit Test Framework](#boost-unit-test-framework)
+  - [Writing custom matchers](#writing-custom-matchers)
 - [Compiler compatibility](#compiler-compatibility)
 
 Example usage
@@ -441,6 +442,125 @@ Some examples for popular C++ unit test frameworks are:
         BOOST_ERROR(text);
     });
 ```
+
+## Writing custom matchers
+
+Writing a matcher for your own data types is easy.
+
+ALl matchers need to
+- inherit from `trompeloeil::matcher`
+- provide a signature for a type conversion operator
+- implement a `bool matches(parameter_value) const` member function
+- implement an output stream insertion operator
+
+### Typed matcher
+
+The simplest matcher is a typed matcher. As an example of a typed matcher, an
+`any_of` matcher is shown, mimicing the behaviour of the standard library
+algorithm
+[`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
+allowing a parameter to match any of a set of values.
+
+
+For templated matchers, it is often convenient to provide a function that creates the
+matcher object. Below is the code for `any_of_t<T>`, which is the matcher created by
+the `any_of(std::initialize_list<T>)` function template.
+
+```Cpp
+  template <typename T>
+  class any_of_t : public trompeloeil::matcher
+  {
+  public:
+    any_of_t(std::initializer_list<T> elements)
+    : alternatives(std::begin(elements), std::end(elements))
+    {
+    }
+    operator T() const;            //1
+    bool matches(T const& t) const //2
+    {
+      return std::any_of(std::begin(alternatives), std::end(alternatives),
+                         [&t](T const& val) { return t == val; });
+    }
+    friend std::ostream& operator<<(std::ostream& os, any_of_t<T> const& t)
+    {
+      os << " matching any_of({";
+      char const* prefix=" ";
+      for (auto& n : t.alternatives)
+      {
+        os << prefix << n;
+        prefix = ", ";
+      }
+      return os << " })";
+    }
+  private:
+    std::vector<T> alternatives;
+  };
+
+  template <typename T>
+  auto any_of(std::initializer_list<T> elements)
+  {
+    return any_of_t<T>(elements);
+  }
+```
+
+The type conversion operator at **//1**, does not need to be implemented. It
+is used solely for compile time disambiguation, in case there are several
+matching overloads for the mocked function where the matcher is used.
+
+The `matches` member function at **//2** accepts the parameter and returns
+rue if the value is legal, in this case if it is any of the values stored in
+the `elements` vector.
+
+The output stream insertion operator is only called if a failure is reported.
+The report will then look like:
+
+```
+No match for call of obj.foo with signature x(y) with.
+  param  _1 = Z
+
+Troid obj.foo(any_of({x,y,z}) at file.cpp:8
+  Expected _1 XXX
+```
+Where XXX is the output from the stream insertion operator.
+
+### duck typed matcher
+
+A duck typed matcher accepts any type that matches a required set of
+operations. These have templatized type conversion operators and
+`matches` member functions. An example is a `not_empty` matcher,
+requiring that a `.empty()` member function of the parameter
+returns false.
+
+```Cpp
+  class not_empty : public trompeloeil::matcher
+  {
+  public:
+    template <typename T>
+    operator T() const;            //1
+    template <typename T>
+    bool matches(T const& t) const //2
+    {
+      return !t.empty();
+    }
+    friend std::ostream& operator<<(std::ostream& os, not_empty const&)
+    {
+      return os << " is not empty";
+    }
+  };
+```
+
+Written like this, the duck-typed matcher is in many ways simpler than a typed
+matcher, but disambiguation between overloaded mock member functions becomes
+tricke. One alternative is to use
+[`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if)
+on the conversion operator at **//1** to remove obviously illegal alternatives.
+
+The `matches` member function at **//2** becomes very simple.
+
+The output stream insertion operator is neither more or less tricky than with
+typed matchers. Making violation reports readable may require some thought,
+however.
+
 Compiler compatibility
 ----------------------
 
