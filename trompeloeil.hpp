@@ -298,7 +298,7 @@ namespace trompeloeil
     template <typename U>
     static std::false_type func(...);
     template <typename U>
-    static auto func(U* u) -> std::is_same<std::ostream&, decltype(std::declval<std::ostream&>() << *u)>;
+    static auto func(U const* u) -> std::is_same<std::ostream&, decltype(std::declval<std::ostream&>() << *u)>;
   public:
     static bool const value = decltype(func<T>(nullptr))::value;
   };
