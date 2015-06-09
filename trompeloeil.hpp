@@ -661,18 +661,20 @@ namespace trompeloeil
     matchers.push_back(m);
   }
 
-  struct wildcard
+  struct wildcard : public matcher
   {
     template<typename T>
     operator T&&() const;
     template<typename T>
     operator T&() const;
+    template <typename T>
+    bool matches(T const&) const noexcept { return true; }
+    friend std::ostream& operator<<(std::ostream& os, wildcard const&)
+    {
+      return os;
+    }
   };
 
-  template <typename T>
-  bool operator==(wildcard const&, T const&) noexcept { return true; }
-  template <typename T>
-  bool operator==(T const&, wildcard const&) noexcept { return true; }
 
   static constexpr wildcard const _{};
 
@@ -684,7 +686,7 @@ namespace trompeloeil
     bool matches(U const&) const noexcept { return true; }
     friend std::ostream& operator<<(std::ostream& os, typed_wildcard<T> const&)
     {
-      return os << '_';
+      return os;
     }
   };
 
