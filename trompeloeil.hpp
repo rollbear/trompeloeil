@@ -832,8 +832,8 @@ namespace trompeloeil
   {
   public:
     null_on_move(T* p_ = nullptr) noexcept : p{p_} {}
-    null_on_move(null_on_move&&) noexcept {}
-    null_on_move(null_on_move const&) noexcept {}
+    null_on_move(null_on_move&&) noexcept : p{nullptr} {}
+    null_on_move(null_on_move const&) noexcept : p{nullptr} {}
     null_on_move& operator=(const null_on_move&) noexcept  { p = nullptr; return *this;}
     null_on_move& operator=(null_on_move&&) noexcept { p = nullptr; return *this;}
     null_on_move& operator=(T* t) noexcept { p = t; return *this; }
