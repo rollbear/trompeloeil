@@ -697,7 +697,7 @@ namespace trompeloeil
     ne_t(T t_) : t{t_} {}
     operator T() const;
     template <typename U>
-    bool matches(U const& u) const noexcept(noexcept(u != t))
+    bool matches(U const& u) const noexcept(noexcept(u != std::declval<T>()))
     {
       return u != t;
     }
@@ -724,7 +724,7 @@ namespace trompeloeil
     ge_t(T t_) : t{t_} {}
     operator T() const;
     template <typename U>
-    bool matches(U const& u) const noexcept(noexcept(u >= t))
+    bool matches(U const& u) const noexcept(noexcept(u >= std::declval<T>()))
     {
       return u >= t;
     }
@@ -751,7 +751,7 @@ namespace trompeloeil
     operator T() const;
     gt_t(T t_) : t{t_} {}
     template <typename U>
-    bool matches(U const& u) const noexcept(noexcept(u > t))
+    bool matches(U const& u) const noexcept(noexcept(u > std::declval<T>()))
     {
       return u > t;
     }
@@ -778,7 +778,7 @@ namespace trompeloeil
     lt_t(T t_) : t{t_} {}
     operator T() const;
     template <typename U>
-    bool matches(U const& u) const noexcept(noexcept(u < t))
+    bool matches(U const& u) const noexcept(noexcept(u < std::declval<T>()))
     {
       return u < t;
     }
@@ -805,7 +805,7 @@ namespace trompeloeil
     le_t(T t_) : t{t_} {}
     operator T() const;
     template <typename U>
-    bool matches(U const& u) const noexcept(noexcept(u <= t))
+    bool matches(U const& u) const noexcept(noexcept(u <= std::declval<T>()))
     {
       return u <= t;
     }
