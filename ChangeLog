@@ -1,3 +1,19 @@
+	* 5 parameter value matchers are included. These are
+	  (in namespace trompeloeil):
+	  - ne(x) - not equal to x
+	  - lt(x) - less than x
+	  - le(x) - less than or equal to x
+	  - gt(x) - greater than x
+	  - ge(x) - greater than or equal to x
+
+	  These are used in expectations as e.g.:
+
+	    REQUIRE_CALL(obj, foo(ne(5)));
+
+	  which matches calls to foo with a value not equal to 5.
+
+	* Support and documenation for how to write custom matchers.
+
 	* The function registered to set_reporter() now must accept
 	  the source location as file, line instead of location as
 	  a combined string. Apologies for breaking existing code,
