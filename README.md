@@ -451,8 +451,7 @@ Some examples for popular C++ unit test frameworks are:
 Writing a matcher for your own data types is easy.
 
 All matchers need to
-- inherit from `trompeloeil::matcher`
-- provide a signature for a type conversion operator
+- inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
 - implement a `bool matches(parameter_value) const` member function
 - implement an output stream insertion operator
 
@@ -464,22 +463,20 @@ algorithm
 [`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
 allowing a parameter to match any of a set of values.
 
-
 For templated matchers, it is often convenient to provide a function that creates the
 matcher object. Below is the code for `any_of_t<T>`, which is the matcher created by
 the `any_of(std::initialize_list<T>)` function template.
 
 ```Cpp
   template <typename T>
-  class any_of_t : public trompeloeil::matcher
+  class any_of_t : public trompeloeil::typed_matcher<T>
   {
   public:
     any_of_t(std::initializer_list<T> elements)
     : alternatives(std::begin(elements), std::end(elements))
     {
     }
-    operator T() const;            //1
-    bool matches(T const& t) const //2
+    bool matches(T const& t) const
     {
       return std::any_of(std::begin(alternatives), std::end(alternatives),
                          [&t](T const& val) { return t == val; });
@@ -506,13 +503,9 @@ the `any_of(std::initialize_list<T>)` function template.
   }
 ```
 
-The type conversion operator at **//1**, does not need to be implemented. It
-is used solely for compile time disambiguation, in case there are several
-matching overloads for the mocked function where the matcher is used.
-
-The `matches` member function at **//2** accepts the parameter and returns
-rue if the value is legal, in this case if it is any of the values stored in
-the `elements` vector.
+The `matches` member function at accepts the parameter and returns
+true if the value is in the specified set, in this case if it is any
+of the values stored in the `elements` vector.
 
 The output stream insertion operator is only called if a failure is reported.
 The report will then look like:
@@ -524,21 +517,44 @@ No match for call of obj.foo with signature x(y) with.
 Troid obj.foo(any_of({x,y,z}) at file.cpp:8
   Expected _1 XXX
 ```
-Where XXX is the output from the stream insertion operator.
+Where `XXX` is the output from the stream insertion operator.
 
 ### Duck-typed matcher
 
 A duck-typed matcher accepts any type that matches a required set of
-operations. These have templatized type conversion operators and
-`matches` member functions. An example is a `not_empty` matcher,
-requiring that a `.empty()` member function of the parameter
-returns false.
+operations. Duck-typed matchers have a type conversion operator that
+selects which types it can operate on. The conversion operator is
+never implemented, but the signature must be available since it
+is used at compile time to select overload.
+
+An example of a duck-typed matcher is a `not_empty` matcher, requiring
+that a `.empty()` member function of the parameter returns false.
+
+First the restricting [SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+predicate used to match only types that has a `.empty()` member function.
+
+```Cpp
+  template <typename T>
+  class has_empty
+  {
+    struct no;
+    static no func(...);
+    template <typename U>
+    static auto func(U const* u) -> decltype(u->empty());
+  public:
+    static const bool value = !std::is_same<no, decltype(func(std::declval<T*>()))>::value;
+  };
+```
+
+Here `has_empty<T>::value` is true only for types `T` that has a `.empty()`
+member function callable on const objects.
 
 ```Cpp
   class not_empty : public trompeloeil::matcher
   {
   public:
-    template <typename T>
+    template <typename T,
+              typename = typename std::enable_if<has_empty<T>::value>::type>
     operator T() const;            //1
     template <typename T>
     bool matches(T const& t) const //2
@@ -552,13 +568,17 @@ returns false.
   };
 ```
 
-Written like this, the duck-typed matcher is in many ways simpler than a typed
-matcher, but disambiguation between overloaded mock member functions becomes
-tricky. One alternative is to use
+At **//1** the type conversion operator selects for types that has a
+`.empty()` member function.
 [`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if)
-on the conversion operator at **//1** to remove obviously illegal alternatives.
+ensures that mismatching types generates a compilation error at the site of
+use (**`REQUIRE_CALL()`**, **`ALLOW_CALL()`** or **`FORBID_CALL()`**.)
 
-The `matches` member function at **//2** becomes very simple.
+The `matches(T const&)` member function at **//2** becomes very simple. It
+does not need the [SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+[`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if) to select
+valid types, since a type mismatch gives a compilation error on the
+type conversion operator at **//1**.
 
 The output stream insertion operator is neither more or less tricky than with
 typed matchers. Making violation reports readable may require some thought,
