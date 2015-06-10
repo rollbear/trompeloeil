@@ -864,11 +864,10 @@ Tried obj.getter(trompeloeil::le(3)) at [a-z_./]*:[0-9]*
     TESTSUITE(custom)
     {
       template <typename T>
-      class any_of_t : public trompeloeil::matcher
+      class any_of_t : public trompeloeil::typed_matcher<T>
       {
       public:
         any_of_t(std::initializer_list<T> elements) : alternatives(std::begin(elements), std::end(elements)) {}
-        operator T() const;
         bool matches(T const& t) const
         {
           return std::any_of(std::begin(alternatives), std::end(alternatives),
@@ -936,13 +935,25 @@ Tried obj.getter(any_of({1,5,77})) at [a-z_./]*:[0-9]*
         }
       }
 
+      template <typename T>
+      class has_empty
+      {
+        struct no;
+        static no func(...);
+        template <typename U>
+        static auto func(U const* u) -> decltype(u->empty());
+      public:
+        static const bool value = !std::is_same<no, decltype(func(std::declval<T*>()))>::value;
+      };
+
       class not_empty : public trompeloeil::matcher
       {
       public:
-        template <typename T>
+        template <typename T, typename = typename std::enable_if<has_empty<T>::value>::type>
         operator T() const;
         template <typename T>
-        bool matches(T const& t) const
+        bool
+        matches(T const& t) const
         {
           return !t.empty();
         }
