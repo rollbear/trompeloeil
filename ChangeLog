@@ -1,3 +1,5 @@
+	* Basic support for Visual Studio 2015 RC
+
 	* 5 parameter value matchers are included. These are
 	  (in namespace trompeloeil):
 	  - ne(x) - not equal to x

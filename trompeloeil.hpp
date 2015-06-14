@@ -25,10 +25,15 @@
 // * Mocking function templates is not supported
 // * If a macro kills a kitten, this threatens extinction of all felines!
 
-#if (!defined(__cplusplus) || __cplusplus <= 201103)
-#error requires C++14 or higher
+#if defined(_MSC_VER)
+#  if (!defined(__cplusplus) || _MSC_VER < 1900)
+#    error requires C++ in Visual Studio 2015 RC or later  
+#  endif
+#else
+#  if (!defined(__cplusplus) || __cplusplus <= 201103)
+#    error requires C++14 or higher
+#  endif
 #endif
-
 #include <tuple>
 #include <iomanip>
 #include <sstream>
@@ -197,19 +202,27 @@ namespace trompeloeil
                                            char const *file,
                                            unsigned line,
                                            std::string const &msg)>;
+
+ 
+  inline
+  void default_reporter(severity, char const *file, unsigned line, std::string const &msg)
+  {
+    if (!std::current_exception())
+      {
+        std::stringstream os{ "                                                                                                    " };
+        os << "apa";
+        os << location{ file, line };
+        os << "\n";
+        os << msg;
+        throw expectation_violation(os.str());
+    }
+  }
+
   inline
   reporter_func&
   reporter_obj()
   {
-    static reporter_func obj = [](severity, char const *file, unsigned line, auto const &msg)
-      {
-        if (!std::current_exception())
-        {
-          std::ostringstream os;
-          os << location{file, line} << "\n" << msg;
-          throw expectation_violation(os.str());
-        }
-      };
+    static reporter_func obj = default_reporter;
     return obj;
   }
 
@@ -1341,7 +1354,8 @@ namespace trompeloeil
     handle_return(H&& h)
     {
       using params_type = call_params_type_t<signature>&;
-      using ret = typename std::result_of<H(params_type)>::type;
+      using ret = decltype(std::declval<H>()(std::declval<params_type>()));
+      // don't know why MS VS 2015 RC doesn't like std::result_of
 
       static_assert(std::is_constructible<return_of_t<signature>, ret>::value
                     || !std::is_same<return_of_t<signature>, void>::value,
