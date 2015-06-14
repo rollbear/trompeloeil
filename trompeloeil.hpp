@@ -851,7 +851,7 @@ namespace trompeloeil
     T*& leak() { return p; }
     T& operator*() const noexcept { return *p; }
     T* operator->() const noexcept { return p; }
-    explicit operator bool() const noexcept { return p; }
+    explicit operator bool() const noexcept { return !!p; }
   private:
     T* p;
   };
