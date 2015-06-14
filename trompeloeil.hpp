@@ -184,9 +184,9 @@ namespace trompeloeil
   struct location
   {
     location() = default;
-    location(char const* file_, unsigned line_) : file(file_), line(line_){}
+    location(char const* file_, unsigned long line_) : file{file}, line{line_}{}
     char const *file = "";
-    unsigned line = 0U;
+    unsigned long line = 0U;
   };
 
   inline
@@ -841,7 +841,8 @@ namespace trompeloeil
   struct null_on_move
   {
   public:
-    null_on_move(T* p_ = nullptr) noexcept : p{p_} {}
+    null_on_move() : p{nullptr} {}
+    null_on_move(T* p_) noexcept : p{p_} {}
     null_on_move(null_on_move&&) noexcept : p{nullptr} {}
     null_on_move(null_on_move const&) noexcept : p{nullptr} {}
     null_on_move& operator=(const null_on_move&) noexcept  { p = nullptr; return *this;}
@@ -870,7 +871,7 @@ namespace trompeloeil
       return trompeloeil_lifetime_monitor.leak();
     }
   private:
-    mutable null_on_move<trompeloeil::lifetime_monitor> trompeloeil_lifetime_monitor=nullptr;
+    mutable null_on_move<trompeloeil::lifetime_monitor> trompeloeil_lifetime_monitor;
   };
 
   struct lifetime_monitor
@@ -2058,13 +2059,13 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                          \
-  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, obj_s, {__FILE__, __LINE__})
+  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, obj_s, ::trompeloeil::location(__FILE__, __LINE__))
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj) \
   TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj, #obj)
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                    \
-  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, obj_s, {__FILE__, __LINE__}))
+  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, obj_s, ::trompeloeil::location(__FILE__, __LINE__)))
 
 #ifndef TROMPELOEIL_LONG_MACROS
 #define MAKE_MOCK0(name, sig) \
