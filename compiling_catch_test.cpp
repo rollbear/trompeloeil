@@ -11,7 +11,6 @@
 * Project home: https://github.com/rollbear/trompeloeil
 */
 
-// Some failing stuff is disabled via #if 0
 // Regular expressions do not match, but results look OK.
 
 #include "stdafx.h"
@@ -141,7 +140,7 @@ using trompeloeil::_;
     }
     REQUIRE(reports.empty());
   }
-#if 0
+
   TEST_CASE_METHOD(Fixture, "join two sequences gives no report", "[sequences]")
   {
     {
@@ -167,7 +166,7 @@ using trompeloeil::_;
     }
     REQUIRE(reports.empty());
   }
-#endif
+
   TEST_CASE_METHOD(Fixture, "violating single sequence reports first violation as fatal", "[sequences]")
   {
     try {
@@ -201,7 +200,7 @@ using trompeloeil::_;
       //REQUIRE(reports.front().msg = ~crpcut::regex("Sequence mismatch.*\"seq\".*matching.*obj2.count().*has obj2.func(_,_) at.*.*first"));
     }
   }
-#if 0
+
   TEST_CASE_METHOD(Fixture, "violating parallel sequences reports first violation as fatal", "[sequences]")
   {
     try {
@@ -237,7 +236,7 @@ using trompeloeil::_;
 //      REQUIRE(reports.front().msg = ~crpcut::regex("Sequence mismatch.*seq2.*of obj2.count().*has obj1.count().*first"));
     }
   }
-  #endif
+
   TEST_CASE_METHOD(Fixture, "a sequence retires after min calls", "[sequences]")
   {
     {
