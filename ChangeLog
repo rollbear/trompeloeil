@@ -1,9 +1,4 @@
-	* Basic support for Visual Studio 2015 RC
-
-	  Most things works. Notable exceptions are:
-	    * .IN_SEQUENCE fails compilation if more than one
-	      sequence object is included
-	    * ostream_tracer dies with illegal memory access
+	* Support for Visual Studio 2015 RC
 
 	* 5 parameter value matchers are included. These are
 	  (in namespace trompeloeil):
