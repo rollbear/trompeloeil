@@ -49,9 +49,11 @@
 #define TROMPELOEIL_ASSERT(x) do {} while (false)
 #endif
 
+#define TROMPELOEIL_IDENTITY(...) __VA_ARGS__ // work around stupid MS VS2015 RC bug
+
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
-#define TROMPELOEIL_COUNT(...) TROMPELOEIL_ARG16(__VA_ARGS__, 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#define TROMPELOEIL_COUNT(...) TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__, 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
 
 #define TROMPELOEIL_CONCAT_(x, y) x ## y
