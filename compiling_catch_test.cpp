@@ -1622,7 +1622,7 @@ Expected obj.foo("bar") to be called once, actually never called
       REQUIRE_FALSE(s);
     }
   }
-#if 0
+
 
   TEST_CASE_METHOD(Fixture, "matching calls are traced", "[tracing]")
   {
@@ -1667,4 +1667,3 @@ Expected obj.foo("bar") to be called once, actually never called
       "  param  _1 = bar\n$";
     //REQUIRE(os.str() = ~crpcut::regex(re, crpcut::regex::m));
   }
-#endif
