@@ -184,7 +184,7 @@ namespace trompeloeil
   struct location
   {
     location() = default;
-    location(char const* file_, unsigned long line_) : file{file}, line{line_}{}
+    location(char const* file_, unsigned long line_) : file{file_}, line{line_}{}
     char const *file = "";
     unsigned long line = 0U;
   };
