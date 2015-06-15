@@ -16,9 +16,9 @@
 
 #include "stdafx.h"
 #define TROMPELOEIL_SANITY_CHECKS
-#include "trompeloeil/trompeloeil.hpp"
+#include "trompeloeil.hpp"
 #define CATCH_CONFIG_MAIN
-#include "Catch/include/catch.hpp"
+#include "../Catch/include/catch.hpp"
 #include <vector>
 #include <string>
 #include <algorithm>
