@@ -47,6 +47,7 @@ class I
 {
 public:
   I(const char*);
+  virtual ~I() {}
   virtual bool foo(int, std::string& s) = 0;
   virtual bool bar(int) = 0;
   virtual bool bar(std::string) = 0;
@@ -62,7 +63,7 @@ public:
 class MI : public I
 {
 public:
-  using I::I
+  using I::ID
   MAKE_MOCK2(foo, bool(int, std::string&));
   MAKE_MOCK1(bar, bool(int));
   MAKE_MOCK1(bar, bool(std::string));
