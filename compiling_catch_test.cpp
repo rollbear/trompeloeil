@@ -16,7 +16,7 @@
 #define TROMPELOEIL_SANITY_CHECKS
 #include "trompeloeil.hpp"
 #define CATCH_CONFIG_MAIN
-#include "../Catch/include/catch.hpp"
+#include <catch.hpp>
 #include <vector>
 #include <string>
 #include <algorithm>
