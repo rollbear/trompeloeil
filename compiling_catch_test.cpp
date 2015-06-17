@@ -195,10 +195,8 @@ TEST_CASE_METHOD(Fixture, "violating single sequence reports first violation as 
   catch (reported)
   {
     REQUIRE(!reports.empty());
-    INFO("report=" << reports.front().msg);
-    //REQUIRE(std::regex_match(reports.front().msg,
-    //                         std::regex("Sequence mismatch")));//.*\"seq\".*"matching.*obj2.count().*has obj2\\.func(_,_) at.*first"),
-    //REQUIRE(reports.front().msg = ~crpcut::regex("Sequence mismatch.*\"seq\".*matching.*obj2.count().*has obj2.func(_,_) at.*.*first"));
+    auto re = R":(Sequence mismatch.*\"seq\".*matching.*obj2.count\(\).*has obj2\.func\(_,_\) at.*first):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -234,7 +232,8 @@ TEST_CASE_METHOD(Fixture, "violating parallel sequences reports first violation 
   catch (reported)
   {
     REQUIRE(!reports.empty());
-    //REQUIRE(reports.front().msg = ~crpcut::regex("Sequence mismatch.*seq2.*of obj2.count().*has obj1.count().*first"));
+    auto re = R":(Sequence mismatch.*seq2.*of obj2\.count\(\).*has obj1.count\(\).*first):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -313,7 +312,9 @@ TEST_CASE_METHOD(Fixture, "breaking a sequence before retirement is illegal", "[
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    //REQUIRE(reports.front().msg = ~crpcut::regex("Sequence mismatch.*seq1.*of obj1.func(_,_).*has obj1.count().*first"));
+    auto re = R":(Sequence mismatch.*seq1.*of obj1\.func\(_, _\).*has obj1\.count\(\).*first):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg,  std::regex(re)));
     auto& first = reports.front();
     INFO(first.file << ':' << first.line << "\n" << first.msg);
   }
@@ -714,12 +715,14 @@ TEST_CASE_METHOD(Fixture, "an equal value fails ne with report", "[matching][mat
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of foo with signature void(std::string) with.
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of foo with signature void\(std::string\) with\.
   param  _1 = bar
 
-            Tried obj.foo(trompeloeil::ne<std::string>("bar")) at [a-z_./]*:[0-9]*
-  Expected  _1 != bar)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != bar):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -753,12 +756,12 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by ge", "[matching][matche
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    auto re = R":(No match for call of getter with signature int\(int\) with.
   param  _1 = 2
 
-            Tried obj.getter(trompeloeil::ge(3)) at [a-z_./]*:[0-9]*
-  Expected  _1 >= 3)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(trompeloeil::ge\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 >= 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -776,12 +779,12 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by gt", "[matching][matche
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
-            Tried obj.getter(trompeloeil::gt(3)) at [a-z_./]*:[0-9]*
-  Expected  _1 > 3)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 > 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -805,12 +808,12 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by gt", "[matching][matche
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 2
 
-            Tried obj.getter(trompeloeil::gt(3)) at [a-z_./]*:[0-9]*
-  Expected  _1 > 3)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 > 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -828,12 +831,12 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by lt", "[matching][matche
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
-            Tried obj.getter(trompeloeil::lt(3)) at [a-z_./]*:[0-9]*
-  Expected  _1 < 3)_";
-   //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 < 3):";
+   REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -849,12 +852,12 @@ TEST_CASE_METHOD(Fixture, "a greater value is reported by lt", "[matching][match
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
-            Tried obj.getter(trompeloeil::lt(3)) at [a-z_./]*:[0-9]*
-  Expected  _1 < 3)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 < 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -888,12 +891,12 @@ TEST_CASE_METHOD(Fixture, "a greater value is reported by le", "[matching][match
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
-            Tried obj.getter(trompeloeil::le(3)) at [a-z_./]*:[0-9]*
-  Expected  _1 <= 3)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(trompeloeil::le\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 <= 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -974,12 +977,13 @@ TEST_CASE_METHOD(Fixture, "custom matcher of unlisted element is reported", "[ma
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of getter with signature int(int) with.
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
-            Tried obj.getter(any_of({1,5,77})) at [a-z_./]*:[0-9]*
-  Expected  _1 matching any_of({ 1, 5, 77 })_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching any_of\(\{ 1, 5, 77 \}\)):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1030,12 +1034,12 @@ TEST_CASE_METHOD(Fixture, "an empty string is reported", "[matching][matchers][c
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(No match for call of foo with signature void(std::string) with.
+    auto re = R":(No match for call of foo with signature void\(std::string\) with\.
   param  _1 = 
 
-            Tried obj.foo(not_empty{}) at [a-z_./]*:[0-9]*
-  Expected  _1 is not empty)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 is not empty):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1194,10 +1198,10 @@ TEST_CASE_METHOD(Fixture, "an unsatisfied require call is reported at end of sco
   }
   REQUIRE(reports.size() == 1U);
 
-  auto re = R"_(Unfulfilled expectation:
-Expected obj.foo("bar") to be called once, actually never called
-  param  _1 = bar)_";
-  //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+  auto re = R":(Unfulfilled expectation:
+Expected obj\.foo\("bar"\) to be called once, actually never called
+  param  _1 = bar):";
+  REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
 }
 
 // test of multiplicity retiring expectations, fulfilled or not
@@ -1210,7 +1214,7 @@ TEST_CASE_METHOD(Fixture, "no calls reported as never called", "[scoping][multip
       .RETURN(1);
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("actually never called"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("actually never called")));
 }
 
 TEST_CASE_METHOD(Fixture, "undersatisfied with one call reported as once", "[scoping][multiplicity]")
@@ -1223,7 +1227,7 @@ TEST_CASE_METHOD(Fixture, "undersatisfied with one call reported as once", "[sco
     obj.count();
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("actually called once"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("actually called once")));
 }
 
 TEST_CASE_METHOD(Fixture, "undersatisfied with two call reported as count", "[scoping][multiplicity]")
@@ -1237,7 +1241,7 @@ TEST_CASE_METHOD(Fixture, "undersatisfied with two call reported as count", "[sc
     obj.count();
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("actually called 2 times"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("actually called 2 times")));
 }
 
 TEST_CASE_METHOD(Fixture, "no calls when one required reported as expected once", "[scoping][multiplicity]")
@@ -1248,7 +1252,7 @@ TEST_CASE_METHOD(Fixture, "no calls when one required reported as expected once"
       .RETURN(1);
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("to be called once"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called once")));
 }
 
 TEST_CASE_METHOD(Fixture, "no calls when two required reported as expected 2 times", "[scoping][multiplicity]")
@@ -1260,7 +1264,7 @@ TEST_CASE_METHOD(Fixture, "no calls when two required reported as expected 2 tim
       .RETURN(1);
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("to be called 2 times"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called 2 times")));
 }
 
 // test of destruction, or lack of, for deathwatched objects
@@ -1271,7 +1275,7 @@ TEST_CASE_METHOD(Fixture, "an unexpected destruction of monitored object is repo
     trompeloeil::deathwatched<mock_c> obj;
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("Unexpected destruction of.*@"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("Unexpected destruction of.*@")));
 }
 
 TEST_CASE_METHOD(Fixture, "an expected destruction of monitored object is not reported", "[deatwatched]")
@@ -1301,7 +1305,7 @@ TEST_CASE_METHOD(Fixture, "a copy of a deathwatched object with expectation is n
 
   delete copy;
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("Unexpected destruction of .*@"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("Unexpected destruction of .*@")));
 }
 
 
@@ -1316,7 +1320,7 @@ TEST_CASE_METHOD(Fixture, "a deathwatched object move constructed from original 
 
   delete copy;
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("Unexpected destruction of .*@"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("Unexpected destruction of .*@")));
 }
 
 TEST_CASE_METHOD(Fixture, "object alive when destruction expectation goes out of scope is reported", "[deatwatched]")
@@ -1326,7 +1330,7 @@ TEST_CASE_METHOD(Fixture, "object alive when destruction expectation goes out of
     auto p = NAMED_REQUIRE_DESTRUCTION(obj);
   }
   REQUIRE(reports.size() == 1U);
-  //REQUIRE(reports.front().msg = ~crpcut::regex("Object obj is still alive"));
+  REQUIRE(std::regex_search(reports.front().msg, std::regex("Object obj is still alive")));
 }
 
 TEST_CASE_METHOD(Fixture, "require destruction succeeds also without deathwatch", "[deatwatched]")
@@ -1359,9 +1363,9 @@ TEST_CASE_METHOD(Fixture, "unmatched call is reported", "[mismatches]")
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"(No match for call of getter with signature int(int) with\.
-  param  _1 = 7)";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+    auto re = R":(No match for call of getter with signature int\(int\) with\.
+  param  _1 = 7):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1395,12 +1399,12 @@ TEST_CASE_METHOD(Fixture, "match of saturated call is reported", "[mismatches]")
     REQUIRE(count == 9);
     REQUIRE(reports.size() == 1U);
     auto re =
-      R"_(No match for call of getter with signature int(int) with\.
+      R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
-        Matches saturated call requirement
-  obj.getter(3) at [a-z_./]*:[0-9]*)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Matches saturated call requirement
+  obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1447,13 +1451,13 @@ TEST_CASE_METHOD(Fixture, "a matching call that throws is saturated", "[mismatch
     REQUIRE(count == 6);
     REQUIRE(reports.size() == 1U);
     auto re =
-      R"_(No match for call of getter with signature int(int) with\.
+      R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
-        Matches saturated call requirement
-  obj.getter(3) at [a-z_./]*:[0-9]*)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
-}
+Matches saturated call requirement
+  obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
 }
 
 TEST_CASE_METHOD(Fixture, "unmatched call with mismatching requirements is reported", "[mismatches]")
@@ -1470,15 +1474,15 @@ TEST_CASE_METHOD(Fixture, "unmatched call with mismatching requirements is repor
   {
     REQUIRE(reports.size() == 1U);
     auto re =
-      R"_(No match for call of getter with signature int(int) with\.
+      R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
-        Tried obj.getter(5) at [a-z_./]*:[0-9]*
+Tried obj\.getter\(5\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 = 5
 
-        Tried obj.getter(4) at [a-z_./]*:[0-9]*
-  Expected  _1 = 4)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 = 4):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1496,13 +1500,13 @@ TEST_CASE_METHOD(Fixture, "unmatched with wildcard reports failed WITH clauses",
   {
     REQUIRE(reports.size() == 1U);
     auto re =
-      R"_(No match for call of getter with signature int(int) with\.
+      R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
-        Tried obj.getter(ANY(int)) at [a-z_./]*:[0-9]*
-  Failed WITH(_1 < 3)
-  Failed WITH(_1 > 5))_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Failed WITH\(_1 < 3\)
+  Failed WITH\(_1 > 5\)):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1520,12 +1524,12 @@ TEST_CASE_METHOD(Fixture, "unmatched with wildcard reports only failed WITH clau
   {
     REQUIRE(reports.size() == 1U);
     auto re =
-      R"_(No match for call of getter with signature int(int) with\.
+      R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
-        Tried obj.getter(ANY(int)) at [a-z_./]*:[0-9]*
-  Failed WITH(_1 < 3))_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Failed WITH\(_1 < 3\)):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1545,9 +1549,10 @@ TEST_CASE_METHOD(Fixture, "match of forbidden call is reported", "[mismatches]")
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R"_(Match of forbidden call of obj.getter(3) at [a-z_./]*:[0-9]*
-  param  _1 = 3)_";
-    //REQUIRE(reports.front().msg = ~crpcut::regex(re, crpcut::regex::m));
+    INFO("report=" << reports.front().msg);
+    auto re = R":(Match of forbidden call of obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  param  _1 = 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1687,15 +1692,16 @@ TEST_CASE_METHOD(Fixture, "matching calls are traced", "[tracing]")
   obj1.getter(3, s);
   obj2.foo("bar");
   auto re =
-    "^[a-z_./]*:[0-9]*\n"
-    "obj1.getter(_, _) with.\n"
-    "  param  _1 = 3\n"
-    "  param  _2 = foo\n"
-    "\n"
-    "[a-z_./]*:[0-9]*\n"
-    "obj2.foo(\"bar\") with.\n"
-    "  param  _1 = bar\n$";
-  //REQUIRE(os.str() = ~crpcut::regex(re, crpcut::regex::m));
+    R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
+obj1\.getter\(_, _\) with.
+  param  _1 = 3
+  param  _2 = foo
+
+[A-Za-z0-9_ ./:\]*:[0-9]*.*
+obj2\.foo\("bar"\) with\.
+  param  _1 = bar
+):";
+  REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
 
 TEST_CASE_METHOD(Fixture, "tracing is only active when tracer obj is alive", "[tracing]")
@@ -1713,8 +1719,9 @@ TEST_CASE_METHOD(Fixture, "tracing is only active when tracer obj is alive", "[t
   }
   obj1.getter(4, s);
   auto re =
-    "^[a-z_./]*:[0-9]*\n"
-    "obj2.foo(\"bar\") with.\n"
-    "  param  _1 = bar\n$";
-  //REQUIRE(os.str() = ~crpcut::regex(re, crpcut::regex::m));
+    R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
+obj2\.foo\("bar"\) with\.
+  param  _1 = bar
+):";
+  REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
