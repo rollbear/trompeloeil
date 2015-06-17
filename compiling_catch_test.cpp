@@ -13,7 +13,6 @@
 
 // Regular expressions do not match, but results look OK.
 
-#include "stdafx.h"
 #define TROMPELOEIL_SANITY_CHECKS
 #include "trompeloeil.hpp"
 #define CATCH_CONFIG_MAIN
