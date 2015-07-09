@@ -210,12 +210,9 @@ namespace trompeloeil
   void default_reporter(severity, char const *file, unsigned line, std::string const &msg)
   {
     if (!std::current_exception())
-      {
-        std::stringstream os{ "                                                                                                    " };
-        os << "apa";
-        os << location{ file, line };
-        os << "\n";
-        os << msg;
+    {
+        std::stringstream os;
+        os << location{ file, line } << "\n" << msg;
         throw expectation_violation(os.str());
     }
   }
