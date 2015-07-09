@@ -1,7 +1,7 @@
 /*
 * Trompeloeil C++ mocking framework
 *
-* Copyright Björn Fahller 2014,2015
+* Copyright Bjï¿½rn Fahller 2014,2015
 *
 *  Use, modification and distribution is subject to the
 *  Boost Software License, Version 1.0. (See accompanying
@@ -25,7 +25,7 @@
 struct Fixture
 {
   Fixture() {
-    trompeloeil::set_reporter([this](auto s,auto f, auto l, auto m) { send_report(s, f, l, m);});
+    trompeloeil::set_reporter([this](auto s,auto f, auto l, auto m) { this->send_report(s, f, l, m);});
   }
   class reported {};
 
