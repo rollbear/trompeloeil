@@ -301,7 +301,8 @@ namespace trompeloeil
     static std::false_type func(...);
     static std::true_type func(matcher const*);
   public:
-    static const bool value = decltype(func(std::declval<T*>()))::value;
+    using type = decltype(func(std::declval<T*>()));
+    static const bool value = type::value;
   };
 
   template <typename T>
@@ -313,12 +314,12 @@ namespace trompeloeil
   template <typename T>
   class is_output_streamable
   {
-    template <typename U>
     static std::false_type func(...);
     template <typename U>
     static auto func(U const* u) -> std::is_same<std::ostream&, decltype(std::declval<std::ostream&>() << *u)>;
   public:
-    static bool const value = decltype(func<T>(nullptr))::value;
+    using type = decltype(func(std::declval<T*>()));
+    static bool const value = type::value;
   };
 
   struct stream_sentry
@@ -382,9 +383,6 @@ namespace trompeloeil
     print(os, t);
     os << '\n';
   }
-
-  template <typename T, typename Deleter>
-  class list;
 
   template <typename T>
   class list_elem
@@ -642,7 +640,7 @@ namespace trompeloeil
     }
   private:
     char const *seq_name;
-    char const *exp_name = nullptr;
+    char const *exp_name;
     location    exp_loc;
     sequence&   seq;
   };
@@ -850,7 +848,7 @@ namespace trompeloeil
     T*& leak() { return p; }
     T& operator*() const noexcept { return *p; }
     T* operator->() const noexcept { return p; }
-    explicit operator bool() const noexcept { return !!p; }
+    explicit operator bool() const noexcept { return p != nullptr; }
   private:
     T* p;
   };
