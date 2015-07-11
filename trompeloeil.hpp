@@ -489,7 +489,7 @@ namespace trompeloeil
   {
     friend class list<T, Disposer>;
   public:
-    iterator() noexcept = default;
+    iterator() noexcept : p{nullptr} {}
     friend
     bool operator==(iterator const &lh, iterator const &rh) noexcept
     {
