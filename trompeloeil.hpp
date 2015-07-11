@@ -476,7 +476,7 @@ namespace trompeloeil
     iterator end() const noexcept;
     iterator push_front(T* t) noexcept;
     iterator push_back(T* t) noexcept;
-    auto empty() const noexcept { return begin() == end(); }
+    bool empty() const noexcept { return begin() == end(); }
   private:
     using list_elem<T>::invariant_check;
     using list_elem<T>::next;
