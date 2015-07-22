@@ -592,4 +592,4 @@ Trompeloeil is known to work with:
 
 * GCC 4.9, 5.1
 * Clang 3.5, 3.6
-* VisualStudio 2015 RC
+* VisualStudio 2015
