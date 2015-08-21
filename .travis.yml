@@ -48,4 +48,4 @@ matrix:
 #      env: COMPILER=clang++
 
 script:
-  make CXX=$COMPILER CXXFLAGS=-std=c++14 -f Makefile.travis -j3
+  make CXX=$COMPILER CXXFLAGS=-std=c++14 -j3
