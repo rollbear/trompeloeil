@@ -1,0 +1,5 @@
+all: self_test
+	./self_test
+
+self_test: compiling_tests.cpp trompeloeil.hpp
+	$(CXX) $(CXXFLAGS) $< -o $@
