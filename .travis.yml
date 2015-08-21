@@ -51,3 +51,4 @@ matrix:
 
 script:
   make CXX=$COMPILER CXXFLAGS=-std=c++14 -f Makefile.travis
+  CXX=$COMPILER ./check_errors.sh
