@@ -1,6 +1,6 @@
 ## *Trompeloeil*
 
-![trompeloeil logo](trompeloeil-logo.png)  
+![trompeloeil logo](trompeloeil-logo.png)  [![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil)
 
 > *trompe l'oeil* noun    (Concise Encyclopedia)  
 > Style of representation in which a painted object is intended
