@@ -7,7 +7,7 @@ matrix:
       compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test', 'libcurl14-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
+          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-4.9']
       env: COMPILER=g++-4.9
 
@@ -15,7 +15,7 @@ matrix:
       compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test', 'libcurl14-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
+          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-5']
       env: COMPILER=g++-5
 
@@ -23,7 +23,7 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.5', 'libcurl14-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.5']
           packages: ['clang-3.5']
       env: COMPILER=clang++-3.5
 
@@ -31,7 +31,7 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6', 'libcurl14-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
           packages: ['clang-3.6']
       env: COMPILER=clang++-3.6
 
@@ -40,7 +40,7 @@ matrix:
 #      compiler: clang
 #      addons:
 #        apt:
-#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7', 'libcurl14-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
+#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
 #          packages: ['clang-3.7']
 #      env: COMPILER=clang++-3.7
 
@@ -54,6 +54,3 @@ before_script:
 
 script:
   wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz &&  make CXX=$COMPILER CXXFLAGS="-std=c++14 -g -I Catch-1.2.1-develop.12/include" -f Makefile.travis
-
-after_success:
-  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz && tar xzf master.tar.gz && mkdir kcov-master/build && cd kcov-master/build && cmake .. && make &&  sudo make install && cd ../.. &&  kcov --coveralls-id=$TRAVIS_JOB_ID --include-pattern=trompeloeil.hpp target/kcov ./self_test
