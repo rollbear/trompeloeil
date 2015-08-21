@@ -53,7 +53,7 @@ before_script:
   CXX=$COMPILER ./check_errors.sh
 
 script:
-  wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar fz v1.2.1-develop.12.tar.gz &&  make CXX=$COMPILER CXXFLAGS="-std=c++14 -g -I Catch-1.2.1-develop.12/include" -f Makefile.travis
+  wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz &&  make CXX=$COMPILER CXXFLAGS="-std=c++14 -g -I Catch-1.2.1-develop.12/include" -f Makefile.travis
 
 after_success:
   wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz && tar xzf master.tar.gz && mkdir kcov-master/build && cd kcov-master/build && cmake .. && make &&  sudo make install && cd ../.. &&  kcov --coveralls-id=$TRAVIS_JOB_ID --include-pattern=trompeloeil.hpp target/kcov ./self_test
