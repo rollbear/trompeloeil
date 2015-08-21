@@ -7,7 +7,7 @@ matrix:
       compiler: gcc
       addons:
         apt:
-	  sources: ['ubuntu-toolchain-r-test']
+          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-4.9']
       env: COMPILER=g++-4.9
 
@@ -15,7 +15,7 @@ matrix:
       compiler: gcc
       addons:
         apt:
-	  sources: ['ubuntu-toolchain-r-test']
+          sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-5']
       env: COMPILER=g++-5
 
@@ -23,7 +23,7 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test','llvm-toolchain-precise-3.5']
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.5']
           packages: ['clang-3.5']
       env: COMPILER=clang++-3.5
 
@@ -31,7 +31,7 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test','llvm-toolchain-precise-3.6']
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
           packages: ['clang-3.6']
       env: COMPILER=clang++-3.6
 
@@ -40,7 +40,7 @@ matrix:
 #      compiler: clang
 #      addons:
 #        apt:
-#          sources: ['ubuntu-toolchain-r-test','llvm-toolchain-precise-3.7']
+#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
 #          packages: ['clang-3.7']
 #      env: COMPILER=clang++-3.7
 
