@@ -8,7 +8,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-4.9']
+          packages: ['g++-4.9', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake']
       env: COMPILER=g++-4.9
 
     - os: linux
@@ -16,7 +16,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-5']
+          packages: ['g++-5', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake']
       env: COMPILER=g++-5
 
     - os: linux
@@ -24,7 +24,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
-          packages: ['clang-3.6']
+          packages: ['clang-3.6', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake']
       env: COMPILER=clang++-3.6
 
 # Activate when 3.7 is released and the repository is available
@@ -33,7 +33,7 @@ matrix:
 #      addons:
 #        apt:
 #          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
-#          packages: ['clang-3.7']
+#          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake' ]
 #      env: COMPILER=clang++-3.7
 
 # Activate when we are allowed to use MacOS X
@@ -46,3 +46,7 @@ before_script:
 
 script:
   wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz &&  make CXX=$COMPILER CXXFLAGS="-std=c++14 -g -I Catch-1.2.1-develop.12/include" -f Makefile.travis
+  
+after_success:
+  wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&  unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build && cmake .. && ake && make install DESTDIR=../build && cd ../.. && ./kcov/built/usr/local/bin/kcov --include-pattern="trompeloeil.hpp" --coveralls-id=${TRAVIS_JOB_ID} ./target/kcov ./self_test
+  
