@@ -8,7 +8,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-4.9', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake']
+          packages: ['g++-4.9', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
       env: COMPILER=g++-4.9
 
     - os: linux
@@ -16,7 +16,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-5', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake']
+          packages: ['g++-5', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
       env: COMPILER=g++-5
 
     - os: linux
@@ -24,7 +24,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
-          packages: ['clang-3.6', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake']
+          packages: ['clang-3.6', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake']
       env: COMPILER=clang++-3.6
 
 # Activate when 3.7 is released and the repository is available
@@ -33,7 +33,7 @@ matrix:
 #      addons:
 #        apt:
 #          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
-#          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', libdw-dev', 'cmake' ]
+#          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake' ]
 #      env: COMPILER=clang++-3.7
 
 # Activate when we are allowed to use MacOS X
