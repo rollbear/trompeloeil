@@ -159,7 +159,7 @@ testing of legacy code.
 
 **`trompeloel::tracer`**  
 Base class for tracers. Override the member function
-`void trace(const char* file, unsigned line, const std::string& call)` in your
+`void trace(const char* file, unsigned long line, const std::string& call)` in your
 own trace class if a **`trompeloeil::stream_tracer`** is not right for you.
 
 ## Macros
@@ -355,7 +355,7 @@ There is a function
 ```Cpp
 trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
                                              char const *file,
-                                             unsigned line,
+                                             unsigned long line,
                                              const std::string& msg)>)
 ```
 which can be used to control the reporting. `trompeloeil::severity` is an enum
@@ -374,7 +374,7 @@ Some examples for popular C++ unit test frameworks are:
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity s,
                                char const *file,
-                               unsigned line,
+                               unsigned long line,
                                const std::string& msg)
     {
       std::ostringstream os;
@@ -392,7 +392,7 @@ Some examples for popular C++ unit test frameworks are:
 ```Cpp
   trompeloeil::set_reporter([](::trompeloeil::severity,
                                char const *file,
-                               unsigned line,
+                               unsigned long line,
                                const std::string& msg)
     {
       std::ostringstream os;
@@ -411,7 +411,7 @@ Some examples for popular C++ unit test frameworks are:
 ```Cpp
   trompeloeil::set_reporter([](trompeloeil::severity s,
                                char const *file,
-                               unsigned line,
+                               unsigned long line,
                                const std::string& msg)
     {
       if (s == trompeloeil::severity::fatal)
@@ -434,7 +434,7 @@ Some examples for popular C++ unit test frameworks are:
   using trompeloeil::severity;
   trompeloeil::set_reporter([](severity s,
                                char const *file,
-                               unsigned line,
+                               unsigned long line,
                                const std::string& msg)
     {
       std::ostringstream os;
