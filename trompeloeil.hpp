@@ -858,7 +858,8 @@ namespace trompeloeil
     static_assert(std::has_virtual_destructor<T>::value,
                   "virtual destructor is a necessity for deathwatched to work");
   public:
-    using T::T;
+    template <typename ... U, typename = typename std::enable_if<std::is_constructible<T, U...>::value>::type>
+    deathwatched(U&& ...u) : T(std::forward<U>(u)...) {}
     ~deathwatched();
     trompeloeil::lifetime_monitor*&
     trompeloeil_expect_death(trompeloeil::lifetime_monitor* monitor)
