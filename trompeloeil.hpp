@@ -202,12 +202,12 @@ namespace trompeloeil
 
   using reporter_func = std::function<void(severity,
                                            char const *file,
-                                           unsigned line,
+                                           unsigned long line,
                                            std::string const &msg)>;
 
  
   inline
-  void default_reporter(severity, char const *file, unsigned line, std::string const &msg)
+  void default_reporter(severity, char const *file, unsigned long line, std::string const &msg)
   {
     if (!std::current_exception())
     {
@@ -254,7 +254,7 @@ namespace trompeloeil
   class tracer
   {
   public:
-    virtual void trace(char const *file, unsigned line, std::string const &call) = 0;
+    virtual void trace(char const *file, unsigned long line, std::string const &call) = 0;
   protected:
     tracer() : previous(set_tracer(this)) {}
     tracer(tracer const&) = delete;
@@ -268,7 +268,7 @@ namespace trompeloeil
   {
   public:
     stream_tracer(std::ostream& stream_) : stream(stream_) {}
-    void trace(char const *file, unsigned line, std::string const &call) override
+    void trace(char const *file, unsigned long line, std::string const &call) override
     {
       stream << location{file, line} << '\n' << call << '\n';
     }

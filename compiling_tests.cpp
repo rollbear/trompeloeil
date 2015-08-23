@@ -33,12 +33,12 @@ struct Fixture
   {
     trompeloeil::severity s;
     const char* file;
-    unsigned line;
+    unsigned long line;
     std::string           msg;
   };
   std::vector<report> reports;
 
-  void send_report(trompeloeil::severity s, const char* file, unsigned line, const std::string msg)
+  void send_report(trompeloeil::severity s, const char* file, unsigned long line, const std::string msg)
   {
     reports.push_back(report{ s, file, line, msg });
     if (s == trompeloeil::severity::fatal && !std::uncaught_exception())
