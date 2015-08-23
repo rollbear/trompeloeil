@@ -456,7 +456,9 @@ namespace trompeloeil
   {
   protected:
     template <typename T>
-    void dispose(T*) const noexcept {}
+    void dispose(T*) const noexcept {
+      TROMPELOEIL_ASSERT(!"must never be called");
+    }
   };
 
   class delete_disposer
@@ -949,6 +951,7 @@ namespace trompeloeil
   {
     static return_of_t<Sig> value()
     {
+      TROMPELOEIL_ASSERT(!"must never be called");
       typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
       return std::forward<return_of_t<Sig>>(*p);
     }
