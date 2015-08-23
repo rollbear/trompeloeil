@@ -405,7 +405,7 @@ namespace trompeloeil
       TROMPELOEIL_ASSERT(!r.is_linked());
       invariant_check();
     }
-    ~list_elem() { unlink(); }
+    virtual ~list_elem() { unlink(); }
     void unlink() noexcept
     {
       invariant_check();
