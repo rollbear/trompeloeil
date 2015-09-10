@@ -591,5 +591,5 @@ Compiler compatibility
 Trompeloeil is known to work with:
 
 * GCC 4.9, 5.1
-* Clang 3.5, 3.6
+* Clang 3.5, 3.6, 3.7
 * VisualStudio 2015
