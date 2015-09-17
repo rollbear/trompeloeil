@@ -1007,6 +1007,7 @@ namespace trompeloeil
     std::ostream&
     report_signature(std::ostream&) const = 0;
 
+    [[noreturn]]
     virtual
     std::ostream&
     report_mismatch(std::ostream&, call_params_type_t<Sig> const &) = 0;
@@ -1131,6 +1132,7 @@ namespace trompeloeil
   }
 
   template <typename Sig>
+  [[noreturn]]
   void
   report_mismatch(char const                    *name,
                   call_params_type_t<Sig> const &p,
@@ -1162,6 +1164,7 @@ namespace trompeloeil
       }
     }
     trompeloeil::send_report(severity::fatal, location{}, os.str());
+    std::abort(); // must never get here.
   }
 
   template <typename Sig>
