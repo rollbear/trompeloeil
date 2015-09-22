@@ -1,3 +1,15 @@
+v6  2015-09-22
+
+	* Verified support for released Visual Studio 2015
+
+	* trompeloeil::ne(nullptr) works for all pointer types
+
+	* Fixed a few issues reported by clang 3.7 sanitizers
+
+	* line number in reporter_func is unsigned long to match
+	  type of __LINE__
+
+
 v5  2015-06-19
 
 	* Support for Visual Studio 2015 RC
