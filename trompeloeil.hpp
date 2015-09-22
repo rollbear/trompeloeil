@@ -26,10 +26,12 @@
 // * If a macro kills a kitten, this threatens extinction of all felines!
 
 #if defined(_MSC_VER)
+#  define TROMPELOEIL_NORETURN
 #  if (!defined(__cplusplus) || _MSC_VER < 1900)
-#    error requires C++ in Visual Studio 2015 RC or later  
+#    error requires C++ in Visual Studio 2015 RC or later
 #  endif
 #else
+#  define TROMPELOEIL_NORETURN [[noreturn]]
 #  if (!defined(__cplusplus) || __cplusplus <= 201103)
 #    error requires C++14 or higher
 #  endif
@@ -1038,7 +1040,7 @@ namespace trompeloeil
     std::ostream&
     report_signature(std::ostream&) const = 0;
 
-    [[noreturn]]
+    TROMPELOEIL_NORETURN
     virtual
     std::ostream&
     report_mismatch(std::ostream&, call_params_type_t<Sig> const &) = 0;
@@ -1163,7 +1165,7 @@ namespace trompeloeil
   }
 
   template <typename Sig>
-  [[noreturn]]
+  TROMPELOEIL_NORETURN
   void
   report_mismatch(char const                    *name,
                   call_params_type_t<Sig> const &p,
