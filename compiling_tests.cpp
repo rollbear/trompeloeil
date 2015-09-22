@@ -726,6 +726,119 @@ Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0
   }
 }
 
+struct C_foo1
+{
+  MAKE_MOCK1(foo, void(int*));
+};
+
+
+TEST_CASE_METHOD(Fixture, "non-nullptr call matches ne(nullptr)", "[matching][matchers][ne]")
+{
+  C_foo1 obj;
+  REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+  int n;
+  obj.foo(&n);
+}
+
+TEST_CASE_METHOD(Fixture, "nullptr call with ne(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo1 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    obj.foo(nullptr);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of foo with signature void\(int\*\) with\.
+  param  _1 = .*
+
+Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != .*):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+
+struct C_foo2
+{
+  MAKE_MOCK1(foo, void(int*));
+  MAKE_MOCK1(foo, void(char*));
+};
+
+TEST_CASE_METHOD(Fixture, "overloaded non-nullptr call disambiguated with ne<type>(nullptr) is matched", "[matching][matchers][ne]")
+{
+  C_foo2 obj;
+  REQUIRE_CALL(obj, foo(trompeloeil::ne<int*>(nullptr)));
+  int i;
+  obj.foo(&i);
+}
+
+TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with ne<type>(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo2 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne<int*>(nullptr)));
+    int* i_null = nullptr;
+    obj.foo(i_null);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of foo with signature void\(int\*\) with\.
+  param  _1 = .*
+
+Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != .*):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+
+struct C_foo3
+{
+  int m;
+  MAKE_MOCK1(foo, void(int C_foo3::*));
+};
+
+
+TEST_CASE_METHOD(Fixture, "pointer to member call with ne(nullptr) matched", "[matching][matchers][ne]")
+{
+  C_foo3 obj;
+  REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+  obj.foo(&C_foo3::m);
+}
+
+TEST_CASE_METHOD(Fixture, "pointer to member ptr call with ne(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    obj.foo(nullptr);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of foo with signature void\(int C_foo3::\*\) with\.
+  param  _1 = .*
+
+Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != .*):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+
+
 // tests of parameter matching using typed matcher ge
 
 TEST_CASE_METHOD(Fixture, "an equal value matches ge", "[matching][matchers][ge]")

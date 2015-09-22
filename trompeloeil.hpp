@@ -311,6 +311,16 @@ namespace trompeloeil
     operator T() const;
   };
 
+  template <>
+  struct typed_matcher<std::nullptr_t> : matcher
+  {
+    template <typename U>
+    operator U*() const;
+
+    template <typename T, typename C>
+    operator T C::*() const;
+  };
+  
   template <typename T>
   class is_output_streamable
   {
@@ -728,6 +738,27 @@ namespace trompeloeil
     T t;
   };
 
+  template <>
+  class ne_t<std::nullptr_t> : public typed_matcher<std::nullptr_t>
+  {
+  public:
+    ne_t(std::nullptr_t) {}
+    template <typename U>
+    bool matches(U* u) const noexcept
+    {
+      return u != nullptr;
+    }
+    template <typename C, typename T>
+    bool matches(T C::*p) const noexcept
+    {
+      return p != nullptr;
+    }
+    friend std::ostream& operator<<(std::ostream& os, ne_t<std::nullptr_t> const&)
+    {
+      return os << " != nullptr";
+    }
+  };
+  
   template <typename T>
   ne_t<T> ne(T t)
   {
@@ -1739,7 +1770,7 @@ namespace trompeloeil
   template <typename ... T>
   call_params_type_t<void(T...)> make_params_type_obj(T&& ... t)
   {
-    return call_params_type_t<void(T...)>(t...);
+    return call_params_type_t<void(T...)>(std::forward<T>(t)...);
   }
 
   struct call_validator
