@@ -119,7 +119,7 @@ Limitations
 - Function templates cannot be mocked
 - WAY too many macros... but I think we'll have to make do with most of them
 
-- Quirk! Matching a move-only type passed by value or by rvalue-refenence
+- Quirk! Matching a move-only type passed by value or by rvalue-reference
   requires a bit of trickery in the expectation. Use a wild card in the
   **`REQUIRE_CALL`()**, and match in **`.WITH()`** or **`.LR_WITH()`** using
   alternative means. For example, a `std::unique_ptr<T>` passed by value can be
@@ -157,7 +157,7 @@ An object that traces matching calls to the `std::ostream` instance provided in
 the constructor. Mostly useful with **`ALLOW_CALL`** when doing exploratory
 testing of legacy code.
 
-**`trompeloel::tracer`**  
+**`trompeloeil::tracer`**  
 Base class for tracers. Override the member function
 `void trace(const char* file, unsigned long line, const std::string& call)` in your
 own trace class if a **`trompeloeil::stream_tracer`** is not right for you.
@@ -209,7 +209,7 @@ variable.
 reference, so lifetime management is important.
 
 **`REQUIRE_DESTRUCTION`(** *mock_object* **)**  
-Makes it legal for a **`deathwatched`** *mock_object* to be destroyed. An erro
+Makes it legal for a **`deathwatched`** *mock_object* to be destroyed. An error
 is reported if *mock_object* is still alive at end of scope.
 
 **`NAMED_REQUIRE_DESTRUCTION`(** *mock_object* **)**  
@@ -302,7 +302,7 @@ captured by reference, so lifetime management is important.
 
 In any expectation (**`REQUIRE_CALL`**, **`ALLOW_CALL`**, or **`FORBID_CALL`**,)
 you add the parameter values that signifies a matching call. Sometimes a
-simple equality check is not enough, though. You can then choose to eiter
+simple equality check is not enough, though. You can then choose to either
 use **`WITH`** (or **`LR_WITH`**) clauses or matchers.
 
 The matchers supplied by `trompeloeil` are:
@@ -315,11 +315,11 @@ Match parameters that are not equal to `value`. The comparison used is
 Match parameters that are greater than `value`. The comparison used is
 `param > value`.
 
-**`trompeoleil::ge`(** `value` **)**  
+**`trompeloeil::ge`(** `value` **)**  
 Match parameters that are greater than or equal to `value`. The comparison used
 is `param >= value`.
 
-**`tropmeloeil::lt`(** `value` **)**  
+**`trompeloeil::lt`(** `value` **)**  
 Match parameters that are less than `value`. The comparison used is
 `param < value`.
 
@@ -459,7 +459,7 @@ All matchers need to
 ### Typed matcher
 
 The simplest matcher is a typed matcher. As an example of a typed matcher, an
-`any_of` matcher is shown, mimicing the behaviour of the standard library
+`any_of` matcher is shown, mimicking the behaviour of the standard library
 algorithm
 [`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
 allowing a parameter to match any of a set of values.
@@ -515,7 +515,7 @@ The report will then look like:
 No match for call of obj.foo with signature x(y) with.
   param  _1 = Z
 
-Troid obj.foo(any_of({x,y,z}) at file.cpp:8
+Tried obj.foo(any_of({x,y,z}) at file.cpp:8
   Expected _1 XXX
 ```
 Where `XXX` is the output from the stream insertion operator.

@@ -1541,7 +1541,7 @@ TEST_CASE_METHOD(Fixture, "a deathwatched objects constructor passes params to m
   delete obj;
 }
 
-// tests of calls that do not match any valid expections
+// tests of calls that do not match any valid expectations
 
 TEST_CASE_METHOD(Fixture, "unmatched call is reported", "[mismatches]")
 {

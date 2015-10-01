@@ -28,7 +28,7 @@ v5  2015-06-19
 
 	  which matches calls to foo with a value not equal to 5.
 
-	* Support and documenation for how to write custom matchers.
+	* Support and documentation for how to write custom matchers.
 
 	* The function registered to set_reporter() now must accept
 	  the source location as file, line instead of location as
