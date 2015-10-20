@@ -26,5 +26,5 @@ int main()
   REQUIRE_CALL(obj, f())
     .TIMES(AT_LEAST(1))
     .TIMES(AT_MOST(3))
-    .RETURN(0)
+    .RETURN(0);
 }
