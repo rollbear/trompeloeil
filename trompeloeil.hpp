@@ -1959,26 +1959,26 @@ namespace trompeloeil
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)               \
-  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0, ~0ULL)
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0, ~0ULL)
 
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL(obj, func) \
   TROMPELOEIL_NAMED_ALLOW_CALL(obj, func, #obj, #func)
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, obj_s, func_s)      \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0, ~0ULL)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0, ~0ULL)
 
 #define TROMPELOEIL_FORBID_CALL(obj, func) \
   TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_FORBID_CALL_(obj, func, obj_s, func_s)     \
-  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0).THROW(false)
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0).THROW(false)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL(obj, func) \
   TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, obj_s, func_s)       \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TIMES(0).THROW(false)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0).THROW(false)
 
 
 
