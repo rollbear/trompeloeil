@@ -1324,6 +1324,11 @@ namespace trompeloeil
     sequence_matcher matchers[N];
   };
 
+  template <unsigned long long L, unsigned long long H = L>
+  struct multiplicity
+  {
+  };
+
   template<typename R, typename Parent>
   struct return_injector : Parent
   {
@@ -1427,10 +1432,10 @@ namespace trompeloeil
       return {matcher};
     }
     template <unsigned long long L,
-              unsigned long long H = L,
+              unsigned long long H,
               bool               verboten = call_limit_set>
     call_modifier<Matcher, call_limit_injector<Parent, H> >
-    times()
+    times(multiplicity<L, H>)
     {
       static_assert(!verboten,
                     "Only one TIMES call limit is allowed, but it can express an interval");
@@ -2082,7 +2087,7 @@ namespace trompeloeil
  })
 
 
-#define TROMPELOEIL_TIMES(...) times<__VA_ARGS__>()
+#define TROMPELOEIL_TIMES(...) times(::trompeloeil::multiplicity<__VA_ARGS__>{})
 
 #define TROMPELOEIL_IN_SEQUENCE(...) \
   in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))

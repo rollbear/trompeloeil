@@ -1380,6 +1380,34 @@ TEST_CASE_METHOD(Fixture, "no calls when two required reported as expected 2 tim
   REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called 2 times")));
 }
 
+template <typename T>
+class tmock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+  tmock() : m(NAMED_FORBID_CALL(*this, func(_))) {}
+private:
+  std::unique_ptr<trompeloeil::expectation> m;
+};
+TEST_CASE_METHOD(Fixture, "TIMES works for templated mock classes", "[multiplicity]")
+{
+  try
+  {
+    tmock<int> m;
+    m.func(3);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO(reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg,
+                              std::regex("Match of forbidden call")));
+
+  }
+
+}
+
 // test of destruction, or lack of, for deathwatched objects
 
 TEST_CASE_METHOD(Fixture, "an unexpected destruction of monitored object is reported", "[deatwatched]")
