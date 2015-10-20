@@ -1759,7 +1759,7 @@ namespace trompeloeil
   {
     static illegal_argument<N> const & value(T&) noexcept
     {
-      static illegal_argument<N> const constexpr v{};
+      static illegal_argument<N> constexpr v{};
       return v;
     }
 
