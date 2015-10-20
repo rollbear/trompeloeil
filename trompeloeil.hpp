@@ -14,6 +14,7 @@
 #ifndef TROMPELOEIL_HPP_
 #define TROMPELOEIL_HPP_
 
+
 // trompe l'oeil noun    (Concise Encyclopedia)
 // Style of representation in which a painted object is intended
 // to deceive the viewer into believing it is the object itself...
@@ -468,8 +469,8 @@ namespace trompeloeil
   {
   protected:
     template <typename T>
-    void dispose(T*) const noexcept {
-      TROMPELOEIL_ASSERT(!"must never be called");
+    TROMPELOEIL_NORETURN void dispose(T*) const noexcept {
+      std::abort(); // must never be called
     }
   };
 
@@ -982,11 +983,9 @@ namespace trompeloeil
   template <typename Sig>
   struct default_return_t
   {
-    static return_of_t<Sig> value()
+    TROMPELOEIL_NORETURN static return_of_t<Sig> value()
     {
-      TROMPELOEIL_ASSERT(!"must never be called");
-      typename std::remove_reference<return_of_t<Sig>>::type *p = nullptr;
-      return std::forward<return_of_t<Sig>>(*p);
+      std::abort(); // must never be called
     }
   };
 
@@ -1212,7 +1211,8 @@ namespace trompeloeil
   class return_handler_t : public return_handler<Sig>
   {
   public:
-    return_handler_t(T&& t) : func(std::move(t)) {}
+    template <typename U>
+    return_handler_t(U&& u) : func(std::forward<U>(u)) {}
     return_of_t<Sig> call(call_params_type_t<Sig>& params) override
     {
       return func(params);
@@ -1397,21 +1397,25 @@ namespace trompeloeil
     handle_return(H&& h)
     {
       using params_type = call_params_type_t<signature>&;
+      using sigret = return_of_t<signature>;
       using ret = decltype(std::declval<H>()(std::declval<params_type>()));
       // don't know why MS VS 2015 RC doesn't like std::result_of
 
-      static_assert(std::is_constructible<return_of_t<signature>, ret>::value
-                    || !std::is_same<return_of_t<signature>, void>::value,
+      constexpr bool is_first_return   = std::is_same<return_type, void>::value;
+      constexpr bool void_signature    = std::is_same<sigret, void>::value;
+      constexpr bool matching_ret_type = std::is_constructible<sigret, ret>::value;
+
+      static_assert(matching_ret_type || !void_signature,
                     "RETURN does not make sense for void-function");
-      static_assert(std::is_constructible<return_of_t<signature>, ret>::value
-                    || std::is_same<return_of_t<signature>, void>::value,
+      static_assert(matching_ret_type || void_signature,
                     "RETURN value is not convertible to the return type of the function");
-      static_assert(std::is_same<return_type, void>::value,
+      static_assert(is_first_return,
                     "Multiple RETURN does not make sense");
       static_assert(!throws || upper_call_limit == 0,
                     "THROW and RETURN does not make sense");
       static_assert(upper_call_limit > 0ULL,
                     "RETURN for forbidden call does not make sense");
+
       matcher.set_return(std::move(h));
       return {matcher};
     }
@@ -1422,8 +1426,10 @@ namespace trompeloeil
     {
       static_assert(!throws,
                     "Multiple THROW does not make sense");
-      static_assert(std::is_same<return_type, void>::value,
+      constexpr bool previous_return = !std::is_same<return_type, void>::value;
+      static_assert(!previous_return,
                     "THROW and RETURN does not make sense");
+
       matcher.set_return([=](auto& p)
                          {
                            h(p);
@@ -1433,11 +1439,11 @@ namespace trompeloeil
     }
     template <unsigned long long L,
               unsigned long long H,
-              bool               verboten = call_limit_set>
+              bool               times_set = call_limit_set>
     call_modifier<Matcher, call_limit_injector<Parent, H> >
     times(multiplicity<L, H>)
     {
-      static_assert(!verboten,
+      static_assert(!times_set,
                     "Only one TIMES call limit is allowed, but it can express an interval");
 
       static_assert(H >= L,
@@ -1784,14 +1790,31 @@ namespace trompeloeil
   {
     template <typename T>
     static
-    void
+    auto
     assert_return_type(T&)
     noexcept
     {
-      static_assert(T::throws
-                    || std::is_same<typename T::return_type,
-                                    return_of_t<typename T::signature> >::value,
-                    "RETURN missing for non-void function");
+      using sigret = return_of_t<typename T::signature>;
+      using ret = typename T::return_type;
+      constexpr bool retmatch = std::is_same<ret, sigret>::value;
+      constexpr bool legal = T::throws || retmatch;
+      static_assert(legal, "RETURN missing for non-void function");
+      return std::integral_constant<bool, legal>{};
+    }
+
+    template <typename T>
+    static
+    auto
+    make_expectation(std::true_type, T* t) noexcept
+    {
+      return std::unique_ptr<expectation>(t);
+    }
+
+    static
+    auto
+    make_expectation(std::false_type, ...) noexcept
+    {
+      return std::unique_ptr<expectation>();
     }
 
     template <typename M, typename Info>
@@ -1799,8 +1822,7 @@ namespace trompeloeil
     operator+(call_modifier<M, Info>& t)
     const
     {
-      assert_return_type(t);
-      return std::unique_ptr<expectation>(&t.matcher);
+      return make_expectation(assert_return_type(t), &t.matcher);
     }
 
     template <typename M, typename Info>
@@ -1808,7 +1830,7 @@ namespace trompeloeil
     operator+(call_modifier<M, Info>&& t)
     const
     {
-      return operator+(t);
+      return make_expectation(assert_return_type(t), &t.matcher);
     }
   };
 
