@@ -1385,9 +1385,11 @@ namespace trompeloeil
     call_modifier<Matcher, sideeffect_injector<Parent>>
     sideeffect(A&& a)
     {
-      static_assert(upper_call_limit > 0,
+      constexpr bool forbidden = upper_call_limit == 0U;
+      static_assert(!forbidden,
                     "SIDE_EFFECT for forbidden call does not make sense");
-      matcher.add_side_effect(std::forward<A>(a));
+      using tag = std::integral_constant<bool, !forbidden>;
+      matcher.add_side_effect(tag{}, &a);
       return {matcher};
     }
 
@@ -1416,7 +1418,9 @@ namespace trompeloeil
       static_assert(upper_call_limit > 0ULL,
                     "RETURN for forbidden call does not make sense");
 
-      matcher.set_return(std::move(h));
+      constexpr bool valid = matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
+      using tag = std::integral_constant<bool, valid>;
+      matcher.set_return(tag{}, &h);
       return {matcher};
     }
 
@@ -1426,15 +1430,18 @@ namespace trompeloeil
     {
       static_assert(!throws,
                     "Multiple THROW does not make sense");
-      constexpr bool previous_return = !std::is_same<return_type, void>::value;
-      static_assert(!previous_return,
+      constexpr bool has_return = !std::is_same<return_type, void>::value;
+      static_assert(!has_return,
                     "THROW and RETURN does not make sense");
 
-      matcher.set_return([=](auto& p)
-                         {
-                           h(p);
-                           return default_return<signature>(p);
-                         });
+      constexpr bool valid = !throws && !has_return;
+      using tag = std::integral_constant<bool, valid>;
+      auto handler = [=](auto& p)
+      {
+        h(p);
+        return default_return<signature>(p);
+      };
+      matcher.set_return(tag{}, &handler);
       return {matcher};
     }
     template <unsigned long long L,
@@ -1705,10 +1712,17 @@ namespace trompeloeil
     }
     template <typename S>
     void
-    add_side_effect(S&& s)
+    add_side_effect(std::true_type, S* s)
     {
-      auto effect = new side_effect<Sig, S>(std::forward<S>(s));
+      auto effect = new side_effect<Sig, S>(std::move(*s));
       actions.push_back(effect);
+    }
+
+    static
+    inline
+    void
+    add_side_effect(std::false_type, ...) noexcept
+    {
     }
 
     template <typename ... T>
@@ -1722,11 +1736,18 @@ namespace trompeloeil
     template <typename T>
     inline
     void
-    set_return(T&& h)
+    set_return(std::true_type, T* h)
     {
       using basic_t = typename std::remove_reference<T>::type;
       using handler = return_handler_t<Sig, basic_t>;
-      return_handler_obj.reset(new handler(std::forward<T>(h)));
+      return_handler_obj.reset(new handler(std::move(*h)));
+    }
+    inline
+    static
+    void
+    set_return(std::false_type, ...)
+        noexcept
+    {
     }
 
     condition_list<Sig>                    conditions;
