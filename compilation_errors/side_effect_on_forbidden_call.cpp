@@ -14,6 +14,7 @@
 //SIDE_EFFECT for forbidden call does not make sense
 
 #include "../trompeloeil.hpp"
+#include <iostream>
 
 struct MS
 {
