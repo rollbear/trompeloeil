@@ -82,63 +82,63 @@
 
 #define TROMPELOEIL_PARAM_LIST15(func_type)                  \
   TROMPELOEIL_PARAM_LIST14(func_type),                       \
-  ::trompeloeil::param_list<func_type>::type<14> p15
+  ::trompeloeil::param_list_t<func_type, 14> p15
 
 #define TROMPELOEIL_PARAM_LIST14(func_type)                 \
   TROMPELOEIL_PARAM_LIST13(func_type),                       \
-  ::trompeloeil::param_list<func_type>::type<13> p14
+  ::trompeloeil::param_list_t<func_type, 13> p14
 
 #define TROMPELOEIL_PARAM_LIST13(func_type)                 \
   TROMPELOEIL_PARAM_LIST12(func_type),                       \
-  ::trompeloeil::param_list<func_type>::type<12> p13
+  ::trompeloeil::param_list_t<func_type, 12> p13
 
 #define TROMPELOEIL_PARAM_LIST12(func_type)                 \
   TROMPELOEIL_PARAM_LIST11(func_type),                       \
-  ::trompeloeil::param_list<func_type>::type<11> p12
+  ::trompeloeil::param_list_t<func_type, 11> p12
 
 #define TROMPELOEIL_PARAM_LIST11(func_type)                 \
   TROMPELOEIL_PARAM_LIST10(func_type),                       \
-  ::trompeloeil::param_list<func_type>::type<10> p11
+  ::trompeloeil::param_list_t<func_type, 10> p11
 
 #define TROMPELOEIL_PARAM_LIST10(func_type)                 \
   TROMPELOEIL_PARAM_LIST9(func_type),                       \
-  ::trompeloeil::param_list<func_type>::type<9> p10
+  ::trompeloeil::param_list_t<func_type, 9> p10
 
 #define TROMPELOEIL_PARAM_LIST9(func_type)                 \
   TROMPELOEIL_PARAM_LIST8(func_type),                      \
-  ::trompeloeil::param_list<func_type>::type<8> p9
+  ::trompeloeil::param_list_t<func_type, 8> p9
 
 #define TROMPELOEIL_PARAM_LIST8(func_type)                 \
   TROMPELOEIL_PARAM_LIST7(func_type),                      \
-  ::trompeloeil::param_list<func_type>::type<7> p8
+  ::trompeloeil::param_list_t<func_type, 7> p8
 
 #define TROMPELOEIL_PARAM_LIST7(func_type)                 \
   TROMPELOEIL_PARAM_LIST6(func_type),                      \
-  ::trompeloeil::param_list<func_type>::type<6> p7
+  ::trompeloeil::param_list_t<func_type, 6> p7
 
 #define TROMPELOEIL_PARAM_LIST6(func_type)                 \
   TROMPELOEIL_PARAM_LIST5(func_type),                      \
-  ::trompeloeil::param_list<func_type>::type<5> p6
+  ::trompeloeil::param_list_t<func_type, 5> p6
 
 #define TROMPELOEIL_PARAM_LIST5(func_type)                 \
   TROMPELOEIL_PARAM_LIST4(func_type),                      \
-    ::trompeloeil::param_list<func_type>::type<4> p5
+    ::trompeloeil::param_list_t<func_type, 4> p5
 
 
 #define TROMPELOEIL_PARAM_LIST4(func_type)                 \
   TROMPELOEIL_PARAM_LIST3(func_type),                      \
-    ::trompeloeil::param_list<func_type>::type<3> p4
+    ::trompeloeil::param_list_t<func_type, 3> p4
 
 #define TROMPELOEIL_PARAM_LIST3(func_type)          \
   TROMPELOEIL_PARAM_LIST2(func_type),               \
-  ::trompeloeil::param_list<func_type>::type<2> p3
+  ::trompeloeil::param_list_t<func_type, 2> p3
 
 #define TROMPELOEIL_PARAM_LIST2(func_type)         \
   TROMPELOEIL_PARAM_LIST1(func_type),              \
-  ::trompeloeil::param_list<func_type>::type<1> p2
+  ::trompeloeil::param_list_t<func_type, 1> p2
 
 #define TROMPELOEIL_PARAM_LIST1(func_type) \
-  ::trompeloeil::param_list<func_type>::type<0> p1
+  ::trompeloeil::param_list_t<func_type, 0> p1
 
 #define TROMPELOEIL_PARAM_LIST0(func_type)
 
@@ -179,6 +179,9 @@ namespace trompeloeil
     template <size_t N>
     using type = typename std::tuple_element<N, param_tuple>::type;
   };
+
+  template <typename Sig, size_t N>
+  using param_list_t = typename param_list<Sig>::template type<N>;
 
   class expectation_violation : public std::logic_error
   {

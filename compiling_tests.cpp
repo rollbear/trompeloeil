@@ -114,6 +114,17 @@ public:
 
 using trompeloeil::_;
 
+template <typename T>
+class tmock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+  MAKE_MOCK1(tfunc, void(T));
+  tmock() : m(NAMED_FORBID_CALL(*this, func(_))) {}
+private:
+  std::unique_ptr<trompeloeil::expectation> m;
+};
+
 // IN_SEQUENCE tests
 
 TEST_CASE_METHOD(Fixture, "follow single sequence gives no reports", "[sequences]")
@@ -669,6 +680,13 @@ TEST_CASE_METHOD(Fixture, "ANY can select overload on rvalue reference type", "[
   U u;
   REQUIRE_CALL(u, func(ANY(int&&)));
   u.func(1);
+}
+
+TEST_CASE_METHOD(Fixture, "Expectation matches a mocked function with param from template", "[matching][templates]")
+{
+  tmock<int> m;
+  REQUIRE_CALL(m, tfunc(_));
+  m.tfunc(3);
 }
 
 // tests of overload selection with parameter matching
@@ -1429,16 +1447,7 @@ TEST_CASE_METHOD(Fixture, "no calls when two required reported as expected 2 tim
   REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called 2 times")));
 }
 
-template <typename T>
-class tmock
-{
-public:
-  MAKE_MOCK1(func, void(int));
-  tmock() : m(NAMED_FORBID_CALL(*this, func(_))) {}
-private:
-  std::unique_ptr<trompeloeil::expectation> m;
-};
-TEST_CASE_METHOD(Fixture, "TIMES works for templated mock classes", "[multiplicity]")
+TEST_CASE_METHOD(Fixture, "TIMES works for templated mock classes", "[multiplicity][templates]")
 {
   try
   {
@@ -1454,8 +1463,8 @@ TEST_CASE_METHOD(Fixture, "TIMES works for templated mock classes", "[multiplici
                               std::regex("Match of forbidden call")));
 
   }
-
 }
+
 
 // test of destruction, or lack of, for deathwatched objects
 
@@ -1742,6 +1751,27 @@ TEST_CASE_METHOD(Fixture, "match of forbidden call is reported", "[mismatches]")
     INFO("report=" << reports.front().msg);
     auto re = R":(Match of forbidden call of obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   param  _1 = 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "Mismatched call to a mocked function with param from template is reported", "[mismatches][templates]")
+{
+  try {
+    tmock<int> obj;
+    REQUIRE_CALL(obj, tfunc(3));
+    obj.tfunc(2);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of tfunc with signature void\(T\) with\.
+  param  _1 = 2
+
+Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 = 3):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
