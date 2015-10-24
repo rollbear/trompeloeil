@@ -1350,7 +1350,7 @@ Expected .*count\(\) to be called once, actually never called):";
   REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
 }
 
-TEST_CASE_METHOD(Fixture, "multiple unsatisfied expectation when mock dies are reported in reversed order", "[scoping][multiplicity]")
+TEST_CASE_METHOD(Fixture, "multiple unsatisfied expectation when mock dies are reported in mock definition order", "[scoping][multiplicity]")
 {
   auto m = std::make_unique<mock_c>();
   REQUIRE_CALL(*m, count())
