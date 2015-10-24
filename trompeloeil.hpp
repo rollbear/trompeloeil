@@ -1008,6 +1008,22 @@ namespace trompeloeil
   template<typename Sig>
   using call_matcher_list = list<call_matcher_base<Sig>>;
 
+  template <typename Sig>
+  struct active_call_matcher_list : public call_matcher_list<Sig>
+  {
+    ~active_call_matcher_list()
+    {
+      auto iter = this->begin();
+      auto const end = this->end();
+      while (iter != end)
+      {
+        auto i = iter++;
+        auto &m = *i;
+        m.mock_destroyed();
+        m.unlink();
+      }
+    }
+  };
   template<typename Sig>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
   {
@@ -1015,6 +1031,10 @@ namespace trompeloeil
     call_matcher_base(call_matcher_base&&) = delete;
     virtual
     ~call_matcher_base() = default;
+
+    virtual
+    void
+    mock_destroyed() = 0;
 
     virtual
     bool
@@ -1050,7 +1070,7 @@ namespace trompeloeil
 
     virtual
     void
-    report_missed() = 0;
+    report_missed(char const *reason) = 0;
   };
 
   template <typename T, typename U>
@@ -1491,15 +1511,16 @@ namespace trompeloeil
 
   inline
   void
-  report_unfulfilled(char const        *name,
+  report_unfulfilled(const char* reason,
+                     char const        *name,
                      std::string const &values,
                      unsigned long long min_calls,
                      unsigned long long call_count,
                      location           loc)
   {
     std::ostringstream os;
-    os << "Unfulfilled expectation:\n"
-       << "Expected " << name << " to be called ";
+    os << reason
+       << ":\nExpected " << name << " to be called ";
     if (min_calls == 1)
       os << "once";
     else
@@ -1554,9 +1575,23 @@ namespace trompeloeil
 
     ~call_matcher()
     {
-      if (!reported && this->is_linked() && call_count < min_calls)
+      if (is_unfulfilled())
       {
-        report_missed();
+        report_missed("Unfulfilled expectation");
+      }
+    }
+    bool is_unfulfilled() const noexcept
+    {
+      return !reported && this->is_linked() && call_count < min_calls;
+    }
+
+    void
+    mock_destroyed()
+    override
+    {
+      if (is_unfulfilled())
+      {
+        report_missed("Pending expectation on destroyed mock object");
       }
     }
 
@@ -1675,11 +1710,12 @@ namespace trompeloeil
     }
 
     void
-    report_missed()
+    report_missed(char const *reason)
     override
     {
       reported = true;
-      report_unfulfilled(name,
+      report_unfulfilled(reason,
+                         name,
                          missed_values(val),
                          min_calls,
                          call_count,
@@ -1938,8 +1974,9 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s) \
+  using TROMPELOEIL_ID(active_matcher_list_type) = ::trompeloeil::active_call_matcher_list<sig>; \
+  mutable TROMPELOEIL_ID(active_matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
-  mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
   {                                                                     \

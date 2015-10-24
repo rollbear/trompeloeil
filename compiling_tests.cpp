@@ -1303,7 +1303,7 @@ TEST_CASE_METHOD(Fixture, "require calls are removed when they go out of scope",
   REQUIRE(reports.empty());
 }
 
-TEST_CASE_METHOD(Fixture, "an unsatisfied require call is reported at end of scope", "[scoping]")
+TEST_CASE_METHOD(Fixture, "a pending unsatisfied require call is reported at end of scope", "[scoping]")
 {
   mock_c obj;
   {
@@ -1318,6 +1318,55 @@ Expected obj\.foo\("bar"\) to be called once, actually never called
 }
 
 // test of multiplicity retiring expectations, fulfilled or not
+
+TEST_CASE_METHOD(Fixture, "unsatisfied expectation when mock dies is reported", "[scoping][multiplicity]")
+{
+  auto m = std::make_unique<mock_c>();
+  REQUIRE_CALL(*m, count())
+    .RETURN(1);
+  m.reset();
+  REQUIRE(reports.size() == 1U);
+  INFO(reports.front().msg);
+  auto re = R":(Pending expectation on destroyed mock object:
+Expected .*count\(\) to be called once, actually never called):";
+  REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+}
+
+TEST_CASE_METHOD(Fixture, "multiple unsatisfied expectation when mock dies are reported in reversed order", "[scoping][multiplicity]")
+{
+  auto m = std::make_unique<mock_c>();
+  REQUIRE_CALL(*m, count())
+    .RETURN(1);
+  REQUIRE_CALL(*m, getter(1))
+    .RETURN(1);
+  m.reset();
+  REQUIRE(reports.size() == 2U);
+  INFO(reports[0].msg);
+  INFO(reports[1].msg);
+  auto re_count = R":(Pending expectation on destroyed mock object:
+Expected .*count\(\) to be called once, actually never called):";
+auto re_getter = R":(Pending expectation on destroyed mock object:
+Expected .*getter\(1\) to be called once, actually never called):";
+  REQUIRE(std::regex_search(reports[0].msg, std::regex(re_getter)));
+  REQUIRE(std::regex_search(reports[1].msg, std::regex(re_count)));
+}
+
+TEST_CASE_METHOD(Fixture, "active allow call when mock dies is not reported", "[scoping][multiplicity]")
+{
+  auto m = std::make_unique<mock_c>();
+  ALLOW_CALL(*m, count())
+    .RETURN(1);
+  m.reset();
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "active forbid call when mock dies is not reported", "[scoping][multiplicity]")
+{
+  auto m = std::make_unique<mock_c>();
+  FORBID_CALL(*m, count());
+  m.reset();
+  REQUIRE(reports.size() == 0U);
+}
 
 TEST_CASE_METHOD(Fixture, "no calls reported as never called", "[scoping][multiplicity]")
 {
