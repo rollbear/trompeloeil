@@ -11,8 +11,6 @@
 * Project home: https://github.com/rollbear/trompeloeil
 */
 
-// Regular expressions do not match, but results look OK.
-
 #define TROMPELOEIL_SANITY_CHECKS
 #include "trompeloeil.hpp"
 #define CATCH_CONFIG_MAIN
