@@ -1,3 +1,21 @@
+v7  2015-10-24
+
+	* Report error if live expectations remain when a mock object is
+	  destroyed
+
+	* Reduced clutter in compilation errors
+
+	* Allow mock objects to be templates. E.g.
+
+		template <typename T>
+		struct mock
+		{
+			MAKE_MOCK1(func, void(T));
+		};
+
+	  Note that member function templates are still not supported.
+
+
 v6  2015-09-22
 
 	* Verified support for released Visual Studio 2015
