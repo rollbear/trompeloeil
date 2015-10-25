@@ -1811,12 +1811,10 @@ namespace trompeloeil
       actions.push_back(effect);
     }
 
-    static
-    inline
-    void
-    add_side_effect(std::false_type, ...) noexcept
-    {
-    }
+    static                                            // Never called. Used to
+    inline                                            // limit errmsg with
+    void                                              // SIDE_EFFECT on
+    add_side_effect(std::false_type, ...) noexcept;   // forbidden call
 
     template <typename ... T>
     void
@@ -1835,13 +1833,11 @@ namespace trompeloeil
       using handler = return_handler_t<Sig, basic_t>;
       return_handler_obj.reset(new handler(std::move(*h)));
     }
-    inline
-    static
-    void
-    set_return(std::false_type, ...)
-        noexcept
-    {
-    }
+    inline                          // Never called. Used to limit errmsg
+    static                          // with RETURN of wring type and after:
+    void                            //   FORBIDDEN_CALL
+    set_return(std::false_type, ...)//   RETURN
+      noexcept;                     //   THROW
 
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
@@ -1923,13 +1919,11 @@ namespace trompeloeil
       return std::unique_ptr<expectation>(t);
     }
 
-    static
-    auto
-    make_expectation(std::false_type, ...) noexcept
-    {
-      return std::unique_ptr<expectation>();
-    }
-
+    static                                           // Never called. Used to
+    std::unique_ptr<expectation>                     // limit errmsg when RETURN
+    make_expectation(std::false_type, ...) noexcept; // is missing in non-void
+                                                     // function
+    
     template <typename M, typename Info>
     std::unique_ptr<expectation>
     operator+(call_modifier<M, Info>& t)
