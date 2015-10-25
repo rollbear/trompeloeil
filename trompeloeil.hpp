@@ -168,6 +168,16 @@
 
 namespace trompeloeil
 {
+  template <size_t N, typename T, bool legal = (N < std::tuple_size<T>::value)>
+  struct conditional_tuple_element
+  {
+    using type = typename std::tuple_element<N, T>::type;
+  };
+  template <size_t N, typename T>
+  struct conditional_tuple_element<N, T, false>
+  {
+    using type = int;
+  };
   template <typename T>
   struct param_list;
 
@@ -177,7 +187,7 @@ namespace trompeloeil
     using param_tuple = std::tuple<P...>;
     static size_t const size = std::tuple_size<param_tuple>::value;
     template <size_t N>
-    using type = typename std::tuple_element<N, param_tuple>::type;
+    using type = typename conditional_tuple_element<N, param_tuple>::type;
   };
 
   template <typename Sig, size_t N>
@@ -1046,11 +1056,21 @@ namespace trompeloeil
     virtual
     bool
     first_in_sequence() const noexcept = 0;
-
+    
     virtual
     void
     log_call(tracer* obj, call_params_type_t<Sig>& p) const = 0;
 
+    template <typename ... T>                     // never called. Used to
+    void log_call(std::false_type, T&& ...) const;// limit errmsg length
+                                                  // with MAKE_MOCKn
+                                                  // and wrong sig
+    void
+    log_call(std::true_type, tracer* obj, call_params_type_t<Sig>& p) const
+    {
+      log_call(obj, p);
+    }
+    
     virtual
     void
     run_actions(
@@ -1058,6 +1078,20 @@ namespace trompeloeil
       call_matcher_list<Sig> &saturated_list
     ) = 0;
 
+    template <typename ... T>                  // Never called. Used to limit
+    void                                       // errmsg length with MAKE_MOCKn
+    run_actions(std::false_type, const T& ...);// and wrong sig
+
+    void
+    run_actions(
+      std::true_type,
+      call_params_type_t<Sig> &params,
+      call_matcher_list<Sig>& saturated_list
+    )
+    {
+      run_actions(params, saturated_list);
+    }
+    
     virtual
     std::ostream&
     report_signature(std::ostream&) const = 0;
@@ -1071,6 +1105,16 @@ namespace trompeloeil
     return_of_t<Sig>
     return_value(call_params_type_t<Sig>& p) = 0;
 
+    template<typename T>                    // Never called. Used to limit
+    return_of_t<Sig>                        // errmsg length with MAKE_MOCKn
+    return_value(std::false_type, const T&);// and wrong sig.
+
+    return_of_t<Sig>
+    return_value(std::true_type, call_params_type_t<Sig>& p)
+    {
+      return return_value(p);
+    }
+    
     virtual
     void
     report_missed(char const *reason) = 0;
@@ -1161,10 +1205,15 @@ namespace trompeloeil
     return os.str();
   }
 
+  template <typename Sig, typename T>                // Never called. Used to
+  call_matcher_base<Sig>*                            // limit errmsg length
+  find(std::false_type, T&, call_matcher_list<Sig>&) // with MAKE_MOCKn and
+    noexcept;                                        // wrong sig
 
   template <typename Sig>
   call_matcher_base<Sig>*
-  find(call_params_type_t<Sig> const &p,
+  find(std::true_type,
+       call_params_type_t<Sig> const &p,
        call_matcher_list<Sig>        &list)
   noexcept
   {
@@ -1186,10 +1235,15 @@ namespace trompeloeil
     return first_match;
   }
 
+  template <typename ... T>                  // Never called. Used to limit
+  void                                       // errmsg length with MAKE_MOCKn
+  report_mismatch(std::false_type, T&& ...); // and wrong sig.
+  
   template <typename Sig>
   TROMPELOEIL_NORETURN
   void
-  report_mismatch(char const                    *name,
+  report_mismatch(std::true_type,
+		  char const                    *name,
                   call_params_type_t<Sig> const &p,
                   call_matcher_list<Sig>        &matcher_list,
                   call_matcher_list<Sig>        &saturated_list)
@@ -1828,7 +1882,6 @@ namespace trompeloeil
       static illegal_argument<N> constexpr v{};
       return v;
     }
-
   };
 
   template <int N, typename T>
@@ -1977,6 +2030,9 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s) \
+  using TROMPELOEIL_ID(cardinality_match) = std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
+  static_assert(TROMPELOEIL_ID(cardinality_match)::value, \
+		"Function signature does not have " #num " parameters"); \
   using TROMPELOEIL_ID(active_matcher_list_type) = ::trompeloeil::active_call_matcher_list<sig>; \
   mutable TROMPELOEIL_ID(active_matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
@@ -1998,20 +2054,26 @@ namespace trompeloeil
   auto name(TROMPELOEIL_PARAM_LIST(num, sig)) constness -> ::trompeloeil::return_of_t<sig> \
   {                                                                     \
     auto param_value = ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num)); \
-    auto i = ::trompeloeil::find(param_value, TROMPELOEIL_ID(matcher_list));\
+    auto i = ::trompeloeil::find(TROMPELOEIL_ID(cardinality_match){},	\
+				 param_value,				\
+				 TROMPELOEIL_ID(matcher_list));		\
     if (!i)                                                             \
     {                                                                   \
-      ::trompeloeil::report_mismatch(name_s " with signature " sig_s,   \
+      ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},\
+				     name_s " with signature " sig_s,	\
                                      param_value,                       \
                                      TROMPELOEIL_ID(matcher_list),      \
                                      TROMPELOEIL_ID(saturated_matcher_list)); \
     }                                                                   \
     if (auto obj = ::trompeloeil::tracer_obj())                         \
     {                                                                   \
-      i->log_call(obj, param_value);                                    \
+      i->log_call(TROMPELOEIL_ID(cardinality_match){}, obj, param_value); \
     }                                                                   \
-    i->run_actions(param_value, TROMPELOEIL_ID(saturated_matcher_list)); \
-    return i->return_value(param_value);                                \
+    i->run_actions(TROMPELOEIL_ID(cardinality_match){},			\
+		   param_value,						\
+		   TROMPELOEIL_ID(saturated_matcher_list));		\
+    return i->return_value(TROMPELOEIL_ID(cardinality_match){},		\
+			   param_value);				\
   }                                                                     \
   using TROMPELOEIL_ID(signature_trompeloeil_ ## name) = sig
 
