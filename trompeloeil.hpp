@@ -1018,13 +1018,10 @@ namespace trompeloeil
   template<typename Sig>
   struct call_matcher_base;
 
-  template<typename Sig>
-  using call_matcher_list = list<call_matcher_base<Sig>>;
-
   template <typename Sig>
-  struct active_call_matcher_list : public call_matcher_list<Sig>
+  struct call_matcher_list : public list<call_matcher_base<Sig>>
   {
-    ~active_call_matcher_list()
+    ~call_matcher_list()
     {
       auto iter = this->begin();
       auto const end = this->end();
@@ -2027,9 +2024,8 @@ namespace trompeloeil
   using TROMPELOEIL_ID(cardinality_match) = std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
   static_assert(TROMPELOEIL_ID(cardinality_match)::value, \
                 "Function signature does not have " #num " parameters"); \
-  using TROMPELOEIL_ID(active_matcher_list_type) = ::trompeloeil::active_call_matcher_list<sig>; \
-  mutable TROMPELOEIL_ID(active_matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
+  mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(matcher_list); \
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
   {                                                                     \

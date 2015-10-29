@@ -1384,6 +1384,16 @@ TEST_CASE_METHOD(Fixture, "active forbid call when mock dies is not reported", "
   REQUIRE(reports.size() == 0U);
 }
 
+TEST_CASE_METHOD(Fixture, "saturated expectation when mock dies is not reported", "[scoping]")
+{
+  auto m = std::make_unique<mock_c>();
+  REQUIRE_CALL(*m, count())
+    .RETURN(1);
+  m->count();
+  m.reset();
+  REQUIRE(reports.size() == 0U);
+}
+
 TEST_CASE_METHOD(Fixture, "no calls reported as never called", "[scoping][multiplicity]")
 {
   mock_c obj;
