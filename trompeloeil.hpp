@@ -1937,8 +1937,8 @@ namespace trompeloeil
       return make_expectation(assert_return_type(t), &t.matcher);
     }
   };
-
-  template <typename Sig, typename Value>
+  
+  template <typename U, typename Sig, typename Value>
   auto make_call_modifier(call_matcher<Sig, Value>& m)
     -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
   {
@@ -2083,10 +2083,10 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
-  ::trompeloeil::call_validator{} +                                     \
-  ::trompeloeil::make_call_modifier(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func \
-  .set_location(__FILE__, __LINE__)   \
-  .set_name(obj_s "." func_s)                                           \
+  ::trompeloeil::call_validator{} +					\
+  ::trompeloeil::make_call_modifier<decltype((obj).func)>(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func \
+  .set_location(__FILE__, __LINE__)         \
+  .set_name(obj_s "." func_s)               \
   .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){})))
 
 
