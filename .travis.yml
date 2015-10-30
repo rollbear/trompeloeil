@@ -41,8 +41,8 @@ matrix:
 #      compiler: clang
 #      env: COMPILER=clang++
 
-#before_script:
-#  CXX=$COMPILER ./check_errors.sh
+before_script:
+  CXX=$COMPILER ./check_errors.sh
 
 script:
   wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz &&  make CXX=$COMPILER CXXFLAGS="-std=c++14 -g -I Catch-1.2.1-develop.12/include" -f Makefile.travis
