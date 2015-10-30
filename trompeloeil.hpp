@@ -2029,11 +2029,24 @@ namespace trompeloeil
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
   {                                                                     \
-    template <typename ... U>                                           \
-    static auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
-    {                                                                   \
-      return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
-    }                                                                   \
+    template <typename Mock>						\
+      struct maker_obj {						\
+      Mock& obj;							\
+      const char* file;							\
+      unsigned long line;						\
+      const char* call_string;						\
+      template <typename ... U>						\
+      auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
+      {									\
+	auto& m = ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
+	m.set_location(file, line);					\
+	m.set_name(call_string);					\
+	m.hook_last(obj.trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil){})); \
+	return m;							\
+      }									\
+    };									\
+    template <typename Mock>						\
+      static maker_obj<Mock> maker(Mock& obj, const char* file, unsigned long line, const char* name) { return { obj, file, line, name }; } \
   };                                                                    \
   TROMPELOEIL_ID(tag_type_trompeloeil) trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness; \
   TROMPELOEIL_ID(matcher_list_type)&                                    \
@@ -2084,10 +2097,7 @@ namespace trompeloeil
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
   ::trompeloeil::call_validator{} +					\
-  ::trompeloeil::make_call_modifier<decltype((obj).func)>(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::func \
-  .set_location(__FILE__, __LINE__)         \
-  .set_name(obj_s "." func_s)               \
-  .hook_last((obj).trompeloeil_matcher_list(decltype(TROMPELOEIL_CONCAT((obj).trompeloeil_tag_, func)){})))
+  ::trompeloeil::make_call_modifier<decltype((obj).func)>(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(obj, __FILE__, __LINE__, obj_s "." func_s).func)
 
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func) \
