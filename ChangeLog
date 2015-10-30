@@ -1,3 +1,10 @@
+v8  2015-10-30
+
+	* Fixed bug when mock object was destroyed with a saturated
+	  expecation in scope.
+
+	* Further improved compilation error messages.
+
 v7  2015-10-24
 
 	* Report error if live expectations remain when a mock object is
