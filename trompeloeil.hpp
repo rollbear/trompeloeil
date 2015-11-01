@@ -56,93 +56,128 @@
 
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
-#define TROMPELOEIL_COUNT(...) TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__, 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
+#define TROMPELOEIL_COUNT(...)                                                 \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__,                          \
+                                         15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
 
 #define TROMPELOEIL_CONCAT_(x, y) x ## y
 #define TROMPELOEIL_CONCAT(x, y) TROMPELOEIL_CONCAT_(x, y)
 
-#define TROMPELOEIL_INIT_WITH_STR15(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR14(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR14(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR13(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR13(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR12(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR12(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR11(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR11(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR10(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR10(base, x, ...) base{#x, x}, TROMPELOEIL_INIT_WITH_STR9(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR9(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR8(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR8(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR7(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR7(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR6(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR6(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR5(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR5(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR4(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR4(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR3(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR3(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR2(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR2(base, x, ...)  base{#x, x}, TROMPELOEIL_INIT_WITH_STR1(base, __VA_ARGS__)
-#define TROMPELOEIL_INIT_WITH_STR1(base, x)       base{#x, x}
-#define TROMPELOEIL_INIT_WITH_STR0(base)
-#define TROMPELOEIL_INIT_WITH_STR(base, ...) TROMPELOEIL_CONCAT(TROMPELOEIL_INIT_WITH_STR, TROMPELOEIL_COUNT(__VA_ARGS__))(base, __VA_ARGS__)
+#define TROMPELOEIL_INIT_WITH_STR15(base, x, ...)                              \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR14(base, __VA_ARGS__)
 
-#define TROMPELOEIL_PARAM_LIST15(func_type)                  \
-  TROMPELOEIL_PARAM_LIST14(func_type),                       \
+#define TROMPELOEIL_INIT_WITH_STR14(base, x, ...)                              \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR13(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR13(base, x, ...)                              \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR12(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR12(base, x, ...)                              \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR11(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR11(base, x, ...)                              \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR10(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR10(base, x, ...)                              \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR9(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR9(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR8(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR8(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR7(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR7(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR6(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR6(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR5(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR5(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR4(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR4(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR3(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR3(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR2(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR2(base, x, ...)                               \
+  base{#x, x}, TROMPELOEIL_INIT_WITH_STR1(base, __VA_ARGS__)
+
+#define TROMPELOEIL_INIT_WITH_STR1(base, x)                                    \
+  base{#x, x}
+
+#define TROMPELOEIL_INIT_WITH_STR0(base)
+
+#define TROMPELOEIL_INIT_WITH_STR(base, ...)                                   \
+  TROMPELOEIL_CONCAT(TROMPELOEIL_INIT_WITH_STR,                                \
+                     TROMPELOEIL_COUNT(__VA_ARGS__))(base, __VA_ARGS__)
+
+#define TROMPELOEIL_PARAM_LIST15(func_type)                                    \
+  TROMPELOEIL_PARAM_LIST14(func_type),                                         \
   ::trompeloeil::param_list_t<func_type, 14> p15
 
-#define TROMPELOEIL_PARAM_LIST14(func_type)                 \
-  TROMPELOEIL_PARAM_LIST13(func_type),                       \
+#define TROMPELOEIL_PARAM_LIST14(func_type)                                    \
+  TROMPELOEIL_PARAM_LIST13(func_type),                                         \
   ::trompeloeil::param_list_t<func_type, 13> p14
 
-#define TROMPELOEIL_PARAM_LIST13(func_type)                 \
-  TROMPELOEIL_PARAM_LIST12(func_type),                       \
+#define TROMPELOEIL_PARAM_LIST13(func_type)                                    \
+  TROMPELOEIL_PARAM_LIST12(func_type),                                         \
   ::trompeloeil::param_list_t<func_type, 12> p13
 
-#define TROMPELOEIL_PARAM_LIST12(func_type)                 \
-  TROMPELOEIL_PARAM_LIST11(func_type),                       \
+#define TROMPELOEIL_PARAM_LIST12(func_type)                                    \
+  TROMPELOEIL_PARAM_LIST11(func_type),                                         \
   ::trompeloeil::param_list_t<func_type, 11> p12
 
-#define TROMPELOEIL_PARAM_LIST11(func_type)                 \
-  TROMPELOEIL_PARAM_LIST10(func_type),                       \
+#define TROMPELOEIL_PARAM_LIST11(func_type)                                    \
+  TROMPELOEIL_PARAM_LIST10(func_type),                                         \
   ::trompeloeil::param_list_t<func_type, 10> p11
 
-#define TROMPELOEIL_PARAM_LIST10(func_type)                 \
-  TROMPELOEIL_PARAM_LIST9(func_type),                       \
+#define TROMPELOEIL_PARAM_LIST10(func_type)                                    \
+  TROMPELOEIL_PARAM_LIST9(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 9> p10
 
-#define TROMPELOEIL_PARAM_LIST9(func_type)                 \
-  TROMPELOEIL_PARAM_LIST8(func_type),                      \
+#define TROMPELOEIL_PARAM_LIST9(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST8(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 8> p9
 
-#define TROMPELOEIL_PARAM_LIST8(func_type)                 \
-  TROMPELOEIL_PARAM_LIST7(func_type),                      \
+#define TROMPELOEIL_PARAM_LIST8(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST7(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 7> p8
 
-#define TROMPELOEIL_PARAM_LIST7(func_type)                 \
-  TROMPELOEIL_PARAM_LIST6(func_type),                      \
+#define TROMPELOEIL_PARAM_LIST7(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST6(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 6> p7
 
-#define TROMPELOEIL_PARAM_LIST6(func_type)                 \
-  TROMPELOEIL_PARAM_LIST5(func_type),                      \
+#define TROMPELOEIL_PARAM_LIST6(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST5(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 5> p6
 
-#define TROMPELOEIL_PARAM_LIST5(func_type)                 \
-  TROMPELOEIL_PARAM_LIST4(func_type),                      \
+#define TROMPELOEIL_PARAM_LIST5(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST4(func_type),                                          \
     ::trompeloeil::param_list_t<func_type, 4> p5
 
 
-#define TROMPELOEIL_PARAM_LIST4(func_type)                 \
-  TROMPELOEIL_PARAM_LIST3(func_type),                      \
+#define TROMPELOEIL_PARAM_LIST4(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST3(func_type),                                          \
     ::trompeloeil::param_list_t<func_type, 3> p4
 
-#define TROMPELOEIL_PARAM_LIST3(func_type)          \
-  TROMPELOEIL_PARAM_LIST2(func_type),               \
+#define TROMPELOEIL_PARAM_LIST3(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST2(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 2> p3
 
-#define TROMPELOEIL_PARAM_LIST2(func_type)         \
-  TROMPELOEIL_PARAM_LIST1(func_type),              \
+#define TROMPELOEIL_PARAM_LIST2(func_type)                                     \
+  TROMPELOEIL_PARAM_LIST1(func_type),                                          \
   ::trompeloeil::param_list_t<func_type, 1> p2
 
-#define TROMPELOEIL_PARAM_LIST1(func_type) \
+#define TROMPELOEIL_PARAM_LIST1(func_type)                                     \
   ::trompeloeil::param_list_t<func_type, 0> p1
 
 #define TROMPELOEIL_PARAM_LIST0(func_type)
 
-#define TROMPELOEIL_PARAM_LIST(num, func_type) \
+#define TROMPELOEIL_PARAM_LIST(num, func_type)                                 \
   TROMPELOEIL_CONCAT(TROMPELOEIL_PARAM_LIST, num)(func_type)
 
 
@@ -163,8 +198,7 @@
 #define TROMPELOEIL_PARAMS1                        p1
 #define TROMPELOEIL_PARAMS0
 
-#define TROMPELOEIL_PARAMS(num) \
-  TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
+#define TROMPELOEIL_PARAMS(num) TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
 
 namespace trompeloeil
 {
@@ -227,9 +261,9 @@ namespace trompeloeil
   {
     if (!std::current_exception())
     {
-        std::stringstream os;
-        os << location{ file, line } << "\n" << msg;
-        throw expectation_violation(os.str());
+      std::stringstream os;
+      os << location{ file, line } << "\n" << msg;
+      throw expectation_violation(os.str());
     }
   }
 
@@ -270,7 +304,9 @@ namespace trompeloeil
   class tracer
   {
   public:
-    virtual void trace(char const *file, unsigned long line, std::string const &call) = 0;
+    virtual
+    void
+    trace(char const *file, unsigned long line, std::string const &call) = 0;
   protected:
     tracer() : previous(set_tracer(this)) {}
     tracer(tracer const&) = delete;
@@ -284,7 +320,9 @@ namespace trompeloeil
   {
   public:
     stream_tracer(std::ostream& stream_) : stream(stream_) {}
-    void trace(char const *file, unsigned long line, std::string const &call) override
+    void
+    trace(char const *file, unsigned long line, std::string const &call)
+      override
     {
       stream << location{file, line} << '\n' << call << '\n';
     }
@@ -342,7 +380,9 @@ namespace trompeloeil
   {
     static std::false_type func(...);
     template <typename U>
-    static auto func(U const* u) -> std::is_same<std::ostream&, decltype(std::declval<std::ostream&>() << *u)>;
+    static auto func(U const* u) ->
+      std::is_same<std::ostream&,
+                   decltype(std::declval<std::ostream&>() << *u)>;
   public:
     using type = decltype(func(std::declval<T*>()));
     static bool const value = type::value;
@@ -727,7 +767,8 @@ namespace trompeloeil
   {
     template <typename U>
     typename std::enable_if<std::is_same<typename std::decay<T>::type,
-                                         typename std::decay<U>::type>::value, bool>::type
+                                         typename std::decay<U>::type>::value,
+                            bool>::type
     matches(U const &) const noexcept { return true; }
     friend std::ostream& operator<<(std::ostream& os, typed_wildcard<T> const&)
     {
@@ -769,7 +810,9 @@ namespace trompeloeil
     {
       return p != nullptr;
     }
-    friend std::ostream& operator<<(std::ostream& os, ne_t<std::nullptr_t> const&)
+    friend
+    std::ostream&
+    operator<<(std::ostream& os, ne_t<std::nullptr_t> const&)
     {
       return os << " != nullptr";
     }
@@ -891,9 +934,15 @@ namespace trompeloeil
     null_on_move(T* p_) noexcept : p{p_} {}
     null_on_move(null_on_move&&) noexcept : p{nullptr} {}
     null_on_move(null_on_move const&) noexcept : p{nullptr} {}
-    null_on_move& operator=(const null_on_move&) noexcept  { p = nullptr; return *this;}
-    null_on_move& operator=(null_on_move&&) noexcept { p = nullptr; return *this;}
-    null_on_move& operator=(T* t) noexcept { p = t; return *this; }
+    null_on_move&
+    operator=(const null_on_move&) noexcept  { p = nullptr; return *this;}
+
+    null_on_move&
+    operator=(null_on_move&&) noexcept { p = nullptr; return *this;}
+
+    null_on_move&
+    operator=(T* t) noexcept { p = t; return *this; }
+
     T*& leak() { return p; }
     T& operator*() const noexcept { return *p; }
     T* operator->() const noexcept { return p; }
@@ -907,7 +956,10 @@ namespace trompeloeil
     static_assert(std::has_virtual_destructor<T>::value,
                   "virtual destructor is a necessity for deathwatched to work");
   public:
-    template <typename ... U, typename = typename std::enable_if<std::is_constructible<T, U...>::value>::type>
+    template <typename ... U,
+              typename = typename std::enable_if<
+                std::is_constructible<T,U...>::value
+              >::type>
     deathwatched(U&& ...u) : T(std::forward<U>(u)...) {}
     ~deathwatched();
     trompeloeil::lifetime_monitor*&
@@ -1058,10 +1110,10 @@ namespace trompeloeil
     void
     log_call(tracer* obj, call_params_type_t<Sig>& p) const = 0;
 
-    template <typename ... T>                    // never called. Used to
+    template <typename ... T>                     // never called. Used to
     void log_call(std::false_type, T&& ...) const;// limit errmsg length
-                                                    // with MAKE_MOCKn
-                                                    // and wrong sig
+                                                  // with MAKE_MOCKn
+                                                  // and wrong sig
     void
     log_call(std::true_type, tracer* obj, call_params_type_t<Sig>& p) const
     {
@@ -1126,14 +1178,16 @@ namespace trompeloeil
 
   template <typename T, typename U>
   bool
-  param_matches_impl(T const& t, U const& u, ...) noexcept(noexcept(t == u))
+  param_matches_impl(T const& t, U const& u, ...)
+    noexcept(noexcept(t == u))
   {
     return t == u;
   }
 
   template <typename T, typename U>
   bool
-  param_matches(T const& t, U const& u) noexcept(noexcept(param_matches_impl(t, u, &t)))
+  param_matches(T const& t, U const& u)
+    noexcept(noexcept(param_matches_impl(t, u, &t)))
   {
     return param_matches_impl(t, u, &t);
   }
@@ -1811,13 +1865,14 @@ namespace trompeloeil
     static                                            // Never called. Used to
     inline                                            // limit errmsg with
     void                                              // SIDE_EFFECT on
-    add_side_effect(std::false_type, ...) noexcept;  // forbidden call
+    add_side_effect(std::false_type, ...) noexcept;   // forbidden call
 
     template <typename ... T>
     void
     set_sequence(T&& ... t)
     {
-      auto seq = new sequence_handler<sizeof...(T)>(name, loc, std::forward<T>(t)...);
+      auto seq = new sequence_handler<sizeof...(T)>(name, loc,
+                                                    std::forward<T>(t)...);
       sequences.reset(seq);
     }
 
@@ -1830,11 +1885,11 @@ namespace trompeloeil
       using handler = return_handler_t<Sig, basic_t>;
       return_handler_obj.reset(new handler(std::move(*h)));
     }
-    inline                          // Never called. Used to limit errmsg
-    static                          // with RETURN of wring type and after:
-    void                            //   FORBIDDEN_CALL
+    inline                           // Never called. Used to limit errmsg
+    static                           // with RETURN of wring type and after:
+    void                             //   FORBIDDEN_CALL
     set_return(std::false_type, ...) //   RETURN
-      noexcept;                     //   THROW
+      noexcept;                      //   THROW
 
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
@@ -1916,9 +1971,9 @@ namespace trompeloeil
       return std::unique_ptr<expectation>(t);
     }
 
-    static                                          // Never called. Used to
+    static                                           // Never called. Used to
     std::unique_ptr<expectation>                     // limit errmsg when RETURN
-    make_expectation(std::false_type, ...) noexcept;// is missing in non-void
+    make_expectation(std::false_type, ...) noexcept; // is missing in non-void
                                                      // function
 
     template <typename M, typename Info>
@@ -1937,7 +1992,7 @@ namespace trompeloeil
       return make_expectation(assert_return_type(t), &t.matcher);
     }
   };
-  
+
   template <typename U, typename Sig, typename Value>
   auto make_call_modifier(call_matcher<Sig, Value>& m)
     -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
@@ -1946,294 +2001,311 @@ namespace trompeloeil
   }
 
   template <typename sig, typename ... U>
-  auto make_call_matcher(U&& ... u)
-    -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>&
+  auto make_call_matcher(U&& ... u) -> decltype(auto)
   {
-    return * new ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>( std::forward<U>(u)... );
+    using param_type = decltype(std::make_tuple(std::forward<U>(u)...));
+    using matcher = ::trompeloeil::call_matcher<sig, param_type>;
+    return * new matcher( std::forward<U>(u)... );
   }
 
 }
 
-#define TROMPELOEIL_ID(name) \
+#define TROMPELOEIL_ID(name)                                                   \
   TROMPELOEIL_CONCAT(trompeloeil_ ## name ## _, __LINE__)
 
-#define TROMPELOEIL_MAKE_MOCK1(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK1(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,1, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK2(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK2(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,2, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK3(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK3(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,3, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK4(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK4(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,4, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK5(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK5(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,5, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK6(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK6(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,6, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK7(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK7(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,7, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK8(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK8(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,8, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK9(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK9(name, sig)                                      \
   TROMPELOEIL_MAKE_MOCK_(name,,9, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK10(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK10(name, sig)                                     \
   TROMPELOEIL_MAKE_MOCK_(name,,10, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK11(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK11(name, sig)                                     \
   TROMPELOEIL_MAKE_MOCK_(name,,11, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK12(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK12(name, sig)                                     \
   TROMPELOEIL_MAKE_MOCK_(name,,12, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK13(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK13(name, sig)                                     \
   TROMPELOEIL_MAKE_MOCK_(name,,13, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK14(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK14(name, sig)                                     \
   TROMPELOEIL_MAKE_MOCK_(name,,14, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK15(name, sig) \
+#define TROMPELOEIL_MAKE_MOCK15(name, sig)                                     \
   TROMPELOEIL_MAKE_MOCK_(name,,15, sig, #name, #sig)
 
-#define TROMPELOEIL_MAKE_CONST_MOCK1(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK1(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name, const, 1, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK2(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK2(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,2, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK3(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK3(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,3, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK4(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK4(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,4, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK5(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK5(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,5, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK6(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK6(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,6, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK7(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK7(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,7, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK8(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK8(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,8, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK9(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK9(name, sig)                                \
   TROMPELOEIL_MAKE_MOCK_(name,const,9, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK10(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK10(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,10, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK11(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK11(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,11, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK12(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK12(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,12, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK13(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK13(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,13, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK14(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK14(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,14, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig) \
+#define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
 
 
-#define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s) \
-  using TROMPELOEIL_ID(cardinality_match) = std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
-  static_assert(TROMPELOEIL_ID(cardinality_match)::value, \
-                "Function signature does not have " #num " parameters"); \
-  using TROMPELOEIL_ID(matcher_list_type) = ::trompeloeil::call_matcher_list<sig>; \
-  mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(matcher_list); \
-  mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
-  struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
-  {                                                                     \
-    template <typename Mock>\
-      struct maker_obj {\
-      Mock& obj;\
-      const char* file;\
-      unsigned long line;\
-      const char* call_string;\
-      template <typename ... U>\
-      auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
-      {\
-return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...) \
-  .set_location(file, line)\
-  .set_name(call_string)\
-  .hook_last(obj.trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil){})); \
-      }\
-    };\
-    template <typename Mock>\
-      static maker_obj<Mock> maker(Mock& obj, const char* file, unsigned long line, const char* name) { return { obj, file, line, name }; } \
-  };                                                                    \
-  TROMPELOEIL_ID(tag_type_trompeloeil) trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness; \
-  TROMPELOEIL_ID(matcher_list_type)&                                    \
-  trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil)) constness noexcept \
-  {                                                                     \
-    return TROMPELOEIL_ID(matcher_list);                                \
-  }                                                                     \
-  auto name(TROMPELOEIL_PARAM_LIST(num, sig)) constness -> ::trompeloeil::return_of_t<sig> \
-  {                                                                     \
-    auto param_value = ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num)); \
-    auto i = ::trompeloeil::find(TROMPELOEIL_ID(cardinality_match){},   \
-                                 param_value,                           \
-                                 TROMPELOEIL_ID(matcher_list));         \
-    if (!i)                                                             \
-    {                                                                   \
-      ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},\
-                                     name_s " with signature " sig_s,   \
-                                     param_value,                       \
-                                     TROMPELOEIL_ID(matcher_list),      \
-                                     TROMPELOEIL_ID(saturated_matcher_list)); \
-    }                                                                   \
-    if (auto obj = ::trompeloeil::tracer_obj())                         \
-    {                                                                   \
-      i->log_call(TROMPELOEIL_ID(cardinality_match){}, obj, param_value); \
-    }                                                                   \
-    i->run_actions(TROMPELOEIL_ID(cardinality_match){},                 \
-                   param_value,                                         \
-                   TROMPELOEIL_ID(saturated_matcher_list));             \
-    return i->return_value(TROMPELOEIL_ID(cardinality_match){},         \
-                           param_value);                                \
-  }                                                                     \
+#define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s)       \
+  using TROMPELOEIL_ID(cardinality_match) =                                    \
+    std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
+  static_assert(TROMPELOEIL_ID(cardinality_match)::value,                      \
+                "Function signature does not have " #num " parameters");       \
+  using TROMPELOEIL_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
+  mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(matcher_list);         \
+  mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(saturated_matcher_list); \
+  struct TROMPELOEIL_ID(tag_type_trompeloeil)                                  \
+  {                                                                            \
+    template <typename Mock>                                                   \
+      struct maker_obj {                                                       \
+      Mock& obj;                                                               \
+      const char* file;                                                        \
+      unsigned long line;                                                      \
+      const char* call_string;                                                 \
+      template <typename ... U>                                                \
+      auto name(U&& ... u) ->                                                  \
+        decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
+      {                                                                        \
+        using tag = TROMPELOEIL_ID(tag_type_trompeloeil);                      \
+        return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)    \
+          .set_location(file, line)                                            \
+          .set_name(call_string)                                               \
+          .hook_last(obj.trompeloeil_matcher_list(tag{}));                     \
+      }                                                                        \
+      };                                                                       \
+    template <typename Mock>                                                   \
+    static maker_obj<Mock> maker(Mock& obj,                                    \
+                                 const char* file,                             \
+                                 unsigned long line,                           \
+                                 const char* name)                             \
+    { return { obj, file, line, name }; }                                      \
+  };                                                                           \
+  TROMPELOEIL_ID(tag_type_trompeloeil)                                         \
+  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness;        \
+                                                                               \
+  TROMPELOEIL_ID(matcher_list_t)&                                              \
+  trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil))               \
+  constness noexcept                                                           \
+  {                                                                            \
+    return TROMPELOEIL_ID(matcher_list);                                       \
+  }                                                                            \
+  auto name(TROMPELOEIL_PARAM_LIST(num, sig)) constness ->                     \
+    ::trompeloeil::return_of_t<sig>                                            \
+  {                                                                            \
+    auto param_value =                                                         \
+      ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num));            \
+                                                                               \
+    auto i = ::trompeloeil::find(TROMPELOEIL_ID(cardinality_match){},          \
+                                 param_value,                                  \
+                                 TROMPELOEIL_ID(matcher_list));                \
+    if (!i)                                                                    \
+    {                                                                          \
+      ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},      \
+                                     name_s " with signature " sig_s,          \
+                                     param_value,                              \
+                                     TROMPELOEIL_ID(matcher_list),             \
+                                     TROMPELOEIL_ID(saturated_matcher_list));  \
+    }                                                                          \
+    if (auto obj = ::trompeloeil::tracer_obj())                                \
+    {                                                                          \
+      i->log_call(TROMPELOEIL_ID(cardinality_match){}, obj, param_value);      \
+    }                                                                          \
+    i->run_actions(TROMPELOEIL_ID(cardinality_match){},                        \
+                   param_value,                                                \
+                   TROMPELOEIL_ID(saturated_matcher_list));                    \
+    return i->return_value(TROMPELOEIL_ID(cardinality_match){},                \
+                           param_value);                                       \
+  }                                                                            \
   using TROMPELOEIL_ID(signature_trompeloeil_ ## name) = sig
 
 
 
-#define TROMPELOEIL_REQUIRE_CALL(obj, func)                    \
+#define TROMPELOEIL_REQUIRE_CALL(obj, func)                                    \
   TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
-  auto TROMPELOEIL_ID(call_obj) =  TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
+  auto TROMPELOEIL_ID(call_obj) = TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func,      \
+                                                               obj_s, func_s)
 
 
-#define TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func) \
+#define TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func)                              \
   TROMPELOEIL_NAMED_REQUIRE_CALL(obj, func, #obj, #func)
 
-#define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)       \
+#define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)              \
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
-#define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
-  ::trompeloeil::call_validator{} +\
-  ::trompeloeil::make_call_modifier<decltype((obj).func)>(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(obj, __FILE__, __LINE__, obj_s "." func_s).func)
+#define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
+  ::trompeloeil::call_validator{} +                                            \
+  ::trompeloeil::make_call_modifier<decltype((obj).func)>(                     \
+      decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(      \
+        obj, __FILE__, __LINE__, obj_s "." func_s                              \
+      ).func                                                                   \
+    )
 
 
-#define TROMPELOEIL_ALLOW_CALL(obj, func) \
+#define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
 
-#define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)               \
-  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0, ~0ULL)
+#define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)                      \
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                          \
+    .TROMPELOEIL_TIMES(0, ~0ULL)
 
 
-#define TROMPELOEIL_NAMED_ALLOW_CALL(obj, func) \
-  TROMPELOEIL_NAMED_ALLOW_CALL(obj, func, #obj, #func)
+#define TROMPELOEIL_NAMED_ALLOW_CALL(obj, func)                                \
+  TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, #obj, #func)
 
-#define TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, obj_s, func_s)      \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0, ~0ULL)
+#define TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, obj_s, func_s)                \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
+    .TROMPELOEIL_TIMES(0, ~0ULL)
 
-#define TROMPELOEIL_FORBID_CALL(obj, func) \
+#define TROMPELOEIL_FORBID_CALL(obj, func)                                     \
   TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
 
-#define TROMPELOEIL_FORBID_CALL_(obj, func, obj_s, func_s)     \
-  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0).THROW(false)
+#define TROMPELOEIL_FORBID_CALL_(obj, func, obj_s, func_s)                     \
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                          \
+    .TROMPELOEIL_TIMES(0)                                                      \
+    .THROW(false)
 
-#define TROMPELOEIL_NAMED_FORBID_CALL(obj, func) \
+#define TROMPELOEIL_NAMED_FORBID_CALL(obj, func)                               \
   TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
 
-#define TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, obj_s, func_s)       \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s).TROMPELOEIL_TIMES(0).THROW(false)
+#define TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, obj_s, func_s)               \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
+    .TROMPELOEIL_TIMES(0)                                                      \
+    .THROW(false)
 
 
 
-#define TROMPELOEIL_WITH(...) \
-  TROMPELOEIL_WITH(=,#__VA_ARGS__, __VA_ARGS__)
-#define TROMPELOEIL_LR_WITH(...) \
-  TROMPELOEIL_WITH(&,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_WITH(...)    TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_LR_WITH(...) TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
 
-#define TROMPELOEIL_WITH_(capture, arg_s, ...)                          \
-  with(arg_s, [capture](auto const& trompeloeil_x) {                    \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+#define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
+  with(arg_s, [capture](auto const& trompeloeil_x) {                           \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    return __VA_ARGS__;                                                 \
+    return __VA_ARGS__;                                                        \
   })
 
-#define TROMPELOEIL_SIDE_EFFECT(...) \
-  TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_SIDE_EFFECT(...) \
-  TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
+#define TROMPELOEIL_SIDE_EFFECT(...)    TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
+#define TROMPELOEIL_LR_SIDE_EFFECT(...) TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                          \
-  sideeffect([capture](auto& trompeloeil_x) {                           \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+#define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
+  sideeffect([capture](auto& trompeloeil_x) {                                  \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    __VA_ARGS__;                                                        \
+    __VA_ARGS__;                                                               \
   })
 
-#define TROMPELOEIL_RETURN(...) \
-  TROMPELOEIL_RETURN_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_RETURN(...) \
-  TROMPELOEIL_RETURN_(&, __VA_ARGS__)
+#define TROMPELOEIL_RETURN(...)    TROMPELOEIL_RETURN_(=, __VA_ARGS__)
+#define TROMPELOEIL_LR_RETURN(...) TROMPELOEIL_RETURN_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_RETURN_(capture, ...)                               \
-  handle_return([capture](auto& trompeloeil_x) {                        \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+#define TROMPELOEIL_RETURN_(capture, ...)                                      \
+  handle_return([capture](auto& trompeloeil_x) {                               \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    return __VA_ARGS__;                                                 \
+    return __VA_ARGS__;                                                        \
   })
 
-#define TROMPELOEIL_THROW(...) \
-  TROMPELOEIL_THROW_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_THROW(...) \
-  TROMPELOEIL_THROW_(&, __VA_ARGS__)
+#define TROMPELOEIL_THROW(...)    TROMPELOEIL_THROW_(=, __VA_ARGS__)
+#define TROMPELOEIL_LR_THROW(...) TROMPELOEIL_THROW_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_THROW_(capture, ...)                                \
-  handle_throw([capture](auto& trompeloeil_x) {                         \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                  \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                  \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                  \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                  \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                  \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                  \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                  \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                  \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                  \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                 \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                 \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                 \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                 \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                 \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                 \
+#define TROMPELOEIL_THROW_(capture, ...)                                       \
+  handle_throw([capture](auto& trompeloeil_x) {                                \
+    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
+    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
+    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
+    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
+    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
+    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
+    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
+    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
+    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
+    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
+    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
+    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
+    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
+    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
+    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    throw __VA_ARGS__;                                                  \
+    throw __VA_ARGS__;                                                         \
  })
 
 
 #define TROMPELOEIL_TIMES(...) times(::trompeloeil::multiplicity<__VA_ARGS__>{})
 
-#define TROMPELOEIL_IN_SEQUENCE(...) \
+#define TROMPELOEIL_IN_SEQUENCE(...)                                           \
   in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))
 
 #define TROMPELOEIL_ANY(type) ::trompeloeil::typed_wildcard<type>()
@@ -2241,106 +2313,155 @@ return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...) \
 #define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
 #define TROMPELOEIL_AT_MOST(num) 0, num
 
-#define TROMPELOEIL_REQUIRE_DESTRUCTION(obj) \
+#define TROMPELOEIL_REQUIRE_DESTRUCTION(obj)                                   \
   TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
 
-#define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                          \
-  ::trompeloeil::lifetime_monitor TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)(obj, obj_s, ::trompeloeil::location(__FILE__, __LINE__))
+#define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                           \
+  ::trompeloeil::lifetime_monitor                                              \
+    TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)                   \
+      (obj, obj_s, ::trompeloeil::location(__FILE__, __LINE__))
 
-#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj) \
-  TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj, #obj)
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)                             \
+  TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
 
-#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                    \
-  std::unique_ptr<::trompeloeil::lifetime_monitor>(new ::trompeloeil::lifetime_monitor(obj, obj_s, ::trompeloeil::location(__FILE__, __LINE__)))
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                     \
+  std::unique_ptr<::trompeloeil::lifetime_monitor>                             \
+    (new ::trompeloeil::lifetime_monitor(obj,                                  \
+                                         obj_s,                                \
+                                         ::trompeloeil::location(__FILE__,     \
+                                                                 __LINE__)))
 
 #ifndef TROMPELOEIL_LONG_MACROS
-#define MAKE_MOCK0(name, sig) \
+
+#define MAKE_MOCK0(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,0, sig, #name, #sig)
-#define MAKE_MOCK1(name, sig) \
+#define MAKE_MOCK1(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,1, sig, #name, #sig)
-#define MAKE_MOCK2(name, sig) \
+#define MAKE_MOCK2(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,2, sig, #name, #sig)
-#define MAKE_MOCK3(name, sig) \
+#define MAKE_MOCK3(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,3, sig, #name, #sig)
-#define MAKE_MOCK4(name, sig) \
+#define MAKE_MOCK4(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,4, sig, #name, #sig)
-#define MAKE_MOCK5(name, sig) \
+#define MAKE_MOCK5(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,5, sig, #name, #sig)
-#define MAKE_MOCK6(name, sig) \
+#define MAKE_MOCK6(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,6, sig, #name, #sig)
-#define MAKE_MOCK7(name, sig) \
+#define MAKE_MOCK7(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,7, sig, #name, #sig)
-#define MAKE_MOCK8(name, sig) \
+#define MAKE_MOCK8(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,8, sig, #name, #sig)
-#define MAKE_MOCK9(name, sig) \
+#define MAKE_MOCK9(name, sig)                                                  \
   TROMPELOEIL_MAKE_MOCK_(name,,9, sig, #name, #sig)
-#define MAKE_MOCK10(name, sig) \
+#define MAKE_MOCK10(name, sig)                                                 \
   TROMPELOEIL_MAKE_MOCK_(name,,10, sig, #name, #sig)
-#define MAKE_MOCK11(name, sig) \
+#define MAKE_MOCK11(name, sig)                                                 \
   TROMPELOEIL_MAKE_MOCK_(name,,11, sig, #name, #sig)
-#define MAKE_MOCK12(name, sig) \
+#define MAKE_MOCK12(name, sig)                                                 \
   TROMPELOEIL_MAKE_MOCK_(name,,12, sig, #name, #sig)
-#define MAKE_MOCK13(name, sig) \
+#define MAKE_MOCK13(name, sig)                                                 \
   TROMPELOEIL_MAKE_MOCK_(name,,13, sig, #name, #sig)
-#define MAKE_MOCK14(name, sig) \
+#define MAKE_MOCK14(name, sig)                                                 \
   TROMPELOEIL_MAKE_MOCK_(name,,14, sig, #name, #sig)
-#define MAKE_MOCK15(name, sig) \
+#define MAKE_MOCK15(name, sig)                                                 \
   TROMPELOEIL_MAKE_MOCK_(name,,15, sig, #name, #sig)
 
-#define MAKE_CONST_MOCK0(name, sig) \
+#define MAKE_CONST_MOCK0(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name, const, 0, sig, #name, #sig)
-#define MAKE_CONST_MOCK1(name, sig) \
+#define MAKE_CONST_MOCK1(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name, const, 1, sig, #name, #sig)
-#define MAKE_CONST_MOCK2(name, sig) \
+#define MAKE_CONST_MOCK2(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,2, sig, #name, #sig)
-#define MAKE_CONST_MOCK3(name, sig) \
+#define MAKE_CONST_MOCK3(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,3, sig, #name, #sig)
-#define MAKE_CONST_MOCK4(name, sig) \
+#define MAKE_CONST_MOCK4(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,4, sig, #name, #sig)
-#define MAKE_CONST_MOCK5(name, sig) \
+#define MAKE_CONST_MOCK5(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,5, sig, #name, #sig)
-#define MAKE_CONST_MOCK6(name, sig) \
+#define MAKE_CONST_MOCK6(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,6, sig, #name, #sig)
-#define MAKE_CONST_MOCK7(name, sig) \
+#define MAKE_CONST_MOCK7(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,7, sig, #name, #sig)
-#define MAKE_CONST_MOCK8(name, sig) \
+#define MAKE_CONST_MOCK8(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,8, sig, #name, #sig)
-#define MAKE_CONST_MOCK9(name, sig) \
+#define MAKE_CONST_MOCK9(name, sig)                                            \
   TROMPELOEIL_MAKE_MOCK_(name,const,9, sig, #name, #sig)
-#define MAKE_CONST_MOCK10(name, sig) \
+#define MAKE_CONST_MOCK10(name, sig)                                           \
   TROMPELOEIL_MAKE_MOCK_(name,const,10, sig, #name, #sig)
-#define MAKE_CONST_MOCK11(name, sig) \
+#define MAKE_CONST_MOCK11(name, sig)                                           \
   TROMPELOEIL_MAKE_MOCK_(name,const,11, sig, #name, #sig)
-#define MAKE_CONST_MOCK12(name, sig) \
+#define MAKE_CONST_MOCK12(name, sig)                                           \
   TROMPELOEIL_MAKE_MOCK_(name,const,12, sig, #name, #sig)
-#define MAKE_CONST_MOCK13(name, sig) \
+#define MAKE_CONST_MOCK13(name, sig)                                           \
   TROMPELOEIL_MAKE_MOCK_(name,const,13, sig, #name, #sig)
-#define MAKE_CONST_MOCK14(name, sig) \
+#define MAKE_CONST_MOCK14(name, sig)                                           \
   TROMPELOEIL_MAKE_MOCK_(name,const,14, sig, #name, #sig)
-#define MAKE_CONST_MOCK15(name, sig) \
+#define MAKE_CONST_MOCK15(name, sig)                                           \
   TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
 
-#define REQUIRE_CALL(obj, func)       TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
-#define NAMED_REQUIRE_CALL(obj, func) TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, #obj, #func)
-#define ALLOW_CALL(obj, func)         TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
-#define NAMED_ALLOW_CALL(obj, func)   TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, #obj, #func)
-#define FORBID_CALL(obj, func)        TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
-#define NAMED_FORBID_CALL(obj, func)  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
-#define WITH(...)                     TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
-#define LR_WITH(...)                  TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
-#define SIDE_EFFECT(...)              TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
-#define LR_SIDE_EFFECT(...)           TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
-#define RETURN(...)                   TROMPELOEIL_RETURN_(=,__VA_ARGS__)
-#define LR_RETURN(...)                TROMPELOEIL_RETURN_(&, __VA_ARGS__)
-#define THROW(...)                    TROMPELOEIL_THROW_(=, __VA_ARGS__)
-#define LR_THROW(...)                 TROMPELOEIL_THROW_(&, __VA_ARGS__)
-#define TIMES(...)                    TROMPELOEIL_TIMES(__VA_ARGS__)
-#define IN_SEQUENCE(...)              TROMPELOEIL_IN_SEQUENCE(__VA_ARGS__)
-#define ANY(type)                     TROMPELOEIL_ANY(type)
-#define AT_LEAST(num)                 TROMPELOEIL_AT_LEAST(num)
-#define AT_MOST(num)                  TROMPELOEIL_AT_MOST(num)
-#define REQUIRE_DESTRUCTION(obj)      TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
-#define NAMED_REQUIRE_DESTRUCTION(obj)TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
+#define REQUIRE_CALL(obj, func)                                                \
+  TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
+
+#define NAMED_REQUIRE_CALL(obj, func)                                          \
+TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, #obj, #func)
+
+#define ALLOW_CALL(obj, func)                                                  \
+  TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
+
+#define NAMED_ALLOW_CALL(obj, func)                                            \
+  TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, #obj, #func)
+
+#define FORBID_CALL(obj, func)                                                 \
+  TROMPELOEIL_FORBID_CALL_(obj, func, #obj, #func)
+
+#define NAMED_FORBID_CALL(obj, func)                                           \
+  TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
+
+#define WITH(...)                                                              \
+  TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
+
+#define LR_WITH(...)                                                           \
+  TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
+
+#define SIDE_EFFECT(...)                                                       \
+  TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
+
+#define LR_SIDE_EFFECT(...)                                                    \
+  TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
+
+#define RETURN(...)                                                            \
+TROMPELOEIL_RETURN_(=,__VA_ARGS__)
+
+#define LR_RETURN(...)                                                         \
+  TROMPELOEIL_RETURN_(&, __VA_ARGS__)
+
+#define THROW(...)                                                             \
+  TROMPELOEIL_THROW_(=, __VA_ARGS__)
+
+#define LR_THROW(...)                                                          \
+TROMPELOEIL_THROW_(&, __VA_ARGS__)
+
+#define TIMES(...)                                                             \
+  TROMPELOEIL_TIMES(__VA_ARGS__)
+
+#define IN_SEQUENCE(...)                                                       \
+TROMPELOEIL_IN_SEQUENCE(__VA_ARGS__)
+
+#define ANY(type)                                                              \
+TROMPELOEIL_ANY(type)
+
+#define AT_LEAST(num)                                                          \
+  TROMPELOEIL_AT_LEAST(num)
+
+#define AT_MOST(num)                                                           \
+TROMPELOEIL_AT_MOST(num)
+
+#define REQUIRE_DESTRUCTION(obj)                                               \
+TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
+
+#define NAMED_REQUIRE_DESTRUCTION(obj)                                         \
+TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
+
 #endif
 
 #endif // include guard
