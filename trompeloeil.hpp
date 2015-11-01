@@ -1058,10 +1058,10 @@ namespace trompeloeil
     void
     log_call(tracer* obj, call_params_type_t<Sig>& p) const = 0;
 
-    template <typename ... T>                     // never called. Used to
+    template <typename ... T>                    // never called. Used to
     void log_call(std::false_type, T&& ...) const;// limit errmsg length
-                                                  // with MAKE_MOCKn
-                                                  // and wrong sig
+                                                    // with MAKE_MOCKn
+                                                    // and wrong sig
     void
     log_call(std::true_type, tracer* obj, call_params_type_t<Sig>& p) const
     {
@@ -1777,7 +1777,7 @@ namespace trompeloeil
     }
 
     call_matcher
-    &set_location(char const *file_, unsigned line_)
+    &set_location(char const *file_, unsigned long line_)
     noexcept
     {
       loc.file = file_;
@@ -1811,7 +1811,7 @@ namespace trompeloeil
     static                                            // Never called. Used to
     inline                                            // limit errmsg with
     void                                              // SIDE_EFFECT on
-    add_side_effect(std::false_type, ...) noexcept;   // forbidden call
+    add_side_effect(std::false_type, ...) noexcept;  // forbidden call
 
     template <typename ... T>
     void
@@ -1833,7 +1833,7 @@ namespace trompeloeil
     inline                          // Never called. Used to limit errmsg
     static                          // with RETURN of wring type and after:
     void                            //   FORBIDDEN_CALL
-    set_return(std::false_type, ...)//   RETURN
+    set_return(std::false_type, ...) //   RETURN
       noexcept;                     //   THROW
 
     condition_list<Sig>                    conditions;
@@ -1916,9 +1916,9 @@ namespace trompeloeil
       return std::unique_ptr<expectation>(t);
     }
 
-    static                                           // Never called. Used to
+    static                                          // Never called. Used to
     std::unique_ptr<expectation>                     // limit errmsg when RETURN
-    make_expectation(std::false_type, ...) noexcept; // is missing in non-void
+    make_expectation(std::false_type, ...) noexcept;// is missing in non-void
                                                      // function
 
     template <typename M, typename Info>
@@ -2029,23 +2029,22 @@ namespace trompeloeil
   mutable TROMPELOEIL_ID(matcher_list_type) TROMPELOEIL_ID(saturated_matcher_list); \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                           \
   {                                                                     \
-    template <typename Mock>						\
-      struct maker_obj {						\
-      Mock& obj;							\
-      const char* file;							\
-      unsigned long line;						\
-      const char* call_string;						\
-      template <typename ... U>						\
+    template <typename Mock>\
+      struct maker_obj {\
+      Mock& obj;\
+      const char* file;\
+      unsigned long line;\
+      const char* call_string;\
+      template <typename ... U>\
       auto name(U&& ... u) -> decltype(::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...)) \
-      {									\
-	auto& m = ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...); \
-	m.set_location(file, line);					\
-	m.set_name(call_string);					\
-	m.hook_last(obj.trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil){})); \
-	return m;							\
-      }									\
-    };									\
-    template <typename Mock>						\
+      {\
+return ::trompeloeil::make_call_matcher<sig>(std::forward<U>(u)...) \
+  .set_location(file, line)\
+  .set_name(call_string)\
+  .hook_last(obj.trompeloeil_matcher_list(TROMPELOEIL_ID(tag_type_trompeloeil){})); \
+      }\
+    };\
+    template <typename Mock>\
       static maker_obj<Mock> maker(Mock& obj, const char* file, unsigned long line, const char* name) { return { obj, file, line, name }; } \
   };                                                                    \
   TROMPELOEIL_ID(tag_type_trompeloeil) trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness; \
@@ -2096,7 +2095,7 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)          \
-  ::trompeloeil::call_validator{} +					\
+  ::trompeloeil::call_validator{} +\
   ::trompeloeil::make_call_modifier<decltype((obj).func)>(decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(obj, __FILE__, __LINE__, obj_s "." func_s).func)
 
 
