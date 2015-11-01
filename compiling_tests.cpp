@@ -1498,7 +1498,9 @@ TEST_CASE_METHOD(Fixture, "an expected destruction of monitored object is not re
 class none
 {
 public:
-  virtual ~none() = default;
+  none() {}
+  none(none const&) {}
+  virtual ~none() {}
 };
 
 TEST_CASE_METHOD(Fixture, "a copy of a deathwatched object with expectation is not expected to die", "[deatwatched]")
