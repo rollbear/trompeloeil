@@ -6,6 +6,20 @@
 > Style of representation in which a painted object is intended
 > to deceive the viewer into believing it is the object itself...
 
+Work-In-Progress documentation
+------------------------------
+
+Please look into the new documentation. Feedback/pull-requests are most welcome.
+- Existing/status:
+  - [Reference](docs/reference.md) / stylistic inconsistencies and not quite
+    complete
+
+- Missing completely:
+  - FAQ
+  - Intro
+  - Cookbook with loads of examples
+
+
 What is it?
 -----------
 
