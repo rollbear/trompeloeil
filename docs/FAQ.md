@@ -79,7 +79,7 @@ are captured by value, i.e. each such clause has its own copy of the local
 variable. If you could change it, it would change the value in that clause
 only and not in any of the others.
 
-Exmple:
+Example:
 
 ```Cpp
 class C
@@ -165,7 +165,7 @@ so much the better.
 **A.** *`C++03`* and older is completely out. The
 functionality needed for *Trompeloeil* isn't there.
 [Lambdas](http://en.cppreference.com/w/cpp/language/lambda) and
-[varidic templates](http://en.cppreference.com/w/cpp/language/parameter_pack)
+[variadic templates](http://en.cppreference.com/w/cpp/language/parameter_pack)
 are absolutely necessary.
 
 The only thing "needed" that *`C++11`* doesn't provide is

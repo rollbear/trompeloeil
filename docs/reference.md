@@ -75,7 +75,7 @@ C obj;
 ```
 
 Above `obj` is a mock object. It is possible to place
-[expectations](#expectation) on [mock funktions](#mock_function) for the object
+[expectations](#expectation) on [mock functions](#mock_function) for the object
 `obj`.
 
 ## <A name="expectation"/>Expectation
