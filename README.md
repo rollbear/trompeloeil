@@ -13,9 +13,9 @@ Please look into the new documentation. Feedback/pull-requests are most welcome.
 - Existing/status:
   - [Reference](docs/reference.md) / stylistic inconsistencies and not quite
     complete
+  - [FAQ](docs/FAQ.md) / Answers the ones I've got. Please ask more!
 
 - Missing completely:
-  - FAQ
   - Intro
   - Cookbook with loads of examples
 
