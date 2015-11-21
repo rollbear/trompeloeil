@@ -2,6 +2,7 @@
 
 - Q. [Why a name that can neither be pronounced nor spelled?](#why_name)
 - Q. [Which compilers supports *Trompeloeil*?](#compilers)
+- Q. [How do I use *Trompeloeil* with XXX unit test framework?](#unit_test_adaptation)
 - Q. [Why can't I **`.RETURN()`** a reference?](#return_reference)
 - Q. [Why can't I change a local variable in **`.SIDE_EFFECT()`**?](#change_side_effect)
 - Q. [Why the "local reference" **`.LR_*()`** variants? Why not always capture by reference?](#why_lr)
@@ -33,6 +34,125 @@ has a weak spot for Trompe-l'œil art.
 - [clang++](http://clang.llvm.org) 3.6 and later
 - [VisualStudio](http://visualstudio.com) 2015 and later.
 
+## <A name="unit_test_adaptation"/>Q. How do I use *Trompeloeil* with XXX unit test framework?
+
+**A.** By default, *Trompeloeil* reports violations by throwing an exception,
+explaining the problem in the
+[`what()`](http://en.cppreference.com/w/cpp/error/exception/what) string.
+
+Depending on your test frame work and your runtime environment, this may,
+or may not, suffice.
+
+*Trompeloeil* offers support for adaptation to any test frame work. Some
+sample adaptations are:
+
+- [Catch!](#adapt_catch)
+- [crpcut](#adapt_crpcut)
+- [gtest](#adapt_gtest)
+- [boost Unit Test Framework](#adapt_boost_unit_test_framework)
+
+What you need to know to adapt to other frame works is this function:
+
+```Cpp
+trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
+                                             char const *file,
+                                             unsigned long line,
+                                             const std::string& msg)>)
+```
+
+Call it with the adapter to your test frame work. The important thing to
+understand is the first parameter `trompeloeil::severity`. It is an enum
+with the values `trompeloeil::severity::fatal` and
+`trompeloeil::severity::nonfatal`. The value `severity::nonfatal` is
+used when reporting violations during stack rollback, typically during
+the destruction of an [expectation](reference.md/#expectation). In this
+case it is vital that no exception is thrown, or the process will
+terminate.
+
+**NOTE!** There are some violation that cannot be attributed to a source code
+location. An example is an unexpected call to a mock function for which there
+are no expectations. In these cases `file` will be `""` string and
+`line` == 0.
+
+### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch!](https://github.com/philsquared/Catch)
+
+```Cpp
+  trompeloeil::set_reporter([](::trompeloeil::severity s,
+                               char const *file,
+                               unsigned long line,
+                               const std::string& msg)
+    {
+      std::ostringstream os;
+      if (line) os << file << ':' << line << '\n';
+      os << msg;
+      if (s == ::trompeloeil::severity::fatal)
+        {
+          FAIL(os.str());
+        }
+      CHECK(os.str() == "");
+    });
+```
+
+### <A name="adapt_crpcut"/>Use *Trompeloeil* with [crpcut](http://crpcut.sourceforge.net)
+
+```Cpp
+  trompeloeil::set_reporter([](::trompeloeil::severity,
+                               char const *file,
+                               unsigned long line,
+                               const std::string& msg)
+    {
+      std::ostringstream os;
+      os << file << ':' << line;
+      auto loc = os.str();
+      auto location = line == 0U
+        ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
+        : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
+      ::crpcut::comm::report(::crpcut::comm::exit_fail,
+                             std::ostringstream(msg),
+                             location);
+    });
+```
+
+### <A name="adapt_gtest"/>Use *Trompeloeil* with [gtest](https://code.google.com/p/googletest/)
+
+```Cpp
+  trompeloeil::set_reporter([](trompeloeil::severity s,
+                               char const *file,
+                               unsigned long line,
+                               const std::string& msg)
+    {
+      if (s == trompeloeil::severity::fatal)
+      {
+        std::ostringstream os;
+        if (line != 0U)
+        {
+          os << file << ':' << line << '\n';
+        }
+        throw trompeloeil::expectation_violation(os.str() + msg);
+      }
+
+      ADD_FAILURE_AT(file, line) << msg;
+    });
+```
+
+### <A name="adapt_boost_unit_test_framework"/>Use *Trompeloeil* with [boost Unit Test Framework](http://www.boost.org/doc/libs/1_59_0/libs/test/doc/html/index.html)
+
+```Cpp
+  using trompeloeil::severity;
+  trompeloeil::set_reporter([](severity s,
+                               char const *file,
+                               unsigned long line,
+                               const std::string& msg)
+    {
+      std::ostringstream os;
+      if (line != 0U) os << file << ':' << line << '\n';
+      auto text = os.str() + msg;
+      if (s == severity::fatal)
+        BOOST_FAIL(text);
+      else
+        BOOST_ERROR(text);
+    });
+```
 ## <A name="return_reference"/>Q. Why can't I [**`.RETURN()`**](reference.md/#RETURN) a reference?
 
 **A.** You can, you just have to use
