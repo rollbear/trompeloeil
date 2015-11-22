@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//illegal_argument<2>
+//illegal argument
 
 #include "../trompeloeil.hpp"
 

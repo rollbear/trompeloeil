@@ -423,7 +423,7 @@ TEST_CASE_METHOD(Fixture, "LR_RETURN access the actual local object", "[return v
   REQUIRE(m == 2);
 }
 
-TEST_CASE_METHOD(Fixture, "RETURN a std::ref of local obj by ref returns object given", "[return values]")
+TEST_CASE_METHOD(Fixture, "RETURN a ref to local obj, std::ref(obj) returns object given", "[return values]")
 {
   {
     mock_c obj;
@@ -435,16 +435,28 @@ TEST_CASE_METHOD(Fixture, "RETURN a std::ref of local obj by ref returns object 
   }
   REQUIRE(reports.empty());
 }
-
-// THROW and LR_THROW tests
-
-TEST_CASE_METHOD(Fixture, "RETURN ref param by reference via std::ref returns object given", "[return values]")
+TEST_CASE_METHOD(Fixture, "RETURN a ref to local obj, (obj) returns object given", "[return values]")
 {
   {
     mock_c obj;
     unmovable s;
     REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-      .RETURN(std::ref(_1));
+      .LR_RETURN((s));
+
+    REQUIRE(&obj.getter(s) == &s);
+  }
+  REQUIRE(reports.empty());
+}
+
+// THROW and LR_THROW tests
+
+TEST_CASE_METHOD(Fixture, "RETURN ref param returns object given", "[return values]")
+{
+  {
+    mock_c obj;
+    unmovable s;
+    REQUIRE_CALL(obj, getter(ANY(unmovable&)))
+      .RETURN(_1);
 
     REQUIRE(&obj.getter(s) == &s);
   }
@@ -694,7 +706,7 @@ TEST_CASE_METHOD(Fixture, "wildcards matches overload on type and parameter coun
   {
     mock_c obj;
     REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-      .RETURN(std::ref(_1));
+      .RETURN(_1);
     FORBID_CALL(obj, getter(ANY(int)));
     REQUIRE_CALL(obj, getter(_, _))
       .SIDE_EFFECT(_2 = std::to_string(_1));

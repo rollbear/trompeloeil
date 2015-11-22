@@ -256,13 +256,19 @@ Set the return value after having evaluated every **`.SIDE_EFFECT`** . For
 `void` functions **`.RETURN`** is illegal. For non-`void` functions
 **`.RETURN`** is required exactly once. *expr* may refer to parameters in the
 call with their positional names `_1`, `_2`, etc. This code may alter
-out-parameters. If you need to return an lvalue reference, use `std::ref()`.
+out-parameters. To return a captured local object by reference, use
+**`.LR_RETURN`** instead.
+
 It is not legal to combine both **`.THROW`** and **`.RETURN`**.
 Named local objects accessed here refers to a copy.
 
 **`.LR_RETURN`(** *expr* **)**  
 Same as **`.RETURN`**, except that named local objects are accessed by
 reference.
+
+**NOTE!** To return a captured local object by reference you
+need either `.LR_RETURN(std::ref(obj))` or `.LR_RETURN((obj))`. Many
+compilers wrongly accepts return without.
 
 **`.THROW`(** *expr* **)**  
 Throw after having evaluated every **`.SIDE_EFFECT`** . *expr* may refer to
