@@ -624,8 +624,15 @@ exactly one of [**`RETURN(...)`**](#RETURN), **`LR_RETURN(...)`**,
 [**`LR_THROW(...)`**](#LR_THROW) or [**`THROW(...)`**](#THROW) is required.
 *expr* may refer to parameters in the call with their positional names `_1`,
 `_2`, etc.
-This code may alter out-parameters. If you need to return an lvalue reference,
-use `std::ref()`.
+This code may alter out-parameters.
+
+If you need to return an
+[lvalue-reference](http://en.cppreference.com/w/cpp/language/reference),
+to a local variable, use
+[`std::ref(value)`](http://en.cppreference.com/w/cpp/utility/functional/ref) or
+[`std::cref(value)`](http://en.cppreference.com/w/cpp/utility/functional/cref)
+for it, or just enclose the value in an extra parenthesis, like this
+[**`.LR_RETURN((value))`**](reference.md/#RETURN).
 
 **NOTE!** Any named local objects named in *expr* are captured by reference so
 lifetime management is important.
@@ -638,29 +645,23 @@ public:
   MAKE_MOCK1(func, int&(unsigned));
 };
 
-using trompeloeil::_;
-
-std::vector<int> values{3,2,1,0};
-
 TEST(atest)
 {
   C mock_obj;
 
-  int offset = 1;
-  ALLOW_CALL(mock_obj, func(_))
-    .LR_WITH(_1 + offset < values.size())
-    .LR_RETURN(std::ref(values[_1 + offset]));
+  int rv = 3;
+  ALLOW_CALL(mock_obj, func(0))
+    .LR_RETURN(std::ref(rv)); // reference to captured local variable
 
-  offset = 2;
+  rv = 4;
   test_func(&mock_obj);
 }
 ```
 
 Above, the **`LR_RETURN(...)`** clause tells matching calls of
-`mock_obj.func(...)` to return a reference to an element in the global
-`std::vector<int> values`. Since **`LR_RETURN(...)`** accesses local variables
-by reference, the value of `offset` is 2 in the index calculation if called
-from within `test_func(...)`.
+`mock_obj.func(...)` to return a reference to the local variable `rv`.
+Since **`LR_RETURN(...)`** accesses local variables by reference, the value
+of the returned reference will be 4 if called from within `test_func(...)`.
 
 See also [**`RETURN(...)`**](#RETURN) which accesses copies of local variables.
 
@@ -1180,8 +1181,7 @@ exactly one of [**`LR_RETURN(...)`**](#LR_RETURN), **`RETURN(...)`**,
 [**`LR_THROW(...)`**](#LR_THROW) or [**`THROW(...)`**](#THROW) is required.
 *expr* may refer to parameters in the call with their positional names `_1`,
 `_2`, etc.
-This code may alter out-parameters. If you need to return an lvalue reference,
-use `std::ref()`.
+This code may alter out-parameters.
 
 Named local objects accessed here refers to a copy.
 
@@ -1204,7 +1204,7 @@ TEST(atest)
   int offset = 1;
   ALLOW_CALL(mock_obj, func(_))
     .WITH(_1 + offset < values.size())
-    .RETURN(std::ref(values[_1 + offset]));
+    .RETURN(values[_1 + offset]);
 
   offset = 2;
   test_func(&mock_obj);
@@ -1216,6 +1216,8 @@ Above, the **`RETURN(...)`** clause tells matching calls of
 `std::vector<int> values`. Since **`RETURN(...)`** accesses copies of local
 variables, the value of `offset` is 1 in the index calculation if called from
 within `test_func(...)`.
+
+**NOTE!** It is illegal to return a reference to a captured local variable.
 
 See also [**`LR_RETURN(...)`**](#LR_RETURN) which accesses local variables
 by reference.

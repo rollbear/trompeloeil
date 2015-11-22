@@ -155,10 +155,16 @@ are no expectations. In these cases `file` will be `""` string and
 ```
 ## <A name="return_reference"/>Q. Why can't I [**`.RETURN()`**](reference.md/#RETURN) a reference?
 
-**A.** You can, you just have to use
- [`std::ref()`](http://en.cppreference.com/w/cpp/utility/functional/ref) or
- [`std::cref()`](http://en.cppreference.com/w/cpp/utility/functional/cref)
-   for it.
+**A.** You can, but the language is a bit peculiar.
+
+For global variables, parameters or returned references from function calls,
+just use **`.RETURN(value)`**. For local variables you need
+[**`.LR_RETURN()`**](reference.md/#LR_RETURN), and you either need to
+use
+[`std::ref(value)`](http://en.cppreference.com/w/cpp/utility/functional/ref) or
+[`std::cref(value)`](http://en.cppreference.com/w/cpp/utility/functional/cref)
+for it, or just enclose the value in an extra parenthesis, like this
+[**`.LR_RETURN((value))`**](reference.md/#RETURN)
 
 Example:
 ```Cpp
@@ -169,6 +175,7 @@ public:
 };
 
 using trompeloeil::_;
+using trompeloeil::lt;
 
 TEST(some_test)
 {
@@ -176,16 +183,26 @@ TEST(some_test)
   
   std::map<int, std::string> dictionary{ {...} };
   
+  std::string default_string;
+  
   ALLOW_CALL(mock_obj, lookup(_))
-    .LR_RETURN(std::ref(dictionary.at(_1)));
-     
+    .LR_RETURN(dictionary.at(_1)); // function call
+  
+  ALLOW_CALL(mock_obj, lookup(trompeloeil::lt(0)))
+    .LR_RETURN((default_string)); // extra parenthesis
+    
+  ALLOW_CALL(mock_obj, lookup(0))
+    .LR_RETURN(std::ref(default_string));
+
   test_func(&mock_obj);
 }
 ```
 
-Above, the [expectation](reference.md/#expectation) on function `lookup()`
-is that any call is allowed and will return the reference to the item found
-in `dictionary`. The reference is non-const, so `test_func()` is allowed to
+Above, the [expectations](reference.md/#expectation) on function
+`lookup()` is that any call is allowed and will return an
+[lvalue-reference](http://en.cppreference.com/w/cpp/language/reference)
+to either a match in  `dictionary`, or to the local variable
+`default_string`. The reference is non-const, so `test_func()` is allowed to
 change the returned string.
 
 ## <A name="change_side_effect"/> Q. Why can't I change a local variable in [**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT)?
