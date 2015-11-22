@@ -2258,7 +2258,7 @@ namespace trompeloeil
 #define TROMPELOEIL_LR_RETURN(...) TROMPELOEIL_RETURN_(&, __VA_ARGS__)
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
-  handle_return([capture](auto& trompeloeil_x) {                               \
+  handle_return([capture](auto& trompeloeil_x) -> decltype(auto) {             \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
