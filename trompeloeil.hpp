@@ -1919,7 +1919,9 @@ namespace trompeloeil
     illegal_argument(illegal_argument&&) = delete;
     illegal_argument operator&() const = delete;
     template <typename T>
-    operator T() const = delete;
+    operator T() const {
+      static_assert(!N, "illegal argument");
+    }
   };
 
   template <typename T, int N>
