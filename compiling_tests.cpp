@@ -604,6 +604,8 @@ public:
   MAKE_MOCK1(func_clr, void(const int&));
   MAKE_MOCK1(func_rr, void(int&&));
   MAKE_MOCK1(func_crr, void(const int&&));
+  MAKE_MOCK1(func_uniqv, void(std::unique_ptr<int>));
+  MAKE_MOCK1(func_sharedv, void(std::shared_ptr<int>));
   MAKE_MOCK1(func, void(int&));
   MAKE_MOCK1(func, void(const int&));
   MAKE_MOCK1(func, void(int&&));
@@ -639,6 +641,19 @@ TEST_CASE_METHOD(Fixture, "wildcard matches parameter const value type", "[match
   u.func_cv(1);
 }
 
+TEST_CASE_METHOD(Fixture, "wildcard matches unique_ptr<> value type", "[matching]")
+{
+  U u;
+  REQUIRE_CALL(u, func_uniqv(_));
+  u.func_uniqv(std::make_unique<int>(3));
+}
+
+TEST_CASE_METHOD(Fixture, "wildcard matches shared_ptr<> value type", "[matching]")
+{
+  U u;
+  REQUIRE_CALL(u, func_sharedv(_));
+  u.func_sharedv(std::make_shared<int>(3));
+}
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter lvalue reference type", "[matching]")
 {
   U u;
@@ -667,6 +682,20 @@ TEST_CASE_METHOD(Fixture, "wildcard matches parameter const rvalue reference typ
   U u;
   REQUIRE_CALL(u, func_crr(_));
   u.func_crr(1);
+}
+
+TEST_CASE_METHOD(Fixture, "ANY can match unique_ptr<> by value", "[matching]")
+{
+  U u;
+  REQUIRE_CALL(u, func_uniqv(ANY(std::unique_ptr<int>)));
+  u.func_uniqv(std::make_unique<int>(3));
+}
+
+TEST_CASE_METHOD(Fixture, "ANY can match shared_ptr<> by value", "[matching]")
+{
+  U u;
+  REQUIRE_CALL(u, func_sharedv(ANY(std::shared_ptr<int>)));
+  u.func_sharedv(std::make_shared<int>(3));
 }
 
 TEST_CASE_METHOD(Fixture, "ANY can select overload on lvalue reference type", "[matching]")

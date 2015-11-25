@@ -369,6 +369,12 @@ namespace trompeloeil
   struct typed_matcher<std::nullptr_t> : matcher
   {
     template <typename U>
+    operator std::unique_ptr<U>&&() const;
+
+    template <typename U>
+    operator std::shared_ptr<U>&&() const;
+
+    template <typename U>
     operator U*() const;
 
     template <typename T, typename C>
@@ -749,7 +755,7 @@ namespace trompeloeil
   {
     template<typename T>
     operator T&&() const;
-    template<typename T>
+    template<typename T, typename = std::enable_if_t<std::is_copy_constructible<T>::value>>
     operator T&() const;
     template <typename T>
     bool matches(T const&) const noexcept { return true; }
@@ -800,6 +806,16 @@ namespace trompeloeil
   {
   public:
     ne_t(std::nullptr_t) {}
+    template <typename U>
+    bool matches(const std::unique_ptr<U>& u) const noexcept
+    {
+      return u != nullptr;
+    }
+    template <typename U>
+    bool matches(const std::shared_ptr<U>& u) const noexcept
+    {
+      return u != nullptr;
+    }
     template <typename U>
     bool matches(U* u) const noexcept
     {
