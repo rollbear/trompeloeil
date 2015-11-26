@@ -10,14 +10,11 @@ Work-In-Progress documentation
 ------------------------------
 
 Please look into the new documentation. Feedback/pull-requests are most welcome.
-- Existing/status:
-  - [Introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
-  - [Reference](docs/reference.md) / stylistic inconsistencies and not quite
-    complete
-  - [FAQ](docs/FAQ.md) / Answers the ones I've got. Please ask more!
-
-- Missing completely:
-  - Cookbook with loads of examples
+- [Introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
+- [Reference](docs/reference.md) / stylistic inconsistencies and not quite
+  complete
+- [FAQ](docs/FAQ.md) / Answers the ones I've got. Please ask more!
+- [Cook Book](docs/CookBook.md) / Mostly done
 
 
 What is it?
