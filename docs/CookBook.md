@@ -995,11 +995,11 @@ or 5 times. The call 'm.func(2)` must be made 3 or more times. Finally
 ## <A name="lifetime"/> Controlling lifetime of mock objects
 
 If you test a case where you hand over ownership of a
-[mock object](refecence.md/#mock_object), you may want to test that the mock
+[mock object](reference.md/#mock_object), you may want to test that the mock
 object is destroyed when intended. For this there are is a modifier class
 template `trompeloeil::deathwatched<T>` and the macros
 [**`REQUIRE_DESTRUCTION(...)`**](reference.md/#REQUIRE_DESTRUCTION) and
-[**`NAMED_RELQUIRE_DESTRUCTION(...)`**](reference.md/#NAMED_REQUIRE_DESTRUCTION).
+[**`NAMED_REQUIRE_DESTRUCTION(...)`**](reference.md/#NAMED_REQUIRE_DESTRUCTION).
 
 Example:
 
@@ -1029,9 +1029,12 @@ void consume_test()
   
   consumer<Mock> c(std::move(owner));
   
-  c.poke(3);
-  
   {
+    REQUIRE_CALL(*mock, func(3));
+    c.poke(3);
+  }
+  {
+    REQUIRE_CALL(*mock, func(-1));
     REQUIRE_DESTRUCTION(*mock);
   
     c.poke(0);
@@ -1048,7 +1051,10 @@ test will fail. Likewise if the call `c.poke(3)` would destroy the mock object.
 
 The local scope afterwards has a requirement that the mock object *is* destroyed.
 If the call `c.poke(0)` does not destroy the mock, a violation will be reported
-and fail the test.
+and fail the test. There is an implied order that the mock function
+`func(-1)` is called before the destruction of the mock object,
+since destroying any mock object that still has
+[expectations](reference.md/#expectation) is reported as a violation.
 
 
 ## <A name="tracing"/> Tracing mocks
