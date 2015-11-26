@@ -21,11 +21,11 @@
   - [Expecting several matching calls in some sequences](#sequences)
   - [Expecting matching calls a certain number of times](#match_count)
 - [Controlling lifetime of mock objects](#lifetime)
+- [Customize output format of values](#custom_formatting)
 - [Tracing mocks](#tracing)
   - [Using `trompeloeil::stream_tracer`](#stream_tracer)
   - [Writing custom tracers](#custom_tracer)
 - [Writing custom matchers](#custom_matchers)
-
 
 ## <A name="unit_test_frameworks"/> Integrating with unit test frame works
 
@@ -1056,12 +1056,278 @@ and fail the test. There is an implied order that the mock function
 since destroying any mock object that still has
 [expectations](reference.md/#expectation) is reported as a violation.
 
+## <A name="custom_formatting"/> Customize output format of values
+ 
+When [tracing](#tracing) or printing parameter values in violation reports,
+the values are printed using their
+[stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt),
+if available, or hexadecimal dumps otherwise. If this is not what you want, you can
+provide your own output formatting used solely for testing:
+
+The simple way to do this is to implement a function `print(...)` in
+`namespace trompeloeil`.
+
+Example:
+
+```Cpp
+class char_buff : public std::vector<char> v;
+{
+  ...
+};
+
+namespace trompeloeil {
+  inline void print(std::ostream& os, const char_buff& b)
+  {
+    os << b.size() << "#{ ";
+    for (auto v : b) { os << int(v) << " ";
+    os << "}";
+  }
+}
+```
+
+Any reports involving the `char_buff` above will be printed using the
+`trompeloeil::print(...)` function, showing the size and integer values.
 
 ## <A name="tracing"/> Tracing mocks
+
+*Trompeloeil* offers tracing as a way of manually following the calls of mocks.
+In pure [TDD](https://en.wikipedia.org/wiki/Test-driven_development) this is
+hardly ever needed, but if you are in the undesirable situation of exploring
+the behaviour of code written without tests, tracing vastly simplify your job.
+
+Simply put, Tracing is exposing which mocks are called with which values.
+
+*Trompeloeil* offers a [*`stream_tracer`*](#stream_tracer), which outputs
+all calls to a
+[`std::ostream`](http://en.cppreference.com/w/cpp/io/basic_ostream), but you
+can also write your own [custom tracer](#custom_tracer).
  
 ### <A name="stream_tracer"/> Using `trompeloeil::stream_tracer`
 
+*`stream_tracer`* is a mechanism used to find out how
+[mock functions](reference.md/#mock_function) are called, by simply
+printing the calls with their parameter values on a
+[`std::ostream`](http://en.cppreference.com/w/cpp/io/basic_ostream) like
+[`std::cout`](http://en.cppreference.com/w/cpp/io/cout).
+
+There is no requirement from *Trompeloeil* on the
+[expectations](reference.md/#expectation) placed on the mocks, but open
+blanket [**`ALLOW_CALL(...)`**](reference.md/#ALLOW_CALL) are the norm.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(create, int(const std::string&));
+  MAKE_MOCK1(func, std::string(int));
+};
+
+using trompeloeil::_;
+
+void tracing_test()
+{
+  trompeloeil::stream_tracer tracer{std::cout};
+  
+  Mock m;
+  
+  ALLOW_CALL(m, create(_))
+    .RETURN(3);
+    
+  ALLOW_CALL(m, func(_))
+    .RETURN("value");
+  
+  weird_func(&m);
+}
+```
+
+Running the above test will print on `std::cout` all calls made. A sample
+output may be:
+
+```
+/tmp/t.cpp:33
+m.create(_) with.
+  param  _1 = hello
+
+/tmp/t.cpp:36
+m.func(_) with.
+  param  _1 = 3
+
+/tmp/t.cpp:36
+m.func(_) with.
+  param  _1 = 2
+
+/tmp/t.cpp:36
+m.func(_) with.
+  param  _1 = 1
+```
+
 ### <A name="custom_tracer"/> Writing custom tracers
+
+If tracing is important, but the `trompeloeil::stream_tracer` for some reason
+does not satisfy your needs, you can easily write your own tracer.
+
+There is a base class:
+
+```Cpp
+namespace trompeloeil {
+
+class tracer {
+  tracer();
+  virtual ~tracer();
+  virtual void trace(const char* file,
+                     unsigned long line,
+                     const std::string& call) = 0;
+};
+}
+```
+
+Write your own class inheriting from `trompeloeil::tracer`, and implement the
+member function `trace`, to do what you need, and you're done.
+
 
 ## <A name="custom_matchers"/> Writing custom matchers
 
+If you need additional matchers over the ones provided by *Trompeloeil*
+([**`ne(...)`**](reference.md/#ne), [**`lt(...)`**](reference.md/#lt),
+[**`le(...)`**](reference.md/#le), [**`gt(...)`**](reference.md/#gt)
+or [**`ge(...)`**](reference.md/#ge), you can easily do so.
+
+All matchers need to
+- inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
+- implement a `bool matches(parameter_value) const` member function
+- implement an output stream insertion operator
+
+### Typed matcher
+
+The simplest matcher is a typed matcher. As an example of a typed matcher, an
+`any_of` matcher is shown, mimicking the behaviour of the standard library
+algorithm
+[`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
+allowing a parameter to match any of a set of values.
+
+For templated matchers, it is often convenient to provide a function that
+creates the matcher object. Below is the code for `any_of_t<T>`, which is the
+matcher created by the `any_of(std::initialize_list<T>)` function template.
+
+```Cpp
+  template <typename T>
+  class any_of_t : public trompeloeil::typed_matcher<T>
+  {
+  public:
+    any_of_t(std::initializer_list<T> elements)
+    : alternatives(std::begin(elements), std::end(elements))
+    {
+    }
+    bool matches(T const& t) const
+    {
+      return std::any_of(std::begin(alternatives), std::end(alternatives),
+                         [&t](T const& val) { return t == val; });
+    }
+    friend std::ostream& operator<<(std::ostream& os, any_of_t<T> const& t)
+    {
+      os << " matching any_of({";
+      char const* prefix=" ";
+      for (auto& n : t.alternatives)
+      {
+        os << prefix << n;
+        prefix = ", ";
+      }
+      return os << " })";
+    }
+  private:
+    std::vector<T> alternatives;
+  };
+
+  template <typename T>
+  auto any_of(std::initializer_list<T> elements)
+  {
+    return any_of_t<T>(elements);
+  }
+```
+
+The `matches` member function at accepts the parameter and returns
+`true` if the value is in the specified set, in this case if it is any
+of the values stored in the `elements` vector, otherwise `false`.
+
+The output stream insertion operator is only called if a failure is reported.
+The report in the above example will look like:
+
+```
+No match for call of obj.foo with signature x(y) with.
+  param  _1 = Z
+
+Tried obj.foo(any_of({x,y,z}) at file.cpp:8
+  Expected _1 XXX
+```
+Where `XXX` is the output from the stream insertion operator.
+
+### Duck-typed matcher
+
+A duck-typed matcher accepts any type that matches a required set of
+operations. Duck-typed matchers have a type conversion operator that
+selects which types it can operate on. The conversion operator is
+never implemented, but the signature must be available since it
+is used at compile time to select overload.
+
+An example of a duck-typed matcher is a `not_empty` matcher, requiring
+that a `.empty()` member function of the parameter returns false.
+
+First the restricting
+[SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+predicate used to match only types that has a `.empty()` member function.
+
+```Cpp
+  template <typename T>
+  class has_empty
+  {
+    template <typename U>
+    static constexpr std::false_type func(...) { return {}; }
+    template <typename U>
+    static constexpr auto func(U const* u) -> decltype(u->empty(),std::true_type{})
+    {
+      return {};
+    }
+  public:
+    static const bool value = func<T>(nullptr);
+  };
+```
+
+Here `has_empty<T>::value` is true only for types `T` that has a `.empty()`
+member function callable on const objects.
+
+```Cpp
+  class not_empty : public trompeloeil::matcher
+  {
+  public:
+    template <typename T,
+              typename = std::enable_if_t<has_empty<T>::value>>
+    operator T() const;            //1
+    template <typename T>
+    bool matches(T const& t) const //2
+    {
+      return !t.empty();
+    }
+    friend std::ostream& operator<<(std::ostream& os, not_empty const&)
+    {
+      return os << " is not empty";
+    }
+  };
+```
+
+At **//1** the type conversion operator selects for types that has a
+`.empty()` member function.
+[`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if)
+ensures that mismatching types generates a compilation error at the site of
+use (**`REQUIRE_CALL()`**, **`ALLOW_CALL()`** or **`FORBID_CALL()`**.)
+
+The `matches(T const&)` member function at **//2** becomes very simple. It
+does not need the [SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+[`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if) to select
+valid types, since a type mismatch gives a compilation error on the
+type conversion operator at **//1**.
+
+The output stream insertion operator is neither more or less tricky than with
+typed matchers. Making violation reports readable may require some thought,
+however.

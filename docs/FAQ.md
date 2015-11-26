@@ -10,6 +10,7 @@
 - Q. [Why are parameters referenced by position and not by name?](#why_pos)
 - Q. [Why the need to provide the number of parameters in **`MAKE_MOCKn()`** when all information is in the signature?](#why_param_count)
 - Q. [Why *`C++14`* and not *`C++11`* or *`C++03`* that is more widely spread?](#why_cpp14)
+- Q. [Why are my parameter values printed as hexadecimal dumps in violation reports](#why_hex)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -205,3 +206,13 @@ The only thing "needed" that *`C++11`* doesn't provide is
 It is perhaps possible that "needed" is too strong a word, that it is
 in fact possible without them, in which case a back port to *`C++11`* could be
 made.
+
+## <A name="why_hex"/> ´. Why are my parameter values printed as hexadecimal dumps in violation reports?
+
+**A.** By default *Trompeloeil* prints parameter values using the
+[stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt),
+for the type, but if none exists, it presents a hexadecimal dump
+of the memory occupied by the value.
+
+You can change that either by providing a stream insertion operator for your
+type, or by providing a [custom formatter](CookBook.md/#custom_formatting).
