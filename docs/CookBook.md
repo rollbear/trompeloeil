@@ -29,7 +29,7 @@
 
 ## <A name="unit_test_frameworks"/> Integrating with unit test frame works
 
-**A.** By default, *Trompeloeil* reports violations by throwing an exception,
+By default, *Trompeloeil* reports violations by throwing an exception,
 explaining the problem in the
 [`what()`](http://en.cppreference.com/w/cpp/error/exception/what) string.
 
@@ -60,10 +60,12 @@ with the values `trompeloeil::severity::fatal` and
 used when reporting violations during stack rollback, typically during
 the destruction of an [expectation](reference.md/#expectation). In this
 case it is vital that no exception is thrown, or the process will
-terminate.
+terminate. If the value is `severity::fatal`, it is instead imperative
+that the function does not return. It may throw or abort.
 
 **NOTE!** There are some violation that cannot be attributed to a source code
-location. An example is an unexpected call to a mock function for which there
+location. An example is an unexpected call to a
+[mock function](reference.md/#mock_function) for which there
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
 
@@ -168,8 +170,8 @@ class Dictionary
 {
 public:
   virtual ~Interface() = default;
-  virtual std::string& lookup(int n) const;
-  virtual void add(int n, std::string&&);
+  virtual std::string& lookup(int n) const = 0;
+  virtual void add(int n, std::string&&) = 0;
 };
 
 class MockDictionary : public Dictionary
@@ -183,7 +185,7 @@ In the example above, `MockDictionary` is, as the name implies, a mock class for
 the pure virtual class `Dictionary`.
 
 The line `MAKE_CONST_MOCK1(lookup, std::string&(int));` implements the
-function `std::string& lookup(int) const;`, and the line
+function `std::string& lookup(int) const` and the line
 `MAKE_MOCK2(add, void(int, std::string&&));` implements the function
 `void add(int, std::string&&)`.
 
@@ -211,8 +213,8 @@ public:
 ```
 
 The [mock functions](reference.md/#mock_function) must be public for you to
-be able to sext [expectations](#setting_expectations) on them, but there is
-nothig preventing a public function from implementing a private virtual function
+be able to set [expectations](#setting_expectations) on them, but there is
+nothing preventing a public function from implementing a private virtual function
 in a base class.
 
 
@@ -295,7 +297,7 @@ Example, assume a simple C-API
 ```Cpp
 // C-API.h
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -303,11 +305,11 @@ struct c_api_cookie;
 
 struct c_api_cookie* c_api_init();
 
-int c_api_func1(c_api_cookie* cookie, const char* str, size_t len);
+int c_api_func1(struct c_api_cookie* cookie, const char* str, size_t len);
  
 void c_api_end(struct c_api_cookie*);
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 ```
@@ -325,7 +327,7 @@ public:
   MAKE_MOCK1(c_api_end, void(c_api_cookie*));
 };
 
-API c_api_mock;
+extern API c_api_mock;
 ```
 
 Then implement the functions in a test version of the API, which uses the
@@ -334,6 +336,8 @@ mock.
 ```Cpp
 // unit-test_c_api.cpp
 #include "unit-test-C-API.h"
+
+API c_api_mock;
 
 extern "C" {
   c_api_cookie c_api_init()
@@ -353,9 +357,23 @@ extern "C" {
 }
 ```
 
-A test program can place [expectations](reference.md/#expectation) ond the
+A test program can place [expectations](reference.md/#expectation) on the
 mock object, and the tested functionality calls the C-api functions which
 dispatch to the mock object.
+
+```Cpp
+#include "unit-test-C-API.h"
+
+void a_test()
+{
+  REQUIRE_CALL(c_api_mock, create())
+    .RETURN(nullptr);
+
+  REQUIRE_CALL(c_api_mock, c_api_end(nullptr));
+
+  function_under_test();
+}
+```
 
 ## <A name="setting_expectations"/> Setting Expectations
 
@@ -380,7 +398,7 @@ the expectation to match.
 
 **`FORBID_CALL(...)`** may seem unnecessary since calls are forbidden by
 default, but it is useful in combination with **`ALLOW_CALL(...)`** or
-**`FORBID_CALL(...)`** to forbid something that they would otherwise accept.
+**`REQUIRE_CALL(...)`** to forbid something that would otherwise be accepted.
 
 If several expectations match a call, it is the last matching expectation
 created that is used. **`ALLOW_CALL(...)`**, **`REQUIRE_CALL(...)`** and
@@ -392,19 +410,20 @@ allowed.
 If the scoped lifetime rules are unsuitable, there are also thee named
 versions of the expectations.
 
-  -[**`NAMED_ALLOW_CALL(...)`**](reference.md/#NAMED_ALLOW_CALL)
-  -[**`NAMED_REQUIRE_CALL(...)`**](reference.md/#NAMED_REQUIRE_CALL)
-  -[**`NAMED_FORBID_CALL(...)`**](reference.md/#NAMED_FORBID_CALL)
+ - [**`NAMED_ALLOW_CALL(...)`**](reference.md/#NAMED_ALLOW_CALL)
+ - [**`NAMED_REQUIRE_CALL(...)`**](reference.md/#NAMED_REQUIRE_CALL)
+ - [**`NAMED_FORBID_CALL(...)`**](reference.md/#NAMED_FORBID_CALL)
   
-These do the same, but they are `std::unique_ptr<trompeloeil::expectation>`,
-which you can bind to variables that you control the life time of.
+These do the same, but they creata a
+`std::unique_ptr<trompeloeil::expectation>`, which you can bind to variables
+that you control the life time of.
 
 
 ### <A name="matching_exact_values"/> Matching exact values
 
 The simplest [expectations](reference.md/#expectation) are for calls with exact
-expected values. You just provide the expected values in the parameter list
-of the expectation.
+expected parameter values. You just provide the expected values in the
+parameter list of the expectation.
 
 Example:
 
@@ -479,7 +498,7 @@ void test()
 {
   Mock m;
   REQUIRE_CALL(m, func(ne(nullptr), _)))  // once
-    .WITH(std::string(_1, _2) == "meow");
+    .WITH(std::string(_1, _2) == "meow"));
   func(&m);
   // expectations must be met before end of scope
 }
@@ -492,8 +511,8 @@ the [**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL), the selection process
 continues in [**`.WITH(std::string(_1, _2) == "meow")`**](reference.md/#WITH).
 
 **`_1`** and **`_2`** are the parameters to the call, so in this case a
-`std::string` is constructed using the non-nul `const char*` and the length,
-and its value is compared agains `"meow"`.
+`std::string` is constructed using the non-null `const char*` and the length,
+and its value is compared with `"meow"`.
 
 The expression in [**`.WITH(...)`**](reference.md/#WITH) can be anything at all
 that returns a boolean value. It can refer to global variables, for example.
@@ -511,7 +530,7 @@ Matching parameter values that you cannot copy, or do not want to copy,
 requires a bit of thought.
 
 The wildcards [**`_`**](reference.md/#wildcard) and
-[**`ANY(...)`**](reference.md(#ANY) works. For `std::unique_ptr<T>` and
+[**`ANY(...)`**](reference.md/#ANY) works. For `std::unique_ptr<T>` and
 `std::shared_ptr<T>`, the matcher [**`ne(nullptr)`**](reference.md/#ne) also
 works.
 
@@ -589,7 +608,7 @@ always accesses copies of local variables.
 ### <A name="return_references"/> Return references from matching calls
 
 Returning references from matching [expectations](reference.md/#expectation)
-triggers some peculiarities in the language. Specifically, it is not
+exposes some peculiarities in the language. Specifically, it is not
 allowed to return a captured local variable as a reference in
 [**`RETURN(...)`**](reference.md/#RETURN), and in
 [**`LR_RETURN(...)`**](reference.md/#LR_RETURN) a returned variable must be
@@ -630,8 +649,8 @@ void test()
 }
 ```
 
-Captured variable that are returned as references must either be enclosed in
-an extra parenthesis, or
+Captured variables that are returned as references must either be enclosed in
+extra parenthesis, or
 [`std::ref()`](http://en.cppreference.com/w/cpp/utility/functional/ref).
 
 Returning a reference obtained from a function call, however, does not
@@ -694,7 +713,7 @@ local variables.
 
 Distinguishing between overloads is simple when using exact values to match
 since the type follows the values. It is more difficult when you want to use
-wildcards and other [matchers](reference.md/#matccher).
+wildcards and other [matchers](reference.md/#matcher).
 
 One useful matcher is [**`ANY(...)`**](reference.md/#ANY), which behaves
 like the open wildcard [**`_`**](reference.md/#wildcard), but has a type.
@@ -728,8 +747,8 @@ any pointer value at all, and the `char*` version with a non-null value.
 
 ### <A name="allowing_any"/> Allowing any call
 
-By default it is illegal to call any,
-[mock function](reference.md/#mock_function), and you provide narrow specifi
+By default it is illegal to call any
+[mock function](reference.md/#mock_function) and you provide narrow specific
 expectations according to the needs of your test. However, some times it makes
 sense to have a wide open default. That is done with the
 [exceptations](reference.md/#expectation)
@@ -808,14 +827,14 @@ void test_restricted_mem()
   {
     FORBID_CALL(ai, allocate(_));
     
-    job.churn(); // must not use allocator
+    job.churn(); // must not allocate memory
   }
 
-  job.get_result();
+  job.get_result(); // may allocate memory
 }
 ```
 
-Above we see a simple Allocator that by default allocates and deallocates
+Above we see a simplistic Allocator that by default allocates and deallocates
 arrays.
 
 The `hairy_job` uses the Allocator for its setup, and is expected to allocate
@@ -840,7 +859,7 @@ logically parallel.
 
 Often this is exactly what you want. When you poke an object, you want this and
 that thing to happen and the order between them is irrelevant (for example,
-if calling callbacts stored in a hash table, you don't want to impose an
+if calling callbacs stored in a hash table, you don't want to impose an
 order of those calls.)
 
 There are two very different reasons for using sequence control with
@@ -987,9 +1006,9 @@ void some_test()
 }
 ```
 
-Above, `m.func(0)` must be called exactly twise. `m.func(1)` must be called 3, 4
-or 5 times. The call 'm.func(2)` must be made 3 or more times. Finally
-`m.func(4)` must not be called more that 4 times.
+Above, `m.func(0)` must be called exactly twice. `m.func(1)` must be called 3, 4
+or 5 times. The call `m.func(2)` must be made 3 or more times. Finally
+`m.func(4)` must not be called more than 4 times.
 
 
 ## <A name="lifetime"/> Controlling lifetime of mock objects
@@ -1031,6 +1050,7 @@ void consume_test()
   
   {
     REQUIRE_CALL(*mock, func(3));
+    
     c.poke(3);
   }
   {
@@ -1065,7 +1085,7 @@ if available, or hexadecimal dumps otherwise. If this is not what you want, you 
 provide your own output formatting used solely for testing:
 
 The simple way to do this is to implement a function `print(...)` in
-`namespace trompeloeil`.
+namespace `trompeloeil`.
 
 Example:
 
@@ -1093,9 +1113,10 @@ Any reports involving the `char_buff` above will be printed using the
 *Trompeloeil* offers tracing as a way of manually following the calls of mocks.
 In pure [TDD](https://en.wikipedia.org/wiki/Test-driven_development) this is
 hardly ever needed, but if you are in the undesirable situation of exploring
-the behaviour of code written without tests, tracing vastly simplify your job.
+the behaviour of code written without tests, tracing can vastly simplify your
+job.
 
-Simply put, Tracing is exposing which mocks are called with which values.
+Simply put, tracing is exposing which mocks are called with which values.
 
 *Trompeloeil* offers a [*`stream_tracer`*](#stream_tracer), which outputs
 all calls to a
@@ -1112,7 +1133,8 @@ printing the calls with their parameter values on a
 
 There is no requirement from *Trompeloeil* on the
 [expectations](reference.md/#expectation) placed on the mocks, but open
-blanket [**`ALLOW_CALL(...)`**](reference.md/#ALLOW_CALL) are the norm.
+blanket [**`ALLOW_CALL(...)`**](reference.md/#ALLOW_CALL) can be a good
+start until more detailed tests can be written.
 
 Example:
 
@@ -1174,6 +1196,7 @@ There is a base class:
 namespace trompeloeil {
 
 class tracer {
+public:
   tracer();
   virtual ~tracer();
   virtual void trace(const char* file,
@@ -1192,7 +1215,7 @@ member function `trace`, to do what you need, and you're done.
 If you need additional matchers over the ones provided by *Trompeloeil*
 ([**`ne(...)`**](reference.md/#ne), [**`lt(...)`**](reference.md/#lt),
 [**`le(...)`**](reference.md/#le), [**`gt(...)`**](reference.md/#gt)
-or [**`ge(...)`**](reference.md/#ge), you can easily do so.
+or [**`ge(...)`**](reference.md/#ge)), you can easily do so.
 
 All matchers need to
 - inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
@@ -1209,7 +1232,7 @@ allowing a parameter to match any of a set of values.
 
 For templated matchers, it is often convenient to provide a function that
 creates the matcher object. Below is the code for `any_of_t<T>`, which is the
-matcher created by the `any_of(std::initialize_list<T>)` function template.
+matcher created by the `any_of(std::initializer_list<T>)` function template.
 
 ```Cpp
   template <typename T>
@@ -1251,17 +1274,36 @@ The `matches` member function at accepts the parameter and returns
 `true` if the value is in the specified set, in this case if it is any
 of the values stored in the `elements` vector, otherwise `false`.
 
+Example usage:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+};
+
+void test()
+{
+  Mock m;
+  REQUIRE_CALL(m, func(any_of({1, 2, 4, 8}));
+
+  func(&m);
+}
+```
+
 The output stream insertion operator is only called if a failure is reported.
 The report in the above example will look like:
 
 ```
-No match for call of obj.foo with signature x(y) with.
-  param  _1 = Z
+No match for call of m.func with signature void(int) with.
+  param  _1 = 7
 
-Tried obj.foo(any_of({x,y,z}) at file.cpp:8
-  Expected _1 XXX
+Tried m.func(any_of({1, 2, 4, 8}) at file.cpp:12
+  Expected _1 matching any_of({ 1, 2, 4, 8 });
 ```
-Where `XXX` is the output from the stream insertion operator.
+Where everything after `Expected _1` is the output from the stream insertion
+operator.
 
 ### Duck-typed matcher
 
@@ -1271,7 +1313,7 @@ selects which types it can operate on. The conversion operator is
 never implemented, but the signature must be available since it
 is used at compile time to select overload.
 
-An example of a duck-typed matcher is a `not_empty` matcher, requiring
+As an example of a duck-typed matcher is a `not_empty` matcher, requiring
 that a `.empty()` member function of the parameter returns false.
 
 First the restricting
@@ -1318,13 +1360,15 @@ member function callable on const objects.
 
 At **//1** the type conversion operator selects for types that has a
 `.empty()` member function.
-[`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if)
+[`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if)
 ensures that mismatching types generates a compilation error at the site of
-use (**`REQUIRE_CALL()`**, **`ALLOW_CALL()`** or **`FORBID_CALL()`**.)
+use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
+[**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
+[**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
 
 The `matches(T const&)` member function at **//2** becomes very simple. It
 does not need the [SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
-[`std::enable_if<>`](http://en.cppreference.com/w/cpp/types/enable_if) to select
+[`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if) to select
 valid types, since a type mismatch gives a compilation error on the
 type conversion operator at **//1**.
 
