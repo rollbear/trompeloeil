@@ -22,7 +22,7 @@ other than what is there. Writing mocks for testing has resemblances to
 creating Trompe-l'œil art, in that you create mocks that
 "tricks" the test object as if it was interacting with the intended
 real world. When you use mocks in a test program, you are the Trompe-l'œil
-artist, tricking the test object.
+artist, tricking the code under test.
 
 Perhaps *Illusionist* or *Puppeteer* would have sufficed as names, but
 they were taken many times over for other projects, and besides, the author
@@ -60,7 +60,7 @@ variables you either need to use
 [`std::ref(value)`](http://en.cppreference.com/w/cpp/utility/functional/ref) or
 [`std::cref(value)`](http://en.cppreference.com/w/cpp/utility/functional/cref)
 for it, or just enclose the value in an extra parenthesis, like this
-[**`.LR_RETURN((value))`**](reference.md/#RETURN)
+[**`.LR_RETURN((value))`**](reference.md/#LR_RETURN)
 
 Example:
 ```Cpp
@@ -158,7 +158,7 @@ use the alternative "local reference" forms
 so when complex functionality is hiding behind hideous macros in a
 frame work. Experiences from the alpha phase, where this distinction wasn't
 made, made the problem glaringly obvious. Making the default safe, and
-providing the option to very visibly use the potentially unsafe, is 
+providing the option to very visibly use the potentially unsafe, is
 considerably better, although it makes the test code somewhat visually
 unpleasant.
 
@@ -183,15 +183,15 @@ rule that can be relaxed is safer than the alternative.
 ## <A name="why_pos"/> Q. Why are parameters referenced by position and not by name?
 
 **A.** If you can figure out a way to refer to parameters by name, please
-open an issue discussing the idea. If you can provide a pull request, so
-much the better.
+[open an issue](https://github.com/rollbear/trompeloeil/issues) discussing the
+idea. If you can provide a pull request, so much the better.
 
 ## <A name="why_param_count"/> Q. Why the need to provide the number of parameters in [**`MAKE_MOCKn()`**](reference.md/#MAKE_MOCKn) when all information is in the signature?
 
 **A.** If you can figure out a way to infer the information necessary to
 generate a mocked implementation without an explicit parameter count,
-please open an issue discussing the idea. If you can provide a pull request,
-so much the better.
+please [open an issue](https://github.com/rollbear/trompeloeil/issues)
+discussing the idea. If you can provide a pull request, so much the better.
 
 ## <A name="why_cpp14"/> Q. Why *`C++14`* and not *`C++11`* or *`C++03`* that is more widely spread?
 
@@ -207,12 +207,13 @@ It is perhaps possible that "needed" is too strong a word, that it is
 in fact possible without them, in which case a back port to *`C++11`* could be
 made.
 
-## <A name="why_hex"/> ´. Why are my parameter values printed as hexadecimal dumps in violation reports?
+## <A name="why_hex"/> Q. Why are my parameter values printed as hexadecimal dumps in violation reports?
 
 **A.** By default *Trompeloeil* prints parameter values using the
-[stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt),
-for the type, but if none exists, it presents a hexadecimal dump
-of the memory occupied by the value.
+[stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt)
+for the type, but if none exists, it presents a hexadecimal dump of the memory
+occupied by the value.
 
 You can change that either by providing a stream insertion operator for your
-type, or by providing a [custom formatter](CookBook.md/#custom_formatting).
+type, or by providing a [custom formatter](CookBook.md/#custom_formatting)
+for it.
