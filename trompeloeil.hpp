@@ -803,6 +803,7 @@ namespace trompeloeil
   {
   public:
     ne_t(std::nullptr_t) {}
+
     template <typename U, typename = decltype(std::declval<U>() != nullptr)>
     bool matches(const U& u) const noexcept(noexcept(u != nullptr))
     {
