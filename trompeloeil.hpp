@@ -426,9 +426,9 @@ namespace trompeloeil
     static void print(std::ostream& os, T const &t)
     {
       stream_sentry s(os);
-
+     static const char *linebreak = "\n";
       os << sizeof(T) << "-byte object={";
-      if (sizeof(T) > 8) os << '\n';
+      os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warining
       os << std::setfill('0') << std::hex;
       auto p = reinterpret_cast<uint8_t const*>(&t);
       for (size_t i = 0; i < sizeof(T); ++i)
@@ -1207,6 +1207,15 @@ namespace trompeloeil
     auto actual =  std::make_tuple(param_matches(std::get<I>(t), std::get<I>(u))...);
     auto all_true = std::make_tuple((ignore(std::get<I>(t)))...);
     return actual == all_true;
+  }
+
+  inline
+  constexpr
+  bool
+  match_parameters(std::index_sequence<>, std::tuple<> const&, std::tuple<> const&)
+    noexcept
+  {
+    return true;
   }
 
   template <typename ... T, typename ... U>
