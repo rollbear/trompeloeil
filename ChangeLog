@@ -1,3 +1,20 @@
+v9  2015-11-29
+
+	* Fixed bug with accepting std::unique_ptr<> by value.
+
+	* Signed/unsigned compilation warnings in expectations are attributed
+	  to correct file/line with clang++ and VisualStudio 2015
+
+	* Complete documentation overhaul. Now with:
+	  - Cook book
+	  - FAQ
+	  - reference manual
+
+	* Better compilation error message when illegal argument is
+	  used in expectation.
+
+	* Addressed clang++ and VisualStudio warnings
+
 v8  2015-10-30
 
 	* Fixed bug when mock object was destroyed with a saturated
