@@ -1581,7 +1581,7 @@ namespace trompeloeil
 
       constexpr bool valid = !throws && !has_return;
       using tag = std::integral_constant<bool, valid>;
-      auto handler = [=](auto& p)
+      auto handler = [=](auto& p) -> decltype(auto)
       {
         h(p);
         return default_return<signature>(p);
@@ -2105,7 +2105,7 @@ namespace trompeloeil
         using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                  \
         using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
-	                                                                       \
+                                                                               \
         auto  matcher_obj = new matcher(std::forward<U>(u)...);                \
         return matcher_obj->set_location(file, line)->set_name(call_string)    \
           ->hook_last(obj.trompeloeil_matcher_list(tag{}));                    \
@@ -2289,7 +2289,7 @@ namespace trompeloeil
 #define TROMPELOEIL_LR_THROW(...) TROMPELOEIL_THROW_(&, __VA_ARGS__)
 
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
-  handle_throw([capture](auto& trompeloeil_x) {                                \
+  handle_throw([capture](auto& trompeloeil_x)  {                               \
     auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
     auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
     auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
