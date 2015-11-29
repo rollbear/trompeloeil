@@ -12,10 +12,11 @@
   - [Matching values with conditions](#matching_conditions)
   - [Matching calls with conditions depending on several parameters](#matching_multiconditions)
   - [Matching `std::unique_ptr<T>` and other non-copyable values](#matching_non_copyable)
+  - [Matching calls to overloaded member functions](#matching_overloads)
+  - [Define side effects for matching calls](#side_effects)
   - [Return values from matching calls](#return_values)
   - [Return references from matching calls](#return_references)
-  - [Define side effects for matching calls](#side_effects)
-  - [Matching calls to overloaded member functions](#matching_overloads)
+  - [Throwing exceptions from matching calls](#throw)
   - [Allowing any call](#allowing_any)
   - [Temporarily disallowing matching calls](#temporary_disallow)
   - [Expecting several matching calls in some sequences](#sequences)
@@ -562,11 +563,98 @@ void test()
 Above there is a requirement that the function is called with a non-null
 `std::unique_ptr<int>`, which points to a value of `3`.
 
+### <A name="matching_overloads"/> Matching calls to overloaded member functions
+
+Distinguishing between overloads is simple when using exact values to match
+since the type follows the values. It is more difficult when you want to use
+wildcards and other [matchers](reference.md/#matcher).
+
+One useful matcher is [**`ANY(...)`**](reference.md/#ANY), which behaves
+like the open wildcard [**`_`**](reference.md/#wildcard), but has a type.
+It is also possible to specify types in the matchers.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int*));
+  MAKE_MOCK1(func, void(char*));
+};
+
+using namespace trompeloeil;
+
+void test()
+{
+  Mock m;
+  
+  REQUIRE_CALL(m, func(ANY(int*)));
+  REQUIRE_CALL(m, func(ne<char*>(nullptr)));
+  
+  func(&m);
+}
+```
+
+Above, each of the `func` overloads must be called once, the `int*` version with
+any pointer value at all, and the `char*` version with a non-null value.
+
+### <A name="side_effects"/> Define side effects for matching calls
+
+A side effect, in *Trompeloeil* parlance, is something that is done after
+a match has been made for an [expectation](reference.md/#expectation), and
+before returning (or throwing.)
+
+Typical side effects are:
+
+ - Setting out parameters
+ - Capturing in parameters
+ - Calling other functions
+ 
+Example:
+
+```Cpp
+class Dispatcher
+{
+public:
+  MAKE_MOCK1(subscribe, void(std::function<void(const std::string&)>));
+};
+
+using trompeloeil::_;
+
+void test()
+{
+  Dispatcher d;
+
+  std::vector<std::function<void(const std::string&)>> clients;
+
+  {
+    REQUIRE_CALL(d, subscribe(_))
+      .LR_SIDE_EFFECT(clients.push_back(std::move(_1)))
+      .TIMES(AT_LEAST(1));
+    
+    func(&d);
+  }
+  for (auto& cb : clients) cb("meow");
+}
+```
+
+Above, any call to `d.subscribe(...)` will have the side effect that the
+parameter value is stored in the local vector `clients`.
+
+The test then goes on to call all subscribers.
+
+[**`LR_SIDE_EFFECT(...)`**](reference.md/#LR_SIDE_EFFECT) accesses references
+to local variables. There is also
+[**`SIDE_EFFECT(...)`**](reference.md/#SIDE_EFFECT), which accesses copies of
+local variables.
+
 ### <A name="return_values"/> Return values from matching calls
 
 An [expectation](reference.md/#expectation) on a non-void function
-must return something. There are no default values. Returning is easy,
-however. Just use a [**`.RETURN(...)`**](reference.md/#RETURN) or
+must return something or [throw](#throw) an exception. There are no default
+values. Returning is easy, however. Just use a
+[**`.RETURN(...)`**](reference.md/#RETURN) or
 [**`.LR_RETURN(...)`**](reference.md/#LR_RETURN) with an expression of
 the right type.
 
@@ -658,92 +746,46 @@ require any extra decoration, as the 3rd
 [expectation](reference.md/#expectation) above, which looks up values in
 `dict` shows.
 
+### <A name="throw"/> Throwing exceptions from matching calls
 
-### <A name="side_effects"/> Define side effects for matching calls
-
-A side effect, in *Trompeloeil* parlance, is something that is done after
-a match has been made for an [expectation](reference.md/#expectation), and
-before returning (or throwing.)
-
-Typical side effects are:
-
- - Setting out parameters
- - Capturing in parameters
- - Calling other functions
- 
-Example:
-
-```Cpp
-class Dispatcher
-{
-public:
-  MAKE_MOCK1(subscribe, void(std::function<void(const std::string&)>));
-};
-
-using trompeloeil::_;
-
-void test()
-{
-  Dispatcher d;
-
-  std::vector<std::function<void(const std::string&)>> clients;
-
-  {
-    REQUIRE_CALL(d, subscribe(_))
-      .LR_SIDE_EFFECT(clients.push_back(std::move(_1)))
-      .TIMES(AT_LEAST(1));
-    
-    func(&d);
-  }
-  for (auto& cb : clients) cb("meow");
-}
-```
-
-Above, any call to `d.subscribe(...)` will have the side effect that the
-parameter value is stored in the local vector `clients`.
-
-The test then goes on to call all subscribers.
-
-[**`LR_SIDE_EFFECT(...)`**](reference.md/#LR_SIDE_EFFECT) accesses references
-to local variables. There is also
-[**`SIDE_EFFECT(...)`**](reference.md/#SIDE_EFFECT), which accesses copies of
-local variables.
-
-### <A name="matching_overloads"/> Matching calls to overloaded member functions
-
-Distinguishing between overloads is simple when using exact values to match
-since the type follows the values. It is more difficult when you want to use
-wildcards and other [matchers](reference.md/#matcher).
-
-One useful matcher is [**`ANY(...)`**](reference.md/#ANY), which behaves
-like the open wildcard [**`_`**](reference.md/#wildcard), but has a type.
-It is also possible to specify types in the matchers.
+To throw an exception, just add a [**`.THROW(...)`**](reference.md/#THROW)
+or [**`.LR_THROW(...)`**](reference.md/#LR_THROW), with the value to throw.
+For non-void functions, [**`.LR_THROW(...)`**](reference.md/#LR_THROW) and
+[**`.THROW(...)`**](reference.md/#THROW) takes the place of a
+[**`.RETURN(...)`**](reference.md/#RETURN) or
+[**`.LR_RETURN(...)`**](reference.md/#LR_RETURN).
 
 Example:
 
 ```Cpp
-class Mock
+class Dictionary
 {
 public:
-  MAKE_MOCK1(func, void(int*));
-  MAKE_MOCK1(func, void(char*));
+  using id_t = size_t;
+  MAKE_CONST_MOCK1(lookup, const std::string&(id_t));
 };
 
-using namespace trompeloeil;
-
+using trompeloeil::_; // matches anything
 void test()
 {
-  Mock m;
-  
-  REQUIRE_CALL(m, func(ANY(int*)));
-  REQUIRE_CALL(m, func(ne<char*>(nullptr)));
-  
-  func(&m);
+  Dictionary d;
+  std::vector<std::string> dict{...};
+
+  ALLOW_CALL(d, lookup(_))
+    .LR_WITH(_1 >= dict.size())
+    .THROW(std::out_of_range("index too large for dictionary"));
+
+  ALLOW_CALL(d, lookup(_))
+    .LR_WITH(_1 < dict.size())
+    .LR_RETURN(dict[_1]);
+
+  func(&d);
 }
 ```
 
-Above, each of the `func` overloads must be called once, the `int*` version with
-any pointer value at all, and the `char*` version with a non-null value.
+Above, any call to `d.lookup(...)` with an index within the size of the
+vector, will return the string reference, while any call with an index
+outside the size of the vector will throw a `std::out_of_range` exception.
 
 ### <A name="allowing_any"/> Allowing any call
 
