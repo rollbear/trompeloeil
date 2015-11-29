@@ -695,10 +695,8 @@ Used in [expectations](#expectation) to cause side effects for matching calls.
 parameters in the call with their positional names `_1`, `_2`, etc. This code
 may alter out-parameters. Several **`LR_SIDE_EFFECT(...)`** and
 [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT)
-clauses can be added to a single [expectation](#expectation).
-
-See also [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) which accesses copies of local
-objects.
+clauses can be added to a single [expectation](#expectation), and they are
+evaluated in order.
 
 Example:
 ```Cpp
@@ -726,6 +724,9 @@ number of times on `mock_obj`. Each time a side effect is that the local
 variable `sum` gets the parameter value added to it. Since
 **`LR_SIDE_EFFECT(...)`** refers to `sum` by reference, it is the actual
 local variable that is changed is every call.
+
+See also [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) which accesses copies of local
+objects.
 
 <A name="LR_THROW"/>
 ### **`LR_THROW(`** *expr* **`)`**  
@@ -774,7 +775,11 @@ together.
 *expr* can refer to parameters in the call with their positional names `_1`,
 `_2`, etc. Even if the function signature has parameters as non-`const`
 references, they are immutable in this context. Several **`LR_WITH(...)`**
-and [**`WITH(...)`**](#WITH) clauses can be added to a single expectation.
+and [**`WITH(...)`**](#WITH) clauses can be added to a single expectation and
+they are tried in the order they are added until one has failed, or they all
+have passed.
+
+first has failed.
 
 Named local objects are accessed by reference so lifetime management is
 important.
@@ -1256,7 +1261,8 @@ Used in [expectations](#expectation) to cause side effects for matching calls.
 parameters in the call with their positional names `_1`, `_2`, etc. This code
 may alter out-parameters.
 Several **`SIDE_EFFECT(...)`** and [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT)
-clauses can be added to a single [expectation](#expectation).
+clauses can be added to a single [expectation](#expectation), and they are
+evaluated in order.
 
 Named local objects accessed here refers to immutable copies.
 
@@ -1393,7 +1399,8 @@ together.
 *expr* can refer to parameters in the call with their positional names `_1`,
 `_2`, etc. Even if the function signature has parameters as non-`const`
 references, they are immutable in this context. Several **`WITH(...)`**
-and [**`LR_WITH(...)`**](#LR_WITH) clauses can be added to a single expectation.
+and [**`LR_WITH(...)`**](#LR_WITH) clauses can be added to a single expectation
+and they are tried in the order until one has failed, or they all have passed.
 
 Named local objects here refers to immutable copies.
 
