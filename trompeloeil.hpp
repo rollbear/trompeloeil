@@ -752,9 +752,12 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    template<typename T>
+    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
+    template <typename ... T>
+    constexpr wildcard(T&& ...) noexcept {}
+    template<typename T, typename = std::enable_if_t<!std::is_lvalue_reference<T>::value>>
     operator T&&() const;
-    template<typename T, typename = std::enable_if_t<std::is_copy_constructible<T>::value>>
+    template<typename T, typename = std::enable_if_t<std::is_copy_constructible<T>::value || !std::is_move_constructible<T>::value>>
     operator T&() const;
     template <typename T>
     bool matches(T const&) const noexcept { return true; }

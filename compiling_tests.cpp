@@ -597,6 +597,7 @@ TEST_CASE_METHOD(Fixture, "rvalue reference parameter can be compared with exter
 class U
 {
 public:
+  MAKE_MOCK1(func_streamref, void(std::ostream&));
   MAKE_MOCK1(func_u, void(const uncomparable&));
   MAKE_MOCK1(func_v, void(int));
   MAKE_MOCK1(func_cv, void(const int));
@@ -612,6 +613,13 @@ public:
 };
 
 // tests of direct parameter matching with fixed values and wildcards
+
+TEST_CASE_METHOD(Fixture, "ostream& matches wildcard", "[matching]")
+{
+  U u;
+  REQUIRE_CALL(u, func_streamref(_));
+  u.func_streamref(std::cout);
+}
 
 TEST_CASE_METHOD(Fixture, "uncomparable parameter matches wildcard", "[matching]")
 {
