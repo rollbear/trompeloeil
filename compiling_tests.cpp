@@ -1296,6 +1296,51 @@ TEST_CASE_METHOD(Fixture, "unknown object is one line if 8 bytes", "[streaming]"
   REQUIRE(os.str() == "8-byte object={ 0x10 0x11 0x12 0x13 0x14 0x15 0x16 0x17 }");
 }
 
+namespace nn
+{
+struct TestOutput;
+void print(std::ostream&, const TestOutput&);
+
+struct TestOutput
+{
+  int n;
+};
+void print(std::ostream& os, const TestOutput& p)
+{
+  os << "nn::print(TestOutput{" << p.n << "}";
+}
+}
+namespace trompeloeil
+{
+  template <>
+  void print(std::ostream& os, const nn::TestOutput& p)
+  {
+    os << "trompeloeil::print(nn::TestOutput{" << p.n << "})";
+  }
+}
+
+class TestOutputMock
+{
+public:
+  MAKE_MOCK1(func, void(nn::TestOutput));
+};
+
+TEST_CASE_METHOD(Fixture, "failure on parameter of user type is printed with custom print func", "[streaming]")
+{
+  TestOutputMock m;
+  try
+  {
+    m.func(nn::TestOutput{ 3 });
+    FAIL("didn's throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of func with signature void\(nn::TestOutput\) with\.
+  param  _1 = trompeloeil::print\(nn::TestOutput\{3\}\)):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
 // tests on scoping (lifetime) of expectations
 
 TEST_CASE_METHOD(Fixture, "require calls are matched in reversed order of creation", "[scoping]")
