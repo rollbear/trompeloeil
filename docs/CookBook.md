@@ -1123,11 +1123,11 @@ since destroying any mock object that still has
 When [tracing](#tracing) or printing parameter values in violation reports,
 the values are printed using their
 [stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt),
-if available, or hexadecimal dumps otherwise. If this is not what you want, you can
-provide your own output formatting used solely for testing:
+if available, or hexadecimal dumps otherwise. If this is not what you want, you
+can provide your own output formatting used solely for testing:
 
-The simple way to do this is to implement a function `print(...)` in
-namespace `trompeloeil`.
+The simple way to do this is to specialize a function template
+`print(std::ostream&, const T&)` in namespace `trompeloeil` for your type `T`.
 
 Example:
 
@@ -1138,7 +1138,8 @@ class char_buff : public std::vector<char> v;
 };
 
 namespace trompeloeil {
-  inline void print(std::ostream& os, const char_buff& b)
+  template <>
+  void print(std::ostream& os, const char_buff& b)
   {
     os << b.size() << "#{ ";
     for (auto v : b) { os << int(v) << " ";
@@ -1148,7 +1149,7 @@ namespace trompeloeil {
 ```
 
 Any reports involving the `char_buff` above will be printed using the
-`trompeloeil::print(...)` function, showing the size and integer values.
+`trompeloeil::print<char_buff>(...)` function, showing the size and integer values.
 
 ## <A name="tracing"/> Tracing mocks
 
