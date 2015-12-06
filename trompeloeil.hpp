@@ -333,7 +333,7 @@ namespace trompeloeil
   inline
   void send_report(severity s, location loc, std::string const &msg)
   {
-    reporter_obj()(s, loc.file, loc.line, msg);
+    ::trompeloeil::reporter_obj()(s, loc.file, loc.line, msg);
   }
 
   template <typename ... T>
@@ -426,7 +426,7 @@ namespace trompeloeil
     static void print(std::ostream& os, T const &t)
     {
       stream_sentry s(os);
-     static const char *linebreak = "\n";
+      static const char *linebreak = "\n";
       os << sizeof(T) << "-byte object={";
       os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warining
       os << std::setfill('0') << std::hex;
@@ -1026,9 +1026,9 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Unexpected destruction of "
        << typeid(T).name() << "@" << this << '\n';
-    trompeloeil::send_report(trompeloeil::severity::nonfatal,
-                             location{},
-                             os.str());
+    ::trompeloeil::send_report(trompeloeil::severity::nonfatal,
+                               location{},
+                               os.str());
   }
 
   template<typename T>
@@ -1199,16 +1199,16 @@ namespace trompeloeil
   param_matches(T const& t, U const& u)
     noexcept(noexcept(param_matches_impl(t, u, &t)))
   {
-    return param_matches_impl(t, u, &t);
+    return ::trompeloeil::param_matches_impl(t, u, &t);
   }
 
   template <size_t ... I, typename T, typename U>
   bool
   match_parameters(std::index_sequence<I...>, T const& t, U const& u)
-    noexcept(noexcept(std::make_tuple(param_matches(std::get<I>(t),std::get<I>(u))...)))
+    noexcept(noexcept(std::make_tuple(trompeloeil::param_matches(std::get<I>(t),std::get<I>(u))...)))
   {
-    auto actual =  std::make_tuple(param_matches(std::get<I>(t), std::get<I>(u))...);
-    auto all_true = std::make_tuple((ignore(std::get<I>(t)))...);
+    auto actual =  std::make_tuple(::trompeloeil::param_matches(std::get<I>(t), std::get<I>(u))...);
+    auto all_true = std::make_tuple((::trompeloeil::ignore(std::get<I>(t)))...);
     return actual == all_true;
   }
 
@@ -1226,7 +1226,7 @@ namespace trompeloeil
   match_parameters(std::tuple<T...> const& t, std::tuple<U...> const& u)
     noexcept(noexcept(match_parameters(std::make_index_sequence<sizeof...(T)>{}, t, u)))
   {
-    return match_parameters(std::make_index_sequence<sizeof...(T)>{}, t, u);
+    return ::trompeloeil::match_parameters(std::make_index_sequence<sizeof...(T)>{}, t, u);
   }
   template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
   struct parameters
@@ -1234,10 +1234,10 @@ namespace trompeloeil
     template <typename stream, typename U>
     static stream &print_mismatch(stream &os, T const &t1, U const &t2)
     {
-      if (!(param_matches(std::get<N>(t1), std::get<N>(t2))))
+      if (!(::trompeloeil::param_matches(std::get<N>(t1), std::get<N>(t2))))
       {
         os << "  Expected " << std::setw((N<9)+1) << '_' << N+1;
-        print_expectation(os, std::get<N>(t1));
+        ::trompeloeil::print_expectation(os, std::get<N>(t1));
       }
       return parameters<T, N + 1>::print_mismatch(os, t1, t2);
     }
@@ -1246,7 +1246,7 @@ namespace trompeloeil
     static stream &print_missed(stream &os, U const &t)
     {
       os << "  param " << std::setw((N<9)+1) << "_" << N+1 << " = ";
-      print(os, std::get<N>(t));
+      ::trompeloeil::print(os, std::get<N>(t));
       os << '\n';
       return parameters<T, N + 1>::print_missed(os, t);
     }
@@ -1343,7 +1343,7 @@ namespace trompeloeil
         m.report_mismatch(os, p);
       }
     }
-    trompeloeil::send_report(severity::fatal, location{}, os.str());
+    ::trompeloeil::send_report(severity::fatal, location{}, os.str());
     std::abort(); // must never get here.
   }
 
@@ -1587,7 +1587,7 @@ namespace trompeloeil
       auto handler = [=](auto& p) -> decltype(auto)
       {
         h(p);
-        return default_return<signature>(p);
+        return trompeloeil::default_return<signature>(p);
       };
       matcher->set_return(tag{}, &handler);
       return {matcher};
@@ -1664,7 +1664,7 @@ namespace trompeloeil
       os << "called " << call_count << " times\n";
     }
     os << values;
-    send_report(severity::nonfatal, loc, os.str());
+    ::trompeloeil::send_report(severity::nonfatal, loc, os.str());
   }
 
   inline
@@ -1677,7 +1677,7 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Match of forbidden call of " << name
        << " at " << loc << '\n' << values;
-    send_report(severity::fatal, loc, os.str());
+    ::trompeloeil::send_report(severity::fatal, loc, os.str());
   }
 
   template <typename Sig>
