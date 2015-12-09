@@ -785,6 +785,57 @@ namespace trompeloeil
     }
   };
 
+  template <typename M>
+  class ptr_deref : public matcher
+  {
+  public:
+    template <typename U, typename = decltype(std::declval<M>().matches(*std::declval<U>()))>
+    operator U() const;
+    ptr_deref(M m_) : m{m_} {}
+    template <typename U>
+    bool matches(const U& u) const noexcept(noexcept(std::declval<M>().matches(*u)))
+    {
+      return (u != nullptr) && m.matches(*u);
+    }
+    friend std::ostream& operator<<(std::ostream& os, ptr_deref<M> const& m)
+    {
+      return os << m.m;
+    }
+  private:
+    M m;
+  };
+
+  template <typename M, typename = std::enable_if_t<is_matcher<M>::value>>
+  ptr_deref<M> operator*(const M& m)
+  {
+    return {m};
+  }
+
+  template <typename T>
+  class eq_t : public typed_matcher<T>
+  {
+  public:
+    eq_t(T t_) : t{t_} {}
+    bool matches(T const& v) const noexcept(noexcept(v == std::declval<T>()))
+    {
+      return v == t;
+    }
+    friend std::ostream& operator<<(std::ostream& os, eq_t<T> const& m)
+    {
+      os << " == ";
+      print(os, m.t);
+      return os;
+    }
+  private:
+    T t;
+  };
+
+  template <typename T>
+  eq_t<T> eq(T t)
+  {
+    return {t};
+  }
+
   template <typename T>
   class ne_t : public typed_matcher<T>
   {
@@ -800,6 +851,10 @@ namespace trompeloeil
       print(os, m.t);
       return os;
     }
+    ptr_deref<ne_t<T>> operator*() const
+    {
+      return {*this};
+    };
   private:
     T t;
   };
@@ -932,6 +987,18 @@ namespace trompeloeil
   le_t<T> le(T t)
   {
     return {t};
+  }
+
+  template <typename T>
+  std::string param_name_prefix(const T*)
+  {
+    return "";
+  }
+
+  template <typename M>
+  std::string param_name_prefix(const ptr_deref<M>*)
+  {
+    return "*" + param_name_prefix(static_cast<M*>(nullptr));
   }
 
   struct lifetime_monitor;
@@ -1236,7 +1303,8 @@ namespace trompeloeil
     {
       if (!(::trompeloeil::param_matches(std::get<N>(t1), std::get<N>(t2))))
       {
-        os << "  Expected " << std::setw((N<9)+1) << '_' << N+1;
+        auto prefix = param_name_prefix(&std::get<N>(t1)) + "_";
+        os << "  Expected " << std::setw((N<9)+1) << prefix << N+1;
         ::trompeloeil::print_expectation(os, std::get<N>(t1));
       }
       return parameters<T, N + 1>::print_mismatch(os, t1, t2);
@@ -1245,7 +1313,8 @@ namespace trompeloeil
     template <typename stream, typename U>
     static stream &print_missed(stream &os, U const &t)
     {
-      os << "  param " << std::setw((N<9)+1) << "_" << N+1 << " = ";
+      auto prefix = param_name_prefix(&std::get<N>(t)) = "_";
+      os << "  param " << std::setw((N<9)+1) << prefix << N+1 << " = ";
       ::trompeloeil::print(os, std::get<N>(t));
       os << '\n';
       return parameters<T, N + 1>::print_missed(os, t);

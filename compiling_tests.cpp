@@ -760,6 +760,7 @@ TEST_CASE_METHOD(Fixture, "wildcards matches overload on type and parameter coun
   REQUIRE(reports.empty());
 }
 
+
 // tests of parameter matching using typed matcher ne
 
 TEST_CASE_METHOD(Fixture, "a non equal value matches ne", "[matching][matchers][ne]")
@@ -786,7 +787,6 @@ TEST_CASE_METHOD(Fixture, "an equal value fails ne with report", "[matching][mat
 
 Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != bar):";
-
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -1084,6 +1084,258 @@ TEST_CASE_METHOD(Fixture, "a lesser value matches le", "[matching][matchers][le]
   REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
    .RETURN(0);
   obj.getter(2);
+}
+
+// tests of parameter matching using ptr deref matche
+
+class C_ptr
+{
+public:
+  MAKE_MOCK1(ptr, void(int*));
+  MAKE_MOCK1(uptr, void(std::unique_ptr<int>));
+  MAKE_MOCK1(uptrrr, void(std::unique_ptr<int>&&));
+  MAKE_MOCK1(uptrcr, void(std::unique_ptr<int> const&));
+};
+
+TEST_CASE_METHOD(Fixture, "ptr to equal value matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+  int n = 3;
+  obj.ptr(&n);
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "nullptr when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+    obj.ptr(nullptr);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of ptr with signature void\(int\*\) with\.
+  param  _1 = .*
+
+Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+
+    INFO("msg=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "ptr to different value when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+    int n = 2;
+    obj.ptr(&n);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of ptr with signature void\(int\*\) with\.
+  param  _1 = .*
+
+Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "ptr to equal value of different size matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3L)));
+  int n = 3;
+  obj.ptr(&n);
+  REQUIRE(reports.empty());
+}
+////
+TEST_CASE_METHOD(Fixture, "unique_ptr value to equal value matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+  obj.uptr(std::make_unique<int>(3));
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "unique_ptr<>() value when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+    obj.uptr(nullptr);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of uptr with signature void\(std::unique_ptr<int>\) with\.
+  param  _1 = .*
+
+Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+    INFO("msg=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "unique ptr value to different value when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+    obj.uptr(std::make_unique<int>(2));
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of uptr with signature void\(std::unique_ptr<int>\) with\.
+  param  _1 = .*
+
+Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "unique value ptr to equal value of different size matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3L)));
+  obj.uptr(std::make_unique<int>(3));
+  REQUIRE(reports.empty());
+}
+//////
+
+TEST_CASE_METHOD(Fixture, "unique_ptr rvalue ref to equal value matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+  obj.uptrrr(std::make_unique<int>(3));
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "unique_ptr<>() rvalue ref when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+    obj.uptrrr(nullptr);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of uptrrr with signature void\(std::unique_ptr<int>&&\) with\.
+  param  _1 = .*
+
+Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "unique ptr rvalue ref to different value when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+    obj.uptrrr(std::make_unique<int>(2));
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of uptrrr with signature void\(std::unique_ptr<int>&&\) with\.
+  param  _1 = .*
+
+Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "unique ptr rvalue ref to equal value of different size matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3L)));
+  obj.uptrrr(std::make_unique<int>(3));
+  REQUIRE(reports.empty());
+}
+
+////
+TEST_CASE_METHOD(Fixture, "unique_ptr const lvalue ref to equal value matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+  obj.uptrcr(std::make_unique<int>(3));
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "unique_ptr<>() const lvalue ref when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    obj.uptrcr(nullptr);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of uptrcr with signature void\(std::unique_ptr<int> const&\) with\.
+  param  _1 = .*
+
+Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "unique ptr const lvalue ref to different value when equal ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    obj.uptrcr(std::make_unique<int>(2));
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of uptrcr with signature void\(std::unique_ptr<int> const&\) with\.
+  param  _1 = .*
+
+Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == 3):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "unique ptr const lvalue ref to equal value of different size matches deref", "[matching][matchers][eq]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3L)));
+  obj.uptrcr(std::make_unique<int>(3));
+  REQUIRE(reports.empty());
 }
 
 // tests of parameter matching using custom typed matcher
