@@ -998,7 +998,7 @@ namespace trompeloeil
   template <typename M>
   std::string param_name_prefix(const ptr_deref<M>*)
   {
-    return "*" + param_name_prefix(static_cast<M*>(nullptr));
+    return "*" + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
   }
 
   struct lifetime_monitor;
@@ -1303,7 +1303,7 @@ namespace trompeloeil
     {
       if (!(::trompeloeil::param_matches(std::get<N>(t1), std::get<N>(t2))))
       {
-        auto prefix = param_name_prefix(&std::get<N>(t1)) + "_";
+        auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t1)) + "_";
         os << "  Expected " << std::setw((N<9)+1) << prefix << N+1;
         ::trompeloeil::print_expectation(os, std::get<N>(t1));
       }
@@ -1313,7 +1313,7 @@ namespace trompeloeil
     template <typename stream, typename U>
     static stream &print_missed(stream &os, U const &t)
     {
-      auto prefix = param_name_prefix(&std::get<N>(t)) = "_";
+      auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t)) = "_";
       os << "  param " << std::setw((N<9)+1) << prefix << N+1 << " = ";
       ::trompeloeil::print(os, std::get<N>(t));
       os << '\n';
