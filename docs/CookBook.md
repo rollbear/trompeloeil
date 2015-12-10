@@ -44,6 +44,7 @@ sample adaptations are:
 - [crpcut](#adapt_crpcut)
 - [gtest](#adapt_gtest)
 - [boost Unit Test Framework](#adapt_boost_unit_test_framework)
+- [MSTest](#adapt_mstest)
 
 What you need to know to adapt to other frame works is this function:
 
@@ -150,6 +151,20 @@ are no expectations. In these cases `file` will be `""` string and
     });
 ```
 
+### <A name="adapt_mstest"/> Use *Trompeloeil* with [MSTest](https://msdn.microsoft.com/en-us/library/hh694602.aspx)
+
+Place the below code snippet in, for example, your `TEST_CLASS_INITIALIZE(...)`
+
+```Cpp
+  using namespace trompeloeil;
+  set_reporter([](severity, char const* file, unsigned long line, std::string const& msg) {
+    std::wstring wideMsg(msg.begin(), msg.end());
+    std::wstring wfile;
+    if (line > 0) wfile.append(file, file + strlen(file));
+    __LineInfo loc(wfile.c_str(), "", line);
+    Assert::Fail(wideMsg.c_str(), line == 0 ? nullptr : &loc);
+  });
+```
 
 ## <A name="creating_mock_classes"/> Creating Mock Classes
 
