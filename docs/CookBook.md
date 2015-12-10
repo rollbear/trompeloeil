@@ -10,6 +10,7 @@
 - [Setting Expectations](#setting_expectations)
   - [Matching exact values](#matching_exact_values)
   - [Matching values with conditions](#matching_conditions)
+  - [Matching pointers to values](#matching_pointers)
   - [Matching calls with conditions depending on several parameters](#matching_multiconditions)
   - [Matching `std::unique_ptr<T>` and other non-copyable values](#matching_non_copyable)
   - [Matching calls to overloaded member functions](#matching_overloads)
@@ -487,6 +488,35 @@ void test()
   Mock m;
   ALLOW_CALL(m, func(trompeloeil::gt(1))); // int version any number of times
   REQUIRE_CALL(m, func(trompeloeil::ne(nullptr))); // const char * version once
+  func(&m);
+  // expectations must be met before end of scope
+}
+```
+
+### <A name="matching_pointers"/> Matching pointers to values]
+
+All [matchers](reference.md/#matcher) can be converted to a pointer matcher
+by using the dereference prefix operator `*`. This works for smart pointers
+too. These pointer matchers fail if the pointer parameter is `nullptr`.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int*));
+  MAKE_MOCK2(func, void(std::unique_ptr<short>*));
+};
+
+using trompeloeil::eq;
+using trompeloeil::gt;
+
+void test()
+{
+  Mock m;
+  ALLOW_CALL(m, func(*eq(1))); // pointer to int value 1 any number of times
+  REQUIRE_CALL(m, func(*gt<short>(5))); // unique_ptr<short> to >5 once
   func(&m);
   // expectations must be met before end of scope
 }
@@ -1271,14 +1301,19 @@ member function `trace`, to do what you need, and you're done.
 ## <A name="custom_matchers"/> Writing custom matchers
 
 If you need additional matchers over the ones provided by *Trompeloeil*
-([**`ne(...)`**](reference.md/#ne), [**`lt(...)`**](reference.md/#lt),
-[**`le(...)`**](reference.md/#le), [**`gt(...)`**](reference.md/#gt)
-or [**`ge(...)`**](reference.md/#ge)), you can easily do so.
+([**`eq(...)`**](reference.md/#eq), [**`ne(...)`**](reference.md/#ne),
+ [**`lt(...)`**](reference.md/#lt), [**`le(...)`**](reference.md/#le),
+ [**`gt(...)`**](reference.md/#gt) or [**`ge(...)`**](reference.md/#ge)),
+you can easily do so.
 
 All matchers need to
 - inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
 - implement a `bool matches(parameter_value) const` member function
 - implement an output stream insertion operator
+
+All matchers, including your own custom designed matchers, can be used as
+[pointer matchers](#matching_pointers) by using the unary prefix `*` dereference
+operator. 
 
 ### Typed matcher
 

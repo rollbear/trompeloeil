@@ -7,6 +7,7 @@
   - [Matcher](#matcher)
     - [_](#wildcard)
     - [**`ANY(`** *type* **`)`**](#ANY)
+    - [**`eq(`** *value* **`)`**](#eq)
     - [**`ne(`** *value* **`)`**](#ne)
     - [**`gt(`** *value* **`)`**](#gt)
     - [**`ge(`** *value* **`)`**](#ge)
@@ -187,6 +188,7 @@ matchers
 
 - [_](#wildcard)
 - [**`ANY(`** *type* **`)`**](#ANY)
+- [**`eq(`** *value* **`)`**](#eq)
 - [**`ne(`** *value* **`)`**](#ne)
 - [**`gt(`** *value* **`)`**](#gt)
 - [**`ge(`** *value* **`)`**](#ge)
@@ -256,6 +258,39 @@ Above, any call to `mock_obj.func(int)` is accepted, but calls to
 `mock_obj.func(std::string)` renders a violation report since there is no
 matching [expectation](#expectation).
 
+#### <A name="eq"/>**`eq(`** *value* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a
+value equal to the one provided. Typically used when matching a pointer
+rather than an actual value, even though that is allowed.
+
+Example:
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(func, void(int*));
+};
+
+using trompeloeil::ne;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, func(*eq(3)));
+    
+  test_function(&mock_obj);
+}
+```
+
+Above, the [expectation](#expectation) matches only calls to
+`mock_obj.func(int*)` with a non-null pointer pointing to the value `3`. Any
+call with a `nullptr` or a pointer pointing to another value than `3` renders
+a violation report since no [expectation](#expectation) matches.
+
+If needed for disambiguation, it is possible to explicitly state the type
+of *value*, like `*eq<short>(3)`.
+
 #### <A name="ne"/>**`ne(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
@@ -286,6 +321,8 @@ renders a violation report since no [expectation](#expectation) matches.
 
 If needed for disambiguation, it is possible to explicitly state the type
 of *value*, like `ne<const char*>(nullptr)`.
+
+It is also possible to use `*ne(val)` to match a pointer to a non-equal value.
 
 #### <A name="gt"/>**`gt(`** *value* **`)`**
 
@@ -318,6 +355,7 @@ renders a violation report since no [expectation](#expectation) matches.
 If needed for disambiguation, it is possible to explicitly state the type
 of *value*, like `gt<int>(0)`.
 
+It is also possible to use `*gt(val)` to match a pointer to a greater-than value.
 
 #### <A name="ge"/>**`ge(`** *value* **`)`**
 
@@ -350,6 +388,9 @@ value renders a violation report since no [expectation](#expectation) matches.
 If needed for disambiguation, it is possible to explicitly state the type
 of *value*, like `ge<int>(0)`.
 
+It is also possible to use `*ge(val)` to match a pointer to a greater-than or
+equal value.
+
 #### <A name="lt"/>**`lt(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
@@ -381,6 +422,8 @@ renders a violation report since no [expectation](#expectation) matches.
 If needed for disambiguation, it is possible to explicitly state the type
 of *value*, like `lt<int>(0)`.
 
+It is also possible to use `*lt(val)` to match a pointer to a less-than value.
+
 #### <A name="le"/>**`le(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
@@ -411,6 +454,9 @@ value renders a violation report since no [expectation](#expectation) matches.
 
 If needed for disambiguation, it is possible to explicitly state the type
 of *value*, like `le<int>(0)`.
+
+It is also possible to use `*le(val)` to match a pointer to a less-than or
+equal value.
 
 ## <A name="macros"/>Macros
 
