@@ -2143,7 +2143,7 @@ namespace trompeloeil
 }
 
 template <typename M, typename = std::enable_if_t<::trompeloeil::is_matcher<std::decay_t<M>>::value>>
-auto operator*(M&& m)
+inline auto operator*(M&& m)
 {
   return ::trompeloeil::ptr_deref<std::decay_t<M>>{std::forward<M>(m)};
 }
