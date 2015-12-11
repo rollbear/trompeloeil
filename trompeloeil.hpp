@@ -834,25 +834,20 @@ namespace trompeloeil
   public:
     template <typename U, typename = decltype(std::declval<M>().matches(*std::declval<U>()))>
     operator U() const;
-    ptr_deref(M m_) : m{m_} {}
+    template <typename U>
+    explicit ptr_deref(U&& m_) : m( std::forward<U>(m_) ) {}
     template <typename U>
     bool matches(const U& u) const noexcept(noexcept(std::declval<M>().matches(*u)))
     {
       return (u != nullptr) && m.matches(*u);
     }
-    friend std::ostream& operator<<(std::ostream& os, ptr_deref<M> const& m)
+    friend std::ostream& operator<<(std::ostream& os, ptr_deref<M> const& p)
     {
-      return os << m.m;
+      return os << p.m;
     }
   private:
     M m;
   };
-
-  template <typename M, typename = std::enable_if_t<is_matcher<M>::value>>
-  ptr_deref<M> operator*(const M& m)
-  {
-    return {m};
-  }
 
   template <typename T>
   class eq_t : public typed_matcher<T>
@@ -894,10 +889,6 @@ namespace trompeloeil
       print(os, m.t);
       return os;
     }
-    ptr_deref<ne_t<T>> operator*() const
-    {
-      return {*this};
-    };
   private:
     T t;
   };
@@ -2149,6 +2140,12 @@ namespace trompeloeil
   {
     return {m};
   }
+}
+
+template <typename M, typename = std::enable_if_t<::trompeloeil::is_matcher<std::decay_t<M>>::value>>
+auto operator*(M&& m)
+{
+  return ::trompeloeil::ptr_deref<std::decay_t<M>>{std::forward<M>(m)};
 }
 
 #define TROMPELOEIL_ID(name)                                                   \

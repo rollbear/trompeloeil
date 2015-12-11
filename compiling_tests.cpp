@@ -1436,6 +1436,14 @@ Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
+TEST_CASE_METHOD(Fixture, "custom matcher can math pointer via *deref", "[matching][matchers][custom]")
+{
+  C_ptr obj;
+  REQUIRE_CALL(obj, ptr(*any_of({1,5,7})));
+  int n = 5;
+  obj.ptr(&n);
+  REQUIRE(reports.empty());
+}
 // tests of parameter matching using custom duck-typed matcher
 
 template <typename T>
