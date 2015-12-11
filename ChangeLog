@@ -1,3 +1,18 @@
+v10 2015-12-11
+
+	* Fixed bug when wildcard _ could not match std::ostream&
+
+	* Fixed ADL bugs
+
+	* Added functionality to use the dereference operator (prefix
+	  operator*) on any matcher to instead match a pointer to the
+	  value to check.
+
+	* Documented adapter for VisualStudio MSTest
+
+	* Corrected documentation bug for how to write report formatting
+	  function trompeloeil::print<>(std::ostream&, T const&).
+
 v9  2015-11-29
 
 	* Fixed bug with accepting std::unique_ptr<> by value.
