@@ -255,7 +255,6 @@ namespace trompeloeil
                                            unsigned long line,
                                            std::string const &msg)>;
 
-
   inline
   void default_reporter(severity, char const *file, unsigned long line, std::string const &msg)
   {
@@ -409,13 +408,51 @@ namespace trompeloeil
     char fill;
   };
 
+  template <typename U>
+  constexpr
+  std::false_type
+  is_null_comparable(...)
+  {
+    return { };
+  }
+  template <typename U>
+  constexpr
+  std::integral_constant<decltype(std::declval<U>() == nullptr),
+                         !is_matcher<U>::value>
+  is_null_comparable(U *)
+  {
+    return { };
+  }
+
+  template <typename T>
+  constexpr bool is_null(T const &t, std::true_type)
+  {
+    return t == nullptr;
+  }
+
+  template <typename T>
+  constexpr bool is_null(T const &, std::false_type)
+  {
+    return false;
+  }
+
+  template <typename T>
+  constexpr bool is_null(T const &t)
+  {
+    return ::trompeloeil::is_null(t,
+                                  ::trompeloeil::is_null_comparable<T>(nullptr));
+  }
+
   template <typename T, bool b = is_output_streamable<T>::value>
   struct streamer
   {
     static void print(std::ostream& os, T const &t)
     {
       stream_sentry s(os);
-      os << t;
+      if (::trompeloeil::is_null(t))
+        os << "nullptr";
+      else
+        os << t;
     }
   };
 
@@ -426,6 +463,11 @@ namespace trompeloeil
     static void print(std::ostream& os, T const &t)
     {
       stream_sentry s(os);
+      if (is_null(t))
+      {
+        os << "nullptr";
+        return;
+      }
       static const char *linebreak = "\n";
       os << sizeof(T) << "-byte object={";
       os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warining
@@ -439,6 +481,7 @@ namespace trompeloeil
       os << " }";
     }
   };
+
   template <typename T>
   void print(std::ostream& os, T const &t)
   {
@@ -990,15 +1033,33 @@ namespace trompeloeil
   }
 
   template <typename T>
-  std::string param_name_prefix(const T*)
+  std::string
+  param_name_prefix(const T*)
   {
     return "";
   }
 
   template <typename M>
-  std::string param_name_prefix(const ptr_deref<M>*)
+  std::string
+  param_name_prefix(const ptr_deref<M>*)
   {
     return "*" + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
+  }
+
+  inline
+  constexpr
+  auto
+  param_compare_operator(...)
+  {
+    return " = ";
+  }
+
+  inline
+  constexpr
+  auto
+  param_compare_operator(const matcher*)
+  {
+    return "";
   }
 
   struct lifetime_monitor;
@@ -1313,8 +1374,9 @@ namespace trompeloeil
     template <typename stream, typename U>
     static stream &print_missed(stream &os, U const &t)
     {
-      auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t)) = "_";
-      os << "  param " << std::setw((N<9)+1) << prefix << N+1 << " = ";
+      auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t)) + "_";
+      os << "  param " << std::setw((N<9)+1) << prefix << N+1
+         << ::trompeloeil::param_compare_operator(&std::get<N>(t));
       ::trompeloeil::print(os, std::get<N>(t));
       os << '\n';
       return parameters<T, N + 1>::print_missed(os, t);

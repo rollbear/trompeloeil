@@ -856,7 +856,7 @@ TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with ne<type>(n
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(int\*\) with\.
-  param  _1 = .*
+  param  _1 = nullptr
 
 Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
@@ -1119,7 +1119,7 @@ TEST_CASE_METHOD(Fixture, "nullptr when equal ptr deref expected is reported", "
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of ptr with signature void\(int\*\) with\.
-  param  _1 = .*
+  param  _1 = nullptr
 
 Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -1147,6 +1147,7 @@ TEST_CASE_METHOD(Fixture, "ptr to different value when equal ptr deref expected 
 
 Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
+    INFO(reports.front().msg);
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -1181,7 +1182,7 @@ TEST_CASE_METHOD(Fixture, "unique_ptr<>() value when equal ptr deref expected is
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptr with signature void\(std::unique_ptr<int>\) with\.
-  param  _1 = .*
+  param  _1 = nullptr
 
 Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -1241,7 +1242,7 @@ TEST_CASE_METHOD(Fixture, "unique_ptr<>() rvalue ref when equal ptr deref expect
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptrrr with signature void\(std::unique_ptr<int>&&\) with\.
-  param  _1 = .*
+  param  _1 = nullptr
 
 Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -1300,10 +1301,11 @@ TEST_CASE_METHOD(Fixture, "unique_ptr<>() const lvalue ref when equal ptr deref 
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptrcr with signature void\(std::unique_ptr<int> const&\) with\.
-  param  _1 = .*
+  param  _1 = nullptr
 
 Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
+    INFO(reports.front().msg);
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -1326,6 +1328,7 @@ TEST_CASE_METHOD(Fixture, "unique ptr const lvalue ref to different value when e
 Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
 
+    INFO(reports.front().msg);
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -1338,6 +1341,22 @@ TEST_CASE_METHOD(Fixture, "unique ptr const lvalue ref to equal value of differe
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(Fixture, "missing call to unique ptr const lvalue ref to equal value is reported", "[matching][matchers][eq]")
+{
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+  }
+  REQUIRE(!reports.empty());
+  auto re = R":(Unfulfilled expectation:
+Expected obj\.uptrcr\(\*trompeloeil::eq\(3\)\) to be called once, actually never called
+  param \*_1 == 3):";
+
+  INFO(reports.front().msg);
+  REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+
+//  REQUIRE(reports.front().msg == "");
+}
 // tests of parameter matching using custom typed matcher
 
 template <typename T>
@@ -1676,6 +1695,7 @@ TEST_CASE_METHOD(Fixture, "a pending unsatisfied require call is reported at end
   auto re = R":(Unfulfilled expectation:
 Expected obj\.foo\("bar"\) to be called once, actually never called
   param  _1 = bar):";
+  INFO(reports.front().msg);
   REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
 }
 
