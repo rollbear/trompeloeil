@@ -853,7 +853,7 @@ namespace trompeloeil
   class eq_t : public typed_matcher<T>
   {
   public:
-    eq_t(T t_) : t{t_} {}
+    eq_t(T t_) : t(t_) {}
     bool matches(T const& v) const noexcept(noexcept(v == std::declval<T>()))
     {
       return v == t;
@@ -878,7 +878,7 @@ namespace trompeloeil
   class ne_t : public typed_matcher<T>
   {
   public:
-    ne_t(T t_) : t{t_} {}
+    ne_t(T t_) : t(t_) {}
     bool matches(T const& v) const noexcept(noexcept(v != std::declval<T>()))
     {
       return v != t;
@@ -927,7 +927,7 @@ namespace trompeloeil
   class ge_t : public typed_matcher<T>
   {
   public:
-    ge_t(T t_) : t{t_} {}
+    ge_t(T t_) : t(t_) {}
     bool matches(T const& v) const noexcept(noexcept(v >= std::declval<T>()))
     {
       return v >= t;
@@ -952,7 +952,7 @@ namespace trompeloeil
   class gt_t : public typed_matcher<T>
   {
   public:
-    gt_t(T t_) : t{t_} {}
+    gt_t(T t_) : t(t_) {}
     bool matches(T const& v) const noexcept(noexcept(v > std::declval<T>()))
     {
       return v > t;
@@ -977,7 +977,7 @@ namespace trompeloeil
   class lt_t : public typed_matcher<T>
   {
   public:
-    lt_t(T t_) : t{t_} {}
+    lt_t(T t_) : t(t_) {}
     bool matches(T const& v) const noexcept(noexcept(v < std::declval<T>()))
     {
       return v < t;
@@ -1002,7 +1002,7 @@ namespace trompeloeil
   class le_t : public typed_matcher<T>
   {
   public:
-    le_t(T t_) : t{t_} {}
+    le_t(T t_) : t(t_) {}
     bool matches(T const& v) const noexcept(noexcept(v <= std::declval<T>()))
     {
       return v <= t;
