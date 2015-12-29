@@ -1086,6 +1086,386 @@ TEST_CASE_METHOD(Fixture, "a lesser value matches le", "[matching][matchers][le]
   obj.getter(2);
 }
 
+// tests of parameter matching using typed matcher re
+
+class mock_str
+{
+public:
+  MAKE_MOCK1(c_c_str, void(char const*));
+  MAKE_MOCK1(c_str, void(char*));
+  MAKE_MOCK1(strcref, void(std::string const&));
+  MAKE_MOCK1(strref, void(std::string&));
+  MAKE_MOCK1(strrref, void(std::string&&));
+  MAKE_MOCK1(str, void(std::string));
+  MAKE_MOCK1(overload, void(char const*));
+  MAKE_MOCK1(overload, void(std::string const&));
+};
+
+TEST_CASE_METHOD(Fixture, "call to const c-string function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, c_c_str(trompeloeil::re("mid")));
+    char str[] = "pre mid post";
+    obj.c_c_str(str);
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "call to const c-string function with nullptr to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, c_c_str(trompeloeil::re("mid")));
+  try
+  {
+    obj.c_c_str(nullptr);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of c_c_str with signature void\(char const\*\) with.
+  param  _1 = nullptr
+
+Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "call to const c-string function with non-matching string to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, c_c_str(trompeloeil::re("mid")));
+  try
+  {
+    char str[] = "abcde";
+    obj.c_c_str(str);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of c_c_str with signature void\(char const\*\) with.
+  param  _1 = abcde
+
+Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+//
+
+TEST_CASE_METHOD(Fixture, "call to non-const c-string function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, c_str(trompeloeil::re("mid")));
+    char str[] = "pre mid post";
+    obj.c_str(str);
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "call to non-const c-string function with nullptr to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, c_str(trompeloeil::re("mid")));
+  try
+  {
+    obj.c_str(nullptr);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of c_str with signature void\(char\*\) with.
+  param  _1 = nullptr
+
+Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "call to non-const c-string function with non-matching string to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, c_str(trompeloeil::re("mid")));
+  try
+  {
+    char str[] = "abcde";
+    obj.c_str(str);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of c_str with signature void\(char\*\) with.
+  param  _1 = abcde
+
+Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+//@@
+
+TEST_CASE_METHOD(Fixture, "call to const strref function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, strcref(trompeloeil::re("mid")));
+    obj.strcref(std::string("pre mid post"));
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "call to const strref function with non-matching string to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, strcref(trompeloeil::re("mid")));
+  try
+  {
+    obj.strcref(std::string("abcde"));
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of strcref with signature void\(std::string const&\) with\.
+  param  _1 = abcde
+
+Tried obj\.strcref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+//
+
+TEST_CASE_METHOD(Fixture, "call to non-const strref function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, strref(trompeloeil::re("mid")));
+    std::string str = "pre mid post";
+    obj.strref(str);
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "call to non-const strref function with non-matching string to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, strref(trompeloeil::re("mid")));
+  try
+  {
+    std::string str = "abcde";
+    obj.strref(str);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of strref with signature void\(std::string&\) with.
+  param  _1 = abcde
+
+Tried obj.strref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+//
+
+TEST_CASE_METHOD(Fixture, "call to non-const strrref function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, strrref(trompeloeil::re("mid")));
+    std::string str = "pre mid post";
+    obj.strrref(std::move(str));
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "call to non-const strrref function with non-matching string to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, strrref(trompeloeil::re("mid")));
+  try
+  {
+    std::string str = "abcde";
+    obj.strrref(std::move(str));
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of strrref with signature void\(std::string&&\) with.
+  param  _1 = abcde
+
+Tried obj.strrref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+//
+
+TEST_CASE_METHOD(Fixture, "call to str val function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(trompeloeil::re("mid")));
+    std::string str = "pre mid post";
+    obj.str(std::move(str));
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "call to str val function with non-matching string to regex is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, str(trompeloeil::re("mid")));
+  try
+  {
+    std::string str = "abcde";
+    obj.str(std::move(str));
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of str with signature void\(std::string\) with.
+  param  _1 = abcde
+
+Tried obj.str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "call to mismatching regex of typed overload is reported", "[matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL(obj, overload(trompeloeil::re<char const*>("mid")));
+  try
+  {
+    obj.overload("abcde");
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of overload with signature void\(char const\*\) with.
+  param  _1 = abcde
+
+Tried obj.overload\(trompeloeil::re<char const\*>\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "call to matching regex of typed overload is not reported", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(trompeloeil::re<std::string const&>("mid")));
+    std::string str = "pre mid post";
+    obj.overload(str);
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+//
+
+TEST_CASE_METHOD(Fixture, "case insensitive regex matches case mismatch without explicit type", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(trompeloeil::re("MiXeD", std::regex_constants::icase)));
+    std::string str = "mIXEd";
+    obj.str(str);
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "case insensitive regex matches case mismatch overload", "[matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(trompeloeil::re<std::string const&>("MiXeD", std::regex_constants::icase)));
+    std::string str = "mIXEd";
+    obj.overload(str);
+  }
+  REQUIRE(reports.size() == 0U);
+}
+
+TEST_CASE_METHOD(Fixture, "not_eol regex mismatching $ without explicit type is reported", "[matching][matchers][re]")
+{
+  try {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(trompeloeil::re("end$", std::regex_constants::match_not_eol)));
+    std::string str = "begin end";
+    obj.str(str);
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of str with signature void\(std::string\) with.
+  param  _1 = begin end
+
+Tried obj.str\(trompeloeil::re\("end\$", std::regex_constants::match_not_eol\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /end\$/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "not_eol regex mismatching $ overload is reported", "[matching][matchers][re]")
+{
+  try {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(trompeloeil::re<std::string const&>("end$", std::regex_constants::match_not_eol)));
+    std::string str = "begin end";
+    obj.overload(str);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of overload with signature void\(std::string const&\) with.
+  param  _1 = begin end
+
+Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_constants::match_not_eol\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /end\$/):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
 // tests of parameter matching using ptr deref matche
 
 class C_ptr
@@ -1095,6 +1475,7 @@ public:
   MAKE_MOCK1(uptr, void(std::unique_ptr<int>));
   MAKE_MOCK1(uptrrr, void(std::unique_ptr<int>&&));
   MAKE_MOCK1(uptrcr, void(std::unique_ptr<int> const&));
+  MAKE_MOCK1(strptr, void(std::string*));
 };
 
 TEST_CASE_METHOD(Fixture, "ptr to equal value matches deref", "[matching][matchers][eq]")
@@ -1357,6 +1738,40 @@ Expected obj\.uptrcr\(\*trompeloeil::eq\(3\)\) to be called once, actually never
 
 //  REQUIRE(reports.front().msg == "");
 }
+
+
+TEST_CASE_METHOD(Fixture, "call to string* function matching regex is not reported", "[matching][matchers][re]")
+{
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, strptr(*trompeloeil::re("end$")));
+    std::string s = "begin end";
+    obj.strptr(&s);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "call to string* function not matching regex is reported", "[matching][matchers][re]")
+{
+  try {
+    C_ptr obj;
+    REQUIRE_CALL(obj, strptr(*trompeloeil::re("end$")));
+    std::string s = "begin end;";
+    obj.strptr(&s);
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of strptr with signature void\(std::string\*\) with\.
+  param  _1 = .*
+
+Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 matching regular expression /end\$/):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
 // tests of parameter matching using custom typed matcher
 
 template <typename T>
@@ -2161,7 +2576,7 @@ Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 }
 
 // tests of parameter passing to expectations
- 
+
 class T
 {
 public:

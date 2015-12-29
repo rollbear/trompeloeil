@@ -44,6 +44,7 @@
 #include <functional>
 #include <memory>
 #include <cstring>
+#include <regex>
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -1021,6 +1022,95 @@ namespace trompeloeil
   le_t<T> le(T t)
   {
     return {t};
+  }
+
+  class re_base
+  {
+  public:
+    template <typename T,
+              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
+    re_base(T&& t)
+      : re_s(std::forward<T>(t))
+      , re(re_s)
+    {}
+    template <typename T,
+              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
+    re_base(
+      T&& t,
+      std::regex_constants::syntax_option_type opt)
+      : re_s(std::forward<T>(t))
+      , re(re_s, opt)
+    {}
+    template <typename T,
+              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
+    re_base(
+      T&& t,
+      std::regex_constants::match_flag_type flags)
+      : re_s(std::forward<T>(t))
+      , re(re_s), re_flags{flags}
+    {}
+    template <typename T,
+              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
+    re_base(
+      T&& t,
+      std::regex_constants::syntax_option_type opt,
+      std::regex_constants::match_flag_type flags)
+      : re_s(std::forward<T>(t))
+      , re(re_s, opt)
+      , re_flags{flags}
+    {}
+    template <typename T>
+    bool matches(T const& v) const
+    {
+      return !trompeloeil::is_null(v) && std::regex_search(v, re, re_flags);
+    }
+    friend std::ostream& operator<<(std::ostream& os, re_base const& m)
+    {
+      return os << " matching regular expression /" << m.re_s << '/';
+    }
+  private:
+    using match_flag_type = std::regex_constants::match_flag_type;
+    std::string re_s;
+    std::regex re;
+    match_flag_type re_flags = std::regex_constants::match_default;
+  };
+
+  template <typename T>
+  class re_t : public re_base, public typed_matcher<T>
+  {
+  public:
+    using re_base::re_base;
+  };
+
+  template <>
+  class re_t<wildcard> : public re_base, public matcher
+  {
+  public:
+    using re_base::re_base;
+    template <typename T,
+              typename = decltype(std::regex_search(std::declval<T&>(),
+                                                    std::declval<std::regex>()))>
+    operator T&() const;
+    template <typename T,
+              typename = decltype(std::regex_search(std::declval<T&&>(),
+                                                    std::declval<std::regex>()))>
+    operator T&&() const;
+  };
+
+  template <typename ... T>
+  inline
+  auto
+  re(T&& ... t) -> decltype(trompeloeil::re_t<wildcard>(std::forward<T>(t)...))
+  {
+    return { std::forward<T>(t)...};
+  }
+
+  template <typename Type, typename ... T>
+  inline
+  auto
+  re(T&& ... t) -> decltype(trompeloeil::re_t<Type>(std::forward<T>(t)...))
+  {
+    return { std::forward<T>(t)...};
   }
 
   template <typename T>
