@@ -1440,7 +1440,7 @@ namespace trompeloeil
   auto
   re(
     T&& ... t)
-  -> ::trompeloeil::re_t<::trompeloeil::wildcard>
+  -> decltype(::trompeloeil::re_t<wildcard>{std::forward<T>(t)...})
   {
     return {std::forward<T>(t)...};
   }
@@ -1450,7 +1450,7 @@ namespace trompeloeil
   auto
   re(
     T&& ... t)
-  -> ::trompeloeil::re_t<Type>
+  -> decltype(::trompeloeil::re_t<Type>{std::forward<T>(t)...})
   {
     return {std::forward<T>(t)...};
   }
