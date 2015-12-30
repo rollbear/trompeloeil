@@ -1360,36 +1360,28 @@ namespace trompeloeil
   class re_base
   {
   public:
-    template <typename T,
-              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
     re_base(
-      T&& t)
-      : re_s(std::forward<T>(t))
+      std::string s)
+      : re_s(std::move(s))
       , re(re_s)
     {}
-    template <typename T,
-              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
     re_base(
-      T&& t,
+      std::string s,
       std::regex_constants::syntax_option_type opt)
-      : re_s(std::forward<T>(t))
+      : re_s(std::move(s))
       , re(re_s, opt)
     {}
-    template <typename T,
-              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
     re_base(
-      T&& t,
+      std::string s,
       std::regex_constants::match_flag_type flags)
-      : re_s(std::forward<T>(t))
+      : re_s(std::move(s))
       , re(re_s), re_flags{flags}
     {}
-    template <typename T,
-              typename = std::enable_if_t<std::is_constructible<std::string, T>::value>>
     re_base(
-      T&& t,
+      std::string s,
       std::regex_constants::syntax_option_type opt,
       std::regex_constants::match_flag_type flags)
-      : re_s(std::forward<T>(t))
+      : re_s(std::move(s))
       , re(re_s, opt)
       , re_flags{flags}
     {}
@@ -1448,9 +1440,9 @@ namespace trompeloeil
   auto
   re(
     T&& ... t)
-  -> decltype(trompeloeil::re_t<wildcard>(std::forward<T>(t)...))
+  -> ::trompeloeil::re_t<::trompeloeil::wildcard>
   {
-    return { std::forward<T>(t)...};
+    return {std::forward<T>(t)...};
   }
 
   template <typename Type, typename ... T>
@@ -1458,9 +1450,9 @@ namespace trompeloeil
   auto
   re(
     T&& ... t)
-  -> decltype(trompeloeil::re_t<Type>(std::forward<T>(t)...))
+  -> ::trompeloeil::re_t<Type>
   {
-    return { std::forward<T>(t)...};
+    return {std::forward<T>(t)...};
   }
 
   template <typename T>
@@ -3204,7 +3196,7 @@ operator*(
 #define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                           \
   ::trompeloeil::lifetime_monitor                                              \
     TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)                   \
-      (obj, obj_s, ::trompeloeil::location{__FILE__, __LINE__})
+      (obj, obj_s, ::trompeloeil::location{__FILE__, static_cast<unsigned long>(__LINE__)})
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)                             \
   TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
@@ -3213,7 +3205,7 @@ operator*(
   std::make_unique<trompeloeil::lifetime_monitor>(obj,                                  \
                                          obj_s,                                \
                                          ::trompeloeil::location{__FILE__,     \
-                                                                 __LINE__})
+                                                                 static_cast<unsigned long>(__LINE__)})
 
 #ifndef TROMPELOEIL_LONG_MACROS
 
