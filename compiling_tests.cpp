@@ -23,20 +23,25 @@
 struct Fixture
 {
   Fixture() {
-    trompeloeil::set_reporter([this](auto s,auto f, auto l, auto m) { this->send_report(s, f, l, m);});
+    trompeloeil::set_reporter([this](auto s,auto f, auto l, auto m)
+                              { this->send_report(s, f, l, m);});
   }
   class reported {};
 
   struct report
   {
     trompeloeil::severity s;
-    const char* file;
-    unsigned long line;
+    const char           *file;
+    unsigned long         line;
     std::string           msg;
   };
   std::vector<report> reports;
 
-  void send_report(trompeloeil::severity s, const char* file, unsigned long line, const std::string msg)
+  void send_report(
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    const std::string msg)
   {
     reports.push_back(report{ s, file, line, msg });
     if (s == trompeloeil::severity::fatal && !std::uncaught_exception())
@@ -360,42 +365,48 @@ TEST_CASE_METHOD(Fixture, "sequences impose order between multiple matching expe
 static int global_n = 0;
 TEST_CASE_METHOD(Fixture, "side effect access copy of local object", "[side effects]")
 {
-  int n = 1;
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .SIDE_EFFECT(global_n = n)
-    .RETURN(_1);
-  n = 2;
-  obj.getter(n);
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .SIDE_EFFECT(global_n = n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(n);
+  }
   REQUIRE(global_n == 1);
 }
 
 TEST_CASE_METHOD(Fixture, "lr side effect access reference of local object", "[side effects]")
 {
-  int n = 1;
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .LR_SIDE_EFFECT(global_n = n)
-    .RETURN(_1);
-  n = 2;
-  obj.getter(n);
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_SIDE_EFFECT(global_n = n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(n);
+  }
+  REQUIRE(reports.empty());
   REQUIRE(global_n == 2);
 }
 
 TEST_CASE_METHOD(Fixture, "multiple side effects are executed in the order declared", "[side effects]")
 {
   std::string s;
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_SIDE_EFFECT(s = std::to_string(_1))
+      .LR_SIDE_EFFECT(s += "_")
+      .LR_SIDE_EFFECT(s += s)
+      .RETURN(_1);
 
-  mock_c obj;
+    obj.getter(3);
+  }
 
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .LR_SIDE_EFFECT(s = std::to_string(_1))
-    .LR_SIDE_EFFECT(s += "_")
-    .LR_SIDE_EFFECT(s += s)
-    .RETURN(_1);
-
-  obj.getter(3);
-
+  REQUIRE(reports.empty());
   REQUIRE(s == "3_3_");
 }
 
@@ -403,24 +414,30 @@ TEST_CASE_METHOD(Fixture, "multiple side effects are executed in the order decla
 
 TEST_CASE_METHOD(Fixture, "RETURN access copy of local object", "[return values]")
 {
-  int n = 1;
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .RETURN(n);
-  n = 2;
-  auto m = obj.getter(n);
-  REQUIRE(m == 1);
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .RETURN(n);
+    n = 2;
+    auto m = obj.getter(n);
+    REQUIRE(m == 1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "LR_RETURN access the actual local object", "[return values]")
 {
-  int n = 1;
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .LR_RETURN(n);
-  n = 2;
-  auto m = obj.getter(n);
-  REQUIRE(m == 2);
+  {
+    int n = 1;
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_RETURN(n);
+    n = 2;
+    auto m = obj.getter(n);
+    REQUIRE(m == 2);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "RETURN a ref to local obj, std::ref(obj) returns object given", "[return values]")
@@ -435,6 +452,7 @@ TEST_CASE_METHOD(Fixture, "RETURN a ref to local obj, std::ref(obj) returns obje
   }
   REQUIRE(reports.empty());
 }
+
 TEST_CASE_METHOD(Fixture, "RETURN a ref to local obj, (obj) returns object given", "[return values]")
 {
   {
@@ -476,7 +494,7 @@ TEST_CASE_METHOD(Fixture, "THROW access copy of local object", "[return values]"
   }
   catch (int m)
   {
-     REQUIRE(m == 1);
+    REQUIRE(m == 1);
   }
 }
 
@@ -543,24 +561,30 @@ TEST_CASE_METHOD(Fixture, "THROW throws after side effect in void functions", "[
 
 TEST_CASE_METHOD(Fixture, "WITH matches copy of local object", "[matching]")
 {
-  mock_c obj;
-  int n = 1;
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .WITH(_1 == n)
-    .RETURN(_1);
-  n = 2;
-  obj.getter(1);
+  {
+    mock_c obj;
+    int n = 1;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .WITH(_1 == n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "LR_WITH access actual local object", "[matching]")
 {
-  mock_c obj;
-  int n = 1;
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .LR_WITH(_1 == n)
-    .RETURN(_1);
-  n = 2;
-  obj.getter(2);
+  {
+    mock_c obj;
+    int n = 1;
+    REQUIRE_CALL(obj, getter(ANY(int)))
+      .LR_WITH(_1 == n)
+      .RETURN(_1);
+    n = 2;
+    obj.getter(2);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "rvalue reference parameter can be compared with nullptr in WITH", "[matching]")
@@ -571,7 +595,7 @@ TEST_CASE_METHOD(Fixture, "rvalue reference parameter can be compared with nullp
       .WITH(_1 != nullptr)
       .RETURN(std::move(_1));
 
-    auto p = obj.ptr(std::unique_ptr<int>(new int{ 3 }));
+    auto p = obj.ptr(std::unique_ptr<int>(new int{3}));
     REQUIRE(p);
     REQUIRE(*p == 3);
   }
@@ -582,7 +606,7 @@ TEST_CASE_METHOD(Fixture, "rvalue reference parameter can be compared with exter
 {
   {
     mock_c obj;
-    auto pi = new int{ 3 };
+    auto pi = new int{3};
     REQUIRE_CALL(obj, ptr(_))
       .WITH(_1.get() == pi)
       .RETURN(std::move(_1));
@@ -616,124 +640,176 @@ public:
 
 TEST_CASE_METHOD(Fixture, "ostream& matches wildcard", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_streamref(_));
-  u.func_streamref(std::cout);
+  {
+    U u;
+    REQUIRE_CALL(u, func_streamref(_));
+    u.func_streamref(std::cout);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "uncomparable parameter matches wildcard", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_u(_));
-  u.func_u(uncomparable{});
+  {
+    U u;
+    REQUIRE_CALL(u, func_u(_));
+    u.func_u(uncomparable{});
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "uncomparable parameter matches typed wildcard", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_u(ANY(uncomparable)));
-  u.func_u(uncomparable{});
+  {
+    U u;
+    REQUIRE_CALL(u, func_u(ANY(uncomparable)));
+    u.func_u(uncomparable{});
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter value type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_v(_));
-  u.func_v(1);
+  {
+    U u;
+    REQUIRE_CALL(u, func_v(_));
+    u.func_v(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter const value type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_cv(_));
-  u.func_cv(1);
+  {
+    U u;
+    REQUIRE_CALL(u, func_cv(_));
+    u.func_cv(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches unique_ptr<> value type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_uniqv(_));
-  u.func_uniqv(std::make_unique<int>(3));
+  {
+    U u;
+    REQUIRE_CALL(u, func_uniqv(_));
+    u.func_uniqv(std::make_unique<int>(3));
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches shared_ptr<> value type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_sharedv(_));
-  u.func_sharedv(std::make_shared<int>(3));
+  {
+    U u;
+    REQUIRE_CALL(u, func_sharedv(_));
+    u.func_sharedv(std::make_shared<int>(3));
+  }
+  REQUIRE(reports.empty());
 }
+
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter lvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_lr(_));
-  int v = 1;
-  u.func_lr(v);
+  {
+    U u;
+    REQUIRE_CALL(u, func_lr(_));
+    int v = 1;
+    u.func_lr(v);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter const lvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_clr(_));
-  int v = 1;
-  u.func_clr(v);
+  {
+    U u;
+    REQUIRE_CALL(u, func_clr(_));
+    int v = 1;
+    u.func_clr(v);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter rvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_rr(_));
-  u.func_rr(1);
+  {
+    U u;
+    REQUIRE_CALL(u, func_rr(_));
+    u.func_rr(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "wildcard matches parameter const rvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_crr(_));
-  u.func_crr(1);
+  {
+    U u;
+    REQUIRE_CALL(u, func_crr(_));
+    u.func_crr(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "ANY can match unique_ptr<> by value", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_uniqv(ANY(std::unique_ptr<int>)));
-  u.func_uniqv(std::make_unique<int>(3));
+  {
+    U u;
+    REQUIRE_CALL(u, func_uniqv(ANY(std::unique_ptr<int>)));
+    u.func_uniqv(std::make_unique<int>(3));
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "ANY can match shared_ptr<> by value", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func_sharedv(ANY(std::shared_ptr<int>)));
-  u.func_sharedv(std::make_shared<int>(3));
+  {
+    U u;
+    REQUIRE_CALL(u, func_sharedv(ANY(std::shared_ptr<int>)));
+    u.func_sharedv(std::make_shared<int>(3));
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "ANY can select overload on lvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func(ANY(int&)));
-  int i = 1;
-  u.func(i);
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(int&)));
+    int i = 1;
+    u.func(i);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "ANY can select overload on const lvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func(ANY(const int&)));
-  const int i = 1;
-  u.func(i);
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(const int&)));
+    const int i = 1;
+    u.func(i);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "ANY can select overload on rvalue reference type", "[matching]")
 {
-  U u;
-  REQUIRE_CALL(u, func(ANY(int&&)));
-  u.func(1);
+  {
+    U u;
+    REQUIRE_CALL(u, func(ANY(int&&)));
+    u.func(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "Expectation matches a mocked function with param from template", "[matching][templates]")
 {
-  tmock<int> m;
-  REQUIRE_CALL(m, tfunc(_));
-  m.tfunc(3);
+  {
+    tmock<int> m;
+    REQUIRE_CALL(m, tfunc(_));
+    m.tfunc(3);
+  }
+  REQUIRE(reports.empty());
 }
 
 // tests of overload selection with parameter matching
@@ -765,9 +841,12 @@ TEST_CASE_METHOD(Fixture, "wildcards matches overload on type and parameter coun
 
 TEST_CASE_METHOD(Fixture, "a non equal value matches ne", "[matching][matchers][ne]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, foo(trompeloeil::ne<std::string>("bar")));
-  obj.foo("baz");
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne<std::string>("bar")));
+    obj.foo("baz");
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "an equal value fails ne with report", "[matching][matchers][ne]")
@@ -799,10 +878,13 @@ struct C_foo1
 
 TEST_CASE_METHOD(Fixture, "non-nullptr call matches ne(nullptr)", "[matching][matchers][ne]")
 {
-  C_foo1 obj;
-  REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
-  int n;
-  obj.foo(&n);
+  {
+    C_foo1 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    int n;
+    obj.foo(&n);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "nullptr call with ne(nullptr) is reported", "[matching][matchers][ne]")
@@ -836,10 +918,13 @@ struct C_foo2
 
 TEST_CASE_METHOD(Fixture, "overloaded non-nullptr call disambiguated with ne<type>(nullptr) is matched", "[matching][matchers][ne]")
 {
-  C_foo2 obj;
-  REQUIRE_CALL(obj, foo(trompeloeil::ne<int*>(nullptr)));
-  int i;
-  obj.foo(&i);
+  {
+    C_foo2 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne<int*>(nullptr)));
+    int i;
+    obj.foo(&i);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with ne<type>(nullptr) is reported", "[matching][matchers][ne]")
@@ -875,9 +960,12 @@ struct C_foo3
 
 TEST_CASE_METHOD(Fixture, "pointer to member call with ne(nullptr) matched", "[matching][matchers][ne]")
 {
-  C_foo3 obj;
-  REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
-  obj.foo(&C_foo3::m);
+  {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    obj.foo(&C_foo3::m);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "pointer to member ptr call with ne(nullptr) is reported", "[matching][matchers][ne]")
@@ -908,18 +996,24 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "an equal value matches ge", "[matching][matchers][ge]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
-    .RETURN(0);
-  obj.getter(3);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
+      .RETURN(0);
+    obj.getter(3);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "a greater value matches ge", "[matching][matchers][ge]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
-    .RETURN(0);
-  obj.getter(4);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
+      .RETURN(0);
+    obj.getter(4);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "a lesser value is reported by ge", "[matching][matchers][ge]")
@@ -968,10 +1062,13 @@ Tried obj\.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "a greater value matches gt", "[matching][matchers][gt]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(trompeloeil::gt(3)))
-    .RETURN(0);
-  obj.getter(4);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(trompeloeil::gt(3)))
+      .RETURN(0);
+    obj.getter(4);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "a lesser value is reported by gt", "[matching][matchers][gt]")
@@ -1014,7 +1111,7 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by lt", "[matching][matche
 
 Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
-   REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
 
@@ -1041,20 +1138,26 @@ Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "a lesser value matches lt", "[matching][matchers][lt]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
-    .RETURN(0);
-  obj.getter(2);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
+      .RETURN(0);
+    obj.getter(2);
+  }
+  REQUIRE(reports.empty());
 }
 
 // tests of parameter matching using typed matcher le
 
 TEST_CASE_METHOD(Fixture, "an equal value matches le", "[matching][matchers][le]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
-    .RETURN(0);
-  obj.getter(3);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
+      .RETURN(0);
+    obj.getter(3);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "a greater value is reported by le", "[matching][matchers][le]")
@@ -1080,10 +1183,13 @@ Tried obj\.getter\(trompeloeil::le\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "a lesser value matches le", "[matching][matchers][le]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
-   .RETURN(0);
-  obj.getter(2);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
+      .RETURN(0);
+    obj.getter(2);
+  }
+  REQUIRE(reports.empty());
 }
 
 // tests of parameter matching using typed matcher re
@@ -1109,7 +1215,7 @@ TEST_CASE_METHOD(Fixture, "call to const c-string function matching regex is not
     char str[] = "pre mid post";
     obj.c_c_str(str);
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "call to const c-string function with nullptr to regex is reported", "[matching][matchers][re]")
@@ -1169,7 +1275,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const c-string function matching regex is
     char str[] = "pre mid post";
     obj.c_str(str);
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "call to non-const c-string function with nullptr to regex is reported", "[matching][matchers][re]")
@@ -1228,7 +1334,7 @@ TEST_CASE_METHOD(Fixture, "call to const strref function matching regex is not r
     REQUIRE_CALL(obj, strcref(trompeloeil::re("mid")));
     obj.strcref(std::string("pre mid post"));
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "call to const strref function with non-matching string to regex is reported", "[matching][matchers][re]")
@@ -1264,7 +1370,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const strref function matching regex is n
     std::string str = "pre mid post";
     obj.strref(str);
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "call to non-const strref function with non-matching string to regex is reported", "[matching][matchers][re]")
@@ -1300,7 +1406,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const strrref function matching regex is 
     std::string str = "pre mid post";
     obj.strrref(std::move(str));
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "call to non-const strrref function with non-matching string to regex is reported", "[matching][matchers][re]")
@@ -1336,7 +1442,7 @@ TEST_CASE_METHOD(Fixture, "call to str val function matching regex is not report
     std::string str = "pre mid post";
     obj.str(std::move(str));
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "call to str val function with non-matching string to regex is reported", "[matching][matchers][re]")
@@ -1394,7 +1500,7 @@ TEST_CASE_METHOD(Fixture, "call to matching regex of typed overload is not repor
     std::string str = "pre mid post";
     obj.overload(str);
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 //
@@ -1407,7 +1513,7 @@ TEST_CASE_METHOD(Fixture, "case insensitive regex matches case mismatch without 
     std::string str = "mIXEd";
     obj.str(str);
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "case insensitive regex matches case mismatch overload", "[matching][matchers][re]")
@@ -1418,7 +1524,7 @@ TEST_CASE_METHOD(Fixture, "case insensitive regex matches case mismatch overload
     std::string str = "mIXEd";
     obj.overload(str);
   }
-  REQUIRE(reports.size() == 0U);
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "not_eol regex mismatching $ without explicit type is reported", "[matching][matchers][re]")
@@ -1480,10 +1586,12 @@ public:
 
 TEST_CASE_METHOD(Fixture, "ptr to equal value matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
-  int n = 3;
-  obj.ptr(&n);
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+    int n = 3;
+    obj.ptr(&n);
+  }
   REQUIRE(reports.empty());
 }
 
@@ -1535,18 +1643,22 @@ Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "ptr to equal value of different size matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3L)));
-  int n = 3;
-  obj.ptr(&n);
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3L)));
+    int n = 3;
+    obj.ptr(&n);
+  }
   REQUIRE(reports.empty());
 }
 ////
 TEST_CASE_METHOD(Fixture, "unique_ptr value to equal value matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
-  obj.uptr(std::make_unique<int>(3));
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+    obj.uptr(std::make_unique<int>(3));
+  }
   REQUIRE(reports.empty());
 }
 
@@ -1595,18 +1707,22 @@ Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "unique value ptr to equal value of different size matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3L)));
-  obj.uptr(std::make_unique<int>(3));
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3L)));
+    obj.uptr(std::make_unique<int>(3));
+  }
   REQUIRE(reports.empty());
 }
 //////
 
 TEST_CASE_METHOD(Fixture, "unique_ptr rvalue ref to equal value matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
-  obj.uptrrr(std::make_unique<int>(3));
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+    obj.uptrrr(std::make_unique<int>(3));
+  }
   REQUIRE(reports.empty());
 }
 
@@ -1654,18 +1770,22 @@ Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "unique ptr rvalue ref to equal value of different size matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3L)));
-  obj.uptrrr(std::make_unique<int>(3));
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3L)));
+    obj.uptrrr(std::make_unique<int>(3));
+  }
   REQUIRE(reports.empty());
 }
 
 ////
 TEST_CASE_METHOD(Fixture, "unique_ptr const lvalue ref to equal value matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
-  obj.uptrcr(std::make_unique<int>(3));
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    obj.uptrcr(std::make_unique<int>(3));
+  }
   REQUIRE(reports.empty());
 }
 
@@ -1716,9 +1836,11 @@ Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "unique ptr const lvalue ref to equal value of different size matches deref", "[matching][matchers][eq]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3L)));
-  obj.uptrcr(std::make_unique<int>(3));
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3L)));
+    obj.uptrcr(std::make_unique<int>(3));
+  }
   REQUIRE(reports.empty());
 }
 
@@ -1807,26 +1929,35 @@ auto any_of(std::initializer_list<T> elements)
 
 TEST_CASE_METHOD(Fixture, "custom matcher of first element is not reported", "[matching][matchers][custom]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
-    .RETURN(0);
-  obj.getter(1);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
+      .RETURN(0);
+    obj.getter(1);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "custom matcher of last element is not reported", "[matching][matchers][custom]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
-    .RETURN(0);
-  obj.getter(77);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
+      .RETURN(0);
+    obj.getter(77);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "custom matcher of mid element is not reported", "[matching][matchers][custom]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
-    .RETURN(0);
-  obj.getter(5);
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
+      .RETURN(0);
+    obj.getter(5);
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "custom matcher of unlisted element is reported", "[matching][matchers][custom]")
@@ -1853,10 +1984,12 @@ Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(Fixture, "custom matcher can math pointer via *deref", "[matching][matchers][custom]")
 {
-  C_ptr obj;
-  REQUIRE_CALL(obj, ptr(*any_of({1,5,7})));
-  int n = 5;
-  obj.ptr(&n);
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, ptr(*any_of({1,5,7})));
+    int n = 5;
+    obj.ptr(&n);
+  }
   REQUIRE(reports.empty());
 }
 // tests of parameter matching using custom duck-typed matcher
@@ -1890,9 +2023,12 @@ public:
 
 TEST_CASE_METHOD(Fixture, "a non empty string gives no report", "[matching][matchers][custom]")
 {
-  mock_c obj;
-  REQUIRE_CALL(obj, foo(not_empty{}));
-  obj.foo("bar");
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo(not_empty{}));
+    obj.foo("bar");
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "an empty string is reported", "[matching][matchers][custom]")
@@ -1999,19 +2135,23 @@ struct TestOutput
 {
   int n;
 };
+
 void print(std::ostream& os, const TestOutput& p)
 {
   os << "nn::print(TestOutput{" << p.n << "}";
 }
-}
+
+} // namespace nn
+
 namespace trompeloeil
 {
-  template <>
-  void print(std::ostream& os, const nn::TestOutput& p)
-  {
-    os << "trompeloeil::print(nn::TestOutput{" << p.n << "})";
-  }
+template <>
+void print(std::ostream& os, const nn::TestOutput& p)
+{
+  os << "trompeloeil::print(nn::TestOutput{" << p.n << "})";
 }
+
+} // namespace trompeloeil
 
 class TestOutputMock
 {
@@ -2150,7 +2290,7 @@ TEST_CASE_METHOD(Fixture, "multiple unsatisfied expectation when mock dies are r
   INFO(reports[1].msg);
   auto re_count = R":(Pending expectation on destroyed mock object:
 Expected .*count\(\) to be called once, actually never called):";
-auto re_getter = R":(Pending expectation on destroyed mock object:
+  auto re_getter = R":(Pending expectation on destroyed mock object:
 Expected .*getter\(1\) to be called once, actually never called):";
   REQUIRE(std::regex_search(reports[0].msg, std::regex(re_getter)));
   REQUIRE(std::regex_search(reports[1].msg, std::regex(re_count)));
@@ -2158,29 +2298,35 @@ Expected .*getter\(1\) to be called once, actually never called):";
 
 TEST_CASE_METHOD(Fixture, "active allow call when mock dies is not reported", "[scoping][multiplicity]")
 {
-  auto m = std::make_unique<mock_c>();
-  ALLOW_CALL(*m, count())
-    .RETURN(1);
-  m.reset();
-  REQUIRE(reports.size() == 0U);
+  {
+    auto m = std::make_unique<mock_c>();
+    ALLOW_CALL(*m, count())
+      .RETURN(1);
+    m.reset();
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "active forbid call when mock dies is not reported", "[scoping][multiplicity]")
 {
-  auto m = std::make_unique<mock_c>();
-  FORBID_CALL(*m, count());
-  m.reset();
-  REQUIRE(reports.size() == 0U);
+  {
+    auto m = std::make_unique<mock_c>();
+    FORBID_CALL(*m, count());
+    m.reset();
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "saturated expectation when mock dies is not reported", "[scoping]")
 {
-  auto m = std::make_unique<mock_c>();
-  REQUIRE_CALL(*m, count())
-    .RETURN(1);
-  m->count();
-  m.reset();
-  REQUIRE(reports.size() == 0U);
+  {
+    auto m = std::make_unique<mock_c>();
+    REQUIRE_CALL(*m, count())
+      .RETURN(1);
+    m->count();
+    m.reset();
+  }
+  REQUIRE(reports.empty());
 }
 
 TEST_CASE_METHOD(Fixture, "no calls reported as never called", "[scoping][multiplicity]")
@@ -2397,7 +2543,7 @@ TEST_CASE_METHOD(Fixture, "match of saturated call is reported", "[mismatches]")
     REQUIRE(count == 9);
     REQUIRE(reports.size() == 1U);
     auto re =
-      R":(No match for call of getter with signature int\(int\) with\.
+           R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
 Matches saturated call requirement
@@ -2449,7 +2595,7 @@ TEST_CASE_METHOD(Fixture, "a matching call that throws is saturated", "[mismatch
     REQUIRE(count == 6);
     REQUIRE(reports.size() == 1U);
     auto re =
-      R":(No match for call of getter with signature int\(int\) with\.
+           R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
 Matches saturated call requirement
@@ -2472,7 +2618,7 @@ TEST_CASE_METHOD(Fixture, "unmatched call with mismatching requirements is repor
   {
     REQUIRE(reports.size() == 1U);
     auto re =
-      R":(No match for call of getter with signature int\(int\) with\.
+           R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 3
 
 Tried obj\.getter\(5\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
@@ -2498,7 +2644,7 @@ TEST_CASE_METHOD(Fixture, "unmatched with wildcard reports failed WITH clauses",
   {
     REQUIRE(reports.size() == 1U);
     auto re =
-      R":(No match for call of getter with signature int\(int\) with\.
+           R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
 Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
@@ -2522,7 +2668,7 @@ TEST_CASE_METHOD(Fixture, "unmatched with wildcard reports only failed WITH clau
   {
     REQUIRE(reports.size() == 1U);
     auto re =
-      R":(No match for call of getter with signature int\(int\) with\.
+           R":(No match for call of getter with signature int\(int\) with\.
   param  _1 = 4
 
 Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
@@ -2601,10 +2747,10 @@ TEST_CASE_METHOD(Fixture, "parameters are passed in correct order to WITH", "[pa
 {
   T obj;
   REQUIRE_CALL(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _))
-    .WITH(_1 == 1 && _2 == 2 && _3 == 3 && _4 == 4 &&
-          _5 == 5 && _6 == 6 && _7 == 7 && _8 == 8 &&
-          _9 == 9 && _10 == 10 && _11 == 11 && _12 == 12 &&
-         _13 == 13 && _14 == 14 && _15 == 15)
+    .WITH(_1  ==  1 &&  _2 ==  2 &&  _3 ==  3 &&  _4 ==  4 &&
+          _5  ==  5 &&  _6 ==  6 &&  _7 ==  7 &&  _8 ==  8 &&
+          _9  ==  9 && _10 == 10 && _11 == 11 && _12 == 12 &&
+          _13 == 13 && _14 == 14 && _15 == 15)
     .RETURN("");
   auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
   REQUIRE(s == "");
@@ -2617,8 +2763,8 @@ TEST_CASE_METHOD(Fixture, "parameters are passed in correct order to LR_SIDE_EFF
   REQUIRE_CALL(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _))
     .LR_SIDE_EFFECT(n = _1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15)
     .RETURN("");
-    auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-    REQUIRE(n == -6);
+  auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+  REQUIRE(n == -6);
 }
 
 TEST_CASE_METHOD(Fixture, "parameters are passed in correct order to RETURN", "[parameters]")
@@ -2669,6 +2815,7 @@ TEST_CASE_METHOD(Fixture, "shared ptr by value in expectation is copied", "[para
     REQUIRE(s.use_count() == 2U);
     obj.ptr(s);
   }
+  REQUIRE(reports.empty());
   REQUIRE(s.use_count() == 1U);
 }
 
@@ -2681,6 +2828,7 @@ TEST_CASE_METHOD(Fixture, "shared ptr by std ref in expectation is not copied", 
     REQUIRE(s.use_count() == 1U);
     obj.ptr(s);
   }
+  REQUIRE(reports.empty());
   REQUIRE(s.use_count() == 1U);
 }
 
@@ -2695,6 +2843,7 @@ TEST_CASE_METHOD(Fixture, "unique ptr by value is matched with raw ptr in WITH",
     obj.ptr(std::move(s));
     REQUIRE_FALSE(s);
   }
+  REQUIRE(reports.empty());
 }
 
 // tests of tracing of matched calls
@@ -2711,7 +2860,7 @@ TEST_CASE_METHOD(Fixture, "matching calls are traced", "[tracing]")
   obj1.getter(3, s);
   obj2.foo("bar");
   auto re =
-    R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
+         R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj1\.getter\(_, _\) with.
   param  _1 = 3
   param  _2 = foo
@@ -2738,7 +2887,7 @@ TEST_CASE_METHOD(Fixture, "tracing is only active when tracer obj is alive", "[t
   }
   obj1.getter(4, s);
   auto re =
-    R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
+         R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj2\.foo\("bar"\) with\.
   param  _1 = bar
 ):";
