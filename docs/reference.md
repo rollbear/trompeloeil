@@ -13,6 +13,7 @@
     - [**`ge(`** *value* **`)`**](#ge)
     - [**`lt(`** *value* **`)`**](#lt)
     - [**`le(`** *value* **`)`**](#le)
+    - [**`re(`** *string* **`)`**](#re)
 - [Macros](#macros) (alphabetical order)
   - [**`ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#ALLOW_CALL)
   - [**`ANY(`** *type* **`)`**](#ANY_MACRO)
@@ -457,6 +458,59 @@ of *value*, like `le<int>(0)`.
 
 It is also possible to use `*le(val)` to match a pointer to a less-than or
 equal value.
+
+#### <A name="re"/>**`re(`** *string* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a
+string with a regular expression.
+
+**`re()`** exists in two flavours.
+
+* **`re(`** *string*, *flags...* **`)`**
+  which can match both C-strings (`char*`, `const char*`) as well as
+  `C++` `std::string`.
+* **`re<type>(`** *string*, *flags...* **`)`**
+  which can be used to disambiguate overloads.
+
+For both versions, the string can be either `std::string` or a C-string.
+
+*flags...* can be
+* empty
+* std::regex_constants::syntax_option_type
+* std::regex_constants::match_flag_type
+* std::regex_constants::syntax_option_type, std::regex_constants::match_flag_type
+
+Regular expression matching is made with
+[`std::regex_search()`](http://en.cppreference.com/w/cpp/regex/regex_search)
+
+Example:
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(unique, void(std::string&));
+  MAKE_MOCK1(overloaded, void(const char*));
+  MAKE_MOCK1(overloaded, void(const std::string&));
+};
+
+using trompeloeil::re;
+
+TEST(atest)
+{
+  C mock_obj;
+  REQUIRE_CALL(mock_obj, unique(re("end$", std::regex_constants::icase)));
+  REQUIRE_CALL(mock_obj, overloaded(re<const char*>("end", std::regex_constants::match_not_eol)));
+  test_function(&mock_obj);
+}
+```
+
+Above, `test_function(&mock_obj)` must call `mock_obj.unique()` with a string
+case insensitively matching the regular expression `/end$/`, and also call
+`mock_obj.overloaded(const char*)` with a regular expression matching
+the regular expression `/end/`.
+
+It is also possible to use `*re(string)` to match a pointer to a string with
+a regular expression.
 
 ## <A name="macros"/>Macros
 

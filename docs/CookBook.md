@@ -10,6 +10,7 @@
 - [Setting Expectations](#setting_expectations)
   - [Matching exact values](#matching_exact_values)
   - [Matching values with conditions](#matching_conditions)
+  - [Matching strings with regular expressions](#matching_regular_expressions)
   - [Matching pointers to values](#matching_pointers)
   - [Matching calls with conditions depending on several parameters](#matching_multiconditions)
   - [Matching `std::unique_ptr<T>` and other non-copyable values](#matching_non_copyable)
@@ -493,7 +494,34 @@ void test()
 }
 ```
 
-### <A name="matching_pointers"/> Matching pointers to values]
+### <A name="matching_regular_expressions"/> Matching strings with regular expressions
+
+Matching string parameters to regular expressions is convenient with
+*Trompeloeil* [**`re(`** *expression* **`)`**](reference.md/#re) regular
+expression matchers.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(const char*));
+};
+
+void test()
+{
+  Mock m;
+  REQUIRE_CALL(m, func(trompeloeil::re("^begin.*end$")));
+  func(&m);
+  // expectation must be met before end of scope
+}
+```
+
+**tip** Using `C++` [raw string literals](http://www.stroustrup.com/C++11FAQ.html#raw-strings)
+can massively help getting regular expression escapes right.
+
+### <A name="matching_pointers"/> Matching pointers to values
 
 All [matchers](reference.md/#matcher) can be converted to a pointer matcher
 by using the dereference prefix operator `*`. This works for smart pointers
