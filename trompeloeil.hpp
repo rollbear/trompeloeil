@@ -2805,6 +2805,10 @@ namespace trompeloeil
 
   struct call_validator
   {
+    call_validator(
+      void const*
+    )
+    {}
     template <typename T>
     static
     auto
@@ -3043,7 +3047,7 @@ operator*(
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
-  ::trompeloeil::call_validator{} +                                            \
+  ::trompeloeil::call_validator{static_cast<std::decay_t<decltype((obj).func)>*>(nullptr)} +                                            \
   ::trompeloeil::make_call_modifier(                                           \
       decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(      \
         obj, __FILE__, __LINE__, obj_s "." func_s                              \
