@@ -1106,6 +1106,38 @@ namespace trompeloeil
     T t;
   };
 
+  template <>
+  class eq_t<std::nullptr_t> : public typed_matcher<std::nullptr_t>
+  {
+  public:
+    eq_t(std::nullptr_t) {}
+
+    template <typename U, typename = decltype(std::declval<U>() != nullptr)>
+    bool
+    matches(
+      const U& u)
+    const noexcept(noexcept(u != nullptr))
+    {
+      return u == nullptr;
+    }
+
+    template <typename C, typename T>
+    bool
+    matches(T C::*p)
+    const
+    noexcept
+    {
+      return p == nullptr;
+    }
+
+    friend
+    std::ostream&
+    operator<<(std::ostream& os, eq_t<std::nullptr_t> const&)
+    {
+      return os << " == nullptr";
+    }
+  };
+
   template <typename T>
   eq_t<T>
   eq(

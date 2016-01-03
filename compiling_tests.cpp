@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <regex>
 
+using namespace std::string_literals;
+
 struct Fixture
 {
   Fixture() {
@@ -949,7 +951,41 @@ Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
+//
+TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with eq<type>(nullptr) is matched", "[matching][matchers][ne]")
+{
+  {
+    C_foo2 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::eq<int*>(nullptr)));
+    int *i_null = nullptr;
+    obj.foo(i_null);
+  }
+  REQUIRE(reports.empty());
+}
 
+TEST_CASE_METHOD(Fixture, "overloaded non-nullptr call disambiguated with eq<type>(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo2 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::eq<int*>(nullptr)));
+    int i;
+    obj.foo(&i);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of foo with signature void\(int\*\) with\.
+  param  _1 = .*
+
+Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 == nullptr):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+//
 
 struct C_foo3
 {
@@ -990,8 +1026,39 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
+//
+TEST_CASE_METHOD(Fixture, "pointer to member ptr call with eq(nullptr) matched", "[matching][matchers][ne]")
+{
+  {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::eq(nullptr)));
+    obj.foo(nullptr);
+  }
+  REQUIRE(reports.empty());
+}
 
+TEST_CASE_METHOD(Fixture, "pointer to member ptr call with eq(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, foo(trompeloeil::eq(nullptr)));
+    obj.foo(&C_foo3::m);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of foo with signature void\(int C_foo3::\*\) with\.
+  param  _1 = .*
 
+Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 == nullptr):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+//
 // tests of parameter matching using typed matcher ge
 
 TEST_CASE_METHOD(Fixture, "an equal value matches ge", "[matching][matchers][ge]")
@@ -1572,7 +1639,7 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
   }
 }
 
-// tests of parameter matching using ptr deref matche
+// tests of parameter matching using ptr deref matcher
 
 class C_ptr
 {
@@ -1582,6 +1649,9 @@ public:
   MAKE_MOCK1(uptrrr, void(std::unique_ptr<int>&&));
   MAKE_MOCK1(uptrcr, void(std::unique_ptr<int> const&));
   MAKE_MOCK1(strptr, void(std::string*));
+  MAKE_MOCK1(pp, void(int**));
+  MAKE_MOCK1(overloaded, void(int**));
+  MAKE_MOCK1(overloaded, void(std::string*));
 };
 
 TEST_CASE_METHOD(Fixture, "ptr to equal value matches deref", "[matching][matchers][eq]")
@@ -1591,6 +1661,39 @@ TEST_CASE_METHOD(Fixture, "ptr to equal value matches deref", "[matching][matche
     REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
     int n = 3;
     obj.ptr(&n);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "ptr to equal nullptr matrches deref", "[matching][matchers][eq]")
+{
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, pp(*trompeloeil::eq(nullptr)));
+    int* p = nullptr;
+    obj.pp(&p);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "ptr to overloaded ptr matches equal deref","[matching][matchers][eq]")
+{
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq(nullptr)));
+    int* p = nullptr;
+    obj.overloaded(&p);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "ptr to overloaded string matches equal deref to string literal", "[matching][matchers][eq]")
+{
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq("apa"s)));
+    std::string s{"apa"};
+    obj.overloaded(&s);
   }
   REQUIRE(reports.empty());
 }
@@ -1612,6 +1715,30 @@ TEST_CASE_METHOD(Fixture, "nullptr when equal ptr deref expected is reported", "
 
 Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
+
+    INFO("msg=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "non-nullptr when equal nullptr ptr deref expected is reported", "[matching][matchers][eq]")
+{
+  try
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, pp(*trompeloeil::eq(nullptr)));
+    int* pi = new int{3};
+    obj.pp(&pi);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of pp with signature void\(int\*\*\) with\.
+  param  _1 = .*
+
+Tried obj\.pp\(\*trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected \*_1 == nullptr):";
 
     INFO("msg=" << reports.front().msg);
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
