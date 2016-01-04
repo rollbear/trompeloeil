@@ -1,3 +1,18 @@
+v11 2016-01-04
+
+	* Added regular expression matcher for std::string and c-strings
+
+	* Added specialization eq<nullptr> for pointer-like parameters and
+	  pointer-to-member parameters. This is mostly useful for
+	  pointer to pointer parameters, e.g.:
+
+	    REQUIRE_CALL(obj, func(*trompeloeil::eq(nullptr)));
+
+	* Improved accuracy of compilation error message when attempting
+	  to place expectation that does not uniquely match any function
+	  signature.
+
+	* Added specialization eq<nullptr> for pointer-like parameters and
 v10 2015-12-11
 
 	* Fixed bug when wildcard _ could not match std::ostream&
