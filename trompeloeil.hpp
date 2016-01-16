@@ -1112,11 +1112,11 @@ namespace trompeloeil
   public:
     eq_t(std::nullptr_t) {}
 
-    template <typename U, typename = decltype(std::declval<U>() != nullptr)>
+    template <typename U, typename = decltype(std::declval<U>() == nullptr)>
     bool
     matches(
       const U& u)
-    const noexcept(noexcept(u != nullptr))
+    const noexcept(noexcept(u == nullptr))
     {
       return u == nullptr;
     }
