@@ -748,6 +748,7 @@ public:
   MAKE_MOCK1(func, void(int&));
   MAKE_MOCK1(func, void(const int&));
   MAKE_MOCK1(func, void(int&&));
+  MAKE_MOCK1(func_cstr, void(const char*));
 };
 
 // tests of direct parameter matching with fixed values and wildcards
@@ -950,6 +951,107 @@ TEST_CASE_METHOD(Fixture, "wildcards matches overload on type and parameter coun
   REQUIRE(reports.empty());
 }
 
+// tests of parameter matching using duck typed matcher eq
+
+TEST_CASE_METHOD(Fixture, "long value matches equal int for duck typed eq", "[matching][matchers][eq]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func_v(trompeloeil::eq(3L)));
+    obj.func_v(3);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "long value with mismatches int is reported for duck typed eq", "[matching][matchers][eq]")
+{
+  try {
+    U obj;
+    REQUIRE_CALL(obj, func_v(trompeloeil::eq(3L)));
+    obj.func_v(0);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("report=" << msg);
+    auto re = R":(No match for call of func_v with signature void\(int\) with\.
+  param  _1 = 0
+
+Tried obj\.func_v\(trompeloeil::eq\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 == 3):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "std::string value matches equal const char* for duck typed eq", "[matching][matchers][eq]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func_cstr(trompeloeil::eq("foo"s)));
+    obj.func_cstr("foo");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "std::string value mismatching const char* is reported for duck typed eq", "[matching][matchers][eq]")
+{
+  try {
+    U obj;
+    REQUIRE_CALL(obj, func_cstr(trompeloeil::eq("foo"s)));
+    obj.func_cstr("bar");
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("report=" << msg);
+    auto re = R":(No match for call of func_cstr with signature void\(const char\*\) with\.
+  param  _1 = bar
+
+Tried obj\.func_cstr\(trompeloeil::eq\(\"foo\"s\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 == foo):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+// tests of parameter matching using explicitly typed matcher eq
+
+TEST_CASE_METHOD(Fixture, "disambiguated eq<int&> matches equal value", "[matching][matchers][eq]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func(trompeloeil::eq<int&>(3)));
+    int i = 3;
+    obj.func(i);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "disambiguated eq<int&> reports mismatching value", "[matching][matchers][eq]")
+{
+  try {
+    U obj;
+    REQUIRE_CALL(obj, func(trompeloeil::eq<int&>(3)));
+    int i = 0;
+    obj.func(i);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("report=" << msg);
+    auto re = R":(No match for call of func with signature void\(int&\) with\.
+  param  _1 = 0
+
+Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 == 3):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
 
 // tests of parameter matching using typed matcher ne
 
@@ -1064,7 +1166,7 @@ Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
   }
 }
 //
-#if 1
+
 TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with eq<type>(nullptr) is matched", "[matching][matchers][ne]")
 {
   {
@@ -1097,7 +1199,7 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
-#endif
+
 //
 
 struct C_foo3
