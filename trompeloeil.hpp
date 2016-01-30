@@ -2782,7 +2782,7 @@ namespace trompeloeil
   struct arg
   {
     static
-    std::tuple_element_t<N - 1,T>
+    typename std::tuple_element<N - 1,T>::type
     value(
       T& t)
     {
