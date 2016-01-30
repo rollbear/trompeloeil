@@ -1036,12 +1036,15 @@ namespace trompeloeil
     }
   };
 
+  template <typename T>
+  void can_match_parameter(T&&);
+
   template <typename M>
   class ptr_deref : public matcher
   {
   public:
     template <typename U,
-              typename = decltype(std::declval<M>().matches(*std::declval<U>()))>
+              typename = decltype(can_match_parameter<std::remove_reference_t<decltype(*std::declval<U>())>>(std::declval<M>()))>
     operator U() const;
 
     template <typename U>
@@ -1073,19 +1076,21 @@ namespace trompeloeil
     M m;
   };
 
-  template <typename T>
-  class eq_t : public typed_matcher<T>
+  template <typename T, typename U = wildcard>
+  class eq_t : public typed_matcher<U>
   {
   public:
+    template <typename V>
     eq_t(
-      T t_)
-    noexcept(noexcept(T(std::declval<T>())))
-      : t(t_)
+      V&& v)
+    noexcept(noexcept(T(std::declval<V&&>())))
+      : t(std::forward<V>(v))
     {}
 
+    template <typename V>
     bool
     matches(
-      T const& v)
+      V&& v)
     const
     noexcept(noexcept(v == std::declval<T>()))
     {
@@ -1096,7 +1101,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      eq_t<T> const& m)
+      eq_t const& m)
     {
       os << " == ";
       print(os, m.t);
@@ -1105,9 +1110,73 @@ namespace trompeloeil
   private:
     T t;
   };
+template <typename T>
+class eq_t<T, wildcard> : public matcher
+{
+public:
+  template <typename V>
+  eq_t(
+    V&& v)
+  noexcept(noexcept(T(std::declval<V&&>())))
+    : t(std::forward<V>(v))
+  {}
+
+  template <typename V,
+            typename = decltype(std::declval<V&&>() == std::declval<T>())>
+  operator V&&() const;
+
+  template <typename V,
+            typename = decltype(std::declval<V&>() == std::declval<T>())>
+  operator V&() const;
+
+  template <typename V>
+  bool
+  matches(
+    V&& v)
+  const
+  noexcept(noexcept(v == std::declval<T>()))
+  {
+    return v == t;
+  }
+
+  friend
+  std::ostream&
+  operator<<(
+    std::ostream& os,
+    eq_t const& m)
+  {
+    os << " == ";
+    print(os, m.t);
+    return os;
+  }
+private:
+  T t;
+};
+
+template <typename U>
+class eq_t<std::nullptr_t, U> : public typed_matcher<U>
+{
+public:
+  eq_t(std::nullptr_t) {}
+
+  bool
+  matches(
+    const U& u)
+  const noexcept(noexcept(u == nullptr))
+  {
+    return u == nullptr;
+  }
+
+  friend
+  std::ostream&
+  operator<<(std::ostream& os, eq_t const&)
+  {
+    return os << " == nullptr";
+  }
+};
 
   template <>
-  class eq_t<std::nullptr_t> : public typed_matcher<std::nullptr_t>
+  class eq_t<std::nullptr_t, wildcard> : public typed_matcher<std::nullptr_t>
   {
   public:
     eq_t(std::nullptr_t) {}
@@ -1132,17 +1201,17 @@ namespace trompeloeil
 
     friend
     std::ostream&
-    operator<<(std::ostream& os, eq_t<std::nullptr_t> const&)
+    operator<<(std::ostream& os, eq_t const&)
     {
       return os << " == nullptr";
     }
   };
 
-  template <typename T>
-  eq_t<T>
+  template <typename ... T, typename V>
+  eq_t<V, T...>
   eq(
-    T t)
-  noexcept(noexcept(eq_t<T>(std::declval<T>())))
+    V t)
+  noexcept(noexcept(eq_t<V, T...>(std::declval<V>())))
   {
     return {t};
   }

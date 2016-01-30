@@ -1064,6 +1064,7 @@ Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
   }
 }
 //
+#if 1
 TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with eq<type>(nullptr) is matched", "[matching][matchers][ne]")
 {
   {
@@ -1074,7 +1075,6 @@ TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with eq<type>(n
   }
   REQUIRE(reports.empty());
 }
-
 TEST_CASE_METHOD(Fixture, "overloaded non-nullptr call disambiguated with eq<type>(nullptr) is reported", "[matching][matchers][ne]")
 {
   try {
@@ -1097,6 +1097,7 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
+#endif
 //
 
 struct C_foo3
@@ -1803,7 +1804,7 @@ TEST_CASE_METHOD(Fixture, "ptr to overloaded string matches equal deref to strin
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq("apa"s)));
+    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq<std::string>("apa"s)));
     std::string s{"apa"};
     obj.overloaded(&s);
   }
