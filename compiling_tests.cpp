@@ -468,6 +468,118 @@ TEST_CASE_METHOD(Fixture, "RETURN a ref to local obj, (obj) returns object given
   REQUIRE(reports.empty());
 }
 
+
+struct mstr
+{
+  MAKE_MOCK0(cc_str, const char*());
+  MAKE_MOCK0(c_str, char*());
+  MAKE_MOCK0(str, std::string());
+  MAKE_MOCK0(cstr, const std::string());
+};
+
+extern char carr[]; // silence clang++ warning
+char carr[]= "foo";
+const char ccarr[] = "bar";
+
+TEST_CASE_METHOD(Fixture, "RETURN const char* from const char*", "[return]")
+{
+  mstr m;
+  const char* s = "foo";
+  REQUIRE_CALL(m, cc_str())
+    .RETURN(s);
+  REQUIRE(m.cc_str() == "foo"s);
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN const char* from string literal", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cc_str())
+  .RETURN("foo");
+  REQUIRE(m.cc_str() == "foo"s);
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN const char* from static char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cc_str())
+  .RETURN(carr);
+  REQUIRE(m.cc_str() == "foo"s);
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN const char* from static const char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cc_str())
+  .RETURN(ccarr);
+  REQUIRE(m.cc_str() == "bar"s);
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN char* from char*", "[return]")
+{
+  mstr m;
+  char* s = carr;
+  REQUIRE_CALL(m, cc_str())
+  .RETURN(s);
+  REQUIRE(m.cc_str() == "foo"s);
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN char* from char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cc_str())
+  .RETURN(carr);
+  REQUIRE(m.cc_str() == "foo"s);
+}
+
+
+TEST_CASE_METHOD(Fixture, "RETURN string from string literal", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, str())
+  .RETURN("foo");
+  REQUIRE(m.str() == "foo");
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN string from static char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, str())
+  .RETURN(carr);
+  REQUIRE(m.str() == "foo");
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN string from static const char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, str())
+  .RETURN(ccarr);
+  REQUIRE(m.str() == "bar"s);
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN const string from string literal", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cstr())
+  .RETURN("foo");
+  REQUIRE(m.cstr() == "foo");
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN const string from static char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cstr())
+  .RETURN(carr);
+  REQUIRE(m.cstr() == "foo");
+}
+
+TEST_CASE_METHOD(Fixture, "RETURN const string from static const char array", "[return]")
+{
+  mstr m;
+  REQUIRE_CALL(m, cstr())
+  .RETURN(ccarr);
+  REQUIRE(m.cstr() == "bar"s);
+}
+
 // THROW and LR_THROW tests
 
 TEST_CASE_METHOD(Fixture, "RETURN ref param returns object given", "[return values]")

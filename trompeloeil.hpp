@@ -2899,6 +2899,35 @@ namespace trompeloeil
   {
     return {m};
   }
+
+    template <typename T,
+              typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
+    inline
+    T&&
+    decay_return_type(
+      T&& t)
+    {
+      return std::forward<T>(t);
+    }
+
+    template <typename T,
+              typename = std::enable_if_t<std::is_rvalue_reference<T&&>::value>>
+    inline
+    T
+    decay_return_type(
+      T&& t)
+    {
+      return std::forward<T>(t);
+    }
+
+    template <typename T, size_t N>
+    inline
+    T*
+    decay_return_type(
+      T (&t)[N])
+    {
+      return t;
+    }
 }
 
 template <typename M,
@@ -3188,7 +3217,7 @@ operator*(
     auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
     auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    return __VA_ARGS__;                                                        \
+    return ::trompeloeil::decay_return_type(__VA_ARGS__);                                                        \
   })
 
 #define TROMPELOEIL_THROW(...)    TROMPELOEIL_THROW_(=, __VA_ARGS__)
