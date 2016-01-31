@@ -1037,7 +1037,7 @@ namespace trompeloeil
   };
 
   template <typename T>
-  void can_match_parameter(T&&);
+  void can_match_parameter(const T&);
 
   template <typename M>
   class ptr_deref : public matcher
