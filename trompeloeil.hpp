@@ -1081,7 +1081,7 @@ namespace trompeloeil
   {
   public:
     template <typename V,
-      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+             typename = std::enable_if_t<std::is_constructible<T, V>::value>>
     eq_t(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
@@ -1362,19 +1362,22 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T>
-  class ge_t : public typed_matcher<T>
+  template <typename T, typename U = wildcard>
+  class ge_t : public typed_matcher<U>
   {
   public:
+    template <typename V,
+	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
     ge_t(
-      T t_)
-    noexcept(noexcept(T(std::declval<T>())))
-      : t(t_)
+      V&& v)
+    noexcept(noexcept(T(std::declval<V&&>())))
+      : t(std::forward<V>(v))
     {}
 
+    template <typename V>
     bool
     matches(
-      T const& v)
+      V&& v)
     const
     noexcept(noexcept(v >= std::declval<T>()))
     {
@@ -1385,7 +1388,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      ge_t<T> const& m)
+      ge_t const& m)
     {
       os << " >= ";
       print(os, m.t);
@@ -1395,13 +1398,57 @@ namespace trompeloeil
     T t;
   };
 
-  template <typename T>
-  ge_t<T>
-  ge(
-    T t)
-  noexcept(noexcept(ge_t<T>(std::declval<T>())))
+    template <typename T>
+    class ge_t<T, wildcard> : public matcher
   {
-    return {t};
+  public:
+    template <typename V,
+	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+    ge_t(
+      V&& v)
+    noexcept(noexcept(T(std::declval<V&&>())))
+      : t(std::forward<V>(v))
+    {}
+
+    template <typename V,
+              typename = decltype(std::declval<V&&>() >= std::declval<T>())>
+    operator V&&() const;
+
+    template <typename V,
+              typename = decltype(std::declval<V&>() >= std::declval<T>())>
+    operator V&() const;
+
+    template <typename V>
+    bool
+    matches(
+      V&& v)
+    const
+    noexcept(noexcept(v >= std::declval<T>()))
+    {
+      return v >= t;
+    }
+
+    friend
+    std::ostream&
+    operator<<(
+      std::ostream& os,
+      ge_t const& m)
+    {
+      os << " >= ";
+      print(os, m.t);
+      return os;
+    }
+  private:
+    T t;
+  };
+
+  template <typename ... T, typename V>
+  ge_t<V, T...>
+  ge(
+    V v)
+    noexcept(noexcept(ge_t<V, T...>(std::declval<V>())))
+  {
+    return {v};
   }
 
   template <typename T>

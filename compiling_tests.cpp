@@ -1341,7 +1341,7 @@ Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 //
-// tests of parameter matching using typed matcher ge
+// tests of parameter matching using duck typed matcher ge
 
 TEST_CASE_METHOD(Fixture, "an equal value matches ge", "[matching][matchers][ge]")
 {
@@ -1381,6 +1381,51 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by ge", "[matching][matche
   param  _1 = 2
 
 Tried obj\.getter\(trompeloeil::ge\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 >= 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+// tests of parameter matching using typed matcher ge
+
+TEST_CASE_METHOD(Fixture, "an equal value matches disambiguated ge<int&>", "[matching][matchers][ge]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func(trompeloeil::ge<int&>(3)));
+    int i = 3;
+    obj.func(i);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "a greater value matches disambiguated ge<int&>", "[matching][matchers][ge]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func(trompeloeil::ge<int&>(3)));
+    int i = 4;
+    obj.func(i);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "a lesser value is reported by disambiguated ge<int&>", "[matching][matchers][ge]")
+{
+  try {
+    U obj;
+    REQUIRE_CALL(obj, func(trompeloeil::ge<int&>(3)));
+    int i = 2;
+    obj.func(i);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto re = R":(No match for call of func with signature void\(int&\) with.
+  param  _1 = 2
+
+Tried obj\.func\(trompeloeil::ge<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 >= 3):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
