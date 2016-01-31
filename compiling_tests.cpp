@@ -1053,6 +1053,73 @@ Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
+
+// tests of parameter matching using duck typed matcher ne
+
+TEST_CASE_METHOD(Fixture, "long value mismatching equal int for duck typed ne", "[matching][matchers][ne]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func_v(trompeloeil::ne(3L)));
+    obj.func_v(0);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "long value with matching int is reported for duck typed ne", "[matching][matchers][ne]")
+{
+  try {
+    U obj;
+    REQUIRE_CALL(obj, func_v(trompeloeil::ne(3L)));
+    obj.func_v(3);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("report=" << msg);
+    auto re = R":(No match for call of func_v with signature void\(int\) with\.
+  param  _1 = 3
+
+Tried obj\.func_v\(trompeloeil::ne\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != 3):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "std::string value mismatches inequal const char* for duck typed ne", "[matching][matchers][ne]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func_cstr(trompeloeil::ne("foo"s)));
+    obj.func_cstr("bar");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "std::string value matching const char* is reported for duck typed ne", "[matching][matchers][ne]")
+{
+  try {
+    U obj;
+    REQUIRE_CALL(obj, func_cstr(trompeloeil::ne("foo"s)));
+    obj.func_cstr("foo");
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("report=" << msg);
+    auto re = R":(No match for call of func_cstr with signature void\(const char\*\) with\.
+  param  _1 = foo
+
+Tried obj\.func_cstr\(trompeloeil::ne\(\"foo\"s\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != foo):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
 // tests of parameter matching using typed matcher ne
 
 TEST_CASE_METHOD(Fixture, "a non equal value matches ne", "[matching][matchers][ne]")
