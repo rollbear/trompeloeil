@@ -1076,13 +1076,13 @@ namespace trompeloeil
     M m;
   };
 
-  template <typename T, typename U = wildcard>
-  class eq_t : public typed_matcher<U>
+  template <typename T>
+  class eq_base
   {
   public:
     template <typename V,
              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    eq_t(
+    eq_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
       : t(std::forward<V>(v))
@@ -1102,7 +1102,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      eq_t const& m)
+      eq_base const& m)
     {
       os << " == ";
       print(os, m.t);
@@ -1112,17 +1112,22 @@ namespace trompeloeil
     T t;
   };
 
-  template <typename T>
-  class eq_t<T, wildcard> : public matcher
+  template <typename T, typename U = wildcard>
+  class eq_t
+    : public eq_base<T>
+    , public typed_matcher<U>
   {
   public:
-    template <typename V,
-            typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    eq_t(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-    : t(std::forward<V>(v))
-    {}
+    using eq_base<T>::eq_base;
+  };
+
+  template <typename T>
+  class eq_t<T, wildcard>
+    : public eq_base<T>
+    , public matcher
+  {
+  public:
+    using eq_base<T>::eq_base;
 
     template <typename V,
               typename = decltype(std::declval<V&&>() == std::declval<T>())>
@@ -1131,33 +1136,11 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() == std::declval<T>())>
     operator V&() const;
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v == std::declval<T>()))
-    {
-      return v == t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      eq_t const& m)
-    {
-      os << " == ";
-    print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
   };
 
   template <typename U>
-  class eq_t<std::nullptr_t, U> : public typed_matcher<U>
+  class eq_t<std::nullptr_t, U>
+    : public typed_matcher<U>
   {
   public:
     eq_t(std::nullptr_t) {}
@@ -1169,17 +1152,11 @@ namespace trompeloeil
     {
       return u == nullptr;
     }
-
-    friend
-    std::ostream&
-    operator<<(std::ostream& os, eq_t const&)
-    {
-      return os << " == nullptr";
-    }
   };
 
   template <>
-  class eq_t<std::nullptr_t, wildcard> : public typed_matcher<std::nullptr_t>
+  class eq_t<std::nullptr_t, wildcard>
+    : public typed_matcher<std::nullptr_t>
   {
   public:
     eq_t(std::nullptr_t) {}
@@ -1201,14 +1178,16 @@ namespace trompeloeil
     {
       return p == nullptr;
     }
-
-    friend
-    std::ostream&
-    operator<<(std::ostream& os, eq_t const&)
-    {
-      return os << " == nullptr";
-    }
   };
+
+  template <typename U>
+  std::ostream&
+  operator<<(
+    std::ostream& os,
+    eq_t<std::nullptr_t, U> const&)
+  {
+    return os << " == nullptr";
+  }
 
   template <typename ... T, typename V>
   eq_t<V, T...>
@@ -1219,13 +1198,13 @@ namespace trompeloeil
     return {t};
   }
 
-  template <typename T, typename U = wildcard>
-  class ne_t : public typed_matcher<U>
+  template <typename T>
+  class ne_base
   {
   public:
     template <typename V,
 	      typename = std::enable_if_t<std::is_constructible<T,V>::value>>
-    ne_t(
+    ne_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
       : t(std::forward<V>(v))
@@ -1245,7 +1224,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      ne_t const& m)
+      ne_base const& m)
     {
       os << " != ";
       print(os, m.t);
@@ -1255,17 +1234,22 @@ namespace trompeloeil
     T t;
   };
 
-  template <typename T>
-  class ne_t<T, wildcard> : public matcher
+  template <typename T, typename U = wildcard>
+  class ne_t
+    : public ne_base<T>
+    , public typed_matcher<U>
   {
   public:
-    template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T,V>::value>>
-    ne_t(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
+    using ne_base<T>::ne_base;
+  };
+
+  template <typename T>
+  class ne_t<T, wildcard>
+    : public ne_base<T>
+    , public matcher
+  {
+  public:
+    using ne_base<T>::ne_base;
 
     template <typename V,
               typename = decltype(std::declval<V&&>() == std::declval<T>())>
@@ -1274,33 +1258,11 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() == std::declval<T>())>
     operator V&() const;
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v != std::declval<T>()))
-    {
-      return v != t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      ne_t const& m)
-    {
-      os << " != ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
   };
 
   template <typename U>
-  class ne_t<std::nullptr_t, U> : public typed_matcher<U>
+  class ne_t<std::nullptr_t, U>
+    : public typed_matcher<U>
   {
   public:
     ne_t(std::nullptr_t) {}
@@ -1312,17 +1274,11 @@ namespace trompeloeil
     {
       return u != nullptr;
     }
-
-    friend
-    std::ostream&
-    operator<<(std::ostream& os, ne_t const&)
-    {
-      return os << " != nullptr";
-    }
   };
 
   template <>
-  class ne_t<std::nullptr_t, wildcard> : public typed_matcher<std::nullptr_t>
+  class ne_t<std::nullptr_t, wildcard>
+    : public typed_matcher<std::nullptr_t>
   {
   public:
     ne_t(std::nullptr_t) {}
@@ -1344,14 +1300,16 @@ namespace trompeloeil
     {
       return p != nullptr;
     }
-
-    friend
-    std::ostream&
-    operator<<(std::ostream& os, ne_t const&)
-    {
-      return os << " != nullptr";
-    }
   };
+
+  template <typename U>
+  std::ostream&
+  operator<<(
+    std::ostream& os,
+    ne_t<std::nullptr_t, U> const&)
+  {
+    return os << " != nullptr";
+  }
 
   template <typename ... T, typename V>
   ne_t<V, T...>
@@ -1362,13 +1320,13 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T, typename U = wildcard>
-  class ge_t : public typed_matcher<U>
+  template <typename T>
+  class ge_base
   {
   public:
     template <typename V,
 	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    ge_t(
+    ge_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
       : t(std::forward<V>(v))
@@ -1388,7 +1346,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      ge_t const& m)
+      ge_base const& m)
     {
       os << " >= ";
       print(os, m.t);
@@ -1398,17 +1356,22 @@ namespace trompeloeil
     T t;
   };
 
-    template <typename T>
-    class ge_t<T, wildcard> : public matcher
+  template <typename T, typename U = wildcard>
+  class ge_t
+    : public ge_base<T>
+    , public typed_matcher<U>
   {
   public:
-    template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    ge_t(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
+    using ge_base<T>::ge_base;
+  };
+
+  template <typename T>
+  class ge_t<T, wildcard>
+    : public ge_base<T>
+    , public matcher
+  {
+  public:
+    using ge_base<T>::ge_base;
 
     template <typename V,
               typename = decltype(std::declval<V&&>() >= std::declval<T>())>
@@ -1417,29 +1380,6 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() >= std::declval<T>())>
     operator V&() const;
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v >= std::declval<T>()))
-    {
-      return v >= t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      ge_t const& m)
-    {
-      os << " >= ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
   };
 
   template <typename ... T, typename V>
@@ -1451,13 +1391,13 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T, typename U = wildcard>
-  class gt_t : public typed_matcher<U>
+  template <typename T>
+  class gt_base
   {
   public:
     template <typename V,
 	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    gt_t(
+    gt_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
       : t(std::forward<V>(v))
@@ -1477,7 +1417,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      gt_t const& m)
+      gt_base const& m)
     {
       os << " > ";
       print(os, m.t);
@@ -1487,17 +1427,22 @@ namespace trompeloeil
     T t;
   };
 
-  template <typename T>
-  class gt_t<T, wildcard> : public matcher
+  template <typename T, typename U = wildcard>
+  class gt_t
+    : public gt_base<T>
+    , public typed_matcher<U>
   {
   public:
-    template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    gt_t(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
+    using gt_base<T>::gt_base;
+  };
+
+  template <typename T>
+  class gt_t<T, wildcard>
+    : public gt_base<T>
+    , public matcher
+  {
+  public:
+    using gt_base<T>::gt_base;
 
     template <typename V,
               typename = decltype(std::declval<V&&>() > std::declval<T>())>
@@ -1506,29 +1451,6 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() > std::declval<T>())>
     operator V&() const;
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v > std::declval<T>()))
-    {
-      return v > t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      gt_t const& m)
-    {
-      os << " > ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
   };
 
   template <typename ... T, typename V>
@@ -1540,13 +1462,13 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T, typename U = wildcard>
-  class lt_t : public typed_matcher<U>
+  template <typename T>
+  class lt_base
   {
   public:
     template <typename V,
 	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    lt_t(
+    lt_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
       : t(std::forward<V>(v))
@@ -1566,7 +1488,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      lt_t const& m)
+      lt_base const& m)
     {
       os << " < ";
       print(os, m.t);
@@ -1576,17 +1498,22 @@ namespace trompeloeil
     T t;
   };
 
-  template <typename T>
-  class lt_t<T, wildcard> : public matcher
+  template <typename T, typename U = wildcard>
+  class lt_t
+    : public lt_base<T>
+    , public typed_matcher<U>
   {
   public:
-    template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    lt_t(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
+    using lt_base<T>::lt_base;
+  };
+
+  template <typename T>
+  class lt_t<T, wildcard>
+    : public lt_base<T>
+    , public matcher
+  {
+  public:
+    using lt_base<T>::lt_base;
 
     template <typename V,
               typename = decltype(std::declval<V&&>() < std::declval<T>())>
@@ -1595,29 +1522,6 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() < std::declval<T>())>
     operator V&() const;
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v < std::declval<T>()))
-    {
-      return v < t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      lt_t const& m)
-    {
-      os << " < ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
   };
 
   template <typename ... T, typename V>
@@ -1629,13 +1533,13 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T, typename U = wildcard>
-  class le_t : public typed_matcher<U>
+  template <typename T>
+  class le_base
   {
   public:
     template <typename V,
 	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    le_t(
+    le_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
       : t(std::forward<V>(v))
@@ -1655,7 +1559,7 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      le_t const& m)
+      le_base const& m)
     {
       os << " <= ";
       print(os, m.t);
@@ -1664,18 +1568,22 @@ namespace trompeloeil
   private:
     T t;
   };
-
-  template <typename T>
-  class le_t<T, wildcard> : public matcher
+  template <typename T, typename U = wildcard>
+  class le_t
+    : public le_base<T>
+    , public typed_matcher<U>
   {
   public:
-    template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    le_t(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
+    using le_base<T>::le_base;
+  };
+
+  template <typename T>
+  class le_t<T, wildcard>
+    : public le_base<T>
+    , public matcher
+  {
+  public:
+    using le_base<T>::le_base;
 
     template <typename V,
               typename = decltype(std::declval<V&&>() <= std::declval<T>())>
@@ -1684,29 +1592,6 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() <= std::declval<T>())>
     operator V&() const;
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v <= std::declval<T>()))
-    {
-      return v <= t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      le_t const& m)
-    {
-      os << " <= ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
   };
 
   template <typename ... T, typename V>
