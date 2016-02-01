@@ -26,7 +26,7 @@ artist, tricking the code under test.
 
 Perhaps *Illusionist* or *Puppeteer* would have sufficed as names, but
 they were taken many times over for other projects, and besides, the author
-has a weak spot for Trompe-l'œil art.
+has a soft spot for Trompe-l'œil art.
 
 ## <A name="compilers"/>Q. Which compilers supports *Trompeloeil*?
 
