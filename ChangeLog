@@ -1,3 +1,30 @@
+v12 2016-02-01
+
+	* Built in matchers are duck tuped by default, i.e. eq, ne, gt, ge,
+	  lt, le do by default match any parameter that supports operators
+	  ==, !=, >, >=, <, <= with the value provided. If needed for
+	  disambiguation of overloads an explicit type can be provided. Example:
+
+	    REQUIRE_CALL(obj, numfunc(gt(3)));
+	    REQUIRE_CALL(obj, strfunc(eq<std::string&>("foo")));
+
+	  The expectation on numfunc will match a function numfunc with
+	  any parameter type that can be compared as > 3. The expectation on
+	  strfunc will only match an overload with std::string& (if there are
+	  competing overloads, e.g. strfunc(const char*) and
+	  strfunc(const std::string).)
+
+	* Fixed a bug with return type deduction where an array type expression
+	  was used. E.g. returning a string literal when the return type was
+	  const char* or std::string caused a compilation error.
+
+	* Fixed a bug when the eq(nullptr) matcher actually checked if !=
+	  comparison with nullptr was allowed.
+
+	* Reluctantly reverted use of std::tuple_element_t<> for
+	  typename tuppe_element<>::type, to support g++ 4.9.0 (4.9.1 does have
+	  std::tuple_element_t<>.)
+
 v11 2016-01-04
 
 	* Added regular expression matcher for std::string and c-strings
