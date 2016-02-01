@@ -2134,7 +2134,22 @@ public:
   MAKE_MOCK1(pp, void(int**));
   MAKE_MOCK1(overloaded, void(int**));
   MAKE_MOCK1(overloaded, void(std::string*));
+  MAKE_MOCK1(coverload, void(int*));
+  MAKE_MOCK1(coverload, void(const int*));
 };
+
+
+TEST_CASE_METHOD(Fixture, "ptr to disambiguated equal const value matches deref", "[matching][matchers][eq]")
+{
+  {
+    C_ptr obj;
+    REQUIRE_CALL(obj, coverload(*trompeloeil::eq<const int&>(3)));
+    const int n = 3;
+    obj.coverload(&n);
+  }
+  REQUIRE(reports.empty());
+}
+
 
 TEST_CASE_METHOD(Fixture, "ptr to equal value matches deref", "[matching][matchers][eq]")
 {
@@ -2173,7 +2188,7 @@ TEST_CASE_METHOD(Fixture, "ptr to overloaded string matches equal deref to strin
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq<std::string>("apa"s)));
+    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq<std::string&>("apa"s)));
     std::string s{"apa"};
     obj.overloaded(&s);
   }
