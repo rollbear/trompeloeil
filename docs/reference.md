@@ -262,8 +262,9 @@ matching [expectation](#expectation).
 #### <A name="eq"/>**`eq(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
-value equal to the one provided. Typically used when matching a pointer
-rather than an actual value, even though that is allowed.
+value equal to the one provided. By default it matches any parameter type
+that supports `operator==()` with the value, but an explicit type can be
+specified if needed for disambiguation.
 
 Example:
 ```Cpp
@@ -271,6 +272,8 @@ class C
 {
 public:
   MAKE_MOCK1(func, void(int*));
+  MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK1(func, void(const std::string&));
 };
 
 using trompeloeil::ne;
@@ -279,23 +282,28 @@ TEST(atest)
 {
   C mock_obj;
   ALLOW_CALL(mock_obj, func(*eq(3)));
-    
+
+  std::string expected = "foo";
+  REQUIRE_CALL(mock_obj, func(eq<const char*>(expected)));
+
   test_function(&mock_obj);
 }
 ```
 
-Above, the [expectation](#expectation) matches only calls to
+Above, the first [expectation](#expectation) matches only calls to
 `mock_obj.func(int*)` with a non-null pointer pointing to the value `3`. Any
 call with a `nullptr` or a pointer pointing to another value than `3` renders
 a violation report since no [expectation](#expectation) matches.
 
-If needed for disambiguation, it is possible to explicitly state the type
-of *value*, like `*eq<short>(3)`.
+The second [expectation](#expectation) matches only calls to
+`mock_obj.func(const char*)`, with a c-string `"foo"`.
 
 #### <A name="ne"/>**`ne(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
-value not equal to the one provided.
+value not equal to the one provided. By default it matches any parameter type
+that supports `operator!=()` with the value, but an explicit type can be
+specified if needed for disambiguation.
 
 Example:
 ```Cpp
@@ -303,6 +311,7 @@ class C
 {
 public:
   MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK1(func, void(const std::string&));
 };
 
 using trompeloeil::ne;
@@ -311,31 +320,35 @@ TEST(atest)
 {
   C mock_obj;
   ALLOW_CALL(mock_obj, func(ne(nullptr)));
-    
+  REQUIRE_CALL(mock_obj, func(ne<std::string>("")));
   test_function(&mock_obj);
 }
 ```
 
-Above, the [expectation](#expectation) matches only calls to
+Above, the first [expectation](#expectation) matches only calls to
 `mock_obj.func(const char*)` with non-null pointer. Any call with a `nullptr`
 renders a violation report since no [expectation](#expectation) matches.
 
-If needed for disambiguation, it is possible to explicitly state the type
-of *value*, like `ne<const char*>(nullptr)`.
+The second [expectation](#expectation) matches only calls to
+`mock_obj.func(const std::string&)`, with a non-empty string.
 
 It is also possible to use `*ne(val)` to match a pointer to a non-equal value.
 
 #### <A name="gt"/>**`gt(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
-value greater than the one provided.
+value greater than the one provided. By default it matches any parameter type
+that supports `operator>()` with the value, but an explicit type can be
+specified if needed for disambiguation.
 
 Example:
 ```Cpp
 class C
 {
 public:
+  MAKE_MOCK1(func, void(short));
   MAKE_MOCK1(func, void(int));
+  MAKE_MOCK1(func, void(std::string));
 };
 
 using trompeloeil::gt;
@@ -343,25 +356,32 @@ using trompeloeil::gt;
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, func(gt(0)));
-    
+  ALLOW_CALL(mock_obj, func(gt<short>(0)));
+  ALLOW_CALL(mock_obj, func(gt("foo")));
+
   test_function(&mock_obj);
 }
 ```
 
-Above, the [expectation](#expectation) matches only calls to
-`mock_obj.func(int)` with positive values. Any call with 0 or negative
-renders a violation report since no [expectation](#expectation) matches.
+Above, the first [expectation](#expectation) matches only calls to
+`mock_obj.func(short)` with positive values. Any call with 0 or negative, and
+any calls to `mock_obj.func(int)` renders a violation report since no
+[expectation](#expectation) matches.
 
-If needed for disambiguation, it is possible to explicitly state the type
-of *value*, like `gt<int>(0)`.
+The second [expectation](#expectation) matches calls to
+`mock_obj.func(std::string)`, since
+[`std::string`](http://en.cppreference.com/w/cpp/string/basic_string) is
+greater-than comparable with a string literal.
 
-It is also possible to use `*gt(val)` to match a pointer to a greater-than value.
+It is also possible to use `*gt(val)` to match a pointer to a greater-than
+value.
 
 #### <A name="ge"/>**`ge(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
-value greater than on equal to the one provided.
+value greater than on equal to the one provided. By default it matches any
+parameter type that supports `operator>=()` with the value, but an explicit
+type can be specified if needed for disambiguation.
 
 Example:
 ```Cpp
@@ -369,6 +389,8 @@ class C
 {
 public:
   MAKE_MOCK1(func, void(int));
+  MAKE_MOCK1(func, void(short));
+  MAKE_MOCK1(func, void(std::string));
 };
 
 using trompeloeil::ge;
@@ -376,18 +398,21 @@ using trompeloeil::ge;
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, func(ge(0)));
-    
+  ALLOW_CALL(mock_obj, func(ge<short>(0)));
+  REQUIRE_CALL(mock_obj, func(ge("foo")));
+
   test_function(&mock_obj);
 }
 ```
 
-Above, the [expectation](#expectation) matches only calls to
-`mock_obj.func(int)` with zero or positive values. Any call with a negative
+Above, the first [expectation](#expectation) matches only calls to
+`mock_obj.func(short)` with zero or positive values. Any call with a negative
 value renders a violation report since no [expectation](#expectation) matches.
 
-If needed for disambiguation, it is possible to explicitly state the type
-of *value*, like `ge<int>(0)`.
+The second [expectation](#expectation) matches only calls to
+`mock_obj.func(std::string)`, since
+[`std::string`](http://en.cppreference.com/w/cpp/string/basic_string) is
+greater-than-or-equal-to comparable with string literal.
 
 It is also possible to use `*ge(val)` to match a pointer to a greater-than or
 equal value.
@@ -395,14 +420,18 @@ equal value.
 #### <A name="lt"/>**`lt(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
-value less than the one provided.
+value less than the one provided. By default it matches any parameter type
+that supports `operator<()` with the value, but an explicit type can be
+specified if needed for disambiguation.
 
 Example:
 ```Cpp
 class C
 {
 public:
+  MAKE_MOCK1(func, void(long));
   MAKE_MOCK1(func, void(int));
+  MAKE_MOCK1(func, void(const std::string&));
 };
 
 using trompeloeil::lt;
@@ -410,25 +439,30 @@ using trompeloeil::lt;
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, func(lt(0)));
-    
+  ALLOW_CALL(mock_obj, func(lt<int>(0)));
+  REQUIRE_CALL(mock_obj, func(lt("foo")));
+
   test_function(&mock_obj);
 }
 ```
 
-Above, the [expectation](#expectation) matches only calls to
+Above, the first [expectation](#expectation) matches only calls to
 `mock_obj.func(int)` with negative values. Any call with 0 or positive
 renders a violation report since no [expectation](#expectation) matches.
 
-If needed for disambiguation, it is possible to explicitly state the type
-of *value*, like `lt<int>(0)`.
+The second [expectation](#expectation) matches calls to
+`mock_obj.func(cost std::string&)`, since
+[`std::string`](http://en.cppreference.com/w/cpp/string/basic_string) is
+less-than comparable with string a literal.
 
 It is also possible to use `*lt(val)` to match a pointer to a less-than value.
 
 #### <A name="le"/>**`le(`** *value* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
-value less than on equal to the one provided.
+value less than or equal to the one provided. By default it matches any
+parameter type taht supports `operator<=()` with the value, but an explicit type
+can be specified if needed for disambiguation.
 
 Example:
 ```Cpp
@@ -436,25 +470,29 @@ class C
 {
 public:
   MAKE_MOCK1(func, void(int));
+  MAKE_MOCK1(func, void(short));
+  MAKE_MOCK1(func, void(const char*));
 };
 
 using trompeloeil::le;
+using std::string_literals;
 
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, func(le(0)));
-    
+  ALLOW_CALL(mock_obj, func(le<short>(0)));
+  REQUIRE_CALL(mock_obj, func(le("foo"s)));
   test_function(&mock_obj);
 }
 ```
 
-Above, the [expectation](#expectation) matches only calls to
-`mock_obj.func(int)` with zero or negative values. Any call with a positive
+Above, first the [expectation](#expectation) matches only calls to
+`mock_obj.func(short)` with zero or negative values. Any call with a positive
 value renders a violation report since no [expectation](#expectation) matches.
 
-If needed for disambiguation, it is possible to explicitly state the type
-of *value*, like `le<int>(0)`.
+The second [expectation](#expectation) matches calls to
+`mock_obj.func(const char*)`, since a c-string is less-than comparable
+with a [`std::string`](http://en.cppreference.com/w/cpp/string/basic_string)
 
 It is also possible to use `*le(val)` to match a pointer to a less-than or
 equal value.

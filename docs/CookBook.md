@@ -468,11 +468,17 @@ void test()
 Instead of using exact values of parameters to match calls with, *Trompeloeil*
 provides a set of [matchers](reference.md/#matcher). Simple value matchers are:
 
-- [**`ne(`** *value* **`)`**](reference.md/#ne) matches value not equal
-- [**`gt(`** *value* **`)`**](reference.md/#gt) matches value greater than
-- [**`ge(`** *value* **`)`**](reference.md/#ge) matches value greater than or eqeal
-- [**`lt(`** *value* **`)`**](reference.md/#lt) matches value less than
-- [**`le(`** *value* **`)`**](reference.md/#le) matches value less than or equal
+- [**`eq(`** *value* **`)`**](reference.md/#eq) matches value equal (using `operator==()`)
+- [**`ne(`** *value* **`)`**](reference.md/#ne) matches value not equal (using `operator!=()`)
+- [**`gt(`** *value* **`)`**](reference.md/#gt) matches value greater than (using `operator>()`)
+- [**`ge(`** *value* **`)`**](reference.md/#ge) matches value greater than or eqeal (using `operator>=()`)
+- [**`lt(`** *value* **`)`**](reference.md/#lt) matches value less than (using `operator<()`)
+- [**`le(`** *value* **`)`**](reference.md/#le) matches value less than or equal (using `operator<=()`)
+
+By default, the matchers are
+[*duck typed*](https://en.wikipedia.org/wiki/Duck_typing), i.e. they match
+a parameter that supports the operation. If disambiguation is necessary to
+resolve overloads, an explicit type can be specified.
 
 Example:
 
@@ -481,14 +487,15 @@ class Mock
 {
 public:
   MAKE_MOCK1(func, void(int));
-  MAKE_MOCK2(func, void(const char*));
+  MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK1(func, void(const std::string&))
 };
 
 void test()
 {
   Mock m;
   ALLOW_CALL(m, func(trompeloeil::gt(1))); // int version any number of times
-  REQUIRE_CALL(m, func(trompeloeil::ne(nullptr))); // const char * version once
+  REQUIRE_CALL(m, func(trompeloeil::ne<std::string>(""))); // const std::string& version once
   func(&m);
   // expectations must be met before end of scope
 }
