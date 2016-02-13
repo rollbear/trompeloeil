@@ -45,6 +45,7 @@
 #include <memory>
 #include <cstring>
 #include <regex>
+#include <mutex>
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -3231,6 +3232,7 @@ operator*(
   using TROMPELOEIL_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
   mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(matcher_list);         \
   mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(saturated_matcher_list); \
+  std::recursive_mutex TROMPELOEIL_ID(mutex);                                  \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                                  \
   {                                                                            \
     template <typename Mock>                                                   \
@@ -3282,6 +3284,7 @@ operator*(
   constness                                                                    \
   -> ::trompeloeil::return_of_t<sig>                                           \
   {                                                                            \
+    std::lock_guard<std::recursive_mutex> lock(TROMPELOEIL_ID(mutex));	       \
     auto param_value =                                                         \
       ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num));            \
                                                                                \
