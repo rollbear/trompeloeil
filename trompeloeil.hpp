@@ -3118,15 +3118,6 @@ namespace trompeloeil
     }
   };
 
-  template <typename Sig, typename Value>
-  auto
-  make_call_modifier(
-    call_matcher<Sig, Value>* m)
-  -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
-  {
-    return {m};
-  }
-
     template <typename T,
               typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
     inline
@@ -3265,15 +3256,15 @@ namespace trompeloeil {
       template <typename ... U>                                                \
       auto name(                                                               \
         U&& ... u)                                                             \
-      -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>* \
+        -> ::trompeloeil::call_modifier<::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>, ::trompeloeil::matcher_info<sig>> \
       {                                                                        \
         using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                  \
         using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
                                                                                \
         auto  matcher_obj = new matcher(std::forward<U>(u)...);                \
-        return matcher_obj->set_location(file, line)->set_name(call_string)    \
-          ->hook_last(obj.trompeloeil_matcher_list(tag{}));                    \
+        return {matcher_obj->set_location(file, line)->set_name(call_string) \
+            ->hook_last(obj.trompeloeil_matcher_list(tag{}))};          \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \
@@ -3350,11 +3341,9 @@ namespace trompeloeil {
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
   ::trompeloeil::call_validator{static_cast<std::decay_t<decltype((obj).func)>*>(nullptr)} + \
-  ::trompeloeil::make_call_modifier(                                           \
-      decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(      \
-        obj, __FILE__, __LINE__, obj_s "." func_s                              \
-      ).func                                                                   \
-    )
+  decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(          \
+    obj, __FILE__, __LINE__, obj_s "." func_s                                  \
+  ).func
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
