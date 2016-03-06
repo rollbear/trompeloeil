@@ -204,6 +204,13 @@
 
 namespace trompeloeil
 {
+  template <typename T = void>
+  std::unique_lock<std::recursive_mutex> get_lock()
+  {
+    static std::recursive_mutex lock;
+    return std::unique_lock<std::recursive_mutex>{ lock };
+  }
+
   template <size_t N, typename T, bool legal = (N < std::tuple_size<T>::value)>
   struct conditional_tuple_element
   {
@@ -1966,7 +1973,7 @@ namespace trompeloeil
   template <typename Sig>
   struct call_matcher_list : public list<call_matcher_base<Sig>>
   {
-    ~call_matcher_list()
+    void decommission()
     {
       auto iter = this->begin();
       auto const e = this->end();
@@ -2745,6 +2752,7 @@ namespace trompeloeil
 
     ~call_matcher()
     {
+      auto lock = get_lock();
       if (is_unfulfilled())
       {
         report_missed("Unfulfilled expectation");
@@ -3059,6 +3067,7 @@ namespace trompeloeil
       void const*
     )
     {}
+
     template <typename T>
     static
     auto
@@ -3223,6 +3232,19 @@ operator*(
 #define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
 
+namespace trompeloeil {
+  template <typename Sig>
+  struct expectations
+  {
+    ~expectations() {
+      auto lock = get_lock();
+      active.decommission();
+      saturated.decommission();
+    }
+    call_matcher_list<Sig> active;
+    call_matcher_list<Sig> saturated;
+  };
+}
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s)       \
   using TROMPELOEIL_ID(cardinality_match) =                                    \
@@ -3230,9 +3252,8 @@ operator*(
   static_assert(TROMPELOEIL_ID(cardinality_match)::value,                      \
                 "Function signature does not have " #num " parameters");       \
   using TROMPELOEIL_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
-  mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(matcher_list);         \
-  mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(saturated_matcher_list); \
-  std::recursive_mutex TROMPELOEIL_ID(mutex);                                  \
+  using TROMPELOEIL_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
+  TROMPELOEIL_ID(expectation_list_t) TROMPELOEIL_ID(expectations);             \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                                  \
   {                                                                            \
     template <typename Mock>                                                   \
@@ -3276,7 +3297,7 @@ operator*(
   constness                                                                    \
   noexcept                                                                     \
   {                                                                            \
-    return TROMPELOEIL_ID(matcher_list);                                       \
+    return TROMPELOEIL_ID(expectations).active;                                \
   }                                                                            \
   auto                                                                         \
   name(                                                                        \
@@ -3284,20 +3305,20 @@ operator*(
   constness                                                                    \
   -> ::trompeloeil::return_of_t<sig>                                           \
   {                                                                            \
-    std::lock_guard<std::recursive_mutex> lock(TROMPELOEIL_ID(mutex));	       \
+    auto lock = ::trompeloeil::get_lock();                                     \
     auto param_value =                                                         \
       ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num));            \
                                                                                \
     auto i = ::trompeloeil::find(TROMPELOEIL_ID(cardinality_match){},          \
                                  param_value,                                  \
-                                 TROMPELOEIL_ID(matcher_list));                \
+                                 TROMPELOEIL_ID(expectations).active);         \
     if (!i)                                                                    \
     {                                                                          \
       ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},      \
                                      name_s " with signature " sig_s,          \
                                      param_value,                              \
-                                     TROMPELOEIL_ID(matcher_list),             \
-                                     TROMPELOEIL_ID(saturated_matcher_list));  \
+                                     TROMPELOEIL_ID(expectations).active,      \
+                                     TROMPELOEIL_ID(expectations).saturated);  \
     }                                                                          \
     if (auto t_obj = ::trompeloeil::tracer_obj())                              \
     {                                                                          \
@@ -3305,7 +3326,7 @@ operator*(
     }                                                                          \
     i->run_actions(TROMPELOEIL_ID(cardinality_match){},                        \
                    param_value,                                                \
-                   TROMPELOEIL_ID(saturated_matcher_list));                    \
+                   TROMPELOEIL_ID(expectations).saturated);                    \
     return i->return_value(TROMPELOEIL_ID(cardinality_match){},                \
                            param_value);                                       \
   }                                                                            \
@@ -3328,7 +3349,7 @@ operator*(
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
-  ::trompeloeil::call_validator{static_cast<std::decay_t<decltype((obj).func)>*>(nullptr)} +                                            \
+  ::trompeloeil::call_validator{static_cast<std::decay_t<decltype((obj).func)>*>(nullptr)} + \
   ::trompeloeil::make_call_modifier(                                           \
       decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(      \
         obj, __FILE__, __LINE__, obj_s "." func_s                              \
