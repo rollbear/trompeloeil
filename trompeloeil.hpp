@@ -2554,9 +2554,9 @@ namespace trompeloeil
     using Parent::side_effects;
 
     call_modifier(
-      Matcher* m)
+       std::unique_ptr<Matcher>&& m)
     noexcept
-      : matcher(m)
+      : matcher{std::move(m)}
     {}
 
     template <typename D>
@@ -2579,7 +2579,7 @@ namespace trompeloeil
                     "SIDE_EFFECT for forbidden call does not make sense");
       using tag = std::integral_constant<bool, !forbidden>;
       matcher->add_side_effect(tag{}, &a);
-      return {matcher};
+      return {std::move(matcher)};
     }
 
     template <typename H,
@@ -2611,7 +2611,7 @@ namespace trompeloeil
       constexpr bool valid = matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, &h);
-      return {matcher};
+      return {std::move(matcher)};
     }
 
     template <typename H>
@@ -2633,7 +2633,7 @@ namespace trompeloeil
         return trompeloeil::default_return<signature>(p);
       };
       matcher->set_return(tag{}, &handler);
-      return {matcher};
+      return {std::move(matcher)};
     }
     template <unsigned long long L,
               unsigned long long H,
@@ -2659,7 +2659,7 @@ namespace trompeloeil
 
       matcher->min_calls = L;
       matcher->max_calls = H;
-      return {matcher};
+      return {std::move(matcher)};
     }
 
     template <typename ... T,
@@ -2673,9 +2673,9 @@ namespace trompeloeil
                     " You can list several sequence objects at once");
 
       matcher->set_sequence(std::forward<T>(t)...);
-      return {matcher};
+      return {std::move(matcher)};
     }
-    Matcher* matcher;
+    std::unique_ptr<Matcher> matcher;
   };
 
   struct expectation {
@@ -3088,15 +3088,16 @@ namespace trompeloeil
     auto
     make_expectation(
       std::true_type,
-      T* t)
+      std::unique_ptr<T>&& t)
     noexcept
     {
-      return std::unique_ptr<expectation>(t);
+      return std::move(t);
     }
 
+    template <typename T>
     static                                           // Never called. Used to
     std::unique_ptr<expectation>                     // limit errmsg when RETURN
-    make_expectation(std::false_type, ...) noexcept; // is missing in non-void
+    make_expectation(std::false_type, T&&) noexcept; // is missing in non-void
                                                      // function
 
     template <typename M, typename Info>
@@ -3105,7 +3106,7 @@ namespace trompeloeil
       call_modifier<M, Info>& t)
     const
     {
-      return make_expectation(assert_return_type(t), t.matcher);
+      return make_expectation(assert_return_type(t), std::move(t).matcher);
     }
 
     template <typename M, typename Info>
@@ -3114,7 +3115,7 @@ namespace trompeloeil
       call_modifier<M, Info>&& t)
     const
     {
-      return make_expectation(assert_return_type(t), t.matcher);
+      return make_expectation(assert_return_type(t), std::move(t).matcher);
     }
   };
 
@@ -3262,9 +3263,11 @@ namespace trompeloeil {
         using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
                                                                                \
-        auto  matcher_obj = new matcher(std::forward<U>(u)...);                \
-        return {matcher_obj->set_location(file, line)->set_name(call_string) \
-            ->hook_last(obj.trompeloeil_matcher_list(tag{}))};          \
+        auto  matcher_obj = std::make_unique<matcher>(std::forward<U>(u)...);  \
+        matcher_obj->set_location(file, line);                                 \
+        matcher_obj->set_name(call_string);                                    \
+        matcher_obj->hook_last(obj.trompeloeil_matcher_list(tag{}));           \
+        return {std::move(matcher_obj)};                                       \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \
