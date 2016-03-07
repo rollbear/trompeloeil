@@ -68,7 +68,7 @@ which protects [expectations](reference.md/#expectation).
 and [mock functions](reference.md/#mock_function) can be called in different
 threads, all protected by the global lock. However, it is essential that the
 [mock object](reference.md/#mock_object) is not deleted while establishing the
-[expectation](#reference.md/#expectation) or calling the
+[expectation](reference.md/#expectation) or calling the
 [mock function](reference.md/#mock_function), as per normal thread safety
 diligence.
 
