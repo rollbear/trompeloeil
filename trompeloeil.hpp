@@ -45,6 +45,7 @@
 #include <memory>
 #include <cstring>
 #include <regex>
+#include <mutex>
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -203,6 +204,13 @@
 
 namespace trompeloeil
 {
+  template <typename T = void>
+  std::unique_lock<std::recursive_mutex> get_lock()
+  {
+    static std::recursive_mutex lock;
+    return std::unique_lock<std::recursive_mutex>{ lock };
+  }
+
   template <size_t N, typename T, bool legal = (N < std::tuple_size<T>::value)>
   struct conditional_tuple_element
   {
@@ -1850,6 +1858,7 @@ namespace trompeloeil
     const
     noexcept
     {
+      auto lock = get_lock();
       trompeloeil_lifetime_monitor = monitor;
       return trompeloeil_lifetime_monitor.leak();
     }
@@ -1874,6 +1883,7 @@ namespace trompeloeil
     ~lifetime_monitor()
     noexcept(false)
     {
+      auto lock = get_lock();
       if (!died)
       {
         std::ostringstream os;
@@ -1898,6 +1908,7 @@ namespace trompeloeil
   template <typename T>
   deathwatched<T>::~deathwatched()
   {
+    auto lock = get_lock();
     if (trompeloeil_lifetime_monitor)
     {
       trompeloeil_lifetime_monitor->notify();
@@ -1965,11 +1976,12 @@ namespace trompeloeil
   template <typename Sig>
   struct call_matcher_list : public list<call_matcher_base<Sig>>
   {
-    ~call_matcher_list()
+    void decommission()
     {
+      auto lock = get_lock();
       auto iter = this->begin();
-      auto const end = this->end();
-      while (iter != end)
+      auto const e = this->end();
+      while (iter != e)
       {
         auto i = iter++;
         auto &m = *i;
@@ -2018,11 +2030,11 @@ namespace trompeloeil
     void
     log_call(
       std::true_type,
-      tracer* obj,
+      tracer* t_obj,
       call_params_type_t<Sig>& p)
     const
     {
-      log_call(obj, p);
+      log_call(t_obj, p);
     }
 
     virtual
@@ -2534,7 +2546,7 @@ namespace trompeloeil
     static bool const sequence_set = true;
   };
 
-  template <typename Matcher, typename Parent = std::tuple<>>
+  template <typename Matcher, typename modifier_tag, typename Parent>
   struct call_modifier : public Parent
   {
     using typename Parent::signature;
@@ -2546,9 +2558,9 @@ namespace trompeloeil
     using Parent::side_effects;
 
     call_modifier(
-      Matcher* m)
+       std::unique_ptr<Matcher>&& m)
     noexcept
-      : matcher(m)
+      : matcher{std::move(m)}
     {}
 
     template <typename D>
@@ -2562,7 +2574,7 @@ namespace trompeloeil
     }
 
     template <typename A>
-    call_modifier<Matcher, sideeffect_injector<Parent>>
+    call_modifier<Matcher, modifier_tag, sideeffect_injector<Parent>>
     sideeffect(
       A&& a)
     {
@@ -2571,12 +2583,12 @@ namespace trompeloeil
                     "SIDE_EFFECT for forbidden call does not make sense");
       using tag = std::integral_constant<bool, !forbidden>;
       matcher->add_side_effect(tag{}, &a);
-      return {matcher};
+      return {std::move(matcher)};
     }
 
     template <typename H,
               typename = typename std::enable_if_t<is_value_type<H>::value>>
-    call_modifier<Matcher, return_injector<return_of_t<signature>, Parent >>
+    call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >>
     handle_return(
       H&& h)
     {
@@ -2603,11 +2615,11 @@ namespace trompeloeil
       constexpr bool valid = matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, &h);
-      return {matcher};
+      return {std::move(matcher)};
     }
 
     template <typename H>
-    call_modifier<Matcher, throw_injector<Parent> >
+    call_modifier<Matcher, modifier_tag, throw_injector<Parent> >
     handle_throw(
       H&& h)
     {
@@ -2625,12 +2637,12 @@ namespace trompeloeil
         return trompeloeil::default_return<signature>(p);
       };
       matcher->set_return(tag{}, &handler);
-      return {matcher};
+      return {std::move(matcher)};
     }
     template <unsigned long long L,
               unsigned long long H,
               bool               times_set = call_limit_set>
-    call_modifier<Matcher, call_limit_injector<Parent, H>>
+    call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, H>>
     times(
       multiplicity<L, H>)
     {
@@ -2651,12 +2663,12 @@ namespace trompeloeil
 
       matcher->min_calls = L;
       matcher->max_calls = H;
-      return {matcher};
+      return {std::move(matcher)};
     }
 
     template <typename ... T,
               bool b = sequence_set>
-    call_modifier<Matcher, sequence_injector<Parent>>
+    call_modifier<Matcher, modifier_tag, sequence_injector<Parent>>
     in_sequence(
       T&& ... t)
     {
@@ -2665,9 +2677,9 @@ namespace trompeloeil
                     " You can list several sequence objects at once");
 
       matcher->set_sequence(std::forward<T>(t)...);
-      return {matcher};
+      return {std::move(matcher)};
     }
-    Matcher* matcher;
+    std::unique_ptr<Matcher> matcher;
   };
 
   struct expectation {
@@ -2744,10 +2756,12 @@ namespace trompeloeil
 
     ~call_matcher()
     {
+      auto lock = get_lock();
       if (is_unfulfilled())
       {
         report_missed("Unfulfilled expectation");
       }
+      this->unlink();
     }
 
     bool
@@ -2822,7 +2836,7 @@ namespace trompeloeil
 
     void
     log_call(
-      tracer* obj,
+      tracer* t_obj,
       call_params_type_t<Sig>& params
     )
     const
@@ -2830,7 +2844,7 @@ namespace trompeloeil
     {
       std::ostringstream os;
       os << name << " with.\n" << missed_values(params);
-      obj->trace(loc.file, loc.line, os.str());
+      t_obj->trace(loc.file, loc.line, os.str());
     }
 
     void
@@ -3052,12 +3066,14 @@ namespace trompeloeil
     return call_params_type_t<void(T...)>{ std::forward<T>(t)... };
   }
 
-  struct call_validator
+  template <typename Mock>
+  struct call_validator_t
   {
-    call_validator(
-      void const*
-    )
+    call_validator_t(
+      Mock& obj_)
+      : obj{obj_}
     {}
+
     template <typename T>
     static
     auto
@@ -3073,50 +3089,52 @@ namespace trompeloeil
       return std::integral_constant<bool, legal>{};
     }
 
-    template <typename T>
-    static
+    template <typename M, typename Tag, typename Info>
     auto
     make_expectation(
       std::true_type,
-      T* t)
+      call_modifier<M, Tag, Info>&& m)
+    const
     noexcept
     {
-      return std::unique_ptr<expectation>(t);
+      auto lock = get_lock();
+      m.matcher->hook_last(obj.trompeloeil_matcher_list(Tag{}));
+      return std::move(m).matcher;
     }
 
+    template <typename T>
     static                                           // Never called. Used to
     std::unique_ptr<expectation>                     // limit errmsg when RETURN
-    make_expectation(std::false_type, ...) noexcept; // is missing in non-void
+    make_expectation(std::false_type, T&&) noexcept; // is missing in non-void
                                                      // function
 
-    template <typename M, typename Info>
+    template <typename M, typename Tag, typename Info>
     auto
     operator+(
-      call_modifier<M, Info>& t)
+      call_modifier<M, Tag, Info>& t)
     const
     {
-      return make_expectation(assert_return_type(t), t.matcher);
+      return make_expectation(assert_return_type(t), std::move(t));
     }
 
-    template <typename M, typename Info>
+    template <typename M, typename Tag, typename Info>
     auto
     operator+(
-      call_modifier<M, Info>&& t)
+      call_modifier<M, Tag, Info>&& t)
     const
     {
-      return make_expectation(assert_return_type(t), t.matcher);
+      return make_expectation(assert_return_type(t), std::move(t));
     }
+    Mock& obj;
   };
 
-  template <typename Sig, typename Value>
-  auto
-  make_call_modifier(
-    call_matcher<Sig, Value>* m)
-  -> trompeloeil::call_modifier<call_matcher<Sig, Value>, matcher_info<Sig> >
+  template <typename Mock>
+  call_validator_t<Mock> call_validator(
+    void const*,
+    Mock& obj)
   {
-    return {m};
+    return {obj};
   }
-
     template <typename T,
               typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
     inline
@@ -3222,6 +3240,18 @@ operator*(
 #define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig)                               \
   TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
 
+namespace trompeloeil {
+  template <typename Sig>
+  struct expectations
+  {
+    ~expectations() {
+      active.decommission();
+      saturated.decommission();
+    }
+    mutable call_matcher_list<Sig> active;
+    mutable call_matcher_list<Sig> saturated;
+  };
+}
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s)       \
   using TROMPELOEIL_ID(cardinality_match) =                                    \
@@ -3229,12 +3259,14 @@ operator*(
   static_assert(TROMPELOEIL_ID(cardinality_match)::value,                      \
                 "Function signature does not have " #num " parameters");       \
   using TROMPELOEIL_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
-  mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(matcher_list);         \
-  mutable TROMPELOEIL_ID(matcher_list_t) TROMPELOEIL_ID(saturated_matcher_list); \
+  using TROMPELOEIL_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
+  TROMPELOEIL_ID(expectation_list_t) TROMPELOEIL_ID(expectations);             \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                                  \
   {                                                                            \
     template <typename Mock>                                                   \
-      struct maker_obj {                                                       \
+    struct maker_obj {                                                         \
+      using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                    \
+                                                                               \
       Mock& obj;                                                               \
       const char* file;                                                        \
       unsigned long line;                                                      \
@@ -3242,27 +3274,27 @@ operator*(
       template <typename ... U>                                                \
       auto name(                                                               \
         U&& ... u)                                                             \
-      -> ::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>* \
+        -> ::trompeloeil::call_modifier<::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>, tag, ::trompeloeil::matcher_info<sig>> \
       {                                                                        \
-        using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                  \
         using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
                                                                                \
-        auto  matcher_obj = new matcher(std::forward<U>(u)...);                \
-        return matcher_obj->set_location(file, line)->set_name(call_string)    \
-          ->hook_last(obj.trompeloeil_matcher_list(tag{}));                    \
+        auto  matcher_obj = std::make_unique<matcher>(std::forward<U>(u)...);  \
+        matcher_obj->set_location(file, line);                                 \
+        matcher_obj->set_name(call_string);                                    \
+        return {std::move(matcher_obj)};                                \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \
     static                                                                     \
     maker_obj<Mock>                                                            \
     maker(                                                                     \
-      Mock& obj,                                                               \
+      Mock& m_obj,                                                             \
       const char* file,                                                        \
       unsigned long line,                                                      \
       const char* name)                                                        \
     {                                                                          \
-      return { obj, file, line, name };                                        \
+      return { m_obj, file, line, name };                                      \
     }                                                                          \
   };                                                                           \
   TROMPELOEIL_ID(tag_type_trompeloeil)                                         \
@@ -3274,7 +3306,7 @@ operator*(
   constness                                                                    \
   noexcept                                                                     \
   {                                                                            \
-    return TROMPELOEIL_ID(matcher_list);                                       \
+    return TROMPELOEIL_ID(expectations).active;                                \
   }                                                                            \
   auto                                                                         \
   name(                                                                        \
@@ -3282,27 +3314,28 @@ operator*(
   constness                                                                    \
   -> ::trompeloeil::return_of_t<sig>                                           \
   {                                                                            \
+    auto lock = ::trompeloeil::get_lock();                                     \
     auto param_value =                                                         \
       ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num));            \
                                                                                \
     auto i = ::trompeloeil::find(TROMPELOEIL_ID(cardinality_match){},          \
                                  param_value,                                  \
-                                 TROMPELOEIL_ID(matcher_list));                \
+                                 TROMPELOEIL_ID(expectations).active);         \
     if (!i)                                                                    \
     {                                                                          \
       ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},      \
                                      name_s " with signature " sig_s,          \
                                      param_value,                              \
-                                     TROMPELOEIL_ID(matcher_list),             \
-                                     TROMPELOEIL_ID(saturated_matcher_list));  \
+                                     TROMPELOEIL_ID(expectations).active,      \
+                                     TROMPELOEIL_ID(expectations).saturated);  \
     }                                                                          \
-    if (auto obj = ::trompeloeil::tracer_obj())                                \
+    if (auto t_obj = ::trompeloeil::tracer_obj())                              \
     {                                                                          \
-      i->log_call(TROMPELOEIL_ID(cardinality_match){}, obj, param_value);      \
+      i->log_call(TROMPELOEIL_ID(cardinality_match){}, t_obj, param_value);    \
     }                                                                          \
     i->run_actions(TROMPELOEIL_ID(cardinality_match){},                        \
                    param_value,                                                \
-                   TROMPELOEIL_ID(saturated_matcher_list));                    \
+                   TROMPELOEIL_ID(expectations).saturated);                    \
     return i->return_value(TROMPELOEIL_ID(cardinality_match){},                \
                            param_value);                                       \
   }                                                                            \
@@ -3325,12 +3358,10 @@ operator*(
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
-  ::trompeloeil::call_validator{static_cast<std::decay_t<decltype((obj).func)>*>(nullptr)} +                                            \
-  ::trompeloeil::make_call_modifier(                                           \
-      decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(      \
-        obj, __FILE__, __LINE__, obj_s "." func_s                              \
-      ).func                                                                   \
-    )
+  ::trompeloeil::call_validator(static_cast<std::decay_t<decltype((obj).func)>*>(nullptr), (obj)) + \
+  decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(          \
+    (obj), __FILE__, __LINE__, obj_s "." func_s \
+  ).func
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
