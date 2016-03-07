@@ -2030,11 +2030,11 @@ namespace trompeloeil
     void
     log_call(
       std::true_type,
-      tracer* obj,
+      tracer* t_obj,
       call_params_type_t<Sig>& p)
     const
     {
-      log_call(obj, p);
+      log_call(t_obj, p);
     }
 
     virtual
@@ -2836,7 +2836,7 @@ namespace trompeloeil
 
     void
     log_call(
-      tracer* obj,
+      tracer* t_obj,
       call_params_type_t<Sig>& params
     )
     const
@@ -2844,7 +2844,7 @@ namespace trompeloeil
     {
       std::ostringstream os;
       os << name << " with.\n" << missed_values(params);
-      obj->trace(loc.file, loc.line, os.str());
+      t_obj->trace(loc.file, loc.line, os.str());
     }
 
     void
@@ -3289,12 +3289,12 @@ namespace trompeloeil {
     static                                                                     \
     maker_obj<Mock>                                                            \
     maker(                                                                     \
-      Mock& obj,                                                               \
+      Mock& m_obj,                                                             \
       const char* file,                                                        \
       unsigned long line,                                                      \
       const char* name)                                                        \
     {                                                                          \
-      return { obj, file, line, name };                                        \
+      return { m_obj, file, line, name };                                      \
     }                                                                          \
   };                                                                           \
   TROMPELOEIL_ID(tag_type_trompeloeil)                                         \
