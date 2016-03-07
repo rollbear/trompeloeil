@@ -58,11 +58,12 @@ void call(size_t count)
 
 void allow(size_t count, int id)
 {
+  std::unique_ptr<trompeloeil::expectation> exp;
   while (count--)
   {
     if (auto m = get_obj())
     {
-      ALLOW_CALL(*m, func())
+      exp = NAMED_ALLOW_CALL(*m, func())
         .SIDE_EFFECT(++call_count[id])
         .RETURN(id);
     }
