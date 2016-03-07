@@ -42,11 +42,10 @@ matrix:
 #      env: COMPILER=clang++
 
 before_script:
-  ulimit -c unlimited -S && CXX=$COMPILER  ./check_errors.sh
+  CXX=$COMPILER  ./check_errors.sh
 
 script:
-  wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz &&  make CXX=$COMPILER CXXFLAGS="-std=c++14 -g -I Catch-1.2.1-develop.12/include" -f Makefile.travis
+  wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz && make CXX=$COMPILER CXXFLAGS="-std=c++14 -I Catch-1.2.1-develop.12/include -ggdb" -f Makefile.travis
 
 after_success:
-  wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&  unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build && cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make && make install DESTDIR=../built && cd ../.. && ./kcov/built/usr/local/bin/kcov --skip-solibs --include-pattern="trompeloeil.hpp" --coveralls-id=${TRAVIS_JOB_ID} ./cov ./self_test -s || gdb ./self_test $(find . -name "*core*") -ex "set pagination 0" -ex "bt" -batch
-
+  wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&  unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build && cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make && make install DESTDIR=../built && cd ../.. && gdb ./kcov/built/usr/local/bin/kcov -ex "run --skip-solibs --include-pattern=trompeloeil.hpp --coveralls-id=${TRAVIS_JOB_ID} ./cov ./self_test -s"  -ex "set pagination 0" -ex "bt" -batch

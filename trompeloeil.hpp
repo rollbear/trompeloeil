@@ -1980,8 +1980,8 @@ namespace trompeloeil
     {
       auto lock = get_lock();
       auto iter = this->begin();
-      auto const end = this->end();
-      while (iter != end)
+      auto const e = this->end();
+      while (iter != e)
       {
         auto i = iter++;
         auto &m = *i;
@@ -3329,9 +3329,9 @@ namespace trompeloeil {
                                      TROMPELOEIL_ID(expectations).active,      \
                                      TROMPELOEIL_ID(expectations).saturated);  \
     }                                                                          \
-    if (auto obj = ::trompeloeil::tracer_obj())                                \
+    if (auto t_obj = ::trompeloeil::tracer_obj())                              \
     {                                                                          \
-      i->log_call(TROMPELOEIL_ID(cardinality_match){}, obj, param_value);      \
+      i->log_call(TROMPELOEIL_ID(cardinality_match){}, t_obj, param_value);    \
     }                                                                          \
     i->run_actions(TROMPELOEIL_ID(cardinality_match){},                        \
                    param_value,                                                \

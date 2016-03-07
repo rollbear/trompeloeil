@@ -16,6 +16,7 @@ Documentation
 -------------
 
 - [Introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
+- [Cheat Sheet (2*A4)](docs/trompeloeil_cheat_sheet.pdf)
 - [Cook Book](docs/CookBook.md)
 - [FAQ](docs/FAQ.md)
 - [Reference](docs/reference.md)
