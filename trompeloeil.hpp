@@ -3248,8 +3248,8 @@ namespace trompeloeil {
       active.decommission();
       saturated.decommission();
     }
-    call_matcher_list<Sig> active;
-    call_matcher_list<Sig> saturated;
+    mutable call_matcher_list<Sig> active;
+    mutable call_matcher_list<Sig> saturated;
   };
 }
 
