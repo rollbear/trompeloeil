@@ -3,6 +3,7 @@
 - Q. [Why a name that can neither be pronounced nor spelled?](#why_name)
 - Q. [Which compilers supports *Trompeloeil*?](#compilers)
 - Q. [How do I use *Trompeloeil* with XXX unit test framework?](#unit_test_adaptation)
+- Q. [Is *Trompeloeil* thread safe?](#thread_safety)
 - Q. [Why can't I **`.RETURN()`** a reference?](#return_reference)
 - Q. [Why can't I change a local variable in **`.SIDE_EFFECT()`**?](#change_side_effect)
 - Q. [Why the "local reference" **`.LR_*()`** variants? Why not always capture by reference?](#why_lr)
@@ -47,6 +48,39 @@ or may not, suffice.
 *Trompeloeil* offers support for adaptation to any test frame work. Adaptation
 examples for some popular unit test frame works are listed in the
 [cook book](CookBook.md/#unit_test_frameworks)
+
+## <A name="thread_safety"/>Q. Is *Trompeloeil* thread safe?
+
+**A.** Yes, with caveats.
+
+In a unit test you don't want to depend on the scheduler, which is typically
+out of your control. However, some times it is convenient to use a unit test
+like environment to exercise a larger aspect of your code. In this setting,
+using [mock objects](reference.md/#mock_object) with different
+[expectations](reference.md/#expectation) can make sense when statistically
+searching for synchronization problems.
+
+To enable this, *Trompeloeil* uses a global
+[`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
+which protects [expectations](reference.md/#expectation).
+
+[Expectations](reference.md/#expectation) can come and go in different threads,
+and [mock functions](reference.md/#mock_function) can be called in different
+threads, all protected by the global lock. However, it is essential that the
+[mock object](reference.md/#mock_object) is not deleted while establishing the
+[expectation](#reference.md/#expectation) or calling the
+[mock function](reference.md/#mock_function), as per normal thread safety
+diligence.
+
+Should you need to access the lock in your tests, you can do so with
+
+```Cpp
+  auto lock = trompeloeil::get_lock();
+```
+
+`lock` holds the
+[`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
+until it goes out of scope.
 
 
 ## <A name="return_reference"/>Q. Why can't I [**`.RETURN()`**](reference.md/#RETURN) a reference?
