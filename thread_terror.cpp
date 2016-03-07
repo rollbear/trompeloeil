@@ -1,6 +1,7 @@
 #include "trompeloeil.hpp"
 #include <iterator>
 #include <thread>
+#include <atomic>
 #include <iostream>
 
 class C
