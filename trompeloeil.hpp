@@ -1968,8 +1968,8 @@ namespace trompeloeil
     ~call_matcher_list()
     {
       auto iter = this->begin();
-      auto const end = this->end();
-      while (iter != end)
+      auto const e = this->end();
+      while (iter != e)
       {
         auto i = iter++;
         auto &m = *i;
@@ -3296,9 +3296,9 @@ operator*(
                                      TROMPELOEIL_ID(matcher_list),             \
                                      TROMPELOEIL_ID(saturated_matcher_list));  \
     }                                                                          \
-    if (auto obj = ::trompeloeil::tracer_obj())                                \
+    if (auto t_obj = ::trompeloeil::tracer_obj())                              \
     {                                                                          \
-      i->log_call(TROMPELOEIL_ID(cardinality_match){}, obj, param_value);      \
+      i->log_call(TROMPELOEIL_ID(cardinality_match){}, t_obj, param_value);    \
     }                                                                          \
     i->run_actions(TROMPELOEIL_ID(cardinality_match){},                        \
                    param_value,                                                \
