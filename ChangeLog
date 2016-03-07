@@ -1,3 +1,10 @@
+v13 2016-03-07
+
+	* Mock functions and their expectations are thread safe, using
+	  a global recursive mutex.
+
+	* Silenced warnings from g++ -Wshadow.
+
 v12 2016-02-01
 
 	* Built in matchers are duck tuped by default, i.e. eq, ne, gt, ge,
