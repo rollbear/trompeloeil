@@ -1975,6 +1975,7 @@ namespace trompeloeil
   {
     void decommission()
     {
+      auto lock = get_lock();
       auto iter = this->begin();
       auto const end = this->end();
       while (iter != end)
@@ -2757,6 +2758,7 @@ namespace trompeloeil
       {
         report_missed("Unfulfilled expectation");
       }
+      this->unlink();
     }
 
     bool
@@ -3240,7 +3242,6 @@ namespace trompeloeil {
   struct expectations
   {
     ~expectations() {
-      auto lock = get_lock();
       active.decommission();
       saturated.decommission();
     }
