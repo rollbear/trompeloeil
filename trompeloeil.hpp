@@ -1858,6 +1858,7 @@ namespace trompeloeil
     const
     noexcept
     {
+      auto lock = get_lock();
       trompeloeil_lifetime_monitor = monitor;
       return trompeloeil_lifetime_monitor.leak();
     }
@@ -1882,6 +1883,7 @@ namespace trompeloeil
     ~lifetime_monitor()
     noexcept(false)
     {
+      auto lock = get_lock();
       if (!died)
       {
         std::ostringstream os;
@@ -1906,6 +1908,7 @@ namespace trompeloeil
   template <typename T>
   deathwatched<T>::~deathwatched()
   {
+    auto lock = get_lock();
     if (trompeloeil_lifetime_monitor)
     {
       trompeloeil_lifetime_monitor->notify();
