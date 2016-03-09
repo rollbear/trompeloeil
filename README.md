@@ -10,7 +10,7 @@
 What is it?
 -----------
 
-A header only mocking framework for C++14 using the Boost Software License 1.0
+A thread safe header only mocking framework for C++14 using the Boost Software License 1.0
 
 Documentation
 -------------
