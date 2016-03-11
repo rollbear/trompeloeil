@@ -2564,13 +2564,14 @@ namespace trompeloeil
     {}
 
     template <typename D>
-    call_modifier&
+    call_modifier&&
     with(
       char const* str,
       D&& d)
+    &&
     {
       matcher->add_condition(str, std::forward<D>(d));
-      return *this;
+      return std::move(*this);
     }
 
     template <typename A>
@@ -3107,15 +3108,6 @@ namespace trompeloeil
     std::unique_ptr<expectation>                     // limit errmsg when RETURN
     make_expectation(std::false_type, T&&) noexcept; // is missing in non-void
                                                      // function
-
-    template <typename M, typename Tag, typename Info>
-    auto
-    operator+(
-      call_modifier<M, Tag, Info>& t)
-    const
-    {
-      return make_expectation(assert_return_type(t), std::move(t));
-    }
 
     template <typename M, typename Tag, typename Info>
     auto
