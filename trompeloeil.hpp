@@ -3127,34 +3127,34 @@ namespace trompeloeil
   {
     return {obj};
   }
-    template <typename T,
-              typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
-    inline
-    T&&
-    decay_return_type(
-      T&& t)
-    {
-      return std::forward<T>(t);
-    }
+  template <typename T,
+            typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
+  inline
+  T&&
+  decay_return_type(
+    T&& t)
+  {
+    return std::forward<T>(t);
+  }
 
-    template <typename T,
-              typename = std::enable_if_t<std::is_rvalue_reference<T&&>::value>>
-    inline
-    T
-    decay_return_type(
-      T&& t)
-    {
-      return std::forward<T>(t);
-    }
+  template <typename T,
+            typename = std::enable_if_t<std::is_rvalue_reference<T&&>::value>>
+  inline
+  T
+  decay_return_type(
+    T&& t)
+  {
+    return std::forward<T>(t);
+  }
 
-    template <typename T, size_t N>
-    inline
-    T*
-    decay_return_type(
-      T (&t)[N])
-    {
-      return t;
-    }
+  template <typename T, size_t N>
+  inline
+  T*
+  decay_return_type(
+    T (&t)[N])
+  {
+    return t;
+  }
 }
 
 template <typename M,
