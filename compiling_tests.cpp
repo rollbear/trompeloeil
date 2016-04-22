@@ -106,13 +106,13 @@ public:
   mock_c() {}
   mock_c(int i) : C(i) {}
   mock_c(const char* p) : C(p) {}
-  MAKE_MOCK1(ptr, std::unique_ptr<int>(std::unique_ptr<int>&&));
-  MAKE_MOCK0(count, int());
+  MAKE_MOCK1(ptr, std::unique_ptr<int>(std::unique_ptr<int>&&), override);
+  MAKE_MOCK0(count, int(), override final);
   MAKE_MOCK1(foo, void(std::string));
-  MAKE_MOCK2(func, void(int, std::string&));
-  MAKE_MOCK1(getter, unmovable&(unmovable&));
-  MAKE_MOCK1(getter, int(int));
-  MAKE_MOCK2(getter, void(int, std::string&));
+  MAKE_MOCK2(func, void(int, std::string&), override);
+  MAKE_MOCK1(getter, unmovable&(unmovable&), override);
+  MAKE_MOCK1(getter, int(int), override);
+  MAKE_MOCK2(getter, void(int, std::string&), override);
   using C::p_;
 };
 

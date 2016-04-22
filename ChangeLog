@@ -1,3 +1,8 @@
+	* You can now add extra trailing specifiers to a mock function,
+	  such as the "override" context sensitive specifier, and/or the
+	  keyword "noexcept" (careful with the latter if your registered
+	  reporter can/does throw.)
+
 v13 2016-03-07
 
 	* Mock functions and their expectations are thread safe, using
