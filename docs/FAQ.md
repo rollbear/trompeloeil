@@ -4,6 +4,7 @@
 - Q. [Which compilers supports *Trompeloeil*?](#compilers)
 - Q. [How do I use *Trompeloeil* with XXX unit test framework?](#unit_test_adaptation)
 - Q. [Is *Trompeloeil* thread safe?](#thread_safety)
+- Q. [Can a mock function be marked `override`?](#override)
 - Q. [Why can't I **`.RETURN()`** a reference?](#return_reference)
 - Q. [Why can't I change a local variable in **`.SIDE_EFFECT()`**?](#change_side_effect)
 - Q. [Why the "local reference" **`.LR_*()`** variants? Why not always capture by reference?](#why_lr)
@@ -82,6 +83,28 @@ Should you need to access the lock in your tests, you can do so with
 [`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
 until it goes out of scope.
 
+## <A name="override"/>Q. Can a mock function be marked `override`?
+
+**A.** Yes, just add `override` a third parameter to
+[**`MAKE_MOCKn()`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_CONST_MOCKn()`**](reference.md/#MAKE_CONST_MOCKn)
+
+Example:
+```Cpp
+class Interface
+{
+public:
+  virtual ~Interface() = default;
+  virtual int func1(int) = 0;
+};
+
+class Mock : public Interface
+{
+public:
+  MAKE_MOCK1(func1, int(int), override); // overridden
+  MAKE_MOCK1(func2, int(int));           // not overridden
+};
+```
 
 ## <A name="return_reference"/>Q. Why can't I [**`.RETURN()`**](reference.md/#RETURN) a reference?
 
