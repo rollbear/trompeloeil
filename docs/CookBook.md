@@ -194,18 +194,20 @@ public:
 
 class MockDictionary : public Dictionary
 {
-  MAKE_CONST_MOCK1(lookup, std::string&(int));
-  MAKE_MOCK2(add, void(int, std::string&&));
+  MAKE_CONST_MOCK1(lookup, std::string&(int), override);
+  MAKE_MOCK2(add, void(int, std::string&&), override);
 };
 ```
 
 In the example above, `MockDictionary` is, as the name implies, a mock class for
 the pure virtual class `Dictionary`.
 
-The line `MAKE_CONST_MOCK1(lookup, std::string&(int));` implements the
+The line `MAKE_CONST_MOCK1(lookup, std::string&(int), override);` implements the
 function `std::string& lookup(int) const` and the line
-`MAKE_MOCK2(add, void(int, std::string&&));` implements the function
-`void add(int, std::string&&)`.
+`MAKE_MOCK2(add, void(int, std::string&&), override);` implements the function
+`void add(int, std::string&&)`. `override` is not needed, but it is good
+practice to always mark overridden virtual functions `override` since it
+gives the compiler an ability to complain about mistakes.
 
 ### <A name="mocking_non_public"/> Mocking private or protected member functions
 
@@ -226,7 +228,7 @@ private:
 class Mock : public Base
 {
 public:
-  MAKE_MOCK1(secret, void(int)); // not so secret now
+  MAKE_MOCK1(secret, void(int), override); // not so secret now
 };
 ```
 
