@@ -1,3 +1,6 @@
+	* Fixed bug when the destruction of a sequence object with still
+	  living expectations caused call to abort().
+
 v13 2016-03-07
 
 	* Mock functions and their expectations are thread safe, using

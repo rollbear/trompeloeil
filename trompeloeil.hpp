@@ -775,6 +775,14 @@ namespace trompeloeil
     {
       return static_cast<T&>(*p);
     }
+
+    T*
+    operator->()
+    noexcept
+    {
+      return static_cast<T*>(p);
+    }
+
   private:
     iterator(
       list_elem<T> const *t)
@@ -855,7 +863,8 @@ namespace trompeloeil
   public:
     sequence() noexcept = default;
     sequence(sequence&&) = delete;
-    ~sequence() = default;
+    ~sequence();
+
     bool
     is_first(
       sequence_matcher const *m)
@@ -924,6 +933,13 @@ namespace trompeloeil
     {
       os << exp_name << " at " << exp_loc;
     }
+
+    char const*
+    sequence_name()
+    noexcept
+    {
+      return seq_name;
+    }
   private:
     char const *seq_name;
     char const *exp_name;
@@ -961,6 +977,31 @@ namespace trompeloeil
       m.print_expectation(os);
       os << " first in line\n";
       send_report(severity::fatal, loc, os.str());
+    }
+  }
+
+  inline
+  sequence::~sequence()
+  {
+    bool touched = false;
+    std::ostringstream os;
+    while (!matchers.empty())
+    {
+      auto m = matchers.begin();
+      if (!touched)
+      {
+	os << "Sequence expectations not met at destruction of sequence object \""
+	   << m->sequence_name() << "\":";
+	touched = true;
+      }
+      os << "\n  missing ";
+      m->print_expectation(os);
+      m->unlink();
+    }
+    if (touched)
+    {
+      os << "\n";
+      send_report(severity::nonfatal, location{}, os.str());
     }
   }
 

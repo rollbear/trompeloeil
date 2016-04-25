@@ -361,6 +361,31 @@ TEST_CASE_METHOD(Fixture, "sequences impose order between multiple matching expe
   REQUIRE(s == "123");
 }
 
+TEST_CASE_METHOD(Fixture, "Sequence object destruction with live expectations is reported", "[sequences]")
+{
+  mock_c obj;
+
+  std::unique_ptr<trompeloeil::expectation> e[2];
+  {
+
+    trompeloeil::sequence s;
+
+    e[0] = NAMED_REQUIRE_CALL(obj, getter(ANY(int)))
+      .IN_SEQUENCE(s)
+      .RETURN(0);
+    e[1] = NAMED_REQUIRE_CALL(obj, foo(_))
+      .IN_SEQUENCE(s);
+  }
+
+  REQUIRE(!reports.empty());
+  auto& msg = reports.front().msg;
+  INFO("report=" << msg);
+  auto re = R":(Sequence expectations not met at destruction of sequence object "s":
+  missing obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  missing obj\.foo\(_\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+):";
+  REQUIRE(std::regex_search(msg, std::regex(re)));
+}
 
 // SIDE_EFFECT and LR_SIDE_EFFECT tests
 
