@@ -1,3 +1,5 @@
+v14 2016-04-27
+
 	* Fixed bug when the destruction of a sequence object with still
 	  living expectations caused call to abort().
 
