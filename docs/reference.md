@@ -958,26 +958,36 @@ global/static objects will be modified also by those
 See also [**`WITH(...)`**](#WITH) which accesses copies of local objects.
 
 <A name="MAKE_CONST_MOCKn"/>
-### **`MAKE_CONST_MOCKn(`** *func_name*, *signature* **`)`**  
+### **`MAKE_CONST_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**  
 Make a `const` [mock function](#mock_function) named *func_name*. It is a good
 idea for this to implement a pure virtual function from an interface, but
 it is not a requirement. `n` is the number of parameters in *signature*.
+*specifiers* is an optional list which may include attributes or specifiers like
+[`override`](http://en.cppreference.com/w/cpp/language/override).
 
 Example:
 ```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual int func1(int, const std::vector<int>&)) const = 0;
+};
 class C
 {
 public:
-  MAKE_CONST_MOCK2(func, int(int, const std::vector<int>&));
+  MAKE_CONST_MOCK2(func1, int(int, const std::vector<int>&), override);
+  MAKE_CONST_MOCK1(func2, int(std::string));
 };
 ```
 
 Above, class `C` will effectively become:
 ```Cpp
-class C
+class C : public I
 {
 public:
-  int func(int, const std::vector<int>&) const;
+  int func1(int, const std::vector<int>&) const override;
+  int func2(std::string) const;
 };
 ```
 
@@ -988,26 +998,36 @@ See also [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) for non-`const`
 member functions.
 
 <A name="MAKE_MOCKn"/>
-### **`MAKE_MOCKn(`** *func_name*, *signature* **`)`**  
+### **`MAKE_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**  
 Make a non-const [mock function](#mock_function) named *func_name*. It is a
 good idea for this to implement a pure virtual function from an interface, but
 it is not a requirement. `n` is the number of parameters in *signature*.
+*specifiers* is an optional list which may include attributes or specifiers like
+[`override`](http://en.cppreference.com/w/cpp/language/override).
 
 Example:
 ```Cpp
-class C
+class I
 {
 public:
-  MAKE_MOCK2(func, int(int, const std::vector<int>&));
+  virtual ~I() = default;
+  virtual int func1(int, const std::vector<int>&)) = 0;
+};
+class C : public I
+{
+public:
+  MAKE_MOCK2(func1, int(int, const std::vector<int>&), override);
+  MAKE_MOCK1(func2, int(std::string));
 };
 ```
 
 Above, class `C` will effectively become:
 ```Cpp
-class C
+class C : public I
 {
 public:
-  int func(int, const std::vector<int>&);
+  int func1(int, const std::vector<int>&) override;
+  int func2(std::string);
 };
 ```
 

@@ -62,7 +62,6 @@
   TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__,                          \
                                          15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
-
 #define TROMPELOEIL_CONCAT_(x, y) x ## y
 #define TROMPELOEIL_CONCAT(x, y) TROMPELOEIL_CONCAT_(x, y)
 
@@ -201,6 +200,13 @@
 #define TROMPELOEIL_PARAMS0
 
 #define TROMPELOEIL_PARAMS(num) TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
+
+#define TROMPELOEIL_1ST_(x,...) x
+#define TROMPELOEIL_1ST(...) TROMPELOEIL_1ST_(__VA_ARGS__,)
+
+#define TROMPELOEIL_APPLY(f, ...) f(__VA_ARGS__)
+#define TROMPELOEIL_STRINGIZE_(...) #__VA_ARGS__
+#define TROMPELOEIL_STRINGIZE(...) TROMPELOEIL_STRINGIZE_(__VA_ARGS__)
 
 namespace trompeloeil
 {
@@ -1255,7 +1261,7 @@ namespace trompeloeil
   {
   public:
     template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T,V>::value>>
+              typename = std::enable_if_t<std::is_constructible<T,V>::value>>
     ne_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
@@ -1377,7 +1383,7 @@ namespace trompeloeil
   {
   public:
     template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
     ge_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
@@ -1448,7 +1454,7 @@ namespace trompeloeil
   {
   public:
     template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
     gt_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
@@ -1519,7 +1525,7 @@ namespace trompeloeil
   {
   public:
     template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
     lt_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
@@ -1590,7 +1596,7 @@ namespace trompeloeil
   {
   public:
     template <typename V,
-	      typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
     le_base(
       V&& v)
     noexcept(noexcept(T(std::declval<V&&>())))
@@ -3211,67 +3217,68 @@ operator*(
 #define TROMPELOEIL_ID(name)                                                   \
   TROMPELOEIL_CONCAT(trompeloeil_ ## name ## _, __LINE__)
 
-#define TROMPELOEIL_MAKE_MOCK1(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,1, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK2(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,2, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK3(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,3, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK4(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,4, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK5(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,5, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK6(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,6, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK7(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,7, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK8(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,8, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK9(name, sig)                                      \
-  TROMPELOEIL_MAKE_MOCK_(name,,9, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK10(name, sig)                                     \
-  TROMPELOEIL_MAKE_MOCK_(name,,10, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK11(name, sig)                                     \
-  TROMPELOEIL_MAKE_MOCK_(name,,11, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK12(name, sig)                                     \
-  TROMPELOEIL_MAKE_MOCK_(name,,12, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK13(name, sig)                                     \
-  TROMPELOEIL_MAKE_MOCK_(name,,13, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK14(name, sig)                                     \
-  TROMPELOEIL_MAKE_MOCK_(name,,14, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_MOCK15(name, sig)                                     \
-  TROMPELOEIL_MAKE_MOCK_(name,,15, sig, #name, #sig)
+#define TROMPELOEIL_MAKE_MOCK1(name, sig, ...)                           \
+  TROMPELOEIL_MAKE_MOCK_(name,,1, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK2(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,2, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK3(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,3, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK4(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,4, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK5(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,5, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK6(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,6, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK7(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,7, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK8(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,8, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK9(name, sig, ...)           \
+  TROMPELOEIL_MAKE_MOCK_(name,,9, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK10(name, sig, ...)          \
+  TROMPELOEIL_MAKE_MOCK_(name,,10, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK11(name, sig, ...)          \
+  TROMPELOEIL_MAKE_MOCK_(name,,11, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK12(name, sig, ...)          \
+  TROMPELOEIL_MAKE_MOCK_(name,,12, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK13(name, sig, ...)          \
+  TROMPELOEIL_MAKE_MOCK_(name,,13, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK14(name, sig, ...)          \
+  TROMPELOEIL_MAKE_MOCK_(name,,14, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK15(name, sig, ...)          \
+  TROMPELOEIL_MAKE_MOCK_(name,,15, sig, __VA_ARGS__,,)
 
-#define TROMPELOEIL_MAKE_CONST_MOCK1(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name, const, 1, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK2(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,2, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK3(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,3, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK4(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,4, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK5(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,5, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK6(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,6, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK7(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,7, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK8(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,8, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK9(name, sig)                                \
-  TROMPELOEIL_MAKE_MOCK_(name,const,9, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK10(name, sig)                               \
-  TROMPELOEIL_MAKE_MOCK_(name,const,10, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK11(name, sig)                               \
-  TROMPELOEIL_MAKE_MOCK_(name,const,11, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK12(name, sig)                               \
-  TROMPELOEIL_MAKE_MOCK_(name,const,12, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK13(name, sig)                               \
-  TROMPELOEIL_MAKE_MOCK_(name,const,13, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK14(name, sig)                               \
-  TROMPELOEIL_MAKE_MOCK_(name,const,14, sig, #name, #sig)
-#define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig)                               \
-  TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
+#define TROMPELOEIL_MAKE_CONST_MOCK1(name, sig, ...)     \
+  TROMPELOEIL_MAKE_MOCK_(name, const, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK2(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,2, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK3(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,3, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK4(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,4, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK5(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,5, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK6(name, sig, ...)             \
+  TROMPELOEIL_MAKE_MOCK_(name,const,6, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK7(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,7, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK8(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,8, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK9(name, sig, ...)                     \
+  TROMPELOEIL_MAKE_MOCK_(name,const,9, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK10(name, sig, ...)                    \
+  TROMPELOEIL_MAKE_MOCK_(name,const,10, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK11(name, sig, ...)                    \
+  TROMPELOEIL_MAKE_MOCK_(name,const,11, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK12(name, sig, ...)                    \
+  TROMPELOEIL_MAKE_MOCK_(name,const,12, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK13(name, sig, ...)                    \
+  TROMPELOEIL_MAKE_MOCK_(name,const,13, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK14(name, sig, ...)                    \
+  TROMPELOEIL_MAKE_MOCK_(name,const,14, sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK15(name, sig, ...)                    \
+  TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, __VA_ARGS__,,)
+
 
 namespace trompeloeil {
   template <typename Sig>
@@ -3286,7 +3293,7 @@ namespace trompeloeil {
   };
 }
 
-#define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, name_s, sig_s)       \
+#define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_ID(cardinality_match) =                                    \
     std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
   static_assert(TROMPELOEIL_ID(cardinality_match)::value,                      \
@@ -3315,7 +3322,7 @@ namespace trompeloeil {
         auto  matcher_obj = std::make_unique<matcher>(std::forward<U>(u)...);  \
         matcher_obj->set_location(file, line);                                 \
         matcher_obj->set_name(call_string);                                    \
-        return {std::move(matcher_obj)};                                \
+        return {std::move(matcher_obj)};                                       \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \
@@ -3341,11 +3348,11 @@ namespace trompeloeil {
   {                                                                            \
     return TROMPELOEIL_ID(expectations).active;                                \
   }                                                                            \
-  auto                                                                         \
+  ::trompeloeil::return_of_t<sig>                                              \
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
-  -> ::trompeloeil::return_of_t<sig>                                           \
+  spec								               \
   {                                                                            \
     auto lock = ::trompeloeil::get_lock();                                     \
     auto param_value =                                                         \
@@ -3357,7 +3364,7 @@ namespace trompeloeil {
     if (!i)                                                                    \
     {                                                                          \
       ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},      \
-                                     name_s " with signature " sig_s,          \
+                                     #name " with signature " #sig,            \
                                      param_value,                              \
                                      TROMPELOEIL_ID(expectations).active,      \
                                      TROMPELOEIL_ID(expectations).saturated);  \
@@ -3555,71 +3562,71 @@ namespace trompeloeil {
 
 #ifndef TROMPELOEIL_LONG_MACROS
 
-#define MAKE_MOCK0(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,0, sig, #name, #sig)
-#define MAKE_MOCK1(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,1, sig, #name, #sig)
-#define MAKE_MOCK2(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,2, sig, #name, #sig)
-#define MAKE_MOCK3(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,3, sig, #name, #sig)
-#define MAKE_MOCK4(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,4, sig, #name, #sig)
-#define MAKE_MOCK5(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,5, sig, #name, #sig)
-#define MAKE_MOCK6(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,6, sig, #name, #sig)
-#define MAKE_MOCK7(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,7, sig, #name, #sig)
-#define MAKE_MOCK8(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,8, sig, #name, #sig)
-#define MAKE_MOCK9(name, sig)                                                  \
-  TROMPELOEIL_MAKE_MOCK_(name,,9, sig, #name, #sig)
-#define MAKE_MOCK10(name, sig)                                                 \
-  TROMPELOEIL_MAKE_MOCK_(name,,10, sig, #name, #sig)
-#define MAKE_MOCK11(name, sig)                                                 \
-  TROMPELOEIL_MAKE_MOCK_(name,,11, sig, #name, #sig)
-#define MAKE_MOCK12(name, sig)                                                 \
-  TROMPELOEIL_MAKE_MOCK_(name,,12, sig, #name, #sig)
-#define MAKE_MOCK13(name, sig)                                                 \
-  TROMPELOEIL_MAKE_MOCK_(name,,13, sig, #name, #sig)
-#define MAKE_MOCK14(name, sig)                                                 \
-  TROMPELOEIL_MAKE_MOCK_(name,,14, sig, #name, #sig)
-#define MAKE_MOCK15(name, sig)                                                 \
-  TROMPELOEIL_MAKE_MOCK_(name,,15, sig, #name, #sig)
+#define MAKE_MOCK0(name, sig, ...)                                                  \
+  TROMPELOEIL_MAKE_MOCK_(name,,0,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK1(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,1,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK2(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,2,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK3(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,3,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK4(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,4,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK5(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,5,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK6(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,6,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK7(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,7,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK8(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,8,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK9(name, sig, ...)                                       \
+  TROMPELOEIL_MAKE_MOCK_(name,,9,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK10(name, sig, ...)                                      \
+  TROMPELOEIL_MAKE_MOCK_(name,,10,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK11(name, sig, ...)                                      \
+  TROMPELOEIL_MAKE_MOCK_(name,,11,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK12(name, sig, ...)                                      \
+  TROMPELOEIL_MAKE_MOCK_(name,,12,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK13(name, sig, ...)                                      \
+  TROMPELOEIL_MAKE_MOCK_(name,,13,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK14(name, sig, ...)                                      \
+  TROMPELOEIL_MAKE_MOCK_(name,,14,  sig, __VA_ARGS__,,)
+#define MAKE_MOCK15(name, sig, ...)                                      \
+  TROMPELOEIL_MAKE_MOCK_(name,,15,  sig, __VA_ARGS__,,)
 
-#define MAKE_CONST_MOCK0(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name, const, 0, sig, #name, #sig)
-#define MAKE_CONST_MOCK1(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name, const, 1, sig, #name, #sig)
-#define MAKE_CONST_MOCK2(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,2, sig, #name, #sig)
-#define MAKE_CONST_MOCK3(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,3, sig, #name, #sig)
-#define MAKE_CONST_MOCK4(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,4, sig, #name, #sig)
-#define MAKE_CONST_MOCK5(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,5, sig, #name, #sig)
-#define MAKE_CONST_MOCK6(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,6, sig, #name, #sig)
-#define MAKE_CONST_MOCK7(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,7, sig, #name, #sig)
-#define MAKE_CONST_MOCK8(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,8, sig, #name, #sig)
-#define MAKE_CONST_MOCK9(name, sig)                                            \
-  TROMPELOEIL_MAKE_MOCK_(name,const,9, sig, #name, #sig)
-#define MAKE_CONST_MOCK10(name, sig)                                           \
-  TROMPELOEIL_MAKE_MOCK_(name,const,10, sig, #name, #sig)
-#define MAKE_CONST_MOCK11(name, sig)                                           \
-  TROMPELOEIL_MAKE_MOCK_(name,const,11, sig, #name, #sig)
-#define MAKE_CONST_MOCK12(name, sig)                                           \
-  TROMPELOEIL_MAKE_MOCK_(name,const,12, sig, #name, #sig)
-#define MAKE_CONST_MOCK13(name, sig)                                           \
-  TROMPELOEIL_MAKE_MOCK_(name,const,13, sig, #name, #sig)
-#define MAKE_CONST_MOCK14(name, sig)                                           \
-  TROMPELOEIL_MAKE_MOCK_(name,const,14, sig, #name, #sig)
-#define MAKE_CONST_MOCK15(name, sig)                                           \
-  TROMPELOEIL_MAKE_MOCK_(name,const,15, sig, #name, #sig)
+#define MAKE_CONST_MOCK0(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name, const, 0,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK1(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name, const,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK2(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,2,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK3(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,3,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK4(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,4,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK5(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,5,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK6(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,6,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK7(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,7,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK8(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,8,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK9(name, sig, ...)                                 \
+  TROMPELOEIL_MAKE_MOCK_(name,const,9,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK10(name, sig, ...)                                \
+  TROMPELOEIL_MAKE_MOCK_(name,const,10,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK11(name, sig, ...)                                \
+  TROMPELOEIL_MAKE_MOCK_(name,const,11,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK12(name, sig, ...)                                \
+  TROMPELOEIL_MAKE_MOCK_(name,const,12,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK13(name, sig, ...)                                \
+  TROMPELOEIL_MAKE_MOCK_(name,const,13,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK14(name, sig, ...)                                \
+  TROMPELOEIL_MAKE_MOCK_(name,const,14,  sig, __VA_ARGS__,,)
+#define MAKE_CONST_MOCK15(name, sig, ...)                                \
+  TROMPELOEIL_MAKE_MOCK_(name,const,15,  sig, __VA_ARGS__,,)
 
 #define REQUIRE_CALL(obj, func)                                                \
   TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)

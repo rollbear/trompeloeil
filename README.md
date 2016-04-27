@@ -35,6 +35,7 @@ Teaser
 class Interface
 {
 public:
+  virtual ~Interface() = default;
   virtual bool foo(int, std::string& s) = 0;
   virtual bool bar(int) = 0;
   virtual bool bar(std::string) = 0;
@@ -45,9 +46,10 @@ void interface_func(Interface*); // function to test
 class Mock : public Interface
 {
 public:
-  MAKE_MOCK2(foo, bool(int, std::string&));
-  MAKE_MOCK1(bar, bool(int));
-  MAKE_MOCK1(bar, bool(std::string));
+  MAKE_MOCK2(foo, bool(int, std::string&),override);
+  MAKE_MOCK1(bar, bool(int),override);
+  MAKE_MOCK1(bar, bool(std::string),override);
+  MAKE_MOCK0(baz, void()); // not from Interface
 };
 
 TEST(exercise_interface_func)

@@ -1,6 +1,18 @@
 	* Fixed bug when the destruction of a sequence object with still
 	  living expectations caused call to abort().
 
+	* You can now add extra trailing specifiers to a mock function,
+	  such as the "override" context sensitive specifier, and/or the
+	  keyword "noexcept" (careful with the latter if your registered
+	  reporter can/does throw.)
+
+	  Example:
+
+	  struct D : public B {
+	    MAKE_MOCK1(func, int(int), override);
+	  };
+
+
 v13 2016-03-07
 
 	* Mock functions and their expectations are thread safe, using
