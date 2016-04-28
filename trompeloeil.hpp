@@ -2471,6 +2471,7 @@ namespace trompeloeil
     action(
       call_params_type_t<Sig> &t)
     const
+    override
     {
       a(t);
     }
