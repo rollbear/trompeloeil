@@ -1,3 +1,8 @@
+v15 2016-04-29
+
+	* Fixed macro bug that caused warnings with g++ and clang++ when
+	  compiling with strict C++ standards compliance.
+
 v14 2016-04-27
 
 	* Fixed bug when the destruction of a sequence object with still
