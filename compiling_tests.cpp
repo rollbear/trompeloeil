@@ -3542,3 +3542,310 @@ obj2\.foo\("bar"\) with\.
 ):";
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
+
+template <int N>
+struct I
+{
+  I(int i_) : i{i_} {}
+  operator int() const { return i; }
+  int i;
+};
+
+struct all_if
+{
+  virtual ~all_if() = default;
+  virtual void f0() = 0;
+  virtual void f1(I<1>) = 0;
+  virtual void f2(I<1>, I<2>) = 0;
+  virtual void f3(I<1>, I<2>, I<3>) = 0;
+  virtual void f4(I<1>, I<2>, I<3>, I<4>) = 0;
+  virtual void f5(I<1>, I<2>, I<3>, I<4>, I<5>) = 0;
+  virtual void f6(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>) = 0;
+  virtual void f7(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>) = 0;
+  virtual void f8(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>) = 0;
+  virtual void f9(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                  I<9>) = 0;
+  virtual void f10(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>) = 0;
+  virtual void f11(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>) = 0;
+  virtual void f12(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>) = 0;
+  virtual void f13(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>,I<13>) = 0;
+  virtual void f14(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>,I<13>,I<14>) = 0;
+  virtual void f15(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>) = 0;
+
+  virtual void cf0() const = 0;
+  virtual void cf1(I<1>) const = 0;
+  virtual void cf2(I<1>, I<2>) const = 0;
+  virtual void cf3(I<1>, I<2>, I<3>) const = 0;
+  virtual void cf4(I<1>, I<2>, I<3>, I<4>) const = 0;
+  virtual void cf5(I<1>, I<2>, I<3>, I<4>, I<5>) const = 0;
+  virtual void cf6(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>) const = 0;
+  virtual void cf7(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>) const = 0;
+  virtual void cf8(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>) const = 0;
+  virtual void cf9(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>) const = 0;
+  virtual void cf10(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                    I<9>,I<10>) const= 0;
+  virtual void cf11(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                    I<9>,I<10>,I<11>) const = 0;
+  virtual void cf12(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                    I<9>,I<10>,I<11>,I<12>) const = 0;
+  virtual void cf13(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                    I<9>,I<10>,I<11>,I<12>,I<13>) const = 0;
+  virtual void cf14(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                    I<9>,I<10>,I<11>,I<12>,I<13>,I<14>) const = 0;
+  virtual void cf15(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                    I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>) const = 0;
+};
+
+struct all_mock_if : public all_if
+{
+  MAKE_MOCK0(f0, void(), override);
+  MAKE_MOCK1(f1, void(I<1>), override);
+  MAKE_MOCK2(f2, void(I<1>, I<2>), override);
+  MAKE_MOCK3(f3, void(I<1>, I<2>, I<3>), override);
+  MAKE_MOCK4(f4, void(I<1>, I<2>, I<3>, I<4>), override);
+  MAKE_MOCK5(f5, void(I<1>, I<2>, I<3>, I<4>, I<5>), override);
+  MAKE_MOCK6(f6, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>), override);
+  MAKE_MOCK7(f7, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>), override);
+  MAKE_MOCK8(f8, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>), override);
+  MAKE_MOCK9(f9, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                      I<9>), override);
+  MAKE_MOCK10(f10, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>), override);
+  MAKE_MOCK11(f11, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>), override);
+  MAKE_MOCK12(f12, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>), override);
+  MAKE_MOCK13(f13, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>,I<13>), override);
+  MAKE_MOCK14(f14, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>,I<13>,I<14>), override);
+  MAKE_MOCK15(f15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>), override);
+
+  MAKE_CONST_MOCK0(cf0, void(), override);
+  MAKE_CONST_MOCK1(cf1, void(I<1>), override);
+  MAKE_CONST_MOCK2(cf2, void(I<1>, I<2>), override);
+  MAKE_CONST_MOCK3(cf3, void(I<1>, I<2>, I<3>), override);
+  MAKE_CONST_MOCK4(cf4, void(I<1>, I<2>, I<3>, I<4>), override);
+  MAKE_CONST_MOCK5(cf5, void(I<1>, I<2>, I<3>, I<4>, I<5>), override);
+  MAKE_CONST_MOCK6(cf6, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>), override);
+  MAKE_CONST_MOCK7(cf7, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>), override);
+  MAKE_CONST_MOCK8(cf8, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>), override);
+  MAKE_CONST_MOCK9(cf9, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                             I<9>), override);
+  MAKE_CONST_MOCK10(cf10, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>), override);
+  MAKE_CONST_MOCK11(cf11, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>), override);
+  MAKE_CONST_MOCK12(cf12, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>), override);
+  MAKE_CONST_MOCK13(cf13, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>,I<13>), override);
+  MAKE_CONST_MOCK14(cf14, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>,I<13>,I<14>), override);
+  MAKE_CONST_MOCK15(cf15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>), override);
+
+};
+
+
+struct all_mock
+{
+  MAKE_MOCK0(f0, void());
+  MAKE_MOCK1(f1, void(I<1>));
+  MAKE_MOCK2(f2, void(I<1>, I<2>));
+  MAKE_MOCK3(f3, void(I<1>, I<2>, I<3>));
+  MAKE_MOCK4(f4, void(I<1>, I<2>, I<3>, I<4>));
+  MAKE_MOCK5(f5, void(I<1>, I<2>, I<3>, I<4>, I<5>));
+  MAKE_MOCK6(f6, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>));
+  MAKE_MOCK7(f7, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>));
+  MAKE_MOCK8(f8, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>));
+  MAKE_MOCK9(f9, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                      I<9>));
+  MAKE_MOCK10(f10, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>));
+  MAKE_MOCK11(f11, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>));
+  MAKE_MOCK12(f12, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>));
+  MAKE_MOCK13(f13, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>,I<13>));
+  MAKE_MOCK14(f14, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>,I<13>,I<14>));
+  MAKE_MOCK15(f15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                        I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>));
+
+  MAKE_CONST_MOCK0(cf0, void());
+  MAKE_CONST_MOCK1(cf1, void(I<1>));
+  MAKE_CONST_MOCK2(cf2, void(I<1>, I<2>));
+  MAKE_CONST_MOCK3(cf3, void(I<1>, I<2>, I<3>));
+  MAKE_CONST_MOCK4(cf4, void(I<1>, I<2>, I<3>, I<4>));
+  MAKE_CONST_MOCK5(cf5, void(I<1>, I<2>, I<3>, I<4>, I<5>));
+  MAKE_CONST_MOCK6(cf6, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>));
+  MAKE_CONST_MOCK7(cf7, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>));
+  MAKE_CONST_MOCK8(cf8, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>));
+  MAKE_CONST_MOCK9(cf9, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                             I<9>));
+  MAKE_CONST_MOCK10(cf10, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>));
+  MAKE_CONST_MOCK11(cf11, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>));
+  MAKE_CONST_MOCK12(cf12, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>));
+  MAKE_CONST_MOCK13(cf13, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>,I<13>));
+  MAKE_CONST_MOCK14(cf14, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>,I<13>,I<14>));
+  MAKE_CONST_MOCK15(cf15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                               I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>));
+
+};
+
+
+TEST_CASE("all overridden short mocks can be expected and called", "[signatures],[override]")
+{
+  all_mock_if mock;
+  REQUIRE_CALL(mock, f0());
+  REQUIRE_CALL(mock, f1(0));
+  REQUIRE_CALL(mock, f2(0,1));
+  REQUIRE_CALL(mock, f3(0,1,2));
+  REQUIRE_CALL(mock, f4(0,1,2,3));
+  REQUIRE_CALL(mock, f5(0,1,2,3,4));
+  REQUIRE_CALL(mock, f6(0,1,2,3,4,5));
+  REQUIRE_CALL(mock, f7(0,1,2,3,4,5,6));
+  REQUIRE_CALL(mock, f8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL(mock, f9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL(mock, f10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL(mock, cf0());
+  REQUIRE_CALL(mock, cf1(0));
+  REQUIRE_CALL(mock, cf2(0,1));
+  REQUIRE_CALL(mock, cf3(0,1,2));
+  REQUIRE_CALL(mock, cf4(0,1,2,3));
+  REQUIRE_CALL(mock, cf5(0,1,2,3,4));
+  REQUIRE_CALL(mock, cf6(0,1,2,3,4,5));
+  REQUIRE_CALL(mock, cf7(0,1,2,3,4,5,6));
+  REQUIRE_CALL(mock, cf8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL(mock, cf9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL(mock, cf10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+
+  mock.f0();
+  mock.f1(0);
+  mock.f2(0,1);
+  mock.f3(0,1,2);
+  mock.f4(0,1,2,3);
+  mock.f5(0,1,2,3,4);
+  mock.f6(0,1,2,3,4,5);
+  mock.f7(0,1,2,3,4,5,6);
+  mock.f8(0,1,2,3,4,5,6,7);
+  mock.f9(0,1,2,3,4,5,6,7,8);
+  mock.f10(0,1,2,3,4,5,6,7,8,9);
+  mock.f11(0,1,2,3,4,5,6,7,8,9,10);
+  mock.f12(0,1,2,3,4,5,6,7,8,9,10,11);
+  mock.f13(0,1,2,3,4,5,6,7,8,9,10,11,12);
+  mock.f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13);
+  mock.f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+  mock.cf0();
+  mock.cf1(0);
+  mock.cf2(0,1);
+  mock.cf3(0,1,2);
+  mock.cf4(0,1,2,3);
+  mock.cf5(0,1,2,3,4);
+  mock.cf6(0,1,2,3,4,5);
+  mock.cf7(0,1,2,3,4,5,6);
+  mock.cf8(0,1,2,3,4,5,6,7);
+  mock.cf9(0,1,2,3,4,5,6,7,8);
+  mock.cf10(0,1,2,3,4,5,6,7,8,9);
+  mock.cf11(0,1,2,3,4,5,6,7,8,9,10);
+  mock.cf12(0,1,2,3,4,5,6,7,8,9,10,11);
+  mock.cf13(0,1,2,3,4,5,6,7,8,9,10,11,12);
+  mock.cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13);
+  mock.cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+}
+
+TEST_CASE("all non-overridden short mocks can be expected and called", "[signatures]")
+{
+  all_mock mock;
+  REQUIRE_CALL(mock, f0());
+  REQUIRE_CALL(mock, f1(0));
+  REQUIRE_CALL(mock, f2(0,1));
+  REQUIRE_CALL(mock, f3(0,1,2));
+  REQUIRE_CALL(mock, f4(0,1,2,3));
+  REQUIRE_CALL(mock, f5(0,1,2,3,4));
+  REQUIRE_CALL(mock, f6(0,1,2,3,4,5));
+  REQUIRE_CALL(mock, f7(0,1,2,3,4,5,6));
+  REQUIRE_CALL(mock, f8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL(mock, f9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL(mock, f10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL(mock, cf0());
+  REQUIRE_CALL(mock, cf1(0));
+  REQUIRE_CALL(mock, cf2(0,1));
+  REQUIRE_CALL(mock, cf3(0,1,2));
+  REQUIRE_CALL(mock, cf4(0,1,2,3));
+  REQUIRE_CALL(mock, cf5(0,1,2,3,4));
+  REQUIRE_CALL(mock, cf6(0,1,2,3,4,5));
+  REQUIRE_CALL(mock, cf7(0,1,2,3,4,5,6));
+  REQUIRE_CALL(mock, cf8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL(mock, cf9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL(mock, cf10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+
+  mock.f0();
+  mock.f1(0);
+  mock.f2(0,1);
+  mock.f3(0,1,2);
+  mock.f4(0,1,2,3);
+  mock.f5(0,1,2,3,4);
+  mock.f6(0,1,2,3,4,5);
+  mock.f7(0,1,2,3,4,5,6);
+  mock.f8(0,1,2,3,4,5,6,7);
+  mock.f9(0,1,2,3,4,5,6,7,8);
+  mock.f10(0,1,2,3,4,5,6,7,8,9);
+  mock.f11(0,1,2,3,4,5,6,7,8,9,10);
+  mock.f12(0,1,2,3,4,5,6,7,8,9,10,11);
+  mock.f13(0,1,2,3,4,5,6,7,8,9,10,11,12);
+  mock.f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13);
+  mock.f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+  mock.cf0();
+  mock.cf1(0);
+  mock.cf2(0,1);
+  mock.cf3(0,1,2);
+  mock.cf4(0,1,2,3);
+  mock.cf5(0,1,2,3,4);
+  mock.cf6(0,1,2,3,4,5);
+  mock.cf7(0,1,2,3,4,5,6);
+  mock.cf8(0,1,2,3,4,5,6,7);
+  mock.cf9(0,1,2,3,4,5,6,7,8);
+  mock.cf10(0,1,2,3,4,5,6,7,8,9);
+  mock.cf11(0,1,2,3,4,5,6,7,8,9,10);
+  mock.cf12(0,1,2,3,4,5,6,7,8,9,10,11);
+  mock.cf13(0,1,2,3,4,5,6,7,8,9,10,11,12);
+  mock.cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13);
+  mock.cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+}
+
