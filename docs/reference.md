@@ -726,7 +726,8 @@ stored in test fixtures.
 <A name="IN_SEQUENCE"/>
 ### **`IN_SEQUENCE(`** *seq...* **`)`**  
 Where *seq...* is one or more instances of `trompeloeil::sequence`. Impose an
-order in which [expectations](#expectation) must match.
+order in which [expectations](#expectation) and destruction of
+[**`deathwatched_type`**](#deathwatched_type) objects must match.
 Several sequences can be parallel and interleaved. A sequence for an 
 [expectation](#expectation) is no longer monitored
 once the lower limit from [**`TIMES(...)`**](#TIMES) is reached.
@@ -740,9 +741,15 @@ public:
   MAKE_MOCK1(func, void(const std::string&));
 };
 
+class ephemeral
+{
+public:
+  virtual ~ephemeral() {};
+};
 TEST(atest)
 {
   Mock m[2];
+  auto e = new trompeloeil::deathwatched<ephemeral>;
   
   trompeloeil::sequence seq1, seq2;
   
@@ -758,7 +765,10 @@ TEST(atest)
   REQUIRE_CALL(m[1], func(ANY(int))
     .IN_SEQUENCE(seq1, seq2);
   
-  tested_func(&m[0], &m[1]);
+  REQUIRE_DESTRUCTION(*e)
+    .IN_SEQUENCE(seq1, seq2);
+    
+  tested_func(&m[0], &m[1], e);
 }
 ```
 
@@ -768,11 +778,14 @@ sequences are listed in the last
 [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL), so it must be last
 [expectaiton](#expectation) matched. The intermediate
 [expectations](#expectation) has one sequence object each, thus they have no
-matching order imposed between them.
+matching order imposed between them. Last of all is the
+[**`REQUIRE_DESTRUCTION(...)`**](#REQUIRE_DESTRUCTION), which also lists
+all sequence objects and must happen after all other
+[expectations](#expectation) are fulfilled.
 
 The above allows the following two sequences only.
-- `m[0].func(int)` -> `m[0].func(string)` -> `m[1].func(string)` -> `m[1].func(int)`
-- `m[0].func(int)` -> `m[1].func(string)` -> `m[0].func(string)` -> `m[1].func(int)`
+- `m[0].func(int)` -> `m[0].func(string)` -> `m[1].func(string)` -> `m[1].func(int)` -> `delete e`
+- `m[0].func(int)` -> `m[1].func(string)` -> `m[0].func(string)` -> `m[1].func(int)` -> `delete e`
 
 Any other sequence of calls renders a violation report.
 

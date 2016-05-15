@@ -1093,6 +1093,10 @@ sequence objects, which is a way to allow some variation in order, without
 being too lax. For a more thorough walk through, see the blog post [Sequence
 control with the Trompeloeil C++14 Mocking Framework](http://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html)
 
+[**`.IN_SEQUNECE(...)`**](reference.md/#IN_SEQUENCE) can also be used on
+[**`REQUIRE_DESTRUCTION(...)`**](reference.md/#REQUIRE_DESTRUCTION) and
+[**`NAMED_REQUIRE_DESTRUCTION(...)`**](reference.md/#NAMED_REQUIRE_DESTRUCTION).
+
 ### <A name="match_count"/> Expecting matching calls a certain number of times
 
 By default [**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL) needs exactly
@@ -1198,7 +1202,24 @@ If the call `c.poke(0)` does not destroy the mock, a violation will be reported
 and fail the test. There is an implied order that the mock function
 `func(-1)` is called before the destruction of the mock object,
 since destroying any mock object that still has
-[expectations](reference.md/#expectation) is reported as a violation.
+[expectations](reference.md/#expectation) is reported as a violation. It is also
+possible to be explicit with the sequencing by using
+[**`IN_SEQUENCE(...)`**](reference.md/#IN_SEQUENCE) on both
+[**`REQUIRE_call(...)`**](reference.md/#REQUIRE_CALL) and
+[**`REQUIRE_DESTRUCTION(...)`**](reference.md/#REQUIRE_DESTRUCTION), as below:
+
+```Cpp
+  {
+    trompeloeil::sequence s;
+    REQUIRE_CALL(*mock, func(-1));
+      .IN_SEQUENCE(s);
+    REQUIRE_DESTRUCTION(*mock);
+      .IN_SEQUENCE(s);
+
+    c.poke(0);
+  }
+```
+
 
 ## <A name="custom_formatting"/> Customize output format of values
  
