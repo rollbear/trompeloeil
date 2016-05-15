@@ -1,3 +1,17 @@
+	* .IN_SEQUENCE(...) can now be used with REQUIRE_DESTRUCTION(...)
+	  and NAMED_REQUIRE_DESTRUCTION(...) to ensure objects are
+	  destroyed in the intended order. Example:
+
+	  auto p1 = new trompeloeil::deathwatched<mock1>;
+	  auto p2 = new trompeloeil::deathwatched<mock2>;
+
+	  trompeloeil::sequence s;
+	  REQUIRE_DESTRUCTION(*p1)
+	    .IN_SEQUENCE(s);
+	  REQUIRE_DESTRUCTION(*p2)
+	    .IN_SEQUENCE(s);
+	  call_destroyer(p1, p2); // both must be destroyed, p1 before p2.
+
 v15 2016-04-29
 
 	* Fixed macro bug that caused warnings with g++ and clang++ when
