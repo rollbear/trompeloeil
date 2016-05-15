@@ -884,6 +884,7 @@ namespace trompeloeil
 
     void
     validate_match(
+      severity s,
       sequence_matcher const *matcher,
       char const *seq_name,
       char const *match_name,
@@ -912,11 +913,12 @@ namespace trompeloeil
     }
     void
     validate_match(
+      severity s,
       char const *match_name,
       location loc)
     const
     {
-      seq.validate_match(this, seq_name, match_name, loc);
+      seq.validate_match(s, this, seq_name, match_name, loc);
     }
     bool
     is_first()
@@ -966,6 +968,7 @@ namespace trompeloeil
   inline
   void
   sequence::validate_match(
+    severity s,
     sequence_matcher const *matcher,
     char const* seq_name,
     char const* match_name,
@@ -982,7 +985,7 @@ namespace trompeloeil
          << ". Sequence \"" << seq_name << "\" has ";
       m.print_expectation(os);
       os << " first in line\n";
-      send_report(severity::fatal, loc, os.str());
+      send_report(s, loc, os.str());
     }
   }
 
@@ -2490,9 +2493,7 @@ namespace trompeloeil
 
     virtual
     void
-    validate(
-      char const*,
-      location) = 0;
+    validate(severity s, char const *, location) = 0;
 
     virtual
     bool
@@ -2522,13 +2523,14 @@ namespace trompeloeil
 
     void
     validate(
+      severity s,
       char const *match_name,
       location loc)
     override
     {
       for (auto& e : matchers)
       {
-        e.validate_match(match_name, loc);
+        e.validate_match(s, match_name, loc);
       }
     }
     bool
@@ -2904,7 +2906,7 @@ namespace trompeloeil
     {
       if (call_count < min_calls && sequences)
       {
-        sequences->validate(name, loc);
+        sequences->validate(severity::fatal, name, loc);
       }
       if (max_calls == 0)
       {
