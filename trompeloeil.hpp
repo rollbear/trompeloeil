@@ -3622,22 +3622,35 @@ namespace trompeloeil {
 #define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
 #define TROMPELOEIL_AT_MOST(num) 0, num
 
+namespace trompeloeil
+{
+template <bool sequence_set>
+struct lifetime_monitor_modifier
+{
+  operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
+  std::unique_ptr<lifetime_monitor> monitor;
+};
+}
+
 #define TROMPELOEIL_REQUIRE_DESTRUCTION(obj)                                   \
   TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                           \
-  ::trompeloeil::lifetime_monitor                                              \
+  std::unique_ptr<trompeloeil::lifetime_monitor>                               \
     TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)                   \
-      (obj, obj_s, ::trompeloeil::location{__FILE__, static_cast<unsigned long>(__LINE__)})
+    = TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)                             \
   TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                     \
-  std::make_unique<trompeloeil::lifetime_monitor>(obj,                                  \
-                                         obj_s,                                \
-                                         ::trompeloeil::location{__FILE__,     \
-                                                                 static_cast<unsigned long>(__LINE__)})
+  trompeloeil::lifetime_monitor_modifier<false>{                               \
+    std::make_unique<trompeloeil::lifetime_monitor>(                           \
+      obj,                                                                     \
+      obj_s,                                                                   \
+      ::trompeloeil::location{__FILE__,                                        \
+                              static_cast<unsigned long>(__LINE__)})           \
+  }
 
 #ifndef TROMPELOEIL_LONG_MACROS
 #define MAKE_MOCK0                TROMPELOEIL_MAKE_MOCK0
