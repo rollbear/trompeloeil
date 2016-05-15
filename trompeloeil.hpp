@@ -1886,6 +1886,83 @@ namespace trompeloeil
     T* p;
   };
 
+  struct sequence_handler_base
+  {
+    virtual
+    ~sequence_handler_base()
+    noexcept = default;
+
+    virtual
+    void
+      validate(severity s, char const *, location) = 0;
+
+    virtual
+    bool
+      is_first()
+      const
+      noexcept = 0;
+
+    virtual
+    void
+      retire()
+      noexcept = 0;
+  };
+
+  template <size_t N>
+  struct sequence_handler : public sequence_handler_base
+  {
+  public:
+    template <typename ... S>
+    sequence_handler(
+      char const *name,
+      location loc,
+      S&& ... s)
+    noexcept
+      : matchers{{name, loc, std::forward<S>(s)}...}
+    {
+    }
+
+    void
+    validate(
+      severity s,
+      char const *match_name,
+      location loc)
+    override
+    {
+      for (auto& e : matchers)
+      {
+        e.validate_match(s, match_name, loc);
+      }
+    }
+    bool
+    is_first()
+    const
+    noexcept
+    override
+    {
+      // std::all_of() is almost always preferable. The only reason
+      // for using a hand rolled loop is because it cuts compilation
+      // times quite noticeably (almost 10% with g++5.1)
+      for (auto& m : matchers)
+      {
+        if (!m.is_first()) return false;
+      }
+      return true;
+    }
+    void
+    retire()
+    noexcept
+    override
+    {
+      for (auto& e : matchers)
+      {
+        e.retire();
+      }
+    }
+  private:
+    sequence_matcher matchers[N];
+  };
+
   template <typename T>
   class deathwatched : public T
   {
@@ -1922,11 +1999,15 @@ namespace trompeloeil
     lifetime_monitor(
       ::trompeloeil::deathwatched<T> const &obj,
       char const* obj_name_,
+      char const* invocation_name_,
+      char const* call_name_,
       location loc_)
     noexcept
       : object_monitor(obj.trompeloeil_expect_death(this))
       , loc(loc_)
       , object_name(obj_name_)
+      , invocation_name(invocation_name_)
+      , call_name(call_name_)
     {
     }
     lifetime_monitor(lifetime_monitor const&) = delete;
@@ -1947,12 +2028,26 @@ namespace trompeloeil
     noexcept
     {
       died = true;
+      if (sequences) sequences->validate(severity::nonfatal, call_name, loc);
     }
-
+    template <typename ... T>
+    void
+    set_sequence(
+      T&& ... t)
+    {
+      auto seq = new sequence_handler<sizeof...(T)>(invocation_name,
+                                                    loc,
+                                                    std::forward<T>(t)...);
+      sequences.reset(seq);
+    }
+  private:
     bool               died = false;
     lifetime_monitor *&object_monitor;
     location           loc;
     char const        *object_name;
+    char const        *invocation_name;
+    char const        *call_name;
+    std::unique_ptr<sequence_handler_base>  sequences;
   };
 
   template <typename T>
@@ -2485,82 +2580,6 @@ namespace trompeloeil
   template <typename Sig>
   using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
 
-  struct sequence_handler_base
-  {
-    virtual
-    ~sequence_handler_base()
-    noexcept = default;
-
-    virtual
-    void
-    validate(severity s, char const *, location) = 0;
-
-    virtual
-    bool
-    is_first()
-    const
-    noexcept = 0;
-
-    virtual
-    void
-    retire()
-    noexcept = 0;
-  };
-
-  template <size_t N>
-  struct sequence_handler : public sequence_handler_base
-  {
-  public:
-    template <typename ... S>
-    sequence_handler(
-      char const *name,
-      location loc,
-      S&& ... s)
-    noexcept
-      : matchers{{name, loc, std::forward<S>(s)}...}
-    {
-    }
-
-    void
-    validate(
-      severity s,
-      char const *match_name,
-      location loc)
-    override
-    {
-      for (auto& e : matchers)
-      {
-        e.validate_match(s, match_name, loc);
-      }
-    }
-    bool
-    is_first()
-    const
-    noexcept
-    override
-    {
-      // std::all_of() is almost always preferable. The only reason
-      // for using a hand rolled loop is because it cuts compilation
-      // times quite noticeably (almost 10% with g++5.1)
-      for (auto& m : matchers)
-      {
-        if (!m.is_first()) return false;
-      }
-      return true;
-    }
-    void
-    retire()
-    noexcept
-    override
-    {
-      for (auto& e : matchers)
-      {
-        e.retire();
-      }
-    }
-  private:
-    sequence_matcher matchers[N];
-  };
 
   template <unsigned long long L, unsigned long long H = L>
   struct multiplicity { };
@@ -3628,6 +3647,16 @@ template <bool sequence_set>
 struct lifetime_monitor_modifier
 {
   operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
+  template <typename ... T, bool b = sequence_set>
+  lifetime_monitor_modifier<true>
+  in_sequence(T&& ... t)
+  {
+    static_assert(!b,
+                  "Multiple IN_SEQUENCE does not make sense."
+                    " You can list several sequence objects at once");
+    monitor->set_sequence(std::forward<T>(t)...);
+    return { std::move(monitor) };
+  }
   std::unique_ptr<lifetime_monitor> monitor;
 };
 }
@@ -3638,16 +3667,18 @@ struct lifetime_monitor_modifier
 #define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                           \
   std::unique_ptr<trompeloeil::lifetime_monitor>                               \
     TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)                   \
-    = TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)
+    = TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(,obj, obj_s)
 
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)                             \
-  TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, #obj)
+  TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_("NAMED_", obj, #obj)
 
-#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(obj, obj_s)                     \
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(prefix, obj, obj_s)	           \
   trompeloeil::lifetime_monitor_modifier<false>{                               \
     std::make_unique<trompeloeil::lifetime_monitor>(                           \
       obj,                                                                     \
       obj_s,                                                                   \
+      prefix "REQUIRE_DESTRUCTION(" obj_s ")",                                 \
+      "destructor for " obj_s,                                                 \
       ::trompeloeil::location{__FILE__,                                        \
                               static_cast<unsigned long>(__LINE__)})           \
   }

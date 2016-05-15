@@ -3144,6 +3144,108 @@ TEST_CASE_METHOD(Fixture, "a deathwatched objects constructor passes params to m
   delete obj;
 }
 
+TEST_CASE_METHOD(Fixture, "require destruction fulfilled in sequence is not reported", "[deathwatched],[sequences]")
+{
+  auto obj = new trompeloeil::deathwatched<mock_c>;
+  trompeloeil::sequence s;
+  REQUIRE_CALL(*obj, foo("foo"))
+  .IN_SEQUENCE(s);
+  REQUIRE_DESTRUCTION(*obj)
+  .IN_SEQUENCE(s);
+  obj->foo("foo");
+  delete obj;
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "named require destruction fulfilled in sequence is not reported", "[deathwatched],[sequences]")
+{
+  auto obj = new trompeloeil::deathwatched<mock_c>;
+  trompeloeil::sequence s;
+  REQUIRE_CALL(*obj, foo("foo"))
+  .IN_SEQUENCE(s);
+  auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
+  .IN_SEQUENCE(s);
+  obj->foo("foo");
+  delete obj;
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "require destruction fulfilled out of sequence is reported", "[deathwatched],[sequences]")
+{
+  auto obj = new trompeloeil::deathwatched<mock_c>;
+  trompeloeil::sequence s;
+  REQUIRE_CALL(*obj, foo("foo"))
+  .IN_SEQUENCE(s);
+  REQUIRE_DESTRUCTION(*obj)
+  .IN_SEQUENCE(s);
+  delete obj;
+  REQUIRE(!reports.empty());
+  auto& msg = reports.front().msg;
+  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*foo"):";
+  INFO("msg=" << msg);
+  REQUIRE(std::regex_search(msg, std::regex(re)));
+}
+
+TEST_CASE_METHOD(Fixture, "sequence mismatch with require destruction first is reported", "[deathwatched],[sequences]")
+{
+  try {
+    auto obj = new trompeloeil::deathwatched<mock_c>;
+    trompeloeil::sequence s;
+    REQUIRE_DESTRUCTION(*obj)
+    .IN_SEQUENCE(s);
+    REQUIRE_CALL(*obj, foo("foo"))
+    .IN_SEQUENCE(s);
+    obj->foo("foo");
+    FAIL("didn't throw");
+  }
+  catch (reported&)
+  {
+    REQUIRE(!reports.empty());
+    auto& msg = reports.front().msg;
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\. Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
+    INFO("msg=" << msg);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "named require destruction fulfilled out of sequence is reported", "[deathwatched],[sequences]")
+{
+  auto obj = new trompeloeil::deathwatched<mock_c>;
+  trompeloeil::sequence s;
+  REQUIRE_CALL(*obj, foo("foo"))
+  .IN_SEQUENCE(s);
+  auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
+  .IN_SEQUENCE(s);
+  delete obj;
+  REQUIRE(!reports.empty());
+  auto& msg = reports.front().msg;
+  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*foo"):";
+  INFO("msg=" << msg);
+  REQUIRE(std::regex_search(msg, std::regex(re)));
+}
+
+TEST_CASE_METHOD(Fixture, "sequence mismatch with named require destruction first is reported", "[deathwatched],[sequences]")
+{
+  try {
+    auto obj = new trompeloeil::deathwatched<mock_c>;
+    trompeloeil::sequence s;
+    auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
+    .IN_SEQUENCE(s);
+    REQUIRE_CALL(*obj, foo("foo"))
+    .IN_SEQUENCE(s);
+    obj->foo("foo");
+    FAIL("didn't throw");
+  }
+  catch (reported&)
+  {
+    REQUIRE(!reports.empty());
+    auto& msg = reports.front().msg;
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\. Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
+    INFO("msg=" << msg);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
 // tests of calls that do not match any valid expectations
 
 TEST_CASE_METHOD(Fixture, "unmatched call is reported", "[mismatches]")
