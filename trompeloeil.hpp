@@ -1796,8 +1796,6 @@ namespace trompeloeil
     return "";
   }
 
-  struct lifetime_monitor;
-
   template <typename T>
   struct null_on_move
   {
@@ -1963,6 +1961,8 @@ namespace trompeloeil
     sequence_matcher matchers[N];
   };
 
+  struct lifetime_monitor;
+
   template <typename T>
   class deathwatched : public T
   {
@@ -1993,7 +1993,11 @@ namespace trompeloeil
     mutable null_on_move<trompeloeil::lifetime_monitor> trompeloeil_lifetime_monitor;
   };
 
-  struct lifetime_monitor
+  struct expectation {
+    virtual ~expectation() = default;
+  };
+
+  struct lifetime_monitor : public expectation
   {
     template <typename T>
     lifetime_monitor(
@@ -2012,7 +2016,6 @@ namespace trompeloeil
     }
     lifetime_monitor(lifetime_monitor const&) = delete;
     ~lifetime_monitor()
-    noexcept(false)
     {
       auto lock = get_lock();
       if (!died)
@@ -2752,10 +2755,6 @@ namespace trompeloeil
     std::unique_ptr<Matcher> matcher;
   };
 
-  struct expectation {
-    virtual ~expectation() = default;
-  };
-
   inline
   void
   report_unfulfilled(
@@ -3229,6 +3228,7 @@ namespace trompeloeil
   struct lifetime_monitor_modifier
   {
     operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
+    operator std::unique_ptr<expectation>() { return std::move(monitor);}
     template <typename ... T, bool b = sequence_set>
     lifetime_monitor_modifier<true>
     in_sequence(T&& ... t)
@@ -3661,7 +3661,7 @@ operator*(
   TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, obj_s)                           \
-  std::unique_ptr<trompeloeil::lifetime_monitor>                               \
+  std::unique_ptr<trompeloeil::expectation>                                    \
     TROMPELOEIL_CONCAT(trompeloeil_death_monitor_, __LINE__)                   \
     = TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(,obj, obj_s)
 

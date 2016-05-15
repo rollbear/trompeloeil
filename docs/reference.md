@@ -1229,10 +1229,10 @@ See also [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL) which creates an
 <A name="NAMED_REQUIRE_DESTRUCTION"/>
 ### **`NAMED_REQUIRE_DESTRUCTION(`** *mock_object* **`)`**
 Create a
-[`std::unique_ptr<trompeloeil::lifetime_monitor>`](#lifetime_monitor_type)
+[`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 object which reports a violation if the
 [**`deathwatched_type`**](#deathwatched_type) [mock object](#mock_object) is
-not destroyed by the time the `lifetime_monitor` is destroyed.
+not destroyed by the time the `expectation` is destroyed.
 
 Example:
 ```Cpp
@@ -1243,7 +1243,7 @@ public:
   MAKE_MOCK1(func, void(int));
 }
 
-using monitor = std::unique_ptr<trompeloeil::lifetime_monitor>;
+using monitor = std::unique_ptr<trompeloeil::expectation>;
 using trompeloeil::deathwatched;
 
 TEST(atest)
@@ -1265,7 +1265,8 @@ Above, `p` points to a [`deathwatched`](#deathwatched_type)
 destroyed without having a destruction requirement.
 
 The monitor `m` is a requirement that `*p` is destroyed before the 
-[`lifetime_monitor`](#lifetime_monitor_type) held by `m` is destroyed.
+[`lifetime_monitor`](#lifetime_monitor_type)
+(subtype of [`expectation`](#expectation_type)) held by `m` is destroyed.
 
 It is thus a violation if the first call to `test_function(...)` destroys
 `*p`, and another violation if the second call to `test_function(...)`
@@ -1690,7 +1691,8 @@ The `what()` string contains the violation report message.
 The macro [**`NAMED_REQUIRE_DESTRUCTION(...)`**](#NAMED_REQUIRE_DESTRUCTION)
 results in a
 [`std::unique_ptr<trompeloeil::lifetime_monitor>`](http://en.cppreference.com/w/cpp/memory/unique_ptr)
-which you can hold in a varaible.
+which you can hold in a varaible. `trompeloeil::lifetime_monitor` inherits from
+[`trompeloeil::expectation`](#expectation_type).
 
 Example:
 
@@ -1713,12 +1715,12 @@ void test_func()
   {
     FORBID_CALL(*p, func(_));
     monitor m = NAMED_REQUIRE_DESTRUCTION(*p);
+    std::unique_ptr<trompeloeil::expectation> e = std::move(m);
     func2(p);
-    m.reset();
+    e.reset();
   }
 }
 ```
-
 
 ### <A name="matcher_type"/>`trompeloeil::matcher`
 

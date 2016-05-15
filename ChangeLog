@@ -1,3 +1,15 @@
+	* class trompeloeil::lifetime_monitor now inherits from
+	  class trompeloeil::expectation, so using
+
+	  std::unique_ptr<expectation> p = NAMED_REQUIRE_DESTRUCTION(obj);
+
+	  instead of
+
+	  std::unique_ptr<lifetime_monitor> p = NAMED_REQUIRE_DESTRUCTION(obj);
+
+	  works equally well, reduces the cognitive load a bit, and seems to
+	  build slightly faster.
+
 	* .IN_SEQUENCE(...) can now be used with REQUIRE_DESTRUCTION(...)
 	  and NAMED_REQUIRE_DESTRUCTION(...) to ensure objects are
 	  destroyed in the intended order. Example:

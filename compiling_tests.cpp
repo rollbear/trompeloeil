@@ -3120,7 +3120,7 @@ TEST_CASE_METHOD(Fixture, "object alive when destruction expectation goes out of
 {
   trompeloeil::deathwatched<mock_c> obj;
   {
-    auto p = NAMED_REQUIRE_DESTRUCTION(obj);
+    std::unique_ptr<trompeloeil::expectation> p = NAMED_REQUIRE_DESTRUCTION(obj);
   }
   REQUIRE(reports.size() == 1U);
   REQUIRE(std::regex_search(reports.front().msg, std::regex("Object obj is still alive")));
