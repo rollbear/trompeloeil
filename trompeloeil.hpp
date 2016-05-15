@@ -3224,6 +3224,34 @@ namespace trompeloeil
   {
     return t;
   }
+
+  template <bool sequence_set>
+  struct lifetime_monitor_modifier
+  {
+    operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
+    template <typename ... T, bool b = sequence_set>
+    lifetime_monitor_modifier<true>
+    in_sequence(T&& ... t)
+    {
+      static_assert(!b,
+                    "Multiple IN_SEQUENCE does not make sense."
+                      " You can list several sequence objects at once");
+      monitor->set_sequence(std::forward<T>(t)...);
+      return { std::move(monitor) };
+    }
+    std::unique_ptr<lifetime_monitor> monitor;
+  };
+
+  template <typename Sig>
+  struct expectations
+  {
+    ~expectations() {
+      active.decommission();
+      saturated.decommission();
+    }
+    mutable call_matcher_list<Sig> active;
+    mutable call_matcher_list<Sig> saturated;
+  };
 }
 
 template <typename M,
@@ -3378,18 +3406,6 @@ operator*(
 #endif
 
 
-namespace trompeloeil {
-  template <typename Sig>
-  struct expectations
-  {
-    ~expectations() {
-      active.decommission();
-      saturated.decommission();
-    }
-    mutable call_matcher_list<Sig> active;
-    mutable call_matcher_list<Sig> saturated;
-  };
-}
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_ID(cardinality_match) =                                    \
@@ -3640,26 +3656,6 @@ namespace trompeloeil {
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
 #define TROMPELOEIL_AT_MOST(num) 0, num
-
-namespace trompeloeil
-{
-template <bool sequence_set>
-struct lifetime_monitor_modifier
-{
-  operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
-  template <typename ... T, bool b = sequence_set>
-  lifetime_monitor_modifier<true>
-  in_sequence(T&& ... t)
-  {
-    static_assert(!b,
-                  "Multiple IN_SEQUENCE does not make sense."
-                    " You can list several sequence objects at once");
-    monitor->set_sequence(std::forward<T>(t)...);
-    return { std::move(monitor) };
-  }
-  std::unique_ptr<lifetime_monitor> monitor;
-};
-}
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION(obj)                                   \
   TROMPELOEIL_REQUIRE_DESTRUCTION_(obj, #obj)
