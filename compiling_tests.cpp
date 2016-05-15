@@ -3202,7 +3202,7 @@ TEST_CASE_METHOD(Fixture, "sequence mismatch with require destruction first is r
   {
     REQUIRE(!reports.empty());
     auto& msg = reports.front().msg;
-    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\. Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
     REQUIRE(std::regex_search(msg, std::regex(re)));
   }
@@ -3240,7 +3240,7 @@ TEST_CASE_METHOD(Fixture, "sequence mismatch with named require destruction firs
   {
     REQUIRE(!reports.empty());
     auto& msg = reports.front().msg;
-    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\. Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
     REQUIRE(std::regex_search(msg, std::regex(re)));
   }
