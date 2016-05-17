@@ -394,6 +394,7 @@ namespace trompeloeil
 
   template <typename ... T>
   inline
+  constexpr
   bool
   ignore(
     T const& ...)
@@ -2280,23 +2281,11 @@ namespace trompeloeil
     std::index_sequence<I...>,
     T const& t,
     U const& u)
-  noexcept(noexcept(std::make_tuple(trompeloeil::param_matches(std::get<I>(t),std::get<I>(u))...)))
+    noexcept(noexcept(std::initializer_list<bool>{trompeloeil::param_matches(std::get<I>(t),std::get<I>(u))...}))
   {
-    auto actual =  std::make_tuple(::trompeloeil::param_matches(std::get<I>(t), std::get<I>(u))...);
-    auto all_true = std::make_tuple((::trompeloeil::ignore(std::get<I>(t)))...);
-    return actual == all_true;
-  }
-
-  inline
-  constexpr
-  bool
-  match_parameters(
-    std::index_sequence<>,
-    std::tuple<> const&,
-    std::tuple<> const&)
-  noexcept
-  {
-    return true;
+    bool all_true = true;
+    ignore(std::initializer_list<bool>{all_true = all_true && ::trompeloeil::param_matches(std::get<I>(t), std::get<I>(u))...});
+    return all_true;
   }
 
   template <typename ... T, typename ... U>
@@ -2309,74 +2298,69 @@ namespace trompeloeil
     return ::trompeloeil::match_parameters(std::make_index_sequence<sizeof...(T)>{}, t, u);
   }
 
-  template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
-  struct parameters
+  template <typename V, typename P>
+  void print_mismatch(
+    std::ostream& os,
+    size_t num,
+    V const& v,
+    P const& p)
   {
-    template <typename stream, typename U>
-    static
-    stream &
-    print_mismatch(
-      stream &os,
-      T const &t1,
-      U const &t2)
+    if (!::trompeloeil::param_matches(v, p))
     {
-      if (!(::trompeloeil::param_matches(std::get<N>(t1), std::get<N>(t2))))
-      {
-        auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t1)) + "_";
-        os << "  Expected " << std::setw((N<9)+1) << prefix << N+1;
-        ::trompeloeil::print_expectation(os, std::get<N>(t1));
-      }
-      return parameters<T, N + 1>::print_mismatch(os, t1, t2);
+      auto prefix = ::trompeloeil::param_name_prefix(&v) + "_";
+      os << "  Expected " << std::setw((num < 9) + 1) << prefix << num+1;
+      ::trompeloeil::print_expectation(os, v);
     }
+  }
 
-    template <typename stream, typename U>
-    static
-    stream &
-    print_missed(
-      stream &os,
-      U const &t)
-    {
-      auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t)) + "_";
-      os << "  param " << std::setw((N<9)+1) << prefix << N+1
-         << ::trompeloeil::param_compare_operator(&std::get<N>(t));
-      ::trompeloeil::print(os, std::get<N>(t));
-      os << '\n';
-      return parameters<T, N + 1>::print_missed(os, t);
-    }
-  };
-
-  template<typename T, size_t N>
-  struct parameters<T, N, true>
+  template <typename ... V, typename ... P, size_t ... I>
+  void print_mismatch(
+                      std::ostream& os,
+                      std::index_sequence<I...>,
+                      std::tuple<V...> const& v,
+                      std::tuple<P...> const& p)
   {
-    template <typename stream, typename U>
-    static
-    stream &
-    print_mismatch(
-      stream &os,
-      T const &,
-      U const &)
-    {
-      return os;
-    }
+    ignore(std::initializer_list<int>{(print_mismatch(os, I, std::get<I>(v), std::get<I>(p)),0)...});
+  }
 
-    template <typename stream, typename U>
-    static
-    stream&
-    print_missed(
-      stream &os,
-      U const &)
-    {
-      return os;
-    }
-  };
+  template <typename ... V, typename ... P>
+  void print_mismatch(
+    std::ostream& os,
+    std::tuple<V...> const& v,
+    std::tuple<P...> const& p)
+  {
+    print_mismatch(os, std::make_index_sequence<sizeof...(V)>{}, v, p);
+  }
 
   template <typename T>
+  void missed_value(
+    std::ostream& os,
+    int i,
+    T const& t)
+  {
+    auto prefix = ::trompeloeil::param_name_prefix(&t) + "_";
+    os << "  param " << std::setw((i < 9) + 1) << prefix << i + 1
+       << ::trompeloeil::param_compare_operator(&t);
+    ::trompeloeil::print(os, t);
+    os << '\n';
+  }
+
+  template <size_t ... I, typename ... T>
+  void missed_values(
+    std::ostream& os,
+    std::index_sequence<I...>,
+    std::tuple<T...> const& t)
+  {
+    ignore(std::initializer_list<int>{(missed_value(os, I, std::get<I>(t)),0)...});
+  }
+
+  template <typename ... T>
   std::string
   missed_values(
-    T const &t)
+  std::tuple<T...> const &t)
   {
     std::ostringstream os;
-    parameters<T>::print_missed(os, t);
+    missed_values(os, std::make_index_sequence<sizeof...(T)>{}, t);
     return os.str();
   }
 
@@ -2972,7 +2956,7 @@ namespace trompeloeil
       else
       {
         os << '\n';
-        parameters<Value>::print_mismatch(os, val, params);
+        ::trompeloeil::print_mismatch(os, val, params);
       }
       return os;
     }
@@ -3100,6 +3084,7 @@ namespace trompeloeil
     const
     {
       static_assert(!N, "illegal argument");
+      return std::declval<T>();
     }
   };
 
