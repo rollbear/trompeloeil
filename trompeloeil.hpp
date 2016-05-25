@@ -443,18 +443,13 @@ namespace trompeloeil
     operator T C::*() const;
   };
 
+  constexpr inline std::false_type is_output_streamable_(...) { return {}; }
+
   template <typename T>
-  class is_output_streamable
-  {
-    static std::false_type func(...);
-    template <typename U>
-    static auto func(U const* u) ->
-      std::is_same<std::ostream&,
-                   decltype(std::declval<std::ostream&>() << *u)>;
-  public:
-    using type = decltype(func(std::declval<T*>()));
-    static bool const value = type::value;
-  };
+  constexpr inline auto is_output_streamable_(T* t) -> decltype((std::declval<std::ostream&>() << *t),std::true_type{}) { return {}; }
+
+  template <typename T>
+  constexpr auto is_output_streamable() { return is_output_streamable_(static_cast<T*>(nullptr)); }
 
   struct stream_sentry
   {
@@ -531,7 +526,7 @@ namespace trompeloeil
                                   ::trompeloeil::is_null_comparable<T>(nullptr));
   }
 
-  template <typename T, bool b = is_output_streamable<T>::value>
+  template <typename T, bool b = is_output_streamable<T>()>
   struct streamer
   {
     static
