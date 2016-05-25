@@ -582,14 +582,31 @@ namespace trompeloeil
     streamer<T>::print(os, t);
   }
 
+  inline
+  constexpr
+  auto
+  param_compare_operator(
+    ...)
+  {
+    return " = ";
+  }
+
+  inline
+  constexpr
+  auto
+  param_compare_operator(
+    matcher const*)
+  {
+    return "";
+  }
+
   template <typename T>
   void
   print_expectation(
     std::ostream& os,
     T const& t)
   {
-    static const char* const description[] = { " = ", "" };
-    os << description[is_matcher<T>()];
+    os << param_compare_operator(&t);
     print(os, t);
     os << '\n';
   }
@@ -1771,23 +1788,6 @@ namespace trompeloeil
     return "*" + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
   }
 
-  inline
-  constexpr
-  auto
-  param_compare_operator(
-    ...)
-  {
-    return " = ";
-  }
-
-  inline
-  constexpr
-  auto
-  param_compare_operator(
-    const matcher*)
-  {
-    return "";
-  }
 
   template <typename T>
   struct null_on_move
