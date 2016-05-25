@@ -403,16 +403,6 @@ namespace trompeloeil
     return true;
   }
 
-  template <typename T>
-  struct is_value_type :
-    std::integral_constant<bool,
-                           std::is_same<T,
-                                        typename std::decay<T>::type
-                                        >::value
-                           >
-  {
-  };
-
   struct matcher { };
 
   inline constexpr std::false_type is_matcher_(...) { return {}; }
@@ -2638,8 +2628,7 @@ namespace trompeloeil
       return {std::move(matcher)};
     }
 
-    template <typename H,
-              typename = typename std::enable_if_t<is_value_type<H>::value>>
+    template <typename H>
     call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >>
     handle_return(
       H&& h)
