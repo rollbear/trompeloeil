@@ -412,10 +412,6 @@ namespace trompeloeil
   template <typename T>
   using is_matcher = decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr)));
 
-  #if 0
-  template <typename T>
-  inline constexpr auto is_matcher() { return is_matcher_(static_cast<T*>(nullptr)); }
-  #endif
   template <typename T>
   struct typed_matcher : matcher
   {
