@@ -410,8 +410,12 @@ namespace trompeloeil
   inline constexpr std::true_type is_matcher_(matcher const*) { return {}; }
 
   template <typename T>
-  inline constexpr auto is_matcher() { return is_matcher_(static_cast<T*>(nullptr)); }
+  using is_matcher = decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr)));
 
+  #if 0
+  template <typename T>
+  inline constexpr auto is_matcher() { return is_matcher_(static_cast<T*>(nullptr)); }
+  #endif
   template <typename T>
   struct typed_matcher : matcher
   {
@@ -476,7 +480,7 @@ namespace trompeloeil
   template <typename U>
   constexpr
   std::integral_constant<decltype(std::declval<U>() == nullptr),
-			 !is_matcher<U>()>
+			 !is_matcher<U>::value>
   is_null_comparable(
     U *)
   noexcept
@@ -3224,7 +3228,7 @@ namespace trompeloeil
 }
 
 template <typename M,
-          typename = std::enable_if_t<::trompeloeil::is_matcher<std::decay_t<M>>()>>
+          typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
 inline
 auto
 operator*(
