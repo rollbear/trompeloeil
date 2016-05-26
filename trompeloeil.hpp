@@ -440,7 +440,7 @@ namespace trompeloeil
   constexpr inline std::false_type is_output_streamable_(...) { return {}; }
 
   template <typename T>
-  constexpr inline auto is_output_streamable_(T* t) -> decltype((std::declval<std::ostream&>() << *t),std::true_type{}) { ignore(t); return {}; }
+  constexpr inline auto is_output_streamable_(T* t) -> decltype((std::declval<std::ostream&>() << *t),std::true_type{}) { return (ignore(t),std::true_type{}); }
 
   template <typename T>
   constexpr auto is_output_streamable() { return is_output_streamable_(static_cast<T*>(nullptr)); }
