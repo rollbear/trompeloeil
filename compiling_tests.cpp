@@ -22,34 +22,39 @@
 
 using namespace std::string_literals;
 
+class reported {};
+
+struct report
+{
+  trompeloeil::severity s;
+  const char           *file;
+  unsigned long         line;
+  std::string           msg;
+};
+
+static std::vector<report> reports;
+
+namespace trompeloeil
+{
+  template <>
+  struct reporter<specialized>
+  {
+    static void send(severity s,
+                     location loc,
+                     std::string const &msg)
+    {
+      reports.push_back(report{s, loc.file, loc.line, msg});
+      if (s == severity::fatal && !std::uncaught_exception())
+      {
+        throw reported{};
+      }
+    }
+  };
+}
 struct Fixture
 {
   Fixture() {
-    trompeloeil::set_reporter([this](auto s,auto f, auto l, auto m)
-                              { this->send_report(s, f, l, m);});
-  }
-  class reported {};
-
-  struct report
-  {
-    trompeloeil::severity s;
-    const char           *file;
-    unsigned long         line;
-    std::string           msg;
-  };
-  std::vector<report> reports;
-
-  void send_report(
-    trompeloeil::severity s,
-    const char* file,
-    unsigned long line,
-    const std::string msg)
-  {
-    reports.push_back(report{ s, file, line, msg });
-    if (s == trompeloeil::severity::fatal && !std::uncaught_exception())
-    {
-      throw reported{};
-    }
+    reports.clear();
   }
 };
 struct uncopyable

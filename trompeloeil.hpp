@@ -210,6 +210,8 @@
 
 namespace trompeloeil
 {
+  class specialized;
+
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
@@ -382,14 +384,27 @@ namespace trompeloeil
     std::ostream& stream;
   };
 
-  inline
+  template <typename T>
+  struct reporter
+  {
+    static
+    void
+    send(
+      severity s,
+      location loc,
+      std::string const &msg)
+    {
+      reporter_obj()(s, loc.file, loc.line, msg);
+    }
+  };
+  template <typename T = specialized>
   void
   send_report(
     severity s,
     location loc,
     std::string const &msg)
   {
-    ::trompeloeil::reporter_obj()(s, loc.file, loc.line, msg);
+    reporter<T>::send(s, loc, msg);
   }
 
   template <typename ... T>
@@ -2062,9 +2077,9 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Unexpected destruction of "
        << typeid(T).name() << "@" << this << '\n';
-    ::trompeloeil::send_report(trompeloeil::severity::nonfatal,
-                               location{},
-                               os.str());
+    send_report(severity::nonfatal,
+                             location{},
+                             os.str());
   }
 
   template<typename T>
@@ -2432,7 +2447,7 @@ namespace trompeloeil
         m.report_mismatch(os, p);
       }
     }
-    ::trompeloeil::send_report(severity::fatal, location{}, os.str());
+    send_report(severity::fatal, location{}, os.str());
     std::abort(); // must never get here.
   }
 
@@ -2765,7 +2780,7 @@ namespace trompeloeil
       os << "called " << call_count << " times\n";
     }
     os << values;
-    ::trompeloeil::send_report(severity::nonfatal, loc, os.str());
+    send_report(severity::nonfatal, loc, os.str());
   }
 
   inline
@@ -2778,7 +2793,7 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Match of forbidden call of " << name
        << " at " << loc << '\n' << values;
-    ::trompeloeil::send_report(severity::fatal, loc, os.str());
+    send_report(severity::fatal, loc, os.str());
   }
 
   template <typename Sig>
