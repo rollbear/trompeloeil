@@ -19,29 +19,29 @@ matrix:
           packages: ['g++-5', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
       env: COMPILER=g++-5
 
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
-          packages: ['clang-3.6', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
-      env: COMPILER=clang++-3.6
+#    - os: linux
+#      compiler: clang
+#      addons:
+#        apt:
+#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
+#          packages: ['clang-3.6', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+#      env: COMPILER=clang++-3.6
 
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
-          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
-      env: COMPILER=clang++-3.7
+#    - os: linux
+#      compiler: clang
+#      addons:
+#        apt:
+#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
+#          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+#      env: COMPILER=clang++-3.7
 
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.8']
-          packages: ['clang-3.8', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
-      env: COMPILER=clang++-3.8
+#    - os: linux
+#      compiler: clang
+#      addons:
+#        apt:
+#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.8']
+#          packages: ['clang-3.8', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+#      env: COMPILER=clang++-3.8
 
 
 # Activate when we are allowed to use MacOS X
