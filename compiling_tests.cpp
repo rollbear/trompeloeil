@@ -40,10 +40,11 @@ namespace trompeloeil
   struct reporter<specialized>
   {
     static void send(severity s,
-                     location loc,
-                     std::string const &msg)
+                     char const* file,
+                     unsigned long line,
+                     char const* msg)
     {
-      reports.push_back(report{s, loc.file, loc.line, msg});
+      reports.push_back(report{s, file, line, msg});
       if (s == severity::fatal && !std::uncaught_exception())
       {
         throw reported{};

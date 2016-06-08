@@ -391,10 +391,11 @@ namespace trompeloeil
     void
     send(
       severity s,
-      location loc,
-      std::string const &msg)
+      char const *file,
+      unsigned long line,
+      char const *msg)
     {
-      reporter_obj()(s, loc.file, loc.line, msg);
+      reporter_obj()(s, file, line, msg);
     }
   };
   template <typename T = specialized>
@@ -404,7 +405,7 @@ namespace trompeloeil
     location loc,
     std::string const &msg)
   {
-    reporter<T>::send(s, loc, msg);
+    reporter<T>::send(s, loc.file, loc.line, msg.c_str());
   }
 
   template <typename ... T>
