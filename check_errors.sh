@@ -17,11 +17,11 @@ PASS=$'\E[32mPASS\E[0m'
 FAIL=$'\E[1;31mFAIL\E[0m'
 FAILURES=0
 
-echo "CXX=$CXX"
-echo "CXXFLAGS=$CXXFLAGS"
-echo "CPPFLAGS=$CPPFLAGS"
+#echo "CXX=$CXX"
+#echo "CXXFLAGS=$CXXFLAGS"
+#echo "CPPFLAGS=$CPPFLAGS"
 
-${CXX} --version
+#${CXX} --version
 
 cd compilation_errors
 
