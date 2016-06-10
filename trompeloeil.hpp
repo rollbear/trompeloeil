@@ -312,10 +312,10 @@ namespace trompeloeil
   }
 
   inline
-  void set_reporter(
+  reporter_func set_reporter(
     reporter_func f)
   {
-    reporter_obj() = std::move(f);
+    return std::exchange(reporter_obj(), std::move(f));
   }
 
   class tracer;
