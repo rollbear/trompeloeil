@@ -33,8 +33,8 @@ matrix:
        - mkdir $HOME/clang-$LLVM_VERSION
        - tar xf $LLVM_ARCHIVE_PATH -C $HOME/clang-$LLVM_VERSION --strip-components 1
 
-before_script:
-  CXX=$COMPILER  ./check_errors.sh
+#before_script:
+#  CXX=$COMPILER  ./check_errors.sh
 
 script:
   wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz && make CXX=$COMPILER CXXFLAGS="${CXXFLAGS} -std=c++14 -I Catch-1.2.1-develop.12/include -g ${CPPFLAGS}" -f Makefile.travis
