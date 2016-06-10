@@ -23,9 +23,10 @@ matrix:
       env:
         - LLVM_VERSION=3.8.0
         - LLVM_ARCHIVE_PATH=$HOME/clang+llvm.tar.xz
-        - COMPILER=$HOME/clang-$LLVM_VERSION/bin/clang++
+        - COMPILER=clang++
         - CPPFLAGS="-I $HOME/clang-$LLVM_VERSION/include/c++/v1"
         - CXXFLAGS=-lc++
+        - PATH=$HOME/clang-$LLVM_VERSION/bin:$PATH
         - LD_LIBRARY_PATH=$HOME/clang-$LLVM_VERSION/lib:$LD_LIBRARY_PATH
       before_install:
        - wget http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04.tar.xz -O $LLVM_ARCHIVE_PATH
