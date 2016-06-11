@@ -1,3 +1,10 @@
+v17 2016-06-11
+
+	* Use template specialization when writing adapter code for unit
+	  testing frame works.
+
+	* Internal restructuring for shorter compilation times.
+
 v16 2016-05-16
 
 	* class trompeloeil::lifetime_monitor now inherits from
