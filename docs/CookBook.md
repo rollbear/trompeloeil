@@ -48,26 +48,77 @@ sample adaptations are:
 - [boost Unit Test Framework](#adapt_boost_unit_test_framework)
 - [MSTest](#adapt_mstest)
 
-What you need to know to adapt to other frame works is this function:
+There are two mechanisms for adapting to a testing frame work. The compile time
+adapter and the run time adapter. The compile time adapter is easier to use if
+you do not implement `main()` yourself.
+
+### Compile time adapter
+
+Compile time adaptation to unit test frame works is done by specializing the
+`trompeloeil::reporter<trompeloeil::specialized>` struct.
+
+Somewhere in global namespace, enter the following code:
 
 ```Cpp
-trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
-                                             char const *file,
-                                             unsigned long line,
-                                             const std::string& msg)>)
+namespace trompeloeil
+{
+  template <>
+  struct reporter<trompeloeil::specialized>
+  {
+    static void send(trompeloeil::severity s,
+                     const char* file,
+                     unsigned long line,
+                     const char* message)
+     {
+       // your adaptation here
+     }
+  };
+}
 ```
 
-Call it with the adapter to your test frame work. The important thing to
-understand is the first parameter `trompeloeil::severity`. It is an enum
-with the values `trompeloeil::severity::fatal` and
-`trompeloeil::severity::nonfatal`. The value `severity::nonfatal` is
-used when reporting violations during stack rollback, typically during
-the destruction of an [expectation](reference.md/#expectation). In this
-case it is vital that no exception is thrown, or the process will
-terminate. If the value is `severity::fatal`, it is instead imperative
-that the function does not return. It may throw or abort.
+It is important to understand the first parameter
+`trompeloeil::severity`. It is an enum with the values
+`trompeloeil::severity::fatal` and `trompeloeil::severity::nonfatal`. The value
+`severity::nonfatal` is used when reporting violations during stack rollback,
+typically during the destruction of an
+[expectation](reference.md/#expectation). In this case it is vital that
+no exception is thrown, or the process will terminate. If the value is
+`severity::fatal`, it is instead imperative that the function does not return.
+It may throw or abort.
 
-**NOTE!** There are some violation that cannot be attributed to a source code
+**NOTE!** There are some violations that cannot be attributed to a source code
+location. An example is an unexpected call to a
+[mock function](reference.md/#mock_function) for which there
+are no expectations. In these cases `file` will be `""` string and
+`line` == 0.
+
+
+### Run time adapter
+
+Run time adaptation to unit test frame works is done with this function:
+
+```Cpp
+using reporter_func = std::function<void(severity,
+                                         char const *file,
+                                         unsigned long line,
+                                         std::string const &msg)>;
+reporter_func trompeloeil::set_reporter(reporter_func new_reporter)
+```
+
+Call it with the adapter to your test frame work. The return value is the old
+adapter.
+
+It is important to understand the first parameter
+`trompeloeil::severity`. It is an enum with the values
+`trompeloeil::severity::fatal` and `trompeloeil::severity::nonfatal`. The value
+`severity::nonfatal` is used when reporting violations during stack rollback,
+typically during the destruction of an
+[expectation](reference.md/#expectation). In this case it is vital that
+no exception is thrown, or the process will terminate. If the value is
+`severity::fatal`, it is instead imperative that the function does not return.
+It may throw or abort.
+
+**NOTE!** There are some violations that cannot be attributed to a source code
 location. An example is an unexpected call to a
 [mock function](reference.md/#mock_function) for which there
 are no expectations. In these cases `file` will be `""` string and
@@ -75,82 +126,117 @@ are no expectations. In these cases `file` will be `""` string and
 
 ### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch!](https://github.com/philsquared/Catch)
 
+Paste the following code snippet in global namespace:
+
 ```Cpp
-  trompeloeil::set_reporter([](::trompeloeil::severity s,
-                               char const *file,
-                               unsigned long line,
-                               const std::string& msg)
+  namespace trompeloeil
+  {
+    template <>
+    struct reporter<trompeloeil::specialized>
     {
-      std::ostringstream os;
-      if (line) os << file << ':' << line << '\n';
-      os << msg;
-      if (s == ::trompeloeil::severity::fatal)
+      static void send(trompeloeil::severity s,
+                       const char* file,
+                       unsigned long line,
+                       const char* message)
+      {
+        std::ostringstream os;
+        if (line) os << file << ':' << line << '\n';
+        os << msg;
+        if (s == ::trompeloeil::severity::fatal)
         {
           FAIL(os.str());
         }
-      CHECK(os.str() == "");
-    });
+        CHECK(os.str() == "");
+      }
+    };
+  }
 ```
 
 ### <A name="adapt_crpcut"/>Use *Trompeloeil* with [crpcut](http://crpcut.sourceforge.net)
 
+Paste the following code snippet in global namespace:
+
 ```Cpp
-  trompeloeil::set_reporter([](::trompeloeil::severity,
-                               char const *file,
-                               unsigned long line,
-                               const std::string& msg)
+  namespace trompeloeil
+  {
+    template <>
+    struct reporter<trompeloeil::specialized>
     {
-      std::ostringstream os;
-      os << file << ':' << line;
-      auto loc = os.str();
-      auto location = line == 0U
-        ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
-        : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
-      ::crpcut::comm::report(::crpcut::comm::exit_fail,
-                             std::ostringstream(msg),
-                             location);
-    });
+      static void send(trompeloeil::severity,
+                       char const *file,
+                       unsigned long line,
+                       const char* msg)
+      {
+        std::ostringstream os;
+        os << file << ':' << line;
+        auto loc = os.str();
+        auto location = line == 0U
+          ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
+          : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
+        ::crpcut::comm::report(::crpcut::comm::exit_fail,
+                               std::ostringstream(msg),
+                               location);
+      }
+    };
+  }
 ```
 
 ### <A name="adapt_gtest"/>Use *Trompeloeil* with [gtest](https://code.google.com/p/googletest/)
 
-```Cpp
-  trompeloeil::set_reporter([](trompeloeil::severity s,
-                               char const *file,
-                               unsigned long line,
-                               const std::string& msg)
-    {
-      if (s == trompeloeil::severity::fatal)
-      {
-        std::ostringstream os;
-        if (line != 0U)
-        {
-          os << file << ':' << line << '\n';
-        }
-        throw trompeloeil::expectation_violation(os.str() + msg);
-      }
+Paste the following code snippet in global namespace:
 
-      ADD_FAILURE_AT(file, line) << msg;
-    });
+```Cpp
+  namespace trompeloeil
+  {
+    template <>
+    struct reporter<trompeloeil::specialized>
+    {
+      static void send(trompeloeil::severity s,
+                       char const *file,
+                       unsigned long line,
+                       const char* msg)
+      {
+        if (s == trompeloeil::severity::fatal)
+        {
+          std::ostringstream os;
+          if (line != 0U)
+          {
+            os << file << ':' << line << '\n';
+          }
+          throw trompeloeil::expectation_violation(os.str() + msg);
+        }
+
+        ADD_FAILURE_AT(file, line) << msg;
+      }
+    };
+  }
 ```
 
 ### <A name="adapt_boost_unit_test_framework"/>Use *Trompeloeil* with [boost Unit Test Framework](http://www.boost.org/doc/libs/1_59_0/libs/test/doc/html/index.html)
 
+Paste the following code snippet in global namespace:
+
 ```Cpp
-  using trompeloeil::severity;
-  trompeloeil::set_reporter([](severity s,
-                               char const *file,
-                               unsigned long line,
-                               const std::string& msg)
+  namespace trompeloeil
+  {
+    template <>
+    struct reporter<trompeloeil::specialized>
     {
-      std::ostringstream os;
-      if (line != 0U) os << file << ':' << line << '\n';
-      auto text = os.str() + msg;
-      if (s == severity::fatal)
-        BOOST_FAIL(text);
-      else
-        BOOST_ERROR(text);
-    });
+      static void send(trompeloeil::severity s,
+                       char const *file,
+                       unsigned long line,
+                       const char* msg)
+      {
+        std::ostringstream os;
+        if (line != 0U) os << file << ':' << line << '\n';
+        auto text = os.str() + msg;
+        if (s == trompeloeil::severity::fatal)
+          BOOST_FAIL(text);
+        else
+          BOOST_ERROR(text);
+      }
+    };
+  }
 ```
 
 ### <A name="adapt_mstest"/> Use *Trompeloeil* with [MSTest](https://msdn.microsoft.com/en-us/library/hh694602.aspx)

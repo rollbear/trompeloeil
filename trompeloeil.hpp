@@ -210,6 +210,8 @@
 
 namespace trompeloeil
 {
+  class specialized;
+
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
@@ -310,10 +312,10 @@ namespace trompeloeil
   }
 
   inline
-  void set_reporter(
+  reporter_func set_reporter(
     reporter_func f)
   {
-    reporter_obj() = std::move(f);
+    return std::exchange(reporter_obj(), std::move(f));
   }
 
   class tracer;
@@ -382,18 +384,33 @@ namespace trompeloeil
     std::ostream& stream;
   };
 
-  inline
+  template <typename T>
+  struct reporter
+  {
+    static
+    void
+    send(
+      severity s,
+      char const *file,
+      unsigned long line,
+      char const *msg)
+    {
+      reporter_obj()(s, file, line, msg);
+    }
+  };
+  template <typename T = specialized>
   void
   send_report(
     severity s,
     location loc,
     std::string const &msg)
   {
-    ::trompeloeil::reporter_obj()(s, loc.file, loc.line, msg);
+    reporter<T>::send(s, loc.file, loc.line, msg.c_str());
   }
 
   template <typename ... T>
   inline
+  constexpr
   bool
   ignore(
     T const& ...)
@@ -402,27 +419,14 @@ namespace trompeloeil
     return true;
   }
 
-  template <typename T>
-  struct is_value_type :
-    std::integral_constant<bool,
-                           std::is_same<T,
-                                        typename std::decay<T>::type
-                                        >::value
-                           >
-  {
-  };
-
   struct matcher { };
 
+  inline constexpr std::false_type is_matcher_(...) { return {}; }
+
+  inline constexpr std::true_type is_matcher_(matcher const*) { return {}; }
+
   template <typename T>
-  class is_matcher
-  {
-    static std::false_type func(...);
-    static std::true_type func(matcher const*);
-  public:
-    using type = decltype(func(std::declval<T*>()));
-    static const bool value = type::value;
-  };
+  using is_matcher = decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr)));
 
   template <typename T>
   struct typed_matcher : matcher
@@ -445,18 +449,27 @@ namespace trompeloeil
     operator T C::*() const;
   };
 
+  constexpr inline std::false_type is_output_streamable_(...) { return {}; }
+
   template <typename T>
-  class is_output_streamable
+  constexpr
+  inline
+  auto
+  is_output_streamable_(
+    T*)
+  -> decltype((std::declval<std::ostream&>() << std::declval<T&>()),std::true_type{})
   {
-    static std::false_type func(...);
-    template <typename U>
-    static auto func(U const* u) ->
-      std::is_same<std::ostream&,
-                   decltype(std::declval<std::ostream&>() << *u)>;
-  public:
-    using type = decltype(func(std::declval<T*>()));
-    static bool const value = type::value;
-  };
+    return {};
+  }
+
+  template <typename T>
+  inline
+  constexpr
+  auto
+  is_output_streamable()
+  {
+    return is_output_streamable_(static_cast<T*>(nullptr));
+  }
 
   struct stream_sentry
   {
@@ -493,7 +506,7 @@ namespace trompeloeil
   template <typename U>
   constexpr
   std::integral_constant<decltype(std::declval<U>() == nullptr),
-                         !is_matcher<U>::value>
+			 !is_matcher<U>::value>
   is_null_comparable(
     U *)
   noexcept
@@ -533,7 +546,7 @@ namespace trompeloeil
                                   ::trompeloeil::is_null_comparable<T>(nullptr));
   }
 
-  template <typename T, bool b = is_output_streamable<T>::value>
+  template <typename T, bool = is_output_streamable<T>()>
   struct streamer
   {
     static
@@ -589,14 +602,31 @@ namespace trompeloeil
     streamer<T>::print(os, t);
   }
 
+  inline
+  constexpr
+  auto
+  param_compare_operator(
+    ...)
+  {
+    return " = ";
+  }
+
+  inline
+  constexpr
+  auto
+  param_compare_operator(
+    matcher const*)
+  {
+    return "";
+  }
+
   template <typename T>
   void
   print_expectation(
     std::ostream& os,
     T const& t)
   {
-    static const char* const description[] = { " = ", "" };
-    os << description[is_matcher<T>::value];
+    os << param_compare_operator(&t);
     print(os, t);
     os << '\n';
   }
@@ -1778,23 +1808,6 @@ namespace trompeloeil
     return "*" + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
   }
 
-  inline
-  constexpr
-  auto
-  param_compare_operator(
-    ...)
-  {
-    return " = ";
-  }
-
-  inline
-  constexpr
-  auto
-  param_compare_operator(
-    const matcher*)
-  {
-    return "";
-  }
 
   template <typename T>
   struct null_on_move
@@ -2065,9 +2078,9 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Unexpected destruction of "
        << typeid(T).name() << "@" << this << '\n';
-    ::trompeloeil::send_report(trompeloeil::severity::nonfatal,
-                               location{},
-                               os.str());
+    send_report(severity::nonfatal,
+                             location{},
+                             os.str());
   }
 
   template<typename T>
@@ -2280,23 +2293,12 @@ namespace trompeloeil
     std::index_sequence<I...>,
     T const& t,
     U const& u)
-  noexcept(noexcept(std::make_tuple(trompeloeil::param_matches(std::get<I>(t),std::get<I>(u))...)))
+    noexcept(noexcept(std::initializer_list<bool>{trompeloeil::param_matches(std::get<I>(t),std::get<I>(u))...}))
   {
-    auto actual =  std::make_tuple(::trompeloeil::param_matches(std::get<I>(t), std::get<I>(u))...);
-    auto all_true = std::make_tuple((::trompeloeil::ignore(std::get<I>(t)))...);
-    return actual == all_true;
-  }
-
-  inline
-  constexpr
-  bool
-  match_parameters(
-    std::index_sequence<>,
-    std::tuple<> const&,
-    std::tuple<> const&)
-  noexcept
-  {
-    return true;
+    bool all_true = true;
+    ::trompeloeil::ignore(t, u); // Kills unmotivated VS2015 warning in the empty case
+    ::trompeloeil::ignore(std::initializer_list<bool>{all_true = all_true && ::trompeloeil::param_matches(std::get<I>(t), std::get<I>(u))...});
+    return all_true;
   }
 
   template <typename ... T, typename ... U>
@@ -2309,74 +2311,71 @@ namespace trompeloeil
     return ::trompeloeil::match_parameters(std::make_index_sequence<sizeof...(T)>{}, t, u);
   }
 
-  template<typename T, size_t N = 0, bool b = N == std::tuple_size<T>::value>
-  struct parameters
+  template <typename V, typename P>
+  void print_mismatch(
+    std::ostream& os,
+    size_t num,
+    V const& v,
+    P const& p)
   {
-    template <typename stream, typename U>
-    static
-    stream &
-    print_mismatch(
-      stream &os,
-      T const &t1,
-      U const &t2)
+    if (!::trompeloeil::param_matches(v, p))
     {
-      if (!(::trompeloeil::param_matches(std::get<N>(t1), std::get<N>(t2))))
-      {
-        auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t1)) + "_";
-        os << "  Expected " << std::setw((N<9)+1) << prefix << N+1;
-        ::trompeloeil::print_expectation(os, std::get<N>(t1));
-      }
-      return parameters<T, N + 1>::print_mismatch(os, t1, t2);
+      auto prefix = ::trompeloeil::param_name_prefix(&v) + "_";
+      os << "  Expected " << std::setw((num < 9) + 1) << prefix << num+1;
+      ::trompeloeil::print_expectation(os, v);
     }
+  }
 
-    template <typename stream, typename U>
-    static
-    stream &
-    print_missed(
-      stream &os,
-      U const &t)
-    {
-      auto prefix = ::trompeloeil::param_name_prefix(&std::get<N>(t)) + "_";
-      os << "  param " << std::setw((N<9)+1) << prefix << N+1
-         << ::trompeloeil::param_compare_operator(&std::get<N>(t));
-      ::trompeloeil::print(os, std::get<N>(t));
-      os << '\n';
-      return parameters<T, N + 1>::print_missed(os, t);
-    }
-  };
-
-  template<typename T, size_t N>
-  struct parameters<T, N, true>
+  template <typename ... V, typename ... P, size_t ... I>
+  void print_mismatch(
+                      std::ostream& os,
+                      std::index_sequence<I...>,
+                      std::tuple<V...> const& v,
+                      std::tuple<P...> const& p)
   {
-    template <typename stream, typename U>
-    static
-    stream &
-    print_mismatch(
-      stream &os,
-      T const &,
-      U const &)
-    {
-      return os;
-    }
+    ::trompeloeil::ignore(os, v, p);  // Kills unmotivated VS2015 warning in the empty case
+    ::trompeloeil::ignore(std::initializer_list<int>{(print_mismatch(os, I, std::get<I>(v), std::get<I>(p)),0)...});
+  }
 
-    template <typename stream, typename U>
-    static
-    stream&
-    print_missed(
-      stream &os,
-      U const &)
-    {
-      return os;
-    }
-  };
+  template <typename ... V, typename ... P>
+  void print_mismatch(
+    std::ostream& os,
+    std::tuple<V...> const& v,
+    std::tuple<P...> const& p)
+  {
+    print_mismatch(os, std::make_index_sequence<sizeof...(V)>{}, v, p);
+  }
 
   template <typename T>
+  void missed_value(
+    std::ostream& os,
+    int i,
+    T const& t)
+  {
+    auto prefix = ::trompeloeil::param_name_prefix(&t) + "_";
+    os << "  param " << std::setw((i < 9) + 1) << prefix << i + 1
+       << ::trompeloeil::param_compare_operator(&t);
+    ::trompeloeil::print(os, t);
+    os << '\n';
+  }
+
+  template <size_t ... I, typename ... T>
+  void missed_values(
+    std::ostream& os,
+    std::index_sequence<I...>,
+    std::tuple<T...> const& t)
+  {
+    ::trompeloeil::ignore(os, t);  // Kills unmotivated VS2015 warning in the empty case
+    ::trompeloeil::ignore(std::initializer_list<int>{(missed_value(os, I, std::get<I>(t)),0)...});
+  }
+
+  template <typename ... T>
   std::string
   missed_values(
-    T const &t)
+  std::tuple<T...> const &t)
   {
     std::ostringstream os;
-    parameters<T>::print_missed(os, t);
+    missed_values(os, std::make_index_sequence<sizeof...(T)>{}, t);
     return os.str();
   }
 
@@ -2449,7 +2448,7 @@ namespace trompeloeil
         m.report_mismatch(os, p);
       }
     }
-    ::trompeloeil::send_report(severity::fatal, location{}, os.str());
+    send_report(severity::fatal, location{}, os.str());
     std::abort(); // must never get here.
   }
 
@@ -2659,8 +2658,7 @@ namespace trompeloeil
       return {std::move(matcher)};
     }
 
-    template <typename H,
-              typename = typename std::enable_if_t<is_value_type<H>::value>>
+    template <typename H>
     call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >>
     handle_return(
       H&& h)
@@ -2783,7 +2781,7 @@ namespace trompeloeil
       os << "called " << call_count << " times\n";
     }
     os << values;
-    ::trompeloeil::send_report(severity::nonfatal, loc, os.str());
+    send_report(severity::nonfatal, loc, os.str());
   }
 
   inline
@@ -2796,7 +2794,7 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Match of forbidden call of " << name
        << " at " << loc << '\n' << values;
-    ::trompeloeil::send_report(severity::fatal, loc, os.str());
+    send_report(severity::fatal, loc, os.str());
   }
 
   template <typename Sig>
@@ -2972,7 +2970,7 @@ namespace trompeloeil
       else
       {
         os << '\n';
-        parameters<Value>::print_mismatch(os, val, params);
+        ::trompeloeil::print_mismatch(os, val, params);
       }
       return os;
     }
@@ -3100,6 +3098,7 @@ namespace trompeloeil
     const
     {
       static_assert(!N, "illegal argument");
+      return std::declval<T>();
     }
   };
 
@@ -3255,7 +3254,7 @@ namespace trompeloeil
 }
 
 template <typename M,
-          typename = std::enable_if_t<::trompeloeil::is_matcher<std::decay_t<M>>::value>>
+          typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
 inline
 auto
 operator*(
