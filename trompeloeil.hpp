@@ -201,13 +201,6 @@
 
 #define TROMPELOEIL_PARAMS(num) TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
 
-#define TROMPELOEIL_1ST_(x,...) x
-#define TROMPELOEIL_1ST(...) TROMPELOEIL_1ST_(__VA_ARGS__,)
-
-#define TROMPELOEIL_APPLY(f, ...) f(__VA_ARGS__)
-#define TROMPELOEIL_STRINGIZE_(...) #__VA_ARGS__
-#define TROMPELOEIL_STRINGIZE(...) TROMPELOEIL_STRINGIZE_(__VA_ARGS__)
-
 namespace trompeloeil
 {
   class specialized;
