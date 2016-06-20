@@ -2917,6 +2917,42 @@ Expected obj\.foo\("bar"\) to be called once, actually never called
   REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
 }
 
+TEST_CASE_METHOD(Fixture, "Unfulfilled expectation with ANY is reported with expected values all parameters", "[scoping][wildcard]")
+{
+ {
+    mock_c obj;
+    REQUIRE_CALL(obj, func(3, ANY(std::string&)));
+    std::string s = "foo";
+  }
+
+  REQUIRE(reports.size() == 1U);
+  auto re = R":(Unfulfilled expectation:
+Expected obj\.func\(3, ANY\(std::string&\)\) to be called once, actually never called
+  param  _1 = 3
+  param  _2 matching ANY\(std::string&\)):";
+  auto& msg = reports.front().msg;
+  INFO("msg=" << msg);
+  REQUIRE(std::regex_search(msg, std::regex(re)));
+}
+
+TEST_CASE_METHOD(Fixture, "Unfulfilled expectation with _ is reported with expected values all parameters", "[scoping][wildcard]")
+{
+ {
+    mock_c obj;
+    REQUIRE_CALL(obj, func(3, _));
+    std::string s = "foo";
+  }
+
+  REQUIRE(reports.size() == 1U);
+  auto re = R":(Unfulfilled expectation:
+Expected obj\.func\(3, _\) to be called once, actually never called
+  param  _1 = 3
+  param  _2 matching _):";
+  auto& msg = reports.front().msg;
+  INFO("msg=" << msg);
+  REQUIRE(std::regex_search(msg, std::regex(re)));
+}
+
 // test of multiplicity retiring expectations, fulfilled or not
 
 TEST_CASE_METHOD(Fixture, "unsatisfied expectation when mock dies is reported", "[scoping][multiplicity]")
@@ -3269,6 +3305,7 @@ TEST_CASE_METHOD(Fixture, "unmatched call is reported", "[mismatches]")
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
+
 
 TEST_CASE_METHOD(Fixture, "match of saturated call is reported", "[mismatches]")
 {

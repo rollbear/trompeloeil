@@ -1084,7 +1084,7 @@ namespace trompeloeil
       wildcard const&)
     noexcept
     {
-      return os;
+      return os << " matching _";
     }
   };
 
@@ -1094,6 +1094,11 @@ namespace trompeloeil
   template <typename T>
   struct typed_wildcard : public typed_matcher<T>
   {
+    typed_wildcard(
+      char const* t)
+    : type(t)
+    {
+    }
     template <typename U>
     constexpr
     std::enable_if_t<std::is_same<typename std::decay<T>::type,
@@ -1110,11 +1115,12 @@ namespace trompeloeil
     std::ostream&
     operator<<(
       std::ostream& os,
-      typed_wildcard<T> const&)
+      typed_wildcard<T> const& t)
     noexcept
     {
-      return os;
+      return os << " matching ANY(" << t.type << ')';
     }
+    char const* type;
   };
 
   template <typename T>
@@ -3644,7 +3650,7 @@ operator*(
 #define TROMPELOEIL_IN_SEQUENCE(...)                                           \
   in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))
 
-#define TROMPELOEIL_ANY(type) ::trompeloeil::typed_wildcard<type>()
+#define TROMPELOEIL_ANY(type) ::trompeloeil::typed_wildcard<type>(#type)
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
 #define TROMPELOEIL_AT_MOST(num) 0, num
