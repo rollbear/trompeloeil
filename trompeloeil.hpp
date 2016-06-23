@@ -1228,48 +1228,6 @@ namespace trompeloeil
   };
 
   template <typename U>
-  class eq_t<std::nullptr_t, U>
-    : public typed_matcher<U>
-  {
-  public:
-    eq_t(std::nullptr_t) {}
-
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u == nullptr))
-    {
-      return u == nullptr;
-    }
-  };
-
-  template <>
-  class eq_t<std::nullptr_t, wildcard>
-    : public typed_matcher<std::nullptr_t>
-  {
-  public:
-    eq_t(std::nullptr_t) {}
-
-    template <typename U, typename = decltype(std::declval<U>() == nullptr)>
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u == nullptr))
-    {
-      return u == nullptr;
-    }
-
-    template <typename C, typename T>
-    bool
-    matches(T C::*p)
-    const
-    noexcept
-    {
-      return p == nullptr;
-    }
-  };
-
-  template <typename U>
   std::ostream&
   operator<<(
     std::ostream& os,
@@ -1347,48 +1305,6 @@ namespace trompeloeil
     template <typename V,
               typename = decltype(std::declval<V&>() == std::declval<T>())>
     operator V&() const;
-  };
-
-  template <typename U>
-  class ne_t<std::nullptr_t, U>
-    : public typed_matcher<U>
-  {
-  public:
-    ne_t(std::nullptr_t) {}
-
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u != nullptr))
-    {
-      return u != nullptr;
-    }
-  };
-
-  template <>
-  class ne_t<std::nullptr_t, wildcard>
-    : public typed_matcher<std::nullptr_t>
-  {
-  public:
-    ne_t(std::nullptr_t) {}
-
-    template <typename U, typename = decltype(std::declval<U>() != nullptr)>
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u != nullptr))
-    {
-      return u != nullptr;
-    }
-
-    template <typename C, typename T>
-    bool
-    matches(T C::*p)
-    const
-    noexcept
-    {
-      return p != nullptr;
-    }
   };
 
   template <typename U>
