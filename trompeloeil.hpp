@@ -549,10 +549,7 @@ namespace trompeloeil
       T const &t)
     {
       stream_sentry s(os);
-      if (::trompeloeil::is_null(t))
-        os << "nullptr";
-      else
-        os << t;
+      os << t;
     }
   };
 
@@ -567,11 +564,6 @@ namespace trompeloeil
       T const &t)
     {
       stream_sentry s(os);
-      if (is_null(t))
-      {
-        os << "nullptr";
-        return;
-      }
       static const char *linebreak = "\n";
       os << sizeof(T) << "-byte object={";
       os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warining
@@ -592,7 +584,14 @@ namespace trompeloeil
     std::ostream& os,
     T const &t)
   {
-    streamer<T>::print(os, t);
+    if (is_null(t))
+    {
+      os << "nullptr";
+    }
+    else
+    {
+      streamer<T>::print(os, t);
+    }
   }
 
   inline
