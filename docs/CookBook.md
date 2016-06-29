@@ -137,7 +137,7 @@ Paste the following code snippet in global namespace:
       static void send(trompeloeil::severity s,
                        const char* file,
                        unsigned long line,
-                       const char* message)
+                       const char* msg)
       {
         std::ostringstream os;
         if (line) os << file << ':' << line << '\n';
