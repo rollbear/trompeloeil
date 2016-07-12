@@ -2255,7 +2255,8 @@ TEST_CASE_METHOD(Fixture, "non-nullptr when equal nullptr ptr deref expected is 
   {
     C_ptr obj;
     REQUIRE_CALL(obj, pp(*trompeloeil::eq(nullptr)));
-    int* pi = new int{3};
+    int i = 3;
+    auto pi = &i;
     obj.pp(&pi);
     FAIL("didn't throw");
   }
@@ -3230,8 +3231,9 @@ TEST_CASE_METHOD(Fixture, "require destruction fulfilled out of sequence is repo
 
 TEST_CASE_METHOD(Fixture, "sequence mismatch with require destruction first is reported", "[deathwatched],[sequences]")
 {
+  std::unique_ptr<trompeloeil::deathwatched<mock_c>> obj;
   try {
-    auto obj = new trompeloeil::deathwatched<mock_c>;
+    obj.reset(new trompeloeil::deathwatched<mock_c>);
     trompeloeil::sequence s;
     REQUIRE_DESTRUCTION(*obj)
     .IN_SEQUENCE(s);
@@ -3268,8 +3270,9 @@ TEST_CASE_METHOD(Fixture, "named require destruction fulfilled out of sequence i
 
 TEST_CASE_METHOD(Fixture, "sequence mismatch with named require destruction first is reported", "[deathwatched],[sequences]")
 {
+  std::unique_ptr<trompeloeil::deathwatched<mock_c>> obj;
   try {
-    auto obj = new trompeloeil::deathwatched<mock_c>;
+    obj.reset(new trompeloeil::deathwatched<mock_c>);
     trompeloeil::sequence s;
     auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
     .IN_SEQUENCE(s);
