@@ -122,6 +122,7 @@ public:
   using C::p_;
 };
 
+int intfunc(int i) { return i;}
 
 using trompeloeil::_;
 
@@ -766,6 +767,8 @@ TEST_CASE_METHOD(Fixture, "rvalue reference parameter can be compared with exter
 class U
 {
 public:
+  using mptr_f = void (U::*)(const char*);
+  using mptr_d = int U::*;
   MAKE_MOCK1(func_streamref, void(std::ostream&));
   MAKE_MOCK1(func_u, void(const uncomparable&));
   MAKE_MOCK1(func_v, void(int));
@@ -780,9 +783,43 @@ public:
   MAKE_MOCK1(func, void(const int&));
   MAKE_MOCK1(func, void(int&&));
   MAKE_MOCK1(func_cstr, void(const char*));
+  MAKE_MOCK1(func_ptr_f, void(int (*)(int)));
+  MAKE_MOCK1(func_mptr_f, void(mptr_f));
+  MAKE_MOCK1(func_mptr_d, void(mptr_d));
+  int m;
 };
 
 // tests of direct parameter matching with fixed values and wildcards
+
+TEST_CASE_METHOD(Fixture, "pointer to function matches wildcard", "[matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL(u, func_ptr_f(_));
+    u.func_ptr_f(intfunc);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "pointer to member function matches wildcard", "[matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL(u, func_mptr_f(_));
+    u.func_mptr_f(&U::func_cstr);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "pointer to member data matches wildcard", "[matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL(u, func_mptr_d(_));
+    u.func_mptr_d(&U::m);
+  }
+  REQUIRE(reports.empty());
+}
 
 TEST_CASE_METHOD(Fixture, "ostream& matches wildcard", "[matching]")
 {
@@ -1300,12 +1337,13 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 //
 
+
 struct C_foo3
 {
   int m;
   MAKE_MOCK1(foo, void(int C_foo3::*));
+  MAKE_MOCK1(bar, void(int (*)(int)));
 };
-
 
 TEST_CASE_METHOD(Fixture, "pointer to member call with ne(nullptr) matched", "[matching][matchers][ne]")
 {
@@ -1371,6 +1409,72 @@ Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
+
+TEST_CASE_METHOD(Fixture, "pointer to function call with ne(nullptr) matched", "[matching][matchers][ne]")
+{
+  {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, bar(trompeloeil::ne(nullptr)));
+    obj.bar(intfunc);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "pointer to function call with ne(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, bar(trompeloeil::ne(nullptr)));
+    obj.bar(nullptr);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of bar with signature void\(int \(\*\)\(int\)\) with\.
+  param  _1 = .*
+
+Tried obj\.bar\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 != .*):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+//
+TEST_CASE_METHOD(Fixture, "pointer to function call with eq(nullptr) matched", "[matching][matchers][ne]")
+{
+  {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, bar(trompeloeil::eq(nullptr)));
+    obj.bar(nullptr);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "pointer to function call with eq(nullptr) is reported", "[matching][matchers][ne]")
+{
+  try {
+    C_foo3 obj;
+    REQUIRE_CALL(obj, bar(trompeloeil::eq(nullptr)));
+    obj.bar(intfunc);
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of bar with signature void\(int \(\*\)\(int\)\) with\.
+  param  _1 = .*
+
+Tried obj\.bar\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 == nullptr):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
 //
 // tests of parameter matching using duck typed matcher ge
 
