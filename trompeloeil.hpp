@@ -196,7 +196,7 @@
 #define TROMPELOEIL_PARAMS4  TROMPELOEIL_PARAMS3,  p4
 #define TROMPELOEIL_PARAMS3  TROMPELOEIL_PARAMS2,  p3
 #define TROMPELOEIL_PARAMS2  TROMPELOEIL_PARAMS1,  p2
-#define TROMPELOEIL_PARAMS1                        p1
+#define TROMPELOEIL_PARAMS1  ,                     p1
 #define TROMPELOEIL_PARAMS0
 
 #define TROMPELOEIL_PARAMS(num) TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
@@ -378,20 +378,9 @@ namespace trompeloeil
   };
 
   template <typename T>
-  struct reporter
-  {
-    static
-    void
-    send(
-      severity s,
-      char const *file,
-      unsigned long line,
-      char const *msg)
-    {
-      reporter_obj()(s, file, line, msg);
-    }
-  };
-  template <typename T = specialized>
+  struct reporter;
+
+  template <typename T>
   void
   send_report(
     severity s,
@@ -400,6 +389,29 @@ namespace trompeloeil
   {
     reporter<T>::send(s, loc.file, loc.line, msg.c_str());
   }
+
+  template <typename T>
+  struct reporter
+  {
+    static
+    void
+    send(
+      severity s,
+      char const *file,
+      unsigned long line,
+      char const *msg);
+  };
+
+  template <typename T>
+  void reporter<T>::
+    send(
+      severity s,
+      char const *file,
+      unsigned long line,
+      char const *msg)
+    {
+      reporter_obj()(s, file, line, msg);
+    }
 
   template <typename ... T>
   inline
@@ -1007,7 +1019,7 @@ namespace trompeloeil
          << ". Sequence \"" << seq_name << "\" has ";
       m.print_expectation(os);
       os << " first in line\n";
-      send_report(s, loc, os.str());
+      send_report<specialized>(s, loc, os.str());
     }
   }
 
@@ -1032,7 +1044,7 @@ namespace trompeloeil
     if (touched)
     {
       os << "\n";
-      send_report(severity::nonfatal, location{}, os.str());
+      send_report<specialized>(severity::nonfatal, location{}, os.str());
     }
   }
 
@@ -1949,7 +1961,7 @@ namespace trompeloeil
       {
         std::ostringstream os;
         os << "Object " << object_name << " is still alive";
-        send_report(severity::nonfatal, loc, os.str());
+        send_report<specialized>(severity::nonfatal, loc, os.str());
         object_monitor = nullptr; // prevent its death poking this cadaver
       }
     }
@@ -1992,7 +2004,7 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Unexpected destruction of "
        << typeid(T).name() << "@" << this << '\n';
-    send_report(severity::nonfatal,
+    send_report<specialized>(severity::nonfatal,
                              location{},
                              os.str());
   }
@@ -2098,40 +2110,12 @@ namespace trompeloeil
       call_params_type_t<Sig>& p)
     const = 0;
 
-    template <typename ... T>                     // never called. Used to
-    void log_call(std::false_type, T&& ...) const;// limit errmsg length
-                                                  // with MAKE_MOCKn
-                                                  // and wrong sig
-    void
-    log_call(
-      std::true_type,
-      tracer* t_obj,
-      call_params_type_t<Sig>& p)
-    const
-    {
-      log_call(t_obj, p);
-    }
-
     virtual
     void
     run_actions(
       call_params_type_t<Sig> &,
       call_matcher_list<Sig> &saturated_list
     ) = 0;
-
-    template <typename ... T>                  // Never called. Used to limit
-    void                                       // errmsg length with MAKE_MOCKn
-    run_actions(std::false_type, const T& ...);// and wrong sig
-
-    void
-    run_actions(
-      std::true_type,
-      call_params_type_t<Sig> &params,
-      call_matcher_list<Sig>& saturated_list
-    )
-    {
-      run_actions(params, saturated_list);
-    }
 
     virtual
     std::ostream&
@@ -2150,18 +2134,6 @@ namespace trompeloeil
     return_of_t<Sig>
     return_value(
       call_params_type_t<Sig>& p) = 0;
-
-    template<typename T>                    // Never called. Used to limit
-    return_of_t<Sig>                        // errmsg length with MAKE_MOCKn
-    return_value(std::false_type, const T&);// and wrong sig.
-
-    return_of_t<Sig>
-    return_value(
-      std::true_type,
-      call_params_type_t<Sig>& p)
-    {
-      return return_value(p);
-    }
 
     virtual
     void
@@ -2293,15 +2265,10 @@ namespace trompeloeil
     return os.str();
   }
 
-  template <typename Sig, typename T>                // Never called. Used to
-  call_matcher_base<Sig>*                            // limit errmsg length
-  find(std::false_type, T&, call_matcher_list<Sig>&) // with MAKE_MOCKn and
-    noexcept;                                        // wrong sig
 
   template <typename Sig>
   call_matcher_base<Sig>*
   find(
-    std::true_type,
     call_params_type_t<Sig> const &p,
     call_matcher_list<Sig>        &list)
   noexcept
@@ -2324,16 +2291,11 @@ namespace trompeloeil
     return first_match;
   }
 
-  template <typename ... T>                  // Never called. Used to limit
-  void                                       // errmsg length with MAKE_MOCKn
-  report_mismatch(std::false_type, T&& ...); // and wrong sig.
-
   template <typename Sig>
   TROMPELOEIL_NORETURN
   void
   report_mismatch(
-    std::true_type,
-    char const                    *name,
+    std::string const             &name,
     call_params_type_t<Sig> const &p,
     call_matcher_list<Sig>        &matcher_list,
     call_matcher_list<Sig>        &saturated_list)
@@ -2362,7 +2324,7 @@ namespace trompeloeil
         m.report_mismatch(os, p);
       }
     }
-    send_report(severity::fatal, location{}, os.str());
+    send_report<specialized>(severity::fatal, location{}, os.str());
     std::abort(); // must never get here.
   }
 
@@ -2695,7 +2657,7 @@ namespace trompeloeil
       os << "called " << call_count << " times\n";
     }
     os << values;
-    send_report(severity::nonfatal, loc, os.str());
+    send_report<specialized>(severity::nonfatal, loc, os.str());
   }
 
   inline
@@ -2708,7 +2670,7 @@ namespace trompeloeil
     std::ostringstream os;
     os << "Match of forbidden call of " << name
        << " at " << loc << '\n' << values;
-    send_report(severity::fatal, loc, os.str());
+    send_report<specialized>(severity::fatal, loc, os.str());
   }
 
   template <typename Sig>
@@ -3165,6 +3127,36 @@ namespace trompeloeil
     mutable call_matcher_list<Sig> active;
     mutable call_matcher_list<Sig> saturated;
   };
+
+  template <typename Sig, typename ... P>
+  return_of_t<Sig> mock_func(std::false_type, P&& ...);
+
+
+  template <typename Sig, typename ... P>
+  return_of_t<Sig>
+  mock_func(std::true_type,
+            const expectations<Sig>& e,
+            char const *func_name,
+            char const *sig_name,
+            P&& ... p)
+  {
+    auto lock = get_lock();
+    auto param_value = make_params_type_obj(std::forward<P>(p)...);
+    auto i = find(param_value, e.active);
+    if (!i)
+    {
+      report_mismatch(func_name + std::string(" with signature ") + sig_name,
+                      param_value,
+                      e.active,
+                      e.saturated);
+    }
+    if (auto t_obj = tracer_obj())
+    {
+      i->log_call(t_obj, param_value);
+    }
+    i->run_actions(param_value, e.saturated);
+    return i->return_value(param_value);
+  }
 }
 
 template <typename M,
@@ -3379,32 +3371,13 @@ operator*(
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
-  spec								               \
+  spec								                                           \
   {                                                                            \
-    auto lock = ::trompeloeil::get_lock();                                     \
-    auto param_value =                                                         \
-      ::trompeloeil::make_params_type_obj(TROMPELOEIL_PARAMS(num));            \
-                                                                               \
-    auto i = ::trompeloeil::find(TROMPELOEIL_ID(cardinality_match){},          \
-                                 param_value,                                  \
-                                 TROMPELOEIL_ID(expectations).active);         \
-    if (!i)                                                                    \
-    {                                                                          \
-      ::trompeloeil::report_mismatch(TROMPELOEIL_ID(cardinality_match){},      \
-                                     #name " with signature " #sig,            \
-                                     param_value,                              \
-                                     TROMPELOEIL_ID(expectations).active,      \
-                                     TROMPELOEIL_ID(expectations).saturated);  \
-    }                                                                          \
-    if (auto t_obj = ::trompeloeil::tracer_obj())                              \
-    {                                                                          \
-      i->log_call(TROMPELOEIL_ID(cardinality_match){}, t_obj, param_value);    \
-    }                                                                          \
-    i->run_actions(TROMPELOEIL_ID(cardinality_match){},                        \
-                   param_value,                                                \
-                   TROMPELOEIL_ID(expectations).saturated);                    \
-    return i->return_value(TROMPELOEIL_ID(cardinality_match){},                \
-                           param_value);                                       \
+    return ::trompeloeil::mock_func<sig>(TROMPELOEIL_ID(cardinality_match){},  \
+                                         TROMPELOEIL_ID(expectations),         \
+                                         #name,                                \
+                                         #sig                                  \
+                                         TROMPELOEIL_PARAMS(num));             \
   }                                                                            \
   using TROMPELOEIL_ID(signature_trompeloeil_ ## name) = sig
 
