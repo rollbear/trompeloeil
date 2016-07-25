@@ -1239,7 +1239,7 @@ namespace trompeloeil
     operator V&() const;
   };
 
-  template <typename U>
+  template <typename U> // VS2015 requires this unnecessary specialization
   class eq_t<std::nullptr_t, U>
     : public typed_matcher<U>
   {
@@ -1255,7 +1255,7 @@ namespace trompeloeil
     }
   };
 
-  template <>
+  template <> // VS2015 requires this unnecessary specialization
   class eq_t<std::nullptr_t, wildcard>
     : public typed_matcher<std::nullptr_t>
   {
@@ -1361,7 +1361,7 @@ namespace trompeloeil
     operator V&() const;
   };
 
-  template <typename U>
+  template <typename U> // VS2015 requires this unnecessary specialization
   class ne_t<std::nullptr_t, U>
     : public typed_matcher<U>
   {
@@ -1377,7 +1377,7 @@ namespace trompeloeil
     }
   };
 
-  template <>
+  template <> // VS2015 requires this unnecessary specialization
   class ne_t<std::nullptr_t, wildcard>
     : public typed_matcher<std::nullptr_t>
   {
