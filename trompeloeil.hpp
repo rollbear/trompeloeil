@@ -3308,22 +3308,25 @@ operator*(
   {                                                                            \
     template <typename Mock>                                                   \
     struct maker_obj {                                                         \
-      using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                    \
-                                                                               \
       Mock& obj;                                                               \
       const char* file;                                                        \
       unsigned long line;                                                      \
       const char* call_string;                                                 \
+                                                                               \
       template <typename ... U>                                                \
       auto name(                                                               \
         U&& ... u)                                                             \
       {                                                                        \
+        using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                  \
         using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
-        using info = ::trompeloeil::matcher_info<sig>;                         \
+        using info    = ::trompeloeil::matcher_info<sig>;                      \
         using modifier = ::trompeloeil::call_modifier<matcher, tag, info>;     \
                                                                                \
-        auto  matcher_obj = std::make_unique<matcher>(file, line, call_string, std::forward<U>(u)...); \
+        auto  matcher_obj = std::make_unique<matcher>(file,                    \
+                                                      line,                    \
+                                                      call_string,             \
+                                                      std::forward<U>(u)...);  \
         return modifier{std::move(matcher_obj)};                               \
       }                                                                        \
     };                                                                         \
@@ -3339,8 +3342,6 @@ operator*(
       return { m_obj, file, line, name };                                      \
     }                                                                          \
   };                                                                           \
-  TROMPELOEIL_ID(tag_type_trompeloeil)                                         \
-  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness;        \
                                                                                \
   TROMPELOEIL_ID(matcher_list_t)&                                              \
   trompeloeil_matcher_list(                                                    \
@@ -3354,7 +3355,7 @@ operator*(
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
-  spec								                                           \
+  spec								               \
   {                                                                            \
     return ::trompeloeil::mock_func<sig>(TROMPELOEIL_ID(cardinality_match){},  \
                                          TROMPELOEIL_ID(expectations),         \
@@ -3362,7 +3363,10 @@ operator*(
                                          #sig                                  \
                                          TROMPELOEIL_PARAMS(num));             \
   }                                                                            \
-  using TROMPELOEIL_ID(signature_trompeloeil_ ## name) = sig
+                                                                               \
+  TROMPELOEIL_ID(tag_type_trompeloeil)                                         \
+  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness
+
 
 
 
