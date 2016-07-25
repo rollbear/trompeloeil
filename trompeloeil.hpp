@@ -612,7 +612,7 @@ namespace trompeloeil
   param_compare_operator(
     ...)
   {
-    return " = ";
+    return " == ";
   }
 
   inline

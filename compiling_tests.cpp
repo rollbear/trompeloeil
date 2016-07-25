@@ -1045,7 +1045,7 @@ TEST_CASE_METHOD(Fixture, "long value with mismatches int is reported for duck t
     auto& msg = reports.front().msg;
     INFO("report=" << msg);
     auto re = R":(No match for call of func_v with signature void\(int\) with\.
-  param  _1 = 0
+  param  _1 == 0
 
 Tried obj\.func_v\(trompeloeil::eq\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == 3):";
@@ -1077,7 +1077,7 @@ TEST_CASE_METHOD(Fixture, "std::string value mismatching const char* is reported
     auto& msg = reports.front().msg;
     INFO("report=" << msg);
     auto re = R":(No match for call of func_cstr with signature void\(const char\*\) with\.
-  param  _1 = bar
+  param  _1 == bar
 
 Tried obj\.func_cstr\(trompeloeil::eq\(\"foo\"s\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == foo):";
@@ -1113,7 +1113,7 @@ TEST_CASE_METHOD(Fixture, "disambiguated eq<int&> reports mismatching value", "[
     auto& msg = reports.front().msg;
     INFO("report=" << msg);
     auto re = R":(No match for call of func with signature void\(int&\) with\.
-  param  _1 = 0
+  param  _1 == 0
 
 Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == 3):";
@@ -1148,7 +1148,7 @@ TEST_CASE_METHOD(Fixture, "long value with matching int is reported for duck typ
     auto& msg = reports.front().msg;
     INFO("report=" << msg);
     auto re = R":(No match for call of func_v with signature void\(int\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Tried obj\.func_v\(trompeloeil::ne\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != 3):";
@@ -1180,7 +1180,7 @@ TEST_CASE_METHOD(Fixture, "std::string value matching const char* is reported fo
     auto& msg = reports.front().msg;
     INFO("report=" << msg);
     auto re = R":(No match for call of func_cstr with signature void\(const char\*\) with\.
-  param  _1 = foo
+  param  _1 == foo
 
 Tried obj\.func_cstr\(trompeloeil::ne\(\"foo\"s\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != foo):";
@@ -1213,7 +1213,7 @@ TEST_CASE_METHOD(Fixture, "an equal value fails ne with report", "[matching][mat
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(std::string\) with\.
-  param  _1 = bar
+  param  _1 == bar
 
 Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != bar):";
@@ -1251,7 +1251,7 @@ TEST_CASE_METHOD(Fixture, "nullptr call with ne(nullptr) is reported", "[matchin
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(int\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
@@ -1292,7 +1292,7 @@ TEST_CASE_METHOD(Fixture, "overloaded nullptr call disambiguated with ne<type>(n
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(int\*\) with\.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
@@ -1326,7 +1326,7 @@ TEST_CASE_METHOD(Fixture, "overloaded non-nullptr call disambiguated with eq<typ
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(int\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == nullptr):";
@@ -1368,7 +1368,7 @@ TEST_CASE_METHOD(Fixture, "pointer to member ptr call with ne(nullptr) is report
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(int C_foo3::\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
@@ -1401,7 +1401,7 @@ TEST_CASE_METHOD(Fixture, "pointer to member ptr call with eq(nullptr) is report
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of foo with signature void\(int C_foo3::\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == nullptr):";
@@ -1433,7 +1433,7 @@ TEST_CASE_METHOD(Fixture, "pointer to function call with ne(nullptr) is reported
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of bar with signature void\(int \(\*\)\(int\)\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.bar\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
@@ -1466,7 +1466,7 @@ TEST_CASE_METHOD(Fixture, "pointer to function call with eq(nullptr) is reported
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of bar with signature void\(int \(\*\)\(int\)\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.bar\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == nullptr):";
@@ -1513,7 +1513,7 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by ge", "[matching][matche
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with.
-  param  _1 = 2
+  param  _1 == 2
 
 Tried obj\.getter\(trompeloeil::ge\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 >= 3):";
@@ -1558,7 +1558,7 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by disambiguated ge<int&>"
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of func with signature void\(int&\) with.
-  param  _1 = 2
+  param  _1 == 2
 
 Tried obj\.func\(trompeloeil::ge<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 >= 3):";
@@ -1581,7 +1581,7 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by gt", "[matching][matche
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Tried obj\.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
@@ -1613,7 +1613,7 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by gt", "[matching][matche
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 2
+  param  _1 == 2
 
 Tried obj.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
@@ -1636,7 +1636,7 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by disambiguated gt<int&>"
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of func with signature void\(int&\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Tried obj\.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
@@ -1668,7 +1668,7 @@ TEST_CASE_METHOD(Fixture, "a lesser value is reported by disambiguated gt<int&>"
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of func with signature void\(int&\) with\.
-  param  _1 = 2
+  param  _1 == 2
 
 Tried obj.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
@@ -1691,7 +1691,7 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by lt", "[matching][matche
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
@@ -1712,7 +1712,7 @@ TEST_CASE_METHOD(Fixture, "a greater value is reported by lt", "[matching][match
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
@@ -1746,7 +1746,7 @@ TEST_CASE_METHOD(Fixture, "an equal value is reported by disambiguated lt<int&>"
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of func with signature void\(int&\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
@@ -1767,7 +1767,7 @@ TEST_CASE_METHOD(Fixture, "a greater value is reported by disambiguated lt<int&>
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of func with signature void\(int&\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
@@ -1812,7 +1812,7 @@ TEST_CASE_METHOD(Fixture, "a greater value is reported by le", "[matching][match
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.getter\(trompeloeil::le\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 <= 3):";
@@ -1857,7 +1857,7 @@ TEST_CASE_METHOD(Fixture, "a greater value is reported by disambiguated le<int&>
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of func with signature void\(int&\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.func\(trompeloeil::le<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 <= 3):";
@@ -1917,7 +1917,7 @@ TEST_CASE_METHOD(Fixture, "call to const c-string function with nullptr to regex
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of c_c_str with signature void\(char const\*\) with.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -1941,7 +1941,7 @@ TEST_CASE_METHOD(Fixture, "call to const c-string function with non-matching str
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of c_c_str with signature void\(char const\*\) with.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -1977,7 +1977,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const c-string function with nullptr to r
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of c_str with signature void\(char\*\) with.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2001,7 +2001,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const c-string function with non-matching
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of c_str with signature void\(char\*\) with.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2036,7 +2036,7 @@ TEST_CASE_METHOD(Fixture, "call to const strref function with non-matching strin
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of strcref with signature void\(std::string const&\) with\.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj\.strcref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2073,7 +2073,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const strref function with non-matching s
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of strref with signature void\(std::string&\) with.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj.strref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2109,7 +2109,7 @@ TEST_CASE_METHOD(Fixture, "call to non-const strrref function with non-matching 
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of strrref with signature void\(std::string&&\) with.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj.strrref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2145,7 +2145,7 @@ TEST_CASE_METHOD(Fixture, "call to str val function with non-matching string to 
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of str with signature void\(std::string\) with.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj.str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2168,7 +2168,7 @@ TEST_CASE_METHOD(Fixture, "call to mismatching regex of typed overload is report
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of overload with signature void\(char const\*\) with.
-  param  _1 = abcde
+  param  _1 == abcde
 
 Tried obj.overload\(trompeloeil::re<char const\*>\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
@@ -2225,7 +2225,7 @@ TEST_CASE_METHOD(Fixture, "not_eol regex mismatching $ without explicit type is 
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of str with signature void\(std::string\) with.
-  param  _1 = begin end
+  param  _1 == begin end
 
 Tried obj.str\(trompeloeil::re\("end\$", std::regex_constants::match_not_eol\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /end\$/):";
@@ -2248,7 +2248,7 @@ TEST_CASE_METHOD(Fixture, "not_eol regex mismatching $ overload is reported", "[
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     auto re = R":(No match for call of overload with signature void\(std::string const&\) with.
-  param  _1 = begin end
+  param  _1 == begin end
 
 Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_constants::match_not_eol\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /end\$/):";
@@ -2343,7 +2343,7 @@ TEST_CASE_METHOD(Fixture, "nullptr when equal ptr deref expected is reported", "
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of ptr with signature void\(int\*\) with\.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2368,7 +2368,7 @@ TEST_CASE_METHOD(Fixture, "non-nullptr when equal nullptr ptr deref expected is 
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of pp with signature void\(int\*\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.pp\(\*trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == nullptr):";
@@ -2392,7 +2392,7 @@ TEST_CASE_METHOD(Fixture, "ptr to different value when equal ptr deref expected 
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of ptr with signature void\(int\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2435,7 +2435,7 @@ TEST_CASE_METHOD(Fixture, "unique_ptr<>() value when equal ptr deref expected is
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptr with signature void\(std::unique_ptr<int>\) with\.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2457,7 +2457,7 @@ TEST_CASE_METHOD(Fixture, "unique ptr value to different value when equal ptr de
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptr with signature void\(std::unique_ptr<int>\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2499,7 +2499,7 @@ TEST_CASE_METHOD(Fixture, "unique_ptr<>() rvalue ref when equal ptr deref expect
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptrrr with signature void\(std::unique_ptr<int>&&\) with\.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2520,7 +2520,7 @@ TEST_CASE_METHOD(Fixture, "unique ptr rvalue ref to different value when equal p
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptrrr with signature void\(std::unique_ptr<int>&&\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2562,7 +2562,7 @@ TEST_CASE_METHOD(Fixture, "unique_ptr<>() const lvalue ref when equal ptr deref 
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptrcr with signature void\(std::unique_ptr<int> const&\) with\.
-  param  _1 = nullptr
+  param  _1 == nullptr
 
 Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2584,7 +2584,7 @@ TEST_CASE_METHOD(Fixture, "unique ptr const lvalue ref to different value when e
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of uptrcr with signature void\(std::unique_ptr<int> const&\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
@@ -2646,7 +2646,7 @@ TEST_CASE_METHOD(Fixture, "call to string* function not matching regex is report
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of strptr with signature void\(std::string\*\) with\.
-  param  _1 = .*
+  param  _1 == .*
 
 Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 matching regular expression /end\$/):";
@@ -2734,7 +2734,7 @@ TEST_CASE_METHOD(Fixture, "custom matcher of unlisted element is reported", "[ma
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching any_of\(\{ 1, 5, 77 \}\)):";
@@ -2803,7 +2803,7 @@ TEST_CASE_METHOD(Fixture, "an empty string is reported", "[matching][matchers][c
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of foo with signature void\(std::string\) with\.
-  param  _1 = 
+  param  _1 == 
 
 Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 is not empty):";
@@ -2931,7 +2931,7 @@ TEST_CASE_METHOD(Fixture, "failure on parameter of user type is printed with cus
   {
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of func with signature void\(nn::TestOutput\) with\.
-  param  _1 = trompeloeil::print\(nn::TestOutput\{3\}\)):";
+  param  _1 == trompeloeil::print\(nn::TestOutput\{3\}\)):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -3017,7 +3017,7 @@ TEST_CASE_METHOD(Fixture, "a pending unsatisfied require call is reported at end
 
   auto re = R":(Unfulfilled expectation:
 Expected obj\.foo\("bar"\) to be called once, actually never called
-  param  _1 = bar):";
+  param  _1 == bar):";
   INFO(reports.front().msg);
   REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
 }
@@ -3033,7 +3033,7 @@ TEST_CASE_METHOD(Fixture, "Unfulfilled expectation with ANY is reported with exp
   REQUIRE(reports.size() == 1U);
   auto re = R":(Unfulfilled expectation:
 Expected obj\.func\(3, ANY\(std::string&\)\) to be called once, actually never called
-  param  _1 = 3
+  param  _1 == 3
   param  _2 matching ANY\(std::string&\)):";
   auto& msg = reports.front().msg;
   INFO("msg=" << msg);
@@ -3051,7 +3051,7 @@ TEST_CASE_METHOD(Fixture, "Unfulfilled expectation with _ is reported with expec
   REQUIRE(reports.size() == 1U);
   auto re = R":(Unfulfilled expectation:
 Expected obj\.func\(3, _\) to be called once, actually never called
-  param  _1 = 3
+  param  _1 == 3
   param  _2 matching _):";
   auto& msg = reports.front().msg;
   INFO("msg=" << msg);
@@ -3408,7 +3408,7 @@ TEST_CASE_METHOD(Fixture, "unmatched call is reported", "[mismatches]")
   {
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 7):";
+  param  _1 == 7):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -3445,7 +3445,7 @@ TEST_CASE_METHOD(Fixture, "match of saturated call is reported", "[mismatches]")
     REQUIRE(reports.size() == 1U);
     auto re =
            R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Matches saturated call requirement
   obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
@@ -3497,7 +3497,7 @@ TEST_CASE_METHOD(Fixture, "a matching call that throws is saturated", "[mismatch
     REQUIRE(reports.size() == 1U);
     auto re =
            R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Matches saturated call requirement
   obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
@@ -3520,13 +3520,13 @@ TEST_CASE_METHOD(Fixture, "unmatched call with mismatching requirements is repor
     REQUIRE(reports.size() == 1U);
     auto re =
            R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 3
+  param  _1 == 3
 
 Tried obj\.getter\(5\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
-  Expected  _1 = 5
+  Expected  _1 == 5
 
 Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
-  Expected  _1 = 4):";
+  Expected  _1 == 4):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -3546,7 +3546,7 @@ TEST_CASE_METHOD(Fixture, "unmatched with wildcard reports failed WITH clauses",
     REQUIRE(reports.size() == 1U);
     auto re =
            R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Failed WITH\(_1 < 3\)
@@ -3570,7 +3570,7 @@ TEST_CASE_METHOD(Fixture, "unmatched with wildcard reports only failed WITH clau
     REQUIRE(reports.size() == 1U);
     auto re =
            R":(No match for call of getter with signature int\(int\) with\.
-  param  _1 = 4
+  param  _1 == 4
 
 Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Failed WITH\(_1 < 3\)):";
@@ -3596,7 +3596,7 @@ TEST_CASE_METHOD(Fixture, "match of forbidden call is reported", "[mismatches]")
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(Match of forbidden call of obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
-  param  _1 = 3):";
+  param  _1 == 3):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -3614,10 +3614,10 @@ TEST_CASE_METHOD(Fixture, "Mismatched call to a mocked function with param from 
     REQUIRE(reports.size() == 1U);
     INFO("report=" << reports.front().msg);
     auto re = R":(No match for call of tfunc with signature void\(T\) with\.
-  param  _1 = 2
+  param  _1 == 2
 
 Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
-  Expected  _1 = 3):";
+  Expected  _1 == 3):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -3763,12 +3763,12 @@ TEST_CASE_METHOD(Fixture, "matching calls are traced", "[tracing]")
   auto re =
          R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj1\.getter\(_, _\) with.
-  param  _1 = 3
-  param  _2 = foo
+  param  _1 == 3
+  param  _2 == foo
 
 [A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj2\.foo\("bar"\) with\.
-  param  _1 = bar
+  param  _1 == bar
 ):";
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
@@ -3790,7 +3790,7 @@ TEST_CASE_METHOD(Fixture, "tracing is only active when tracer obj is alive", "[t
   auto re =
          R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj2\.foo\("bar"\) with\.
-  param  _1 = bar
+  param  _1 == bar
 ):";
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
