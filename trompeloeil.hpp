@@ -2691,8 +2691,13 @@ namespace trompeloeil
   {
     template<typename ... U>
     call_matcher(
+      char const *file,
+      unsigned long line,
+      char const *call_string,
       U &&... u)
-    : val(std::forward<U>(u)...)
+    : loc{file, line},
+      name{call_string},
+      val(std::forward<U>(u)...)
     {}
 
     call_matcher(call_matcher &&r) = delete;
@@ -2865,27 +2870,6 @@ namespace trompeloeil
         call_count,
         loc);
     }
-
-    call_matcher*
-    set_location(
-      char const *file_,
-      unsigned long line_)
-    noexcept
-    {
-      loc.file = file_;
-      loc.line = line_;
-      return this;
-    }
-
-    call_matcher*
-    set_name(
-      char const *func_name)
-    noexcept
-    {
-      name = func_name;
-      return this;
-    }
-
     template <typename C>
     void
     add_condition(
@@ -3333,15 +3317,14 @@ operator*(
       template <typename ... U>                                                \
       auto name(                                                               \
         U&& ... u)                                                             \
-        -> ::trompeloeil::call_modifier<::trompeloeil::call_matcher<sig, decltype(std::make_tuple(std::forward<U>(u)...))>, tag, ::trompeloeil::matcher_info<sig>> \
       {                                                                        \
         using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
+        using info = ::trompeloeil::matcher_info<sig>;                         \
+        using modifier = ::trompeloeil::call_modifier<matcher, tag, info>;     \
                                                                                \
-        auto  matcher_obj = std::make_unique<matcher>(std::forward<U>(u)...);  \
-        matcher_obj->set_location(file, line);                                 \
-        matcher_obj->set_name(call_string);                                    \
-        return {std::move(matcher_obj)};                                       \
+        auto  matcher_obj = std::make_unique<matcher>(file, line, call_string, std::forward<U>(u)...); \
+        return modifier{std::move(matcher_obj)};                               \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \
