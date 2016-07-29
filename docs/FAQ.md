@@ -30,6 +30,25 @@ Perhaps *Illusionist* or *Puppeteer* would have sufficed as names, but
 they were taken many times over for other projects, and besides, the author
 has a soft spot for Trompe-l'œil art.
 
+If you **really** cannot handle the name, you can use the following
+renaming mechanism. Assume that you'd like the name
+[`chimera`](http://www.merriam-webster.com/dictionary/chimera) instead.
+
+Create a file `chimera.hpp` with the following contents:
+
+```Cpp
+#ifndef CHIMERA_HPP
+#define CHIMERA_HPP
+
+#include <trompeloeil.hpp>
+namespace chimera = trompeloeil;
+
+#endif /* include guard */
+```
+
+Your tests can now `#include <chimera.hpp>` and use (for example)
+`chimera::expectation` and `chimera::deathwatched<T>`
+
 ## <A name="compilers"/>Q. Which compilers supports *Trompeloeil*?
 
 **A.** *Trompeloeil* is known to work well with:
