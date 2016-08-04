@@ -2351,10 +2351,10 @@ namespace trompeloeil
 
 
   template <typename Sig>
-  call_matcher_base<Sig>*
+  call_matcher_base <Sig> *
   find(
-    call_params_type_t<Sig> const &p,
-    call_matcher_list<Sig>        &list)
+    call_matcher_list <Sig> &list,
+    call_params_type_t <Sig> const &p)
   noexcept
   {
     call_matcher_base<Sig>* first_match = nullptr;
@@ -3210,7 +3210,7 @@ namespace trompeloeil
   {
     auto lock = get_lock();
     auto param_value = make_params_type_obj(std::forward<P>(p)...);
-    auto i = find(param_value, e.active);
+    auto i = find(e.active, param_value);
     if (!i)
     {
       report_mismatch(func_name + std::string(" with signature ") + sig_name,
