@@ -2379,10 +2379,10 @@ namespace trompeloeil
   TROMPELOEIL_NORETURN
   void
   report_mismatch(
-    std::string const             &name,
-    call_params_type_t<Sig> const &p,
-    call_matcher_list<Sig>        &matcher_list,
-    call_matcher_list<Sig>        &saturated_list)
+    call_matcher_list <Sig> &matcher_list,
+    call_matcher_list <Sig> &saturated_list,
+    std::string const &name,
+    call_params_type_t <Sig> const &p)
   {
     std::ostringstream os;
     os << "No match for call of " << name << " with.\n" << missed_values(p);
@@ -3213,10 +3213,10 @@ namespace trompeloeil
     auto i = find(e.active, param_value);
     if (!i)
     {
-      report_mismatch(func_name + std::string(" with signature ") + sig_name,
-                      param_value,
-                      e.active,
-                      e.saturated);
+      report_mismatch(e.active,
+                      e.saturated,
+                      func_name + std::string(" with signature ") + sig_name,
+                      param_value);
     }
     if (auto t_obj = tracer_obj())
     {
