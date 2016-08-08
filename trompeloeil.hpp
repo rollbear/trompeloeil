@@ -2117,27 +2117,27 @@ namespace trompeloeil
   template<typename T>
   using call_params_type_t = typename call_params_type<T>::type;
 
-  template <typename Sig>
+  template <typename R>
   struct default_return_t
   {
-    TROMPELOEIL_NORETURN static return_of_t<Sig> value()
+    TROMPELOEIL_NORETURN static R value()
     {
       std::abort(); // must never be called
     }
   };
 
-  template <typename ... A>
-  struct default_return_t<void(A...)>
+  template <>
+  struct default_return_t<void>
   {
     static void value() {}
   };
 
-  template <typename Sig>
-  return_of_t<Sig>
-  default_return(
-    call_params_type_t<Sig>&)
+  template <typename R>
+  inline
+  R
+  default_return()
   {
-    return default_return_t<Sig>::value();
+    return default_return_t<R>::value();
   }
 
 
@@ -2539,10 +2539,6 @@ namespace trompeloeil
     Action a;
   };
 
-  template <typename Sig>
-  using return_handler_sig = return_of_t<Sig>(call_params_type_t<Sig>&);
-
-
   template <unsigned long long L, unsigned long long H = L>
   struct multiplicity { };
 
@@ -2665,7 +2661,7 @@ namespace trompeloeil
       auto handler = [=](auto& p) -> decltype(auto)
       {
         h(p);
-        return trompeloeil::default_return<signature>(p);
+        return trompeloeil::default_return<return_of_t<signature>>();
       };
       matcher->set_return(tag{}, &handler);
       return {std::move(matcher)};
@@ -2862,7 +2858,7 @@ namespace trompeloeil
       call_params_type_t<Sig>& params)
     override
     {
-      if (!return_handler_obj) return default_return<Sig>(params);
+      if (!return_handler_obj) return default_return<return_of_t<Sig>>();
       return return_handler_obj->call(params);
     }
 
