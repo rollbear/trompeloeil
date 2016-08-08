@@ -511,7 +511,7 @@ namespace trompeloeil
   template <typename U>
   constexpr
   std::integral_constant<decltype(std::declval<U>() == nullptr),
-			 !is_matcher<U>::value>
+                         !is_matcher<U>::value>
   is_null_comparable(
     U *)
   noexcept
@@ -1033,9 +1033,9 @@ namespace trompeloeil
       auto m = matchers.begin();
       if (!touched)
       {
-	os << "Sequence expectations not met at destruction of sequence object \""
-	   << m->sequence_name() << "\":";
-	touched = true;
+        os << "Sequence expectations not met at destruction of sequence object \""
+           << m->sequence_name() << "\":";
+        touched = true;
       }
       os << "\n  missing ";
       m->print_expectation(os);
@@ -2298,10 +2298,10 @@ namespace trompeloeil
 
   template <typename ... V, typename ... P, size_t ... I>
   void print_mismatch(
-                      std::ostream& os,
-                      std::index_sequence<I...>,
-                      std::tuple<V...> const& v,
-                      std::tuple<P...> const& p)
+    std::ostream& os,
+    std::index_sequence<I...>,
+    std::tuple<V...> const& v,
+    std::tuple<P...> const& p)
   {
     ::trompeloeil::ignore(os, v, p);  // Kills unmotivated VS2015 warning in the empty case
     ::trompeloeil::ignore(std::initializer_list<int>{(print_mismatch(os, I, std::get<I>(v), std::get<I>(p)),0)...});
@@ -3435,7 +3435,7 @@ operator*(
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
-  spec								               \
+  spec                                                                         \
   {                                                                            \
     return ::trompeloeil::mock_func<sig>(TROMPELOEIL_ID(cardinality_match){},  \
                                          TROMPELOEIL_ID(expectations),         \
@@ -3621,7 +3621,7 @@ operator*(
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)                             \
   TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_("NAMED_", obj, #obj)
 
-#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(prefix, obj, obj_s)	           \
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(prefix, obj, obj_s)                 \
   trompeloeil::lifetime_monitor_modifier<false>{                               \
     std::make_unique<trompeloeil::lifetime_monitor>(                           \
       obj,                                                                     \
