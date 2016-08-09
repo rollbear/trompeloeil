@@ -2437,8 +2437,7 @@ namespace trompeloeil
       constexpr bool forbidden = upper_call_limit == 0U;
       static_assert(!forbidden,
                     "SIDE_EFFECT for forbidden call does not make sense");
-      using tag = std::integral_constant<bool, !forbidden>;
-      matcher->add_side_effect(tag{}, &a);
+      matcher->add_side_effect(std::forward<A>(a));
       return {std::move(matcher)};
     }
 
@@ -2787,20 +2786,15 @@ namespace trompeloeil
       auto cond = new condition<Sig, C>(str, std::forward<C>(c));
       conditions.push_back(cond);
     }
+
     template <typename S>
     void
     add_side_effect(
-      std::true_type,
-      S* s)
+      S&& s)
     {
-      auto effect = new side_effect<Sig, S>(std::move(*s));
+      auto effect = new side_effect<Sig, S>(std::forward<S>(s));
       actions.push_back(effect);
     }
-
-    static                                            // Never called. Used to
-    inline                                            // limit errmsg with
-    void                                              // SIDE_EFFECT on
-    add_side_effect(std::false_type, ...) noexcept;   // forbidden call
 
     template <typename ... T>
     void
