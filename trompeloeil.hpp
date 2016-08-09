@@ -2838,17 +2838,14 @@ namespace trompeloeil
   };
 
 
-  template <typename T, int N, bool b = N <= std::tuple_size<T>::value>
-  struct arg
+  template<int N, typename T>
+  constexpr
+  inline
+  decltype(auto)
+  arg(T* t, std::true_type)
   {
-    static
-    typename std::tuple_element<N - 1,T>::type
-    value(
-      T& t)
-    {
-      return std::get<N - 1>(t);
-    }
-  };
+    return std::get<N-1>(*t);
+  }
 
   template <int N>
   struct illegal_argument {
@@ -2864,19 +2861,15 @@ namespace trompeloeil
     }
   };
 
-  template <typename T, int N>
-  struct arg<T, N, false>
-  {
-    static
-    illegal_argument<N> const &
-    value(
-      T&)
+  template <int N>
+  inline
+  illegal_argument<N>&
+  arg(void const*, std::false_type)
     noexcept
-    {
-      static illegal_argument<N> constexpr v{};
+  {
+      static illegal_argument<N> v{};
       return v;
-    }
-  };
+  }
 
   template <int N, typename T>
   decltype(auto)
@@ -2884,7 +2877,7 @@ namespace trompeloeil
     T& t)
   noexcept
   {
-    return arg<T, N>::value(t);
+    return arg<N>(&t, std::integral_constant<bool, (N <= std::tuple_size<T>::value)>{});
   }
 
   template <typename ... T>
