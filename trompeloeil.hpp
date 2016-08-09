@@ -1222,14 +1222,14 @@ namespace trompeloeil
   class value_comparator
   {
   public:
-    template <typename V,
-              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+    constexpr
     value_comparator(
-      V&& v)
-      noexcept(noexcept(T(std::declval<V&&>())))
-      : value(std::forward<V>(v))
+      T&& v)
+      noexcept(noexcept(T(std::declval<T&&>())))
+      : value(std::move(v))
     {}
     template <typename V>
+    constexpr
     bool
     matches(
       V&& v)
@@ -1338,10 +1338,10 @@ namespace trompeloeil
   template <typename ... T, typename V>
   eq_t<V, T...>
   eq(
-    V t)
+    V v)
   noexcept(noexcept(eq_t<V, T...>(std::declval<V>())))
   {
-    return {t};
+    return {std::move(v)};
   }
 
   template <typename T, typename U = wildcard>
@@ -1419,7 +1419,7 @@ namespace trompeloeil
     V v)
     noexcept(noexcept(ne_t<V, T...>(std::declval<V>())))
   {
-    return {v};
+    return {std::move(v)};
   }
 
   template <typename T, typename U = wildcard>
@@ -1446,7 +1446,7 @@ namespace trompeloeil
     V v)
   noexcept(noexcept(ge_t<V, T...>(std::declval<V>())))
   {
-    return {v};
+    return {std::move(v)};
   }
 
   template <typename T, typename U = wildcard>
@@ -1473,7 +1473,7 @@ namespace trompeloeil
     V v)
   noexcept(noexcept(gt_t<V, T...>(std::declval<V>())))
   {
-    return {v};
+    return {std::move(v)};
   }
 
   template <typename T, typename U = wildcard>
@@ -1500,7 +1500,7 @@ namespace trompeloeil
     V v)
   noexcept(noexcept(lt_t<V,T...>(std::declval<V>())))
   {
-    return {v};
+    return {std::move(v)};
   }
 
   template <typename T, typename U = wildcard>
@@ -1527,7 +1527,7 @@ namespace trompeloeil
     V v)
     noexcept(noexcept(le_t<V,T...>(std::declval<V>())))
   {
-    return {v};
+    return {std::move(v)};
   }
 
   class re_base
