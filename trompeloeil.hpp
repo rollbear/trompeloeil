@@ -2901,26 +2901,6 @@ namespace trompeloeil
   template <typename Mock>
   struct call_validator_t
   {
-    call_validator_t(
-      Mock& obj_)
-      : obj{obj_}
-    {}
-
-    template <typename T>
-    static
-    auto
-    assert_return_type(
-      T&)
-    noexcept
-    {
-      using sigret = return_of_t<typename T::signature>;
-      using ret = typename T::return_type;
-      constexpr bool retmatch = std::is_same<ret, sigret>::value;
-      constexpr bool legal = T::throws || retmatch;
-      static_assert(legal, "RETURN missing for non-void function");
-      return std::integral_constant<bool, legal>{};
-    }
-
     template <typename M, typename Tag, typename Info>
     auto
     make_expectation(
@@ -2941,12 +2921,20 @@ namespace trompeloeil
                                                      // function
 
     template <typename M, typename Tag, typename Info>
+    inline
     auto
     operator+(
       call_modifier<M, Tag, Info>&& t)
     const
     {
-      return make_expectation(assert_return_type(t), std::move(t));
+      using T = call_modifier<M, Tag, Info>;
+      using sigret = return_of_t<typename T::signature>;
+      using ret = typename T::return_type;
+      constexpr bool retmatch = std::is_same<ret, sigret>::value;
+      constexpr bool legal = T::throws || retmatch;
+      static_assert(legal, "RETURN missing for non-void function");
+      auto tag = std::integral_constant<bool, legal>{};
+      return make_expectation(tag, std::move(t));
     }
     Mock& obj;
   };
