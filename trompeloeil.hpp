@@ -1955,7 +1955,8 @@ namespace trompeloeil
   template <>
   struct default_return_t<void>
   {
-    static constexpr void value() {}
+    // g++ 4.9 does not allow constexpr for void function
+    static void value() {}
   };
 
   template <typename R>
