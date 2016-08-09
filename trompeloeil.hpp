@@ -1079,6 +1079,7 @@ namespace trompeloeil
     const;
 
     template <typename T>
+    constexpr
     bool
     matches(
       T const&)
@@ -1956,7 +1957,7 @@ namespace trompeloeil
   template <>
   struct default_return_t<void>
   {
-    static void value() {}
+    static constexpr void value() {}
   };
 
   template <typename R>
