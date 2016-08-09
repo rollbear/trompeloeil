@@ -2998,8 +2998,8 @@ namespace trompeloeil
       active.decommission();
       saturated.decommission();
     }
-    mutable call_matcher_list<Sig> active;
-    mutable call_matcher_list<Sig> saturated;
+    call_matcher_list<Sig> active;
+    call_matcher_list<Sig> saturated;
   };
 
   template <typename Sig, typename ... P>
@@ -3009,7 +3009,7 @@ namespace trompeloeil
   template <typename Sig, typename ... P>
   return_of_t<Sig>
   mock_func(std::true_type,
-            const expectations<Sig>& e,
+            expectations<Sig>& e,
             char const *func_name,
             char const *sig_name,
             P&& ... p)
@@ -3193,7 +3193,7 @@ operator*(
                 "Function signature does not have " #num " parameters");       \
   using TROMPELOEIL_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
   using TROMPELOEIL_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
-  TROMPELOEIL_ID(expectation_list_t) TROMPELOEIL_ID(expectations);             \
+  mutable TROMPELOEIL_ID(expectation_list_t) TROMPELOEIL_ID(expectations);     \
   struct TROMPELOEIL_ID(tag_type_trompeloeil)                                  \
   {                                                                            \
     template <typename Mock>                                                   \
