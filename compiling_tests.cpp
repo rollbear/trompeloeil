@@ -122,7 +122,7 @@ public:
   using C::p_;
 };
 
-int intfunc(int i) { return i;}
+static int intfunc(int i) { return i;}
 
 using trompeloeil::_;
 
