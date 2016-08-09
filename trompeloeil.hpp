@@ -2469,7 +2469,7 @@ namespace trompeloeil
 
       constexpr bool valid = matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
       using tag = std::integral_constant<bool, valid>;
-      matcher->set_return(tag{}, &h);
+      matcher->set_return(tag{}, std::forward<H>(h));
       return {std::move(matcher)};
     }
 
@@ -2491,7 +2491,7 @@ namespace trompeloeil
         h(p);
         return trompeloeil::default_return<return_of_t<signature>>();
       };
-      matcher->set_return(tag{}, &handler);
+      matcher->set_return(tag{}, std::move(handler));
       return {std::move(matcher)};
     }
     template <unsigned long long L,
@@ -2818,16 +2818,18 @@ namespace trompeloeil
     void
     set_return(
       std::true_type,
-      T* h)
+      T&& h)
     {
       using basic_t = typename std::remove_reference<T>::type;
       using handler = return_handler_t<Sig, basic_t>;
-      return_handler_obj.reset(new handler(std::move(*h)));
+      return_handler_obj.reset(new handler(std::forward<T>(h)));
     }
+
+    template <typename T>
     inline                           // Never called. Used to limit errmsg
-    static                           // with RETURN of wring type and after:
+    static                           // with RETURN of wrong type and after:
     void                             //   FORBIDDEN_CALL
-    set_return(std::false_type, ...) //   RETURN
+    set_return(std::false_type, T&&) //   RETURN
       noexcept;                      //   THROW
 
     condition_list<Sig>                    conditions;
