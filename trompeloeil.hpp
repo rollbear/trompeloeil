@@ -1178,65 +1178,111 @@ namespace trompeloeil
   };
 
   template <typename T>
-  class eq_base
+  struct operator_string
+  {
+    static constexpr const char* value();
+  };
+
+  template <>
+  inline
+  constexpr
+  const char*
+  operator_string<std::equal_to<>>::value() { return " == "; }
+
+  template <>
+  inline
+  constexpr
+  const char*
+  operator_string<std::not_equal_to<>>::value() { return " != "; }
+
+  template <>
+  inline
+  constexpr
+  const char*
+  operator_string<std::greater<>>::value() { return " > "; }
+
+  template <>
+  inline
+  constexpr
+  const char*
+  operator_string<std::greater_equal<>>::value() { return " >= "; }
+
+  template <>
+  inline
+  constexpr
+  const char*
+  operator_string<std::less<>>::value() { return " < "; }
+
+  template <>
+  inline
+  constexpr
+  const char*
+  operator_string<std::less_equal<>>::value() { return " <= "; }
+
+  template <typename T, typename Pred>
+  class value_comparator
   {
   public:
     template <typename V,
-             typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    eq_base(
+              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
+    value_comparator(
       V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
+      noexcept(noexcept(T(std::declval<V&&>())))
+      : value(std::forward<V>(v))
     {}
-
     template <typename V>
     bool
     matches(
       V&& v)
-    const
-    noexcept(noexcept(v == std::declval<T>()))
+      const
+      noexcept(noexcept(Pred{}) && noexcept(Pred{}(std::declval<V>(), std::declval<T>())))
     {
-      return v == t;
+      return Pred{}(v, value);
     }
 
     friend
     std::ostream&
     operator<<(
       std::ostream& os,
-      eq_base const& m)
+      const value_comparator& v)
     {
-      os << " == ";
-      print(os, m.t);
+      os << operator_string<Pred>::value();
+      print(os, v.value);
       return os;
     }
   private:
-    T t;
+    T value;
+  };
+
+  template <typename T, typename Pred>
+  class duck_typed_matcher : public matcher
+  {
+  public:
+    template <typename V,
+              typename = decltype(Pred{}(std::declval<V&&>(), std::declval<T>()))>
+    operator V&&() const;
+
+    template <typename V,
+              typename = decltype(Pred{}(std::declval<V&>(), std::declval<T>()))>
+    operator V&() const;
   };
 
   template <typename T, typename U = wildcard>
   class eq_t
-    : public eq_base<T>
+    : public value_comparator<T, std::equal_to<>>
     , public typed_matcher<U>
   {
   public:
-    using eq_base<T>::eq_base;
+    using value_comparator<T, std::equal_to<>>::value_comparator;
   };
 
   template <typename T>
   class eq_t<T, wildcard>
-    : public eq_base<T>
-    , public matcher
+    : public value_comparator<T, std::equal_to<>>
+    , public duck_typed_matcher<T, std::equal_to<>>
   {
   public:
-    using eq_base<T>::eq_base;
-
-    template <typename V,
-              typename = decltype(std::declval<V&&>() == std::declval<T>())>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(std::declval<V&>() == std::declval<T>())>
-    operator V&() const;
+    using value_comparator<T, std::equal_to<>>::value_comparator;
   };
 
   template <typename U> // VS2015 requires this unnecessary specialization
@@ -1299,66 +1345,22 @@ namespace trompeloeil
     return {t};
   }
 
-  template <typename T>
-  class ne_base
-  {
-  public:
-    template <typename V,
-              typename = std::enable_if_t<std::is_constructible<T,V>::value>>
-    ne_base(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v != std::declval<T>()))
-    {
-      return v != t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      ne_base const& m)
-    {
-      os << " != ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
-  };
-
   template <typename T, typename U = wildcard>
   class ne_t
-    : public ne_base<T>
+    : public value_comparator<T, std::not_equal_to<>>
     , public typed_matcher<U>
   {
   public:
-    using ne_base<T>::ne_base;
+    using value_comparator<T, std::not_equal_to<>>::value_comparator;
   };
 
   template <typename T>
   class ne_t<T, wildcard>
-    : public ne_base<T>
-    , public matcher
+    : public value_comparator<T, std::not_equal_to<>>
+    , public duck_typed_matcher<T, std::not_equal_to<>>
   {
   public:
-    using ne_base<T>::ne_base;
-
-    template <typename V,
-              typename = decltype(std::declval<V&&>() == std::declval<T>())>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(std::declval<V&>() == std::declval<T>())>
-    operator V&() const;
+    using value_comparator<T, std::not_equal_to<>>::value_comparator;
   };
 
   template <typename U> // VS2015 requires this unnecessary specialization
@@ -1421,66 +1423,22 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T>
-  class ge_base
-  {
-  public:
-    template <typename V,
-              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    ge_base(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v >= std::declval<T>()))
-    {
-      return v >= t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      ge_base const& m)
-    {
-      os << " >= ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
-  };
-
   template <typename T, typename U = wildcard>
   class ge_t
-    : public ge_base<T>
+    : public value_comparator<T, std::greater_equal<>>
     , public typed_matcher<U>
   {
   public:
-    using ge_base<T>::ge_base;
+    using value_comparator<T, std::greater_equal<>>::value_comparator;
   };
 
   template <typename T>
   class ge_t<T, wildcard>
-    : public ge_base<T>
-    , public matcher
+    : public value_comparator<T, std::greater_equal<>>
+    , public duck_typed_matcher<T, std::greater_equal<>>
   {
   public:
-    using ge_base<T>::ge_base;
-
-    template <typename V,
-              typename = decltype(std::declval<V&&>() >= std::declval<T>())>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(std::declval<V&>() >= std::declval<T>())>
-    operator V&() const;
+    using value_comparator<T, std::greater_equal<>>::value_comparator;
   };
 
   template <typename ... T, typename V>
@@ -1492,66 +1450,22 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T>
-  class gt_base
-  {
-  public:
-    template <typename V,
-              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    gt_base(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v > std::declval<T>()))
-    {
-      return v > t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      gt_base const& m)
-    {
-      os << " > ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
-  };
-
   template <typename T, typename U = wildcard>
   class gt_t
-    : public gt_base<T>
+    : public value_comparator<T, std::greater<>>
     , public typed_matcher<U>
   {
   public:
-    using gt_base<T>::gt_base;
+    using value_comparator<T, std::greater<>>::value_comparator;
   };
 
   template <typename T>
   class gt_t<T, wildcard>
-    : public gt_base<T>
-    , public matcher
+    : public value_comparator<T, std::greater<>>
+    , public duck_typed_matcher<T, std::greater<>>
   {
   public:
-    using gt_base<T>::gt_base;
-
-    template <typename V,
-              typename = decltype(std::declval<V&&>() > std::declval<T>())>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(std::declval<V&>() > std::declval<T>())>
-    operator V&() const;
+    using value_comparator<T, std::greater<>>::value_comparator;
   };
 
   template <typename ... T, typename V>
@@ -1563,66 +1477,22 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T>
-  class lt_base
-  {
-  public:
-    template <typename V,
-              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    lt_base(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v < std::declval<T>()))
-    {
-      return v < t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      lt_base const& m)
-    {
-      os << " < ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
-  };
-
   template <typename T, typename U = wildcard>
   class lt_t
-    : public lt_base<T>
+    : public value_comparator<T, std::less<>>
     , public typed_matcher<U>
   {
   public:
-    using lt_base<T>::lt_base;
+    using value_comparator<T, std::less<>>::value_comparator;
   };
 
   template <typename T>
   class lt_t<T, wildcard>
-    : public lt_base<T>
-    , public matcher
+    : public value_comparator<T, std::less<>>
+    , public duck_typed_matcher<T, std::less<>>
   {
   public:
-    using lt_base<T>::lt_base;
-
-    template <typename V,
-              typename = decltype(std::declval<V&&>() < std::declval<T>())>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(std::declval<V&>() < std::declval<T>())>
-    operator V&() const;
+    using value_comparator<T, std::less<>>::value_comparator;
   };
 
   template <typename ... T, typename V>
@@ -1634,65 +1504,22 @@ namespace trompeloeil
     return {v};
   }
 
-  template <typename T>
-  class le_base
-  {
-  public:
-    template <typename V,
-              typename = std::enable_if_t<std::is_constructible<T, V>::value>>
-    le_base(
-      V&& v)
-    noexcept(noexcept(T(std::declval<V&&>())))
-      : t(std::forward<V>(v))
-    {}
-
-    template <typename V>
-    bool
-    matches(
-      V&& v)
-    const
-    noexcept(noexcept(v <= std::declval<T>()))
-    {
-      return v <= t;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      le_base const& m)
-    {
-      os << " <= ";
-      print(os, m.t);
-      return os;
-    }
-  private:
-    T t;
-  };
   template <typename T, typename U = wildcard>
   class le_t
-    : public le_base<T>
+    : public value_comparator<T, std::less_equal<>>
     , public typed_matcher<U>
   {
   public:
-    using le_base<T>::le_base;
+    using value_comparator<T, std::less_equal<>>::value_comparator;
   };
 
   template <typename T>
   class le_t<T, wildcard>
-    : public le_base<T>
-    , public matcher
+    : public value_comparator<T, std::less_equal<>>
+    , public duck_typed_matcher<T, std::less_equal<>>
   {
   public:
-    using le_base<T>::le_base;
-
-    template <typename V,
-              typename = decltype(std::declval<V&&>() <= std::declval<T>())>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(std::declval<V&>() <= std::declval<T>())>
-    operator V&() const;
+    using value_comparator<T, std::less_equal<>>::value_comparator;
   };
 
   template <typename ... T, typename V>
