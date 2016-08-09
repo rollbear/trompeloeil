@@ -2880,15 +2880,6 @@ namespace trompeloeil
     return arg<N>(&t, std::integral_constant<bool, (N <= std::tuple_size<T>::value)>{});
   }
 
-  template <typename ... T>
-  auto
-  make_params_type_obj(
-    T&& ... t)
-  noexcept
-  {
-    return call_params_type_t<void(T...)>{ std::forward<T>(t)... };
-  }
-
   template <typename Mock>
   struct call_validator_t
   {
@@ -3008,7 +2999,9 @@ namespace trompeloeil
             P&& ... p)
   {
     auto lock = get_lock();
-    auto param_value = make_params_type_obj(std::forward<P>(p)...);
+
+    call_params_type_t<void(P...)> param_value(std::forward<P>(p)...);
+
     auto i = find(e.active, param_value);
     if (!i)
     {
