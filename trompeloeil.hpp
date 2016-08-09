@@ -498,28 +498,24 @@ namespace trompeloeil
     char fill;
   };
 
-  template <typename U>
-  constexpr
-  std::false_type
-  is_null_comparable(
-    ...)
-  noexcept
-  {
-    return { };
-  }
-
-  template <typename U>
-  constexpr
-  std::integral_constant<decltype(std::declval<U>() == nullptr),
-                         !is_matcher<U>::value>
-  is_null_comparable(
-    U *)
-  noexcept
-  {
-    return { };
-  }
 
   template <typename T>
+  struct is_null_comparable
+  {
+    template <typename U>
+    static auto func(...)
+      -> std::false_type;
+
+    template <typename U>
+    static auto func(U* u)
+      -> std::integral_constant<decltype(*u == nullptr), !is_matcher<U>::value>;
+
+    using type = decltype(func<T>(nullptr));
+    static constexpr type value = {};
+  };
+
+  template <typename T>
+  inline
   constexpr
   bool
   is_null(
@@ -531,6 +527,7 @@ namespace trompeloeil
   }
 
   template <typename T>
+  inline
   constexpr
   bool
   is_null(
@@ -542,13 +539,14 @@ namespace trompeloeil
   }
 
   template <typename T>
+  inline
   constexpr
   bool
   is_null(
     T const &t)
   {
     return ::trompeloeil::is_null(t,
-                                  ::trompeloeil::is_null_comparable<T>(nullptr));
+                                  ::trompeloeil::is_null_comparable<T>::value);
   }
 
   template <typename T, bool = is_output_streamable<T>()>
