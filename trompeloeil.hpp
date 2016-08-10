@@ -454,6 +454,19 @@ namespace trompeloeil
     operator T C::*() const;
   };
 
+  template <typename T, typename Pred>
+  class duck_typed_matcher : public matcher
+  {
+  public:
+    template <typename V,
+              typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()))>
+    operator V&&() const;
+
+    template <typename V,
+              typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()))>
+    operator V&() const;
+  };
+
   constexpr inline std::false_type is_output_streamable_(...) { return {}; }
 
   template <typename T>
@@ -1176,57 +1189,35 @@ namespace trompeloeil
     M m;
   };
 
-  template <typename T>
-  struct operator_string
+  template <typename ActualType, typename MatchType, typename Predicate>
+  struct matcher_kind
   {
-    static constexpr const char* value();
+    using type = typed_matcher<MatchType>;
   };
 
-  template <>
-  inline
-  constexpr
-  const char*
-  operator_string<std::equal_to<>>::value() { return " == "; }
+  template <typename ActualType, typename Predicate>
+  struct matcher_kind<ActualType, wildcard, Predicate>
+  {
+    using type = duck_typed_matcher<ActualType, Predicate>;
+  };
 
-  template <>
-  inline
-  constexpr
-  const char*
-  operator_string<std::not_equal_to<>>::value() { return " != "; }
+  template <typename ActualType, typename MatchType, typename Predicate>
+  using matcher_kind_t =
+    typename matcher_kind<ActualType, MatchType, Predicate>::type;
 
-  template <>
-  inline
-  constexpr
-  const char*
-  operator_string<std::greater<>>::value() { return " > "; }
-
-  template <>
-  inline
-  constexpr
-  const char*
-  operator_string<std::greater_equal<>>::value() { return " >= "; }
-
-  template <>
-  inline
-  constexpr
-  const char*
-  operator_string<std::less<>>::value() { return " < "; }
-
-  template <>
-  inline
-  constexpr
-  const char*
-  operator_string<std::less_equal<>>::value() { return " <= "; }
-
-  template <typename T, typename Pred>
-  class value_comparator
+  template <typename Predicate, typename MatcherType, typename T>
+  class predicate_matcher : private Predicate, public MatcherType
   {
   public:
     constexpr
-    value_comparator(
-      T&& v)
-      noexcept(noexcept(T(std::declval<T&&>())))
-      : value(std::move(v))
+    predicate_matcher(
+      T v,
+      Predicate pred,
+      char const* op_string)
+    noexcept(noexcept(T(std::declval<T&&>())) && noexcept(Predicate(std::declval<Predicate>())))
+      : Predicate(pred)
+      , value(std::move(v))
+      , operator_string(op_string)
     {}
     template <typename V>
     constexpr
@@ -1234,300 +1225,116 @@ namespace trompeloeil
     matches(
       V&& v)
       const
-      noexcept(noexcept(Pred{}) && noexcept(Pred{}(std::declval<V>(), std::declval<T>())))
+      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V>(), std::declval<T>())))
     {
-      return Pred{}(v, value);
+      return Predicate::operator()(v, value);
     }
 
     friend
     std::ostream&
     operator<<(
       std::ostream& os,
-      const value_comparator& v)
+      predicate_matcher const& v)
     {
-      os << operator_string<Pred>::value();
+      os << v.operator_string;
       print(os, v.value);
       return os;
     }
   private:
     T value;
+    char const* operator_string;
   };
 
-  template <typename T, typename Pred>
-  class duck_typed_matcher : public matcher
+  template <typename MatchType, typename Predicate, typename T>
+  inline
+  predicate_matcher <Predicate, matcher_kind_t<T, MatchType, Predicate>, T>
+  make_matcher(Predicate pred, char const *op_string, T t)
   {
-  public:
-    template <typename V,
-              typename = decltype(Pred{}(std::declval<V&&>(), std::declval<T>()))>
-    operator V&&() const;
-
-    template <typename V,
-              typename = decltype(Pred{}(std::declval<V&>(), std::declval<T>()))>
-    operator V&() const;
-  };
-
-  template <typename T, typename U = wildcard>
-  class eq_t
-    : public value_comparator<T, std::equal_to<>>
-    , public typed_matcher<U>
-  {
-  public:
-    using value_comparator<T, std::equal_to<>>::value_comparator;
-  };
-
-  template <typename T>
-  class eq_t<T, wildcard>
-    : public value_comparator<T, std::equal_to<>>
-    , public duck_typed_matcher<T, std::equal_to<>>
-  {
-  public:
-    using value_comparator<T, std::equal_to<>>::value_comparator;
-  };
-
-  template <typename U> // VS2015 requires this unnecessary specialization
-  class eq_t<std::nullptr_t, U>
-    : public typed_matcher<U>
-  {
-  public:
-    eq_t(std::nullptr_t) {}
-
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u == nullptr))
-    {
-      return u == nullptr;
-    }
-  };
-
-  template <> // VS2015 requires this unnecessary specialization
-  class eq_t<std::nullptr_t, wildcard>
-    : public typed_matcher<std::nullptr_t>
-  {
-  public:
-    eq_t(std::nullptr_t) {}
-
-    template <typename U, typename = decltype(std::declval<U>() == nullptr)>
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u == nullptr))
-    {
-      return u == nullptr;
-    }
-
-    template <typename C, typename T>
-    bool
-    matches(T C::*p)
-    const
-    noexcept
-    {
-      return p == nullptr;
-    }
-  };
-
-  template <typename U>
-  std::ostream&
-  operator<<(
-    std::ostream& os,
-    eq_t<std::nullptr_t, U> const&)
-  {
-    return os << " == nullptr";
+    return {t, pred, op_string};
   }
 
-  template <typename ... T, typename V>
-  eq_t<V, T...>
+  template <typename T = wildcard, typename V>
+  inline
+  auto
   eq(
     V v)
-  noexcept(noexcept(eq_t<V, T...>(std::declval<V>())))
   {
-    return {std::move(v)};
+    return make_matcher<T>([](auto x, auto y)->decltype(x == y)
+                           {
+                             return x == y;
+                           },
+                           " == ",
+                           v);
   }
-
-  template <typename T, typename U = wildcard>
-  class ne_t
-    : public value_comparator<T, std::not_equal_to<>>
-    , public typed_matcher<U>
-  {
-  public:
-    using value_comparator<T, std::not_equal_to<>>::value_comparator;
-  };
-
-  template <typename T>
-  class ne_t<T, wildcard>
-    : public value_comparator<T, std::not_equal_to<>>
-    , public duck_typed_matcher<T, std::not_equal_to<>>
-  {
-  public:
-    using value_comparator<T, std::not_equal_to<>>::value_comparator;
-  };
-
-  template <typename U> // VS2015 requires this unnecessary specialization
-  class ne_t<std::nullptr_t, U>
-    : public typed_matcher<U>
-  {
-  public:
-    ne_t(std::nullptr_t) {}
-
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u != nullptr))
-    {
-      return u != nullptr;
-    }
-  };
-
-  template <> // VS2015 requires this unnecessary specialization
-  class ne_t<std::nullptr_t, wildcard>
-    : public typed_matcher<std::nullptr_t>
-  {
-  public:
-    ne_t(std::nullptr_t) {}
-
-    template <typename U, typename = decltype(std::declval<U>() != nullptr)>
-    bool
-    matches(
-      const U& u)
-    const noexcept(noexcept(u != nullptr))
-    {
-      return u != nullptr;
-    }
-
-    template <typename C, typename T>
-    bool
-    matches(T C::*p)
-    const
-    noexcept
-    {
-      return p != nullptr;
-    }
-  };
-
-  template <typename U>
-  std::ostream&
-  operator<<(
-    std::ostream& os,
-    ne_t<std::nullptr_t, U> const&)
-  {
-    return os << " != nullptr";
-  }
-
-  template <typename ... T, typename V>
-  ne_t<V, T...>
+  template <typename  T = wildcard, typename V>
+  inline
+  auto
   ne(
     V v)
-    noexcept(noexcept(ne_t<V, T...>(std::declval<V>())))
   {
-    return {std::move(v)};
+    return make_matcher<T>([](auto x, auto y)->decltype(x != y)
+                           {
+                             return x != y;
+                           },
+                           " != ",
+                           v);
   }
 
-  template <typename T, typename U = wildcard>
-  class ge_t
-    : public value_comparator<T, std::greater_equal<>>
-    , public typed_matcher<U>
-  {
-  public:
-    using value_comparator<T, std::greater_equal<>>::value_comparator;
-  };
 
-  template <typename T>
-  class ge_t<T, wildcard>
-    : public value_comparator<T, std::greater_equal<>>
-    , public duck_typed_matcher<T, std::greater_equal<>>
-  {
-  public:
-    using value_comparator<T, std::greater_equal<>>::value_comparator;
-  };
-
-  template <typename ... T, typename V>
-  ge_t<V, T...>
+  template <typename T = wildcard, typename V>
+  inline
+  auto
   ge(
     V v)
-  noexcept(noexcept(ge_t<V, T...>(std::declval<V>())))
   {
-    return {std::move(v)};
+    return make_matcher<T>([](auto x, auto y)->decltype(x >= y)
+                           {
+                             return x >= y;
+                           },
+                           " >= ",
+                           v);
   }
 
-  template <typename T, typename U = wildcard>
-  class gt_t
-    : public value_comparator<T, std::greater<>>
-    , public typed_matcher<U>
-  {
-  public:
-    using value_comparator<T, std::greater<>>::value_comparator;
-  };
-
-  template <typename T>
-  class gt_t<T, wildcard>
-    : public value_comparator<T, std::greater<>>
-    , public duck_typed_matcher<T, std::greater<>>
-  {
-  public:
-    using value_comparator<T, std::greater<>>::value_comparator;
-  };
-
-  template <typename ... T, typename V>
-  gt_t<V, T...>
+  template <typename T = wildcard, typename V>
+  inline
+  auto
   gt(
     V v)
-  noexcept(noexcept(gt_t<V, T...>(std::declval<V>())))
   {
-    return {std::move(v)};
+    return make_matcher<T>([](auto x, auto y)->decltype(x > y)
+                           {
+                             return x > y;
+                           },
+                           " > ",
+                           v);
   }
 
-  template <typename T, typename U = wildcard>
-  class lt_t
-    : public value_comparator<T, std::less<>>
-    , public typed_matcher<U>
-  {
-  public:
-    using value_comparator<T, std::less<>>::value_comparator;
-  };
-
-  template <typename T>
-  class lt_t<T, wildcard>
-    : public value_comparator<T, std::less<>>
-    , public duck_typed_matcher<T, std::less<>>
-  {
-  public:
-    using value_comparator<T, std::less<>>::value_comparator;
-  };
-
-  template <typename ... T, typename V>
-  lt_t<V, T...>
+  template <typename T = wildcard, typename V>
+  inline
+  auto
   lt(
     V v)
-  noexcept(noexcept(lt_t<V,T...>(std::declval<V>())))
   {
-    return {std::move(v)};
+    return make_matcher<T>([](auto x, auto y)->decltype(x < y)
+                           {
+                             return x < y;
+                           },
+                           " < ",
+                           v);
   }
 
-  template <typename T, typename U = wildcard>
-  class le_t
-    : public value_comparator<T, std::less_equal<>>
-    , public typed_matcher<U>
-  {
-  public:
-    using value_comparator<T, std::less_equal<>>::value_comparator;
-  };
-
-  template <typename T>
-  class le_t<T, wildcard>
-    : public value_comparator<T, std::less_equal<>>
-    , public duck_typed_matcher<T, std::less_equal<>>
-  {
-  public:
-    using value_comparator<T, std::less_equal<>>::value_comparator;
-  };
-
-  template <typename ... T, typename V>
-  le_t<V, T...>
+  template <typename T = wildcard, typename V>
+  inline
+  auto
   le(
     V v)
-    noexcept(noexcept(le_t<V,T...>(std::declval<V>())))
   {
-    return {std::move(v)};
+    return make_matcher<T>([](auto x, auto y)->decltype(x <= y)
+                           {
+                             return x <= y;
+                           },
+                           " <= ",
+                           v);
   }
 
   class re_base
