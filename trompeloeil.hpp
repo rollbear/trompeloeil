@@ -1205,19 +1205,19 @@ namespace trompeloeil
   using matcher_kind_t =
     typename matcher_kind<ActualType, MatchType, Predicate>::type;
 
-  template <typename Predicate, typename MatcherType, typename T>
-  class predicate_matcher : private Predicate, public MatcherType
+  template <typename Predicate, typename Printer, typename MatcherType, typename T>
+  class predicate_matcher : private Predicate, private Printer, public MatcherType
   {
   public:
     constexpr
     predicate_matcher(
-      T v,
       Predicate pred,
-      char const* op_string)
-    noexcept(noexcept(T(std::declval<T&&>())) && noexcept(Predicate(std::declval<Predicate>())))
+      Printer printer,
+      T v)
+      noexcept(noexcept(T(std::declval<T&&>())) && noexcept(Predicate(std::declval<Predicate>())) && noexcept(Printer(std::declval<Printer>())))
       : Predicate(pred)
+      , Printer(printer)
       , value(std::move(v))
-      , operator_string(op_string)
     {}
     template <typename V>
     constexpr
@@ -1236,13 +1236,12 @@ namespace trompeloeil
       std::ostream& os,
       predicate_matcher const& v)
     {
-      os << v.operator_string;
-      print(os, v.value);
+      Printer const& printer = v;
+      printer(os, v.value);
       return os;
     }
   private:
     T value;
-    char const* operator_string;
   };
 
   namespace lambdas {
@@ -1271,12 +1270,12 @@ namespace trompeloeil
       return [](auto x, auto y) -> decltype(x >= y) { return x >= y; };
     }
   }
-  template <typename MatchType, typename Predicate, typename T>
+  template <typename MatchType, typename Predicate, typename Printer, typename T>
   inline
-  predicate_matcher <Predicate, matcher_kind_t<T, MatchType, Predicate>, T>
-  make_matcher(Predicate pred, char const *op_string, T t)
+  predicate_matcher <Predicate, Printer, matcher_kind_t<T, MatchType, Predicate>, T>
+  make_matcher(Predicate pred, Printer print, T t)
   {
-    return {t, pred, op_string};
+    return {pred, print, t};
   }
 
   template <typename T = wildcard, typename V>
@@ -1286,8 +1285,11 @@ namespace trompeloeil
     V v)
   {
     return make_matcher<T>(lambdas::equal(),
-                           " == ",
-                           v);
+                           [](std::ostream& os, auto const& v) {
+                             os << " == ";
+                             ::trompeloeil::print(os, v);
+                           },
+                           std::forward<V>(v));
   }
   template <typename  T = wildcard, typename V>
   inline
@@ -1296,8 +1298,11 @@ namespace trompeloeil
     V v)
   {
     return make_matcher<T>(lambdas::not_equal(),
-                           " != ",
-                           v);
+                           [](std::ostream& os, auto const& v) {
+                             os << " != ";
+                             ::trompeloeil::print(os, v);
+                           },
+                           std::forward<V>(v));
   }
 
 
@@ -1308,8 +1313,11 @@ namespace trompeloeil
     V v)
   {
     return make_matcher<T>(lambdas::greater_equal(),
-                           " >= ",
-                           v);
+                           [](std::ostream& os, auto const& v) {
+                             os << " >= ";
+                             ::trompeloeil::print(os, v);
+                           },
+                           std::forward<V>(v));
   }
 
   template <typename T = wildcard, typename V>
@@ -1319,8 +1327,11 @@ namespace trompeloeil
     V v)
   {
     return make_matcher<T>(lambdas::greater(),
-                           " > ",
-                           v);
+                           [](std::ostream& os, auto const& v) {
+                             os << " > ";
+                             ::trompeloeil::print(os, v);
+                           },
+                           std::forward<V>(v));
   }
 
   template <typename T = wildcard, typename V>
@@ -1330,8 +1341,11 @@ namespace trompeloeil
     V v)
   {
     return make_matcher<T>(lambdas::less(),
-                           " < ",
-                           v);
+                           [](std::ostream& os, auto const& v) {
+                             os << " < ";
+                             ::trompeloeil::print(os, v);
+                           },
+                           std::forward<V>(v));
   }
 
   template <typename T = wildcard, typename V>
@@ -1341,8 +1355,11 @@ namespace trompeloeil
     V v)
   {
     return make_matcher<T>(lambdas::less_equal(),
-                           " <= ",
-                           v);
+                           [](std::ostream& os, auto const& v) {
+                             os << " <= ";
+                             ::trompeloeil::print(os, v);
+                           },
+                           std::forward<V>(v));
   }
 
   class re_base
