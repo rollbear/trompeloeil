@@ -1211,12 +1211,12 @@ namespace trompeloeil
   public:
     constexpr
     predicate_matcher(
-      Predicate pred,
-      Printer printer,
-      T v)
-      noexcept(noexcept(T(std::declval<T&&>())) && noexcept(Predicate(std::declval<Predicate>())) && noexcept(Printer(std::declval<Printer>())))
-      : Predicate(pred)
-      , Printer(printer)
+      Predicate&& pred,
+      Printer&& printer,
+      T&& v)
+      noexcept(noexcept(T(std::declval<T&&>())) && noexcept(Predicate(std::declval<Predicate&&>())) && noexcept(Printer(std::declval<Printer&&>())))
+      : Predicate(std::move(pred))
+      , Printer(std::move(printer))
       , value(std::move(v))
     {}
     template <typename V>
@@ -1225,9 +1225,9 @@ namespace trompeloeil
     matches(
       V&& v)
       const
-      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V>(), std::declval<T>())))
+      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V>(), std::declval<T const&>())))
     {
-      return Predicate::operator()(v, value);
+      return Predicate::operator()(std::forward<V>(v), value);
     }
 
     friend
@@ -1272,17 +1272,17 @@ namespace trompeloeil
   }
   template <typename MatchType, typename Predicate, typename Printer, typename T>
   inline
-  predicate_matcher <Predicate, Printer, matcher_kind_t<T, MatchType, Predicate>, T>
-  make_matcher(Predicate pred, Printer print, T t)
+  predicate_matcher <Predicate, Printer, matcher_kind_t<std::decay_t<T>, MatchType, Predicate>, std::decay_t<T>>
+  make_matcher(Predicate pred, Printer print, T&& t)
   {
-    return {pred, print, t};
+    return {std::move(pred), std::move(print), std::forward<T>(t)};
   }
 
   template <typename T = wildcard, typename V>
   inline
   auto
   eq(
-    V v)
+    V&& v)
   {
     return make_matcher<T>(lambdas::equal(),
                            [](std::ostream& os, auto const& v) {
@@ -1295,7 +1295,7 @@ namespace trompeloeil
   inline
   auto
   ne(
-    V v)
+    V&& v)
   {
     return make_matcher<T>(lambdas::not_equal(),
                            [](std::ostream& os, auto const& v) {
@@ -1310,7 +1310,7 @@ namespace trompeloeil
   inline
   auto
   ge(
-    V v)
+    V&& v)
   {
     return make_matcher<T>(lambdas::greater_equal(),
                            [](std::ostream& os, auto const& v) {
@@ -1324,7 +1324,7 @@ namespace trompeloeil
   inline
   auto
   gt(
-    V v)
+    V&& v)
   {
     return make_matcher<T>(lambdas::greater(),
                            [](std::ostream& os, auto const& v) {
@@ -1338,7 +1338,7 @@ namespace trompeloeil
   inline
   auto
   lt(
-    V v)
+    V&& v)
   {
     return make_matcher<T>(lambdas::less(),
                            [](std::ostream& os, auto const& v) {
@@ -1352,7 +1352,7 @@ namespace trompeloeil
   inline
   auto
   le(
-    V v)
+    V&& v)
   {
     return make_matcher<T>(lambdas::less_equal(),
                            [](std::ostream& os, auto const& v) {
