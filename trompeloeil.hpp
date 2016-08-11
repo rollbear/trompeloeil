@@ -1245,6 +1245,32 @@ namespace trompeloeil
     char const* operator_string;
   };
 
+  namespace lambdas {
+    inline auto equal()
+    {
+      return [](auto x, auto y) -> decltype(x == y) { return x == y; };
+    }
+    inline auto not_equal()
+    {
+      return [](auto x, auto y) -> decltype(x != y) { return x != y; };
+    }
+    inline auto less()
+    {
+      return [](auto x, auto y) -> decltype(x < y) { return x < y; };
+    }
+    inline auto less_equal()
+    {
+      return [](auto x, auto y) -> decltype(x <= y) { return x <= y; };
+    }
+    inline auto greater()
+    {
+      return [](auto x, auto y) -> decltype(x > y) { return x > y; };
+    }
+    inline auto greater_equal()
+    {
+      return [](auto x, auto y) -> decltype(x >= y) { return x >= y; };
+    }
+  }
   template <typename MatchType, typename Predicate, typename T>
   inline
   predicate_matcher <Predicate, matcher_kind_t<T, MatchType, Predicate>, T>
@@ -1259,10 +1285,7 @@ namespace trompeloeil
   eq(
     V v)
   {
-    return make_matcher<T>([](auto x, auto y)->decltype(x == y)
-                           {
-                             return x == y;
-                           },
+    return make_matcher<T>(lambdas::equal(),
                            " == ",
                            v);
   }
@@ -1272,10 +1295,7 @@ namespace trompeloeil
   ne(
     V v)
   {
-    return make_matcher<T>([](auto x, auto y)->decltype(x != y)
-                           {
-                             return x != y;
-                           },
+    return make_matcher<T>(lambdas::not_equal(),
                            " != ",
                            v);
   }
@@ -1287,10 +1307,7 @@ namespace trompeloeil
   ge(
     V v)
   {
-    return make_matcher<T>([](auto x, auto y)->decltype(x >= y)
-                           {
-                             return x >= y;
-                           },
+    return make_matcher<T>(lambdas::greater_equal(),
                            " >= ",
                            v);
   }
@@ -1301,10 +1318,7 @@ namespace trompeloeil
   gt(
     V v)
   {
-    return make_matcher<T>([](auto x, auto y)->decltype(x > y)
-                           {
-                             return x > y;
-                           },
+    return make_matcher<T>(lambdas::greater(),
                            " > ",
                            v);
   }
@@ -1315,10 +1329,7 @@ namespace trompeloeil
   lt(
     V v)
   {
-    return make_matcher<T>([](auto x, auto y)->decltype(x < y)
-                           {
-                             return x < y;
-                           },
+    return make_matcher<T>(lambdas::less(),
                            " < ",
                            v);
   }
@@ -1329,10 +1340,7 @@ namespace trompeloeil
   le(
     V v)
   {
-    return make_matcher<T>([](auto x, auto y)->decltype(x <= y)
-                           {
-                             return x <= y;
-                           },
+    return make_matcher<T>(lambdas::less_equal(),
                            " <= ",
                            v);
   }
