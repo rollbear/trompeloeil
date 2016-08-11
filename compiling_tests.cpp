@@ -2811,6 +2811,60 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
+auto in_range_lambda =
+  [](auto x, auto min, auto max) ->decltype(x >= min && x <= max)
+{
+  return x >= min && x <= max;
+};
+
+template <typename kind = trompeloeil::wildcard, typename T>
+auto in_range(T min, T max)
+{
+  using trompeloeil::make_matcher;
+  return make_matcher<kind>(
+    in_range_lambda,
+
+    [](std::ostream& os, auto min, auto max) {
+      os << " in range [";
+      ::trompeloeil::print(os, min);
+      os << ", ";
+      ::trompeloeil::print(os, max);
+      os << "]";
+    },
+
+    min,
+    max);
+}
+
+TEST_CASE_METHOD(Fixture, "a custom duck typed make_matcher-matcher that fails is reported", "[matching][matchers][custom]")
+{
+  try {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo(in_range("b", "d")));
+    obj.foo(std::string("a"));
+    FAIL("din't report");
+  }
+  catch(reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO(msg);
+    auto re = R":(No match for call of foo with signature void\(std::string\) with\.
+  param  _1 == a
+
+Tried obj\.foo\(in_range\("b", "d"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 in range \[b, d\]):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "a custom duck typed make_matcher-matcher that succeeds is not reported", "[matching][matchers][custom]")
+{
+  mock_c obj;
+  REQUIRE_CALL(obj, foo(in_range("b", "d")));
+  obj.foo(std::string("c"));
+}
+
 // tests of parameter values ostream insertion
 
 struct unknown {

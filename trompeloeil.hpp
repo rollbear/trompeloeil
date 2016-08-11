@@ -454,16 +454,16 @@ namespace trompeloeil
     operator T C::*() const;
   };
 
-  template <typename T, typename Pred>
+  template <typename Pred, typename ... T>
   class duck_typed_matcher : public matcher
   {
   public:
     template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()))>
+              typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
     operator V&&() const;
 
     template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()))>
+              typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()...))>
     operator V&() const;
   };
 
@@ -1189,35 +1189,36 @@ namespace trompeloeil
     M m;
   };
 
-  template <typename ActualType, typename MatchType, typename Predicate>
+  template <typename MatchType, typename Predicate, typename ... ActualType>
   struct matcher_kind
   {
     using type = typed_matcher<MatchType>;
   };
 
-  template <typename ActualType, typename Predicate>
-  struct matcher_kind<ActualType, wildcard, Predicate>
+  template <typename Predicate, typename ... ActualType>
+  struct matcher_kind<wildcard, Predicate, ActualType...>
   {
-    using type = duck_typed_matcher<ActualType, Predicate>;
+    using type = duck_typed_matcher<Predicate, ActualType...>;
   };
 
-  template <typename ActualType, typename MatchType, typename Predicate>
+  template <typename MatchType, typename Predicate, typename ... ActualType>
   using matcher_kind_t =
-    typename matcher_kind<ActualType, MatchType, Predicate>::type;
+    typename matcher_kind<MatchType, Predicate, ActualType...>::type;
 
-  template <typename Predicate, typename Printer, typename MatcherType, typename T>
+  template <typename Predicate, typename Printer, typename MatcherType, typename ... T>
   class predicate_matcher : private Predicate, private Printer, public MatcherType
   {
   public:
+    template <typename ... U>
     constexpr
     predicate_matcher(
       Predicate&& pred,
       Printer&& printer,
-      T&& v)
-      noexcept(noexcept(T(std::declval<T&&>())) && noexcept(Predicate(std::declval<Predicate&&>())) && noexcept(Printer(std::declval<Printer&&>())))
+      U&& ... v)
+      noexcept(noexcept(std::tuple<T...>(std::declval<U&&>()...)) && noexcept(Predicate(std::declval<Predicate&&>())) && noexcept(Printer(std::declval<Printer&&>())))
       : Predicate(std::move(pred))
       , Printer(std::move(printer))
-      , value(std::move(v))
+      , value(std::move(v)...)
     {}
     template <typename V>
     constexpr
@@ -1225,9 +1226,9 @@ namespace trompeloeil
     matches(
       V&& v)
       const
-      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V>(), std::declval<T const&>())))
+      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V>(), std::declval<T const&>()...)))
     {
-      return Predicate::operator()(std::forward<V>(v), value);
+      return matches_(std::forward<V>(v), std::make_index_sequence<sizeof...(T)>{});
     }
 
     friend
@@ -1236,12 +1237,21 @@ namespace trompeloeil
       std::ostream& os,
       predicate_matcher const& v)
     {
-      Printer const& printer = v;
-      printer(os, v.value);
-      return os;
+      return v.print_(os, std::make_index_sequence<sizeof...(T)>{});
     }
   private:
-    T value;
+    template <typename V, size_t ... I>
+    bool matches_(V&& v, std::index_sequence<I...>) const
+    {
+      return Predicate::operator()(std::forward<V>(v), std::get<I>(value)...);
+    }
+    template <size_t ... I>
+    std::ostream& print_(std::ostream& os, std::index_sequence<I...>) const
+    {
+      Printer::operator()(os, std::get<I>(value)...);
+      return os;
+    }
+    std::tuple<T...> value;
   };
 
   namespace lambdas {
@@ -1270,12 +1280,12 @@ namespace trompeloeil
       return [](auto x, auto y) -> decltype(x >= y) { return x >= y; };
     }
   }
-  template <typename MatchType, typename Predicate, typename Printer, typename T>
+  template <typename MatchType, typename Predicate, typename Printer, typename ... T>
   inline
-  predicate_matcher <Predicate, Printer, matcher_kind_t<std::decay_t<T>, MatchType, Predicate>, std::decay_t<T>>
-  make_matcher(Predicate pred, Printer print, T&& t)
+  predicate_matcher <Predicate, Printer, matcher_kind_t<MatchType, Predicate, std::decay_t<T>...>, std::decay_t<T>...>
+  make_matcher(Predicate pred, Printer print, T&& ... t)
   {
-    return {std::move(pred), std::move(print), std::forward<T>(t)};
+    return {std::move(pred), std::move(print), std::forward<T>(t)...};
   }
 
   template <typename T = wildcard, typename V>
