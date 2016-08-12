@@ -1295,9 +1295,9 @@ namespace trompeloeil
     V&& v)
   {
     return make_matcher<T>(lambdas::equal(),
-                           [](std::ostream& os, auto const& v) {
+                           [](std::ostream& os, auto const& value) {
                              os << " == ";
-                             ::trompeloeil::print(os, v);
+                             ::trompeloeil::print(os, value);
                            },
                            std::forward<V>(v));
   }
@@ -1308,9 +1308,9 @@ namespace trompeloeil
     V&& v)
   {
     return make_matcher<T>(lambdas::not_equal(),
-                           [](std::ostream& os, auto const& v) {
+                           [](std::ostream& os, auto const& value) {
                              os << " != ";
-                             ::trompeloeil::print(os, v);
+                             ::trompeloeil::print(os, value);
                            },
                            std::forward<V>(v));
   }
@@ -1323,9 +1323,9 @@ namespace trompeloeil
     V&& v)
   {
     return make_matcher<T>(lambdas::greater_equal(),
-                           [](std::ostream& os, auto const& v) {
+                           [](std::ostream& os, auto const& value) {
                              os << " >= ";
-                             ::trompeloeil::print(os, v);
+                             ::trompeloeil::print(os, value);
                            },
                            std::forward<V>(v));
   }
@@ -1337,9 +1337,9 @@ namespace trompeloeil
     V&& v)
   {
     return make_matcher<T>(lambdas::greater(),
-                           [](std::ostream& os, auto const& v) {
+                           [](std::ostream& os, auto const& value) {
                              os << " > ";
-                             ::trompeloeil::print(os, v);
+                             ::trompeloeil::print(os, value);
                            },
                            std::forward<V>(v));
   }
@@ -1351,9 +1351,9 @@ namespace trompeloeil
     V&& v)
   {
     return make_matcher<T>(lambdas::less(),
-                           [](std::ostream& os, auto const& v) {
+                           [](std::ostream& os, auto const& value) {
                              os << " < ";
-                             ::trompeloeil::print(os, v);
+                             ::trompeloeil::print(os, value);
                            },
                            std::forward<V>(v));
   }
@@ -1365,9 +1365,9 @@ namespace trompeloeil
     V&& v)
   {
     return make_matcher<T>(lambdas::less_equal(),
-                           [](std::ostream& os, auto const& v) {
+                           [](std::ostream& os, auto const& value) {
                              os << " <= ";
-                             ::trompeloeil::print(os, v);
+                             ::trompeloeil::print(os, value);
                            },
                            std::forward<V>(v));
   }

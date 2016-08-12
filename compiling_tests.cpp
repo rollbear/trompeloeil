@@ -2824,11 +2824,11 @@ auto in_range(T min, T max)
   return make_matcher<kind>(
     in_range_lambda,
 
-    [](std::ostream& os, auto min, auto max) {
+    [](std::ostream& os, auto amin, auto amax) {
       os << " in range [";
-      ::trompeloeil::print(os, min);
+      ::trompeloeil::print(os, amin);
       os << ", ";
-      ::trompeloeil::print(os, max);
+      ::trompeloeil::print(os, amax);
       os << "]";
     },
 
