@@ -1103,38 +1103,6 @@ namespace trompeloeil
   }
 
   template <typename T>
-  struct typed_wildcard : public typed_matcher<T>
-  {
-    typed_wildcard(
-      char const* t)
-    : type(t)
-    {
-    }
-    template <typename U>
-    constexpr
-    std::enable_if_t<std::is_same<typename std::decay<T>::type,
-                                  typename std::decay<U>::type>::value,
-                     bool>
-    matches(
-      U const &)
-    const
-    noexcept
-    {
-      return true;
-    }
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      typed_wildcard<T> const& t)
-    noexcept
-    {
-      return os << " matching ANY(" << t.type << ')';
-    }
-    char const* type;
-  };
-
-  template <typename T>
   void can_match_parameter(T&);
 
   template <typename T>
@@ -1277,6 +1245,15 @@ namespace trompeloeil
     return {std::move(pred), std::move(print), std::forward<T>(t)...};
   }
 
+  template <typename T>
+  inline
+  auto
+  any_matcher(char const* type_name)
+  {
+    return make_matcher<T>([](auto&&) { return true; },
+                           [type_name](std::ostream& os)
+                           { os << " matching ANY(" << type_name << ")";});
+  }
   template <typename T = wildcard, typename V>
   inline
   auto
@@ -3177,7 +3154,7 @@ operator*(
 #define TROMPELOEIL_IN_SEQUENCE(...)                                           \
   in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))
 
-#define TROMPELOEIL_ANY(type) ::trompeloeil::typed_wildcard<type>(#type)
+#define TROMPELOEIL_ANY(type) ::trompeloeil::any_matcher<type>(#type)
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
 #define TROMPELOEIL_AT_MOST(num) 0, num
