@@ -472,6 +472,13 @@ namespace trompeloeil
 
   struct wildcard : public duck_typed_matcher<wildcard>
   {
+    template <typename ... V>
+    constexpr
+    wildcard(
+      V const&...)
+    noexcept
+    {}
+
     template <typename V>
     constexpr
     std::true_type
@@ -1171,18 +1178,19 @@ namespace trompeloeil
       Predicate&& pred,
       Printer&& printer,
       U&& ... v)
-      noexcept(noexcept(std::tuple<T...>(std::declval<U&&>()...)) && noexcept(Predicate(std::declval<Predicate&&>())) && noexcept(Printer(std::declval<Printer&&>())))
+      noexcept(noexcept(std::tuple<T...>(std::declval<U>()...)) && noexcept(Predicate(std::declval<Predicate&&>())) && noexcept(Printer(std::declval<Printer&&>())))
       : Predicate(std::move(pred))
       , Printer(std::move(printer))
-      , value(std::move(v)...)
+      , value(std::forward<U>(v)...)
     {}
+
     template <typename V>
     constexpr
     bool
     matches(
       V&& v)
       const
-      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V>(), std::declval<T const&>()...)))
+      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V&&>(), std::declval<T const&>()...)))
     {
       return matches_(std::forward<V>(v), std::make_index_sequence<sizeof...(T)>{});
     }
@@ -1213,27 +1221,27 @@ namespace trompeloeil
   namespace lambdas {
     inline auto equal()
     {
-      return [](auto x, auto y) -> decltype(x == y) { return x == y; };
+      return [](auto const& x, auto const& y) -> decltype(x == y) { return x == y; };
     }
     inline auto not_equal()
     {
-      return [](auto x, auto y) -> decltype(x != y) { return x != y; };
+      return [](auto const& x, auto const& y) -> decltype(x != y) { return x != y; };
     }
     inline auto less()
     {
-      return [](auto x, auto y) -> decltype(x < y) { return x < y; };
+      return [](auto const& x, auto const& y) -> decltype(x < y) { return x < y; };
     }
     inline auto less_equal()
     {
-      return [](auto x, auto y) -> decltype(x <= y) { return x <= y; };
+      return [](auto const& x, auto const& y) -> decltype(x <= y) { return x <= y; };
     }
     inline auto greater()
     {
-      return [](auto x, auto y) -> decltype(x > y) { return x > y; };
+      return [](auto const& x, auto const& y) -> decltype(x > y) { return x > y; };
     }
     inline auto greater_equal()
     {
-      return [](auto x, auto y) -> decltype(x >= y) { return x >= y; };
+      return [](auto const& x, auto const& y) -> decltype(x >= y) { return x >= y; };
     }
   }
   template <typename MatchType, typename Predicate, typename Printer, typename ... T>
