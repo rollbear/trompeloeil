@@ -1372,102 +1372,46 @@ namespace trompeloeil
                            std::forward<V>(v));
   }
 
-  class re_base
-  {
-  public:
-    re_base(
-      std::string s)
-      : re_s(std::move(s))
-      , re(re_s)
-    {}
-    re_base(
-      std::string s,
-      std::regex_constants::syntax_option_type opt)
-      : re_s(std::move(s))
-      , re(re_s, opt)
-    {}
-    re_base(
-      std::string s,
-      std::regex_constants::match_flag_type flags)
-      : re_s(std::move(s))
-      , re(re_s), re_flags{flags}
-    {}
-    re_base(
-      std::string s,
-      std::regex_constants::syntax_option_type opt,
-      std::regex_constants::match_flag_type flags)
-      : re_s(std::move(s))
-      , re(re_s, opt)
-      , re_flags{flags}
-    {}
-
-    template <typename T>
-    bool
-    matches(
-      T const& v)
-    const
+  namespace lambdas {
+    inline auto regex_check(std::regex&& re)
     {
-      return !trompeloeil::is_null(v) && std::regex_search(v, re, re_flags);
+      return [re](auto const& str, auto const& , auto match_type)
+        -> decltype(std::regex_search(str, re, match_type))
+        {
+          return !::trompeloeil::is_null(str)
+            && std::regex_search(str, re, match_type);
+        };
     }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      re_base const& m)
+    inline auto regex_printer()
     {
-      return os << " matching regular expression /" << m.re_s << '/';
+      return [](std::ostream& os, auto const& str, auto)
+        {
+          os << " matching regular expression /" << str << "/";
+        };
     }
-
-  private:
-    using match_flag_type = std::regex_constants::match_flag_type;
-    std::string re_s;
-    std::regex re;
-    match_flag_type re_flags = std::regex_constants::match_default;
-  };
-
-  template <typename T>
-  class re_t : public re_base, public typed_matcher<T>
-  {
-  public:
-    using re_base::re_base;
-  };
-
-  template <>
-  class re_t<wildcard> : public re_base, public matcher
-  {
-  public:
-    using re_base::re_base;
-    template <typename T,
-              typename = decltype(std::regex_search(std::declval<T&>(),
-                                                    std::declval<std::regex>()))>
-    operator T&() const;
-
-    template <typename T,
-              typename = decltype(std::regex_search(std::declval<T&&>(),
-                                                    std::declval<std::regex>()))>
-    operator T&&() const;
-
-  };
-
-  template <typename ... T>
-  inline
-  auto
-  re(
-    T&& ... t)
-  -> decltype(::trompeloeil::re_t<wildcard>{std::forward<T>(t)...})
-  {
-    return {std::forward<T>(t)...};
   }
-
-  template <typename Type, typename ... T>
-  inline
+  template <typename Kind = wildcard>
   auto
   re(
-    T&& ... t)
-  -> decltype(::trompeloeil::re_t<Type>{std::forward<T>(t)...})
+    std::string s,
+    std::regex_constants::syntax_option_type opt = std::regex_constants::ECMAScript,
+    std::regex_constants::match_flag_type match_type = std::regex_constants::match_default)
   {
-    return {std::forward<T>(t)...};
+    return make_matcher<Kind>(lambdas::regex_check(std::regex(s, opt)),
+                              lambdas::regex_printer(),
+                              std::move(s),
+                              match_type);
+  }
+  template <typename Kind = wildcard>
+  auto
+  re(
+    std::string s,
+    std::regex_constants::match_flag_type match_type)
+  {
+    return make_matcher<Kind>(lambdas::regex_check(std::regex(s)),
+                              lambdas::regex_printer(),
+                              std::move(s),
+                              match_type);
   }
 
   template <typename T>
