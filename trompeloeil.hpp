@@ -459,13 +459,47 @@ namespace trompeloeil
   {
   public:
     template <typename V,
+              typename = std::enable_if_t<!std::is_lvalue_reference<V>::value>,
               typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
     operator V&&() const;
 
     template <typename V,
+              typename = std::enable_if_t<std::is_copy_constructible<V>::value
+                                          || !std::is_move_constructible<V>::value>,
               typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()...))>
     operator V&() const;
   };
+
+  struct wildcard : public duck_typed_matcher<wildcard>
+  {
+    template <typename V>
+    constexpr
+    std::true_type
+    operator()(
+      V&&)
+      const
+    {
+      return {};
+    }
+
+    template <typename V>
+    constexpr
+    std::true_type
+    matches(
+      V&&)
+      const
+    {
+      return {};
+    }
+
+    friend
+    std::ostream& operator<<(std::ostream& os, wildcard const&)
+    {
+      return os << " matching _";
+    }
+  };
+
+  static constexpr wildcard const _{};
 
   constexpr inline std::false_type is_output_streamable_(...) { return {}; }
 
@@ -1068,52 +1102,6 @@ namespace trompeloeil
     matchers.push_back(m);
   }
 
-  struct wildcard : public matcher
-  {
-    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
-    template <typename ... T>
-    constexpr
-    wildcard(
-      T&& ...)
-    noexcept
-    {}
-
-    template<typename T,
-             typename = std::enable_if_t<!std::is_lvalue_reference<T>::value>>
-    operator T&&()
-    const;
-
-    template<typename T,
-             typename = std::enable_if_t<std::is_copy_constructible<T>::value
-                                         || !std::is_move_constructible<T>::value>>
-    operator T&()
-    const;
-
-    template <typename T>
-    constexpr
-    bool
-    matches(
-      T const&)
-    const
-    noexcept
-    {
-      return true;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      wildcard const&)
-    noexcept
-    {
-      return os << " matching _";
-    }
-  };
-
-
-  static constexpr wildcard const _{};
-
   template <typename T>
   struct typed_wildcard : public typed_matcher<T>
   {
@@ -1281,6 +1269,7 @@ namespace trompeloeil
     }
   }
   template <typename MatchType, typename Predicate, typename Printer, typename ... T>
+
   inline
   predicate_matcher <Predicate, Printer, matcher_kind_t<MatchType, Predicate, std::decay_t<T>...>, std::decay_t<T>...>
   make_matcher(Predicate pred, Printer print, T&& ... t)
