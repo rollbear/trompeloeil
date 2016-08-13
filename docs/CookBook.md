@@ -1316,7 +1316,8 @@ if available, or hexadecimal dumps otherwise. If this is not what you want, you
 can provide your own output formatting used solely for testing:
 
 The simple way to do this is to specialize a function template
-`print(std::ostream&, const T&)` in namespace `trompeloeil` for your type `T`.
+[`print(std::ostream&, const T&)`](refman.md/#print) in namespace
+`trompeloeil` for your type `T`.
 
 Example:
 

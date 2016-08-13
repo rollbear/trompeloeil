@@ -52,6 +52,7 @@
 - [Functions and Function Templates](#functions)
   - [`trompeloeil::get_lock()`](#get_lock)
   - [`trompeloeil::is_null(T const &)`](#is_null)
+  - [`trompeloeil::print(std::ostream&, T const&)`](#print)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
 
   
@@ -1860,6 +1861,16 @@ See "[Writing custom tracers](CookBook.md/#custom_tracer)" in the
 Get the global
 [`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
 used by *Trompeloeil*. The mutex is held until the end of the scope.
+
+### <A name="print"/>`trompeloeil::print(std::ostream& os, T const& t)`
+
+By default `print()` uses `os << t`, provided the type `T` can be
+inserted into an `ostream`. If not, it gives a hex-dump of the bytes
+occupied by the object.
+
+You can write specializations of
+`trompeloeil::print(std::ostream& os, T const& t)` for your own types
+`T`. See example in the [CookBook](CookBook.md/#custom_formatting).
 
 ### <A name="is_null"/>`trompeloeil::is_null(T const&)`
 
