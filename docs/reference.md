@@ -38,7 +38,7 @@
   - [**`THROW(`** *expr* **`)`**](#THROW)
   - [**`TIMES(`** *limit* **`)`**](#TIMES)
   - [**`WITH(`** *expr* **`)`**](#WITH)
-- [Types and Templates](#types_and_templates) (alphabetical order)
+- [Types and Type Templates](#types_and_templates) (alphabetical order)
   - [`trompeloeil::deadhwatched<T>`](#deathwatched_type)
   - [`trompeloeil::expectation`](#expectation_type)
   - [`trompeloeil::expectation_violation`](#expectation_violation_type)
@@ -49,8 +49,9 @@
   - [`trompeloeil::stream_tracer`](#stream_tracer)
   - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
   - [`tropmeloeil::tracer`](#tracer_type)
-- [Functions](#functions)
-  - [`trompeloein::get_lock()`](#get_lock)
+- [Functions and Function Templates](#functions)
+  - [`trompeloeil::get_lock()`](#get_lock)
+  - [`trompeloeil::is_null(T const &)`](#is_null)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
 
   
@@ -1859,6 +1860,12 @@ See "[Writing custom tracers](CookBook.md/#custom_tracer)" in the
 Get the global
 [`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
 used by *Trompeloeil*. The mutex is held until the end of the scope.
+
+### <A name="is_null"/>`trompeloeil::is_null(T const&)`
+
+Null check that works for all types. If `T` is not comparable with
+`nullptr` the value is false. This is mostly used when writing
+[duck typed matchers](CookBook.md/#custom_matchers).
 
 ### <A name="set_reporter"/>`trompeloeil::set_reporter()`
 
