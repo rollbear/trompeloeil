@@ -50,8 +50,9 @@
   - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
   - [`tropmeloeil::tracer`](#tracer_type)
 - [Functions](#functions)
-  - [`trompeloeil::set_reporter(...)`](#set_reporter)
   - [`trompeloein::get_lock()`](#get_lock)
+  - [`trompeloeil::set_reporter(...)`](#set_reporter)
+
   
 ## <A name="notions"/>Notions
 
@@ -1853,6 +1854,12 @@ See "[Writing custom tracers](CookBook.md/#custom_tracer)" in the
 
 ## <A name="functions"/>Functions
 
+### <A name="get_lock"/>`trompeloeil::get_lock()`
+
+Get the global
+[`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
+used by *Trompeloeil*. The mutex is held until the end of the scope.
+
 ### <A name="set_reporter"/>`trompeloeil::set_reporter()`
 
 This function is used to adapt *Trompeloeil* to your unit test framework
@@ -1879,8 +1886,3 @@ The [Cook Book](CookBook.md) lists
 [adapter code](CookBook.md/#unit_test_frameworks) for a number of popular
 unit test frame works.
 
-### <A name="get_lock"/>`trompeloeil::get_lock()`
-
-Get the global
-[`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
-used by *Trompeloeil*. The mutex is held until the end of the scope.
