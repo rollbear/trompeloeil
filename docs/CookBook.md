@@ -1592,7 +1592,7 @@ operations. An example of a duck-typed matcher is a
 [`not_empty()`](#not_empty) matcher, requiring that a `.empty()` member function
 of the parameter returns false. Another example is an
 [`is_clamped(min, max)`](#is_clamped) matcher, that ensures
-`min <= value && value <= min`.
+`min <= value && value <= max`.
 
 A duck-typed matcher is created by specifying
 [**`trompeloeil::wildcard`**](reference.md/#wildcard) as the type to
