@@ -1456,8 +1456,8 @@ and [**`re(...)`**](reference.md/#re)), you can easily do so.
 
 Matchers are created using the aptly named function template
 [**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher),
-which takes a lambda to check the condition, a lambda to print an error
-message, and any number of stored values.
+which takes a predicate lambda to check the condition, a print lambda for
+error messages, and any number of stored values.
 
 All matchers, including your own custom designed matchers, can be used as
 [pointer matchers](#matching_pointers) by using the unary prefix `*`
@@ -1482,13 +1482,13 @@ which creates the matcher.
   {
     return trompeloeil::make_matcher<int>( // matcher of int
     
-      // lambda that checks the condition
+      // predicate lambda that checks the condition
       [](int value, std::vector<int> const & alternatives) {
         return std::any_of(std::begin(alternatives), std::end(alternatives),
                            [&value](int element) { return value == element; });
       },
       
-      // lambda that prints error message
+      // print lambda for error message
       [](std::ostream& os, std::vector<int> const& alternatives) {
         os << " matching any_of({";
         char const* prefix=" ";
@@ -1506,7 +1506,7 @@ which creates the matcher.
   }
 ```
 
-The *check* lambda is called with the value to check, and the stored values
+The *predicate* lambda is called with the value to check, and the stored values
 in order.
 
 The *print* lambda is called with an `ostream&`, and the stored values in
@@ -1514,7 +1514,7 @@ order.
 
 You can capture values in the lambdas instead of storing in the matcher, but
 capturing them twice wastes memory, and what's in the lambda capture for the
-*check* lambda is not accessible in the *print* lambda.
+*predicate* lambda is not accessible in the *print* lambda.
 
 Example usage:
 
@@ -1555,13 +1555,13 @@ straight forward:
   {
     return trompeloeil::make_matcher<T>( // matcher of T
     
-      // lambda that checks the condition
+      // predicate lambda that checks the condition
       [](T const& value, std::vector<T> const & alternatives) {
         return std::any_of(std::begin(alternatives), std::end(alternatives),
                            [&value](T const& element) { return value == element; });
       },
       
-      // lambda that prints error message
+      // print lambda for error message
       [](std::ostream& os, std::vector<T> const& alternatives) {
         os << " matching any_of({";
         char const* prefix=" ";
@@ -1580,7 +1580,7 @@ straight forward:
   }
 ```
 
-The only difference compared to the `int` version, is that the *check*
+The only difference compared to the `int` version, is that the *predicate*
 lambda accepts values by `const&` instead of by value, since `T` might be
 expensive to copy, and that the *print* lambda uses
 [**`trompeloeil::print(...)`**](reference.md/#print) to print the elements.
@@ -1598,7 +1598,7 @@ A duck-typed matcher is created by specifying
 [**`trompeloeil::wildcard`**](reference.md/#wildcard) as the type to
 to [**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher).
 
-It is also important that the *check* lambda uses a
+It is also important that the *predicate* lambda uses a
 [trailing return type](http://arne-mertz.de/2015/08/new-c-features-auto-for-functions)
 specifier, which uses the required operations, in order to filter out calls
 that would not compile.
@@ -1612,12 +1612,12 @@ Here's an implementation of a `not_empty()` matcher.
   {
     return trompeloeil::make_matcher<trompeloeil::wildcard>( // duck typed
     
-      // lambda that checks the condition
+      // predicate lambda that checks the condition
       [](auto const& value) -> decltype(!value.empty()) {
         return !value.empty();
       },
       
-      // lambda that prints error message
+      // print lambda for error message
       [](std::ostream& os) {
         os << " is not empty";
       }
@@ -1651,7 +1651,7 @@ Here's an example of the usage.
 
 The expectation placed on `func()` is not ambiguous. While `func()` is
 overloaded on both `int` and `std::string&&`, the trailing return type
-specification on the *check* lambda causes
+specification on the *predicate* lambda causes
 [`SFINAE`](http://en.cppreference.com/w/cpp/language/sfinae) to kick in and
 chose only the `std::string&&` overload, since `.empty()` on an `int` would
 not compile.
@@ -1659,7 +1659,7 @@ not compile.
 If you make a mistake and place an expectation with a duck-typed matcher
 that cannot be used, the
 [`SFINAE`](http://en.cppreference.com/w/cpp/language/sfinae) on the
-trailing return type specification of the *check* lambda, ensures a
+trailing return type specification of the *predicate* lambda, ensures a
 compilation error at the site of
 use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
 [**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
@@ -1677,12 +1677,12 @@ with `trompeloeil::wildcard` as the default.
   {
     return trompeloeil::make_matcher<Type>( // typed or duck typed
     
-      // lambda that checks the condition
+      // predicate lambda that checks the condition
       [](auto const& value) -> decltype(!value.empty()) {
         return !value.empty();
       },
       
-      // lambda that prints error message
+      // print lambda for error message
       [](std::ostream& os) {
         os << " is not empty";
       }
@@ -1706,14 +1706,14 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
   {
     return trompeloeil::make_matcher<Type>( // typed or duck typed
     
-      // lambda that checks the condition
+      // predicate lambda that checks the condition
       [](auto const& value, auto const& lower, auto const& upper)
        -> decltype(lower <= value && value <= upper)
       {
         return !trompeloeil::is_null(value) && lower <= value && value <= upper;
       },
       
-      // lambda that prints error message
+      // print lambda for error message
       [](std::ostream& os, auto const& lower, auto const& upper) {
         os << " clamped by [";
         trompeloeil::print(os, lower);
@@ -1729,11 +1729,11 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
   }
 ```
 
-The [`trompeloeil::is_null(value)`](reference.md/#is_null) in the *check* lambda
-is there to prevent against e.g. clamp checks for `const char*` between two
-[`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string),
-where the `const char*` may be *null*.
-The `is_null()` check is omitted in the trailing return specification,
+The [`trompeloeil::is_null(value)`](reference.md/#is_null) in the *predicate*
+lambda is there to prevent against e.g. clamp checks for `const char*` between
+two [`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string),
+where the `const char*` may be *null*. The `is_null()` check is omitted in the 
+trailing return specification,
 because it does not add anything to it - it always returns a `bool` and
 it works for all types.
 
@@ -1743,7 +1743,7 @@ lambdas expressed in template functions. The work around is annoying but
 simple:
 
 ```Cpp
-  inline auto is_clamped_check()
+  inline auto is_clamped_predicate()
   {
     return [](auto const& value, auto const& lower, auto const& upper)
            -> decltype(lower <= value && value <= upper) {
@@ -1756,8 +1756,8 @@ simple:
   {
     return trompeloeil::make_matcher<Type>( // duck typed
     
-      // lambda that checks the condition
-      is_clamped_check(),
+      // predicate lambda that checks the condition
+      is_clamped_predicate(),
       ...
 ```
 
