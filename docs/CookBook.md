@@ -1472,7 +1472,7 @@ values. It is implemented using the standard library algorithm
 allowing a parameter to match any of a set of values.
 
 To create a matcher, you provide a function that calls
-[**`trompeleil::make_matcher<type>(...)`**](reference.md/#make_matcher).
+[**`trompeleil::make_matcher<Type>(...)`**](reference.md/#make_matcher).
  
 Below is the code for the function `any_of(std::initializer_list<int>)`
 which creates the matcher.
@@ -1528,7 +1528,7 @@ public:
 void test()
 {
   Mock m;
-  REQUIRE_CALL(m, func(any_of({1, 2, 4, 8}));
+  REQUIRE_CALL(m, func(any_of({1, 2, 4, 8})));
 
   func(&m);
 }
@@ -1588,7 +1588,7 @@ expensive to copy, and that the *print* lambda uses
 ### <A name="duck_typed_matcher"/> Duck-typed matcher
 
 A duck-typed matcher accepts any type that matches a required set of
-operations. As an example of a duck-typed matcher is a
+operations. An example of a duck-typed matcher is a
 [`not_empty()`](#not_empty) matcher, requiring that a `.empty()` member function
 of the parameter returns false. Another example is an
 [`is_clamped(min, max)`](#is_clamped) matcher, that ensures
@@ -1596,7 +1596,7 @@ of the parameter returns false. Another example is an
 
 A duck-typed matcher is created by specifying
 [**`trompeloeil::wildcard`**](reference.md/#wildcard) as the type to
-to [**`trompeloeil::make_matcher<type>(...)`**](reference.md/#make_matcher).
+to [**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher).
 
 It is also important that the *check* lambda uses a
 [trailing return type](http://arne-mertz.de/2015/08/new-c-features-auto-for-functions)
@@ -1665,15 +1665,46 @@ use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
 [**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
 [**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
 
+**TIP!** The expectation on `func()` in the example above is not
+ambigous, as explained, but what if `func2` had been yet an overload of
+`func()` instead? You can easily make your matchers typed or duck-typed
+at the users discretion. Alter the `not_empty()` to be a function template,
+with `trompeloeil::wildcard` as the default.
+
+```Cpp
+  template <typename Type = trompeloeil::wildcard>
+  inline auto not_empty()
+  {
+    return trompeloeil::make_matcher<Type>( // typed or duck typed
+    
+      // lambda that checks the condition
+      [](auto const& value) -> decltype(!value.empty()) {
+        return !value.empty();
+      },
+      
+      // lambda that prints error message
+      [](std::ostream& os) {
+        os << " is not empty";
+      }
+      
+      // no stored values
+    );
+  }
+```
+
+Now, if the user writes `EXPECT_CALL(obj, func(not_empty()))`, it is
+duck-typed, but if the user writes `EXPECT_CALL(obj, func<std::string&&>()`
+it will only match a call with a `std::string&&` parameter.
+
 #### <A name="is_clamped"/> An `is_clamped(min, max)` matcher.
 
 Here's an implementation of an `is_clamped(min, max)` matcher.
 
 ```Cpp
-  template <typename T, typename U>
+  template <typename Type = trompeloeil::wildcard, typename T, typename U>
   inline auto is_clamped(T const& min, U const& max)
   {
-    return trompeloeil::make_matcher<trompeloeil::wildcard>( // duck typed
+    return trompeloeil::make_matcher<Type>( // typed or duck typed
     
       // lambda that checks the condition
       [](auto const& value, auto const& lower, auto const& upper)
@@ -1720,10 +1751,10 @@ simple:
            };
   }
   
-  template <typename T, typename U>
+  template <typename Type = trompeloeil::wildcard, typename T, typename U>
   inline auto is_clamped(T const& min, U const% max)
   {
-    return trompeloeil::make_matcher<trompeloeil::wildcard>( // duck typed
+    return trompeloeil::make_matcher<Type>( // duck typed
     
       // lambda that checks the condition
       is_clamped_check(),
@@ -1739,7 +1770,7 @@ and a `const char*`.
 
 ### <A name="legacy_matcher"/> Legacy Matchers
 
-Before [**`trompeloeil::make_matcher<type>(...)`**](reference.md/#make_matcher)
+Before [**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher)
 was introduced in *Trompeloeil* v18, writing matchers was more elaborate.
 This section is here for those who need to maintain old matcher code.
 
