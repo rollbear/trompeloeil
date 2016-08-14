@@ -1319,7 +1319,7 @@ if available, or hexadecimal dumps otherwise. If this is not what you want, you
 can provide your own output formatting used solely for testing:
 
 The simple way to do this is to specialize a function template
-[`print(std::ostream&, const T&)`](refman.md/#print) in namespace
+[`print(std::ostream&, const T&)`](reference.md/#print) in namespace
 `trompeloeil` for your type `T`.
 
 Example:
@@ -1455,7 +1455,7 @@ If you need additional matchers over the ones provided by *Trompeloeil*
 and [**`re(...)`**](reference.md/#re)), you can easily do so.
 
 Matchers are created using the aptly named function template
-[**`trompeloeil::make_matcher<Type>(...)`**](refman.md/#make_matcher),
+[**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher),
 which takes a lambda to check the condition, a lambda to print an error
 message, and any number of stored values.
 
@@ -1472,13 +1472,13 @@ values. It is implemented using the standard library algorithm
 allowing a parameter to match any of a set of values.
 
 To create a matcher, you provide a function that calls
-[**`trompeleil::make_matcher<type>(...)`**](refman.md/#make_matcher).
+[**`trompeleil::make_matcher<type>(...)`**](reference.md/#make_matcher).
  
-Below is the code for the function `any_of(std::vector<int>)`
+Below is the code for the function `any_of(std::initializer_list<int>)`
 which creates the matcher.
 
 ```Cpp
-  inline auto any_of(std::vector<int> elements)
+  inline auto any_of(std::initializer_list<int> elements)
   {
     return trompeloeil::make_matcher<int>( // matcher of int
     
@@ -1501,7 +1501,7 @@ which creates the matcher.
       },
       
       // stored value
-      std::move(elements)
+      std::vector<int>(elements)
     )
   }
 ```
@@ -1551,7 +1551,7 @@ straight forward:
 
 ```Cpp
   template <typename T>
-  inline auto any_of(std::vector<T> elements)
+  inline auto any_of(std::initializer_list<T> elements)
   {
     return trompeloeil::make_matcher<T>( // matcher of T
     
@@ -1575,7 +1575,7 @@ straight forward:
       },
       
       // stored value
-      std::move(elements)
+      std::vector<T>(elements)
     )
   }
 ```
@@ -1583,9 +1583,9 @@ straight forward:
 The only difference compared to the `int` version, is that the *check*
 lambda accepts values by `const&` instead of by value, since `T` might be
 expensive to copy, and that the *print* lambda uses
-[**`trompeloeil::print(...)`**](refman.md/#print) to print the elements.
+[**`trompeloeil::print(...)`**](reference.md/#print) to print the elements.
 
-<A name="duck_typed_matcher"/> ### Duck-typed matcher
+### <A name="duck_typed_matcher"/> Duck-typed matcher
 
 A duck-typed matcher accepts any type that matches a required set of
 operations. As an example of a duck-typed matcher is a
@@ -1595,12 +1595,13 @@ of the parameter returns false. Another example is an
 `min <= value && value <= min`.
 
 A duck-typed matcher is created by specifying
-[**`trompeloeil::wildcard`**](refman.md/#wildcard) as the type to
-to [**`trompeloeil::make_matcher<type>`**](refman.md/#make_matcher).
+[**`trompeloeil::wildcard`**](reference.md/#wildcard) as the type to
+to [**`trompeloeil::make_matcher<type>(...)`**](reference.md/#make_matcher).
 
-It is also important that the *check* lambda uses the
+It is also important that the *check* lambda uses a
 [trailing return type](http://arne-mertz.de/2015/08/new-c-features-auto-for-functions)
-which uses the required operations, in order to filter out illegal calls.
+specifier, which uses the required operations, in order to filter out calls
+that would not compile.
 
 #### <A name="not_empty"/> A `not_empty()` matcher.
 
@@ -1639,7 +1640,7 @@ Here's an example of the usage.
     MAKE_MOCK1(func2, void(std::vector<int> const&);
   };
   
-  TEST(a_test)
+  void test()
   {
     C obj;
     REQUIRE_CALL(obj, func(not_empty()));  // std::string&&
@@ -1651,13 +1652,13 @@ Here's an example of the usage.
 The expectation placed on `func()` is not ambiguous. While `func()` is
 overloaded on both `int` and `std::string&&`, the trailing return type
 specification on the *check* lambda causes
-[`SFINAE`]((http://en.cppreference.com/w/cpp/language/sfinae)) to kick in and
-chose only the `std::string&&` overload, since `.empty()` on an int does
+[`SFINAE`](http://en.cppreference.com/w/cpp/language/sfinae) to kick in and
+chose only the `std::string&&` overload, since `.empty()` on an `int` would
 not compile.
 
 If you make a mistake and place an expectation with a duck-typed matcher
 that cannot be used, the
-[`SFINAE`]((http://en.cppreference.com/w/cpp/language/sfinae)) on the
+[`SFINAE`](http://en.cppreference.com/w/cpp/language/sfinae) on the
 trailing return type specification of the *check* lambda, ensures a
 compilation error at the site of
 use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
@@ -1697,12 +1698,12 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
   }
 ```
 
-The [`trompeloeil::is_null(value)`](refman.md/#is_null) in the *check* lambda
+The [`trompeloeil::is_null(value)`](reference.md/#is_null) in the *check* lambda
 is there to prevent against e.g. clamp checks for `const char*` between two
 [`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string),
 where the `const char*` may be *null*.
 The `is_null()` check is omitted in the trailing return specification,
-because it does not add anything to it - it always returns a boolean and
+because it does not add anything to it - it always returns a `bool` and
 it works for all types.
 
 **NOTE!** There is a bug in [GCC](https://gcc.gnu.org) versions 5.3 and
@@ -1738,7 +1739,7 @@ and a `const char*`.
 
 ### <A name="legacy_matcher"/> Legacy Matchers
 
-Before [**`trompeloeil::make_matcher<type>`**](refman.md/#make_matcher)
+Before [**`trompeloeil::make_matcher<type>(...)`**](reference.md/#make_matcher)
 was introduced in *Trompeloeil* v18, writing matchers was more elaborate.
 This section is here for those who need to maintain old matcher code.
 
@@ -1891,7 +1892,8 @@ member function callable on const objects.
 At **//1** the type conversion operator selects for types that has a
 `.empty()` member function.
 [`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if)
-ensures that mismatching types generates a compilation error at the site of
+ensures that no calls to mismatching types will occur, and that if no
+matching call can be found, a compilation error is generated at the site of
 use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
 [**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
 [**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
