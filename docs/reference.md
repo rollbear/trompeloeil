@@ -52,6 +52,7 @@
 - [Functions and Function Templates](#functions)
   - [`trompeloeil::get_lock()`](#get_lock)
   - [`trompeloeil::is_null(T const &)`](#is_null)
+  - [`trompeloeil::make_matcher<Type>(...)`](#make_matcher)
   - [`trompeloeil::print(std::ostream&, T const&)`](#print)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
 
@@ -1878,7 +1879,11 @@ Null check that works for all types. If `T` is not comparable with
 `nullptr` the value is false. This is mostly used when writing
 [duck typed matchers](CookBook.md/#custom_matchers).
 
-### <A name="set_reporter"/>`trompeloeil::set_reporter()`
+### <A name="make_matcher"/>`trompeloeil::make_matcher<Type>(...)`
+
+blah
+
+### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
 
 This function is used to adapt *Trompeloeil* to your unit test framework
 of choice.
