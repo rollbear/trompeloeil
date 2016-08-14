@@ -1881,7 +1881,32 @@ Null check that works for all types. If `T` is not comparable with
 
 ### <A name="make_matcher"/>`trompeloeil::make_matcher<Type>(...)`
 
-blah
+```Cpp
+template <typename Type, typename Predicate, typename Printer, typename ... T> 
+auto make_matcher(Predicate predicate /* bool (Type& value, T const& ...) */,
+                  Printer printer     /* void (std::ostream&, T const& ...) */,
+                  T&& ... stored_values);
+```
+
+If `Type` is `trompeloeil::wildcard` a
+[duck typed matcher](CookBook.md/#duck_typed_matcher) is created, otherwise
+a matcher for the specifi type `Type` is created.
+
+`T&&...` is any number of values you want stored in the matcher.
+
+`predicate` is a callable object, typically a lambda, that accepts the
+value to check for, and each of the stored values `T&&...` in order as
+`const&`. When `Type` is `trompeloeil::wildcard`, the first parameter must
+ be of `auto` type.  The return value must be convertible to `bool`.
+
+`printer` is a callable object, typically a lambda, that accepts an
+[`ostream&`](http://en.cppreference.com/w/cpp/io/basic_ostream) and the
+stored values `T&&...` in order as `const&`.
+
+
+Examples are found in the CookBook under
+[Writing custom matchers](CookBook.md/#custom_matchers)
+
 
 ### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
 
