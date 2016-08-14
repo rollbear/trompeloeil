@@ -29,7 +29,10 @@
   - [Using `trompeloeil::stream_tracer`](#stream_tracer)
   - [Writing custom tracers](#custom_tracer)
 - [Writing custom matchers](#custom_matchers)
-
+  - [Typed matchers](#typed_matcher)
+  - [Duck-typed matchers](#duck_typed_matcher)
+  - [Legacy matchers](#legacy_matcher)
+  
 ## <A name="unit_test_frameworks"/> Integrating with unit test frame works
 
 By default, *Trompeloeil* reports violations by throwing an exception,
@@ -1460,7 +1463,7 @@ All matchers, including your own custom designed matchers, can be used as
 [pointer matchers](#matching_pointers) by using the unary prefix `*`
 dereference operator. 
 
-### Typed matcher
+### <A name="typed_matcher"/> Typed matcher
 
 The simplest matcher is a typed matcher. As an example of a typed matcher, an
 `any_of` matcher is shown, checking if a value is included in a range of
@@ -1582,7 +1585,7 @@ lambda accepts values by `const&` instead of by value, since `T` might be
 expensive to copy, and that the *print* lambda uses
 [**`trompeloeil::print(...)`**](refman.md/#print) to print the elements.
 
-### Duck-typed matcher
+<A name="duck_typed_matcher"/> ### Duck-typed matcher
 
 A duck-typed matcher accepts any type that matches a required set of
 operations. As an example of a duck-typed matcher is a
@@ -1696,7 +1699,8 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
 
 The [`trompeloeil::is_null(value)`](refman.md/#is_null) in the *check* lambda
 is there to prevent against e.g. clamp checks for `const char*` between two
-[`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string).
+[`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string),
+where the `const char*` may be *null*.
 The `is_null()` check is omitted in the trailing return specification,
 because it does not add anything to it - it always returns a boolean and
 it works for all types.
@@ -1731,3 +1735,173 @@ e.g. check that a
 is clamped by a
 [`std::string`](http://en.cppreference.com/w/cpp/string/basic_string)
 and a `const char*`.
+
+### <A name="legacy_matcher"/> Legacy Matchers
+
+Before [**`trompeloeil::make_matcher<type>`**](refman.md/#make_matcher)
+was introduced in *Trompeloeil* v18, writing matchers was more elaborate.
+This section is here for those who need to maintain old matcher code.
+
+All legacy matchers
+- inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
+- implement a `bool matches(parameter_value) const` member function
+- implement an output stream insertion operator
+
+All legacy matchers can be used as
+[pointer matchers](#matching_pointers) by using the unary prefix `*` dereference
+operator. 
+
+### Typed legacy matcher
+
+Typed legacy matchers are relatively easy to understand. As an example of
+a typed matcher, an `any_of` matcher is shown, mimicking the behaviour of
+the standard library algorithm
+[`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
+allowing a parameter to match any of a set of values.
+
+For templated matchers, it is often convenient to provide a function that
+creates the matcher object. Below is the code for `any_of_t<T>`, which is the
+matcher created by the `any_of(std::vector<T>)` function template.
+
+```Cpp
+  template <typename T>
+  class any_of_t : public trompeloeil::typed_matcher<T>
+  {
+  public:
+    any_of_t(std::initializer_list<T> elements)
+    : alternatives(elements)
+    {
+    }
+    bool matches(T const& t) const
+    {
+      return std::any_of(std::begin(alternatives), std::end(alternatives),
+                         [&t](T const& val) { return t == val; });
+    }
+    friend std::ostream& operator<<(std::ostream& os, any_of_t<T> const& t)
+    {
+      os << " matching any_of({";
+      char const* prefix=" ";
+      for (auto& n : t.alternatives)
+      {
+        os << prefix;
+        trompeloeil::print(os, n);
+        prefix = ", ";
+      }
+      return os << " })";
+    }
+  private:
+    std::vector<T> alternatives;
+  };
+
+  template <typename T>
+  auto any_of(std::initializer_list<T> elements)
+  {
+    return any_of_t<T>(elements);
+  }
+```
+
+The `matches` member function at accepts the parameter and returns
+`true` if the value is in the specified set, in this case if it is any
+of the values stored in the `alternatives` vector, otherwise `false`.
+
+Example usage:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+};
+
+void test()
+{
+  Mock m;
+  REQUIRE_CALL(m, func(any_of({1, 2, 4, 8}));
+
+  func(&m);
+}
+```
+
+The output stream insertion operator is only called if a failure is reported.
+The report in the above example will look like:
+
+```
+No match for call of m.func with signature void(int) with.
+  param  _1 = 7
+
+Tried m.func(any_of({1, 2, 4, 8}) at file.cpp:12
+  Expected _1 matching any_of({ 1, 2, 4, 8 });
+```
+Where everything after `Expected _1` is the output from the stream insertion
+operator.
+
+### Duck-typed legacy matcher
+
+A duck-typed matcher accepts any type that matches a required set of
+operations. Duck-typed legacy matchers have a type conversion operator that
+selects which types it can operate on. The conversion operator is
+never implemented, but the signature must be available since it
+is used at compile time to select overload.
+
+As an example of a duck-typed matcher is a `not_empty` matcher, requiring
+that a `.empty()` member function of the parameter returns false.
+
+First the restricting
+[SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+predicate used to match only types that has a `.empty()` member function.
+
+```Cpp
+  template <typename T>
+  class has_empty
+  {
+    template <typename U>
+    static constexpr std::false_type func(...) { return {}; }
+    template <typename U>
+    static constexpr auto func(U const* u) -> decltype(u->empty(),std::true_type{})
+    {
+      return {};
+    }
+  public:
+    static const bool value = func<T>(nullptr);
+  };
+```
+
+Here `has_empty<T>::value` is true only for types `T` that has a `.empty()`
+member function callable on const objects.
+
+```Cpp
+  class not_empty : public trompeloeil::matcher
+  {
+  public:
+    template <typename T,
+              typename = std::enable_if_t<has_empty<T>::value>>
+    operator T() const;            //1
+    template <typename T>
+    bool matches(T const& t) const //2
+    {
+      return !t.empty();
+    }
+    friend std::ostream& operator<<(std::ostream& os, not_empty const&)
+    {
+      return os << " is not empty";
+    }
+  };
+```
+
+At **//1** the type conversion operator selects for types that has a
+`.empty()` member function.
+[`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if)
+ensures that mismatching types generates a compilation error at the site of
+use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
+[**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
+[**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
+
+The `matches(T const&)` member function at **//2** becomes very simple. It
+does not need the [SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+[`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if) to select
+valid types, since a type mismatch gives a compilation error on the
+type conversion operator at **//1**.
+
+The output stream insertion operator is neither more or less tricky than with
+typed matchers. Making violation reports readable may require some thought,
+however.
