@@ -1351,9 +1351,13 @@ namespace trompeloeil
   }
 
   namespace lambdas {
-    inline auto regex_check(std::regex&& re)
+    inline
+    auto
+    regex_check(
+      std::regex&& re,
+      std::regex_constants::match_flag_type match_type)
     {
-      return [re](auto const& str, auto const& , auto match_type)
+      return [re, match_type](auto const& str, auto const&)
         -> decltype(std::regex_search(str, re, match_type))
         {
           return !::trompeloeil::is_null(str)
@@ -1362,7 +1366,7 @@ namespace trompeloeil
     }
     inline auto regex_printer()
     {
-      return [](std::ostream& os, auto const& str, auto)
+      return [](std::ostream& os, auto const& str)
         {
           os << " matching regular expression /" << str << "/";
         };
@@ -1375,21 +1379,21 @@ namespace trompeloeil
     std::regex_constants::syntax_option_type opt = std::regex_constants::ECMAScript,
     std::regex_constants::match_flag_type match_type = std::regex_constants::match_default)
   {
-    return make_matcher<Kind>(lambdas::regex_check(std::regex(s, opt)),
+    return make_matcher<Kind>(lambdas::regex_check(std::regex(s, opt),
+                                                   match_type),
                               lambdas::regex_printer(),
-                              std::move(s),
-                              match_type);
+                              std::move(s));
   }
+
   template <typename Kind = wildcard>
   auto
   re(
     std::string s,
     std::regex_constants::match_flag_type match_type)
   {
-    return make_matcher<Kind>(lambdas::regex_check(std::regex(s)),
+    return make_matcher<Kind>(lambdas::regex_check(std::regex(s), match_type),
                               lambdas::regex_printer(),
-                              std::move(s),
-                              match_type);
+                              std::move(s));
   }
 
   template <typename T>
