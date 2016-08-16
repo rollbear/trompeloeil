@@ -29,7 +29,10 @@
   - [Using `trompeloeil::stream_tracer`](#stream_tracer)
   - [Writing custom tracers](#custom_tracer)
 - [Writing custom matchers](#custom_matchers)
-
+  - [Typed matchers](#typed_matcher)
+  - [Duck-typed matchers](#duck_typed_matcher)
+  - [Legacy matchers](#legacy_matcher)
+  
 ## <A name="unit_test_frameworks"/> Integrating with unit test frame works
 
 By default, *Trompeloeil* reports violations by throwing an exception,
@@ -1433,7 +1436,8 @@ if available, or hexadecimal dumps otherwise. If this is not what you want, you
 can provide your own output formatting used solely for testing:
 
 The simple way to do this is to specialize a function template
-`print(std::ostream&, const T&)` in namespace `trompeloeil` for your type `T`.
+[`print(std::ostream&, const T&)`](reference.md/#print) in namespace
+`trompeloeil` for your type `T`.
 
 Example:
 
@@ -1563,30 +1567,350 @@ member function `trace`, to do what you need, and you're done.
 
 If you need additional matchers over the ones provided by *Trompeloeil*
 ([**`eq(...)`**](reference.md/#eq), [**`ne(...)`**](reference.md/#ne),
- [**`lt(...)`**](reference.md/#lt), [**`le(...)`**](reference.md/#le),
- [**`gt(...)`**](reference.md/#gt) or [**`ge(...)`**](reference.md/#ge)),
-you can easily do so.
+[**`lt(...)`**](reference.md/#lt), [**`le(...)`**](reference.md/#le),
+[**`gt(...)`**](reference.md/#gt) or [**`ge(...)`**](reference.md/#ge),
+and [**`re(...)`**](reference.md/#re)), you can easily do so.
 
-All matchers need to
+Matchers are created using the aptly named function template
+[**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher),
+which takes a predicate lambda to check the condition, a print lambda for
+error messages, and any number of stored values.
+
+All matchers, including your own custom designed matchers, can be used as
+[pointer matchers](#matching_pointers) by using the unary prefix `*`
+dereference operator. 
+
+### <A name="typed_matcher"/> Typed matcher
+
+The simplest matcher is a typed matcher. As an example of a typed matcher, an
+`any_of` matcher is shown, checking if a value is included in a range of
+values. It is implemented using the standard library algorithm
+[`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
+allowing a parameter to match any of a set of values.
+
+To create a matcher, you provide a function that calls
+[**`trompeleil::make_matcher<Type>(...)`**](reference.md/#make_matcher).
+ 
+Below is the code for the function `any_of(std::initializer_list<int>)`
+which creates the matcher.
+
+```Cpp
+  inline auto any_of(std::initializer_list<int> elements)
+  {
+    return trompeloeil::make_matcher<int>( // matcher of int
+    
+      // predicate lambda that checks the condition
+      [](int value, std::vector<int> const & alternatives) {
+        return std::any_of(std::begin(alternatives), std::end(alternatives),
+                           [&value](int element) { return value == element; });
+      },
+      
+      // print lambda for error message
+      [](std::ostream& os, std::vector<int> const& alternatives) {
+        os << " matching any_of({";
+        char const* prefix=" ";
+        for (auto& element : alternatives)
+        {
+          os << prefix << element;
+          prefix = ", ";
+        }
+        os << " }";
+      },
+      
+      // stored value
+      std::vector<int>(elements)
+    )
+  }
+```
+
+The *predicate* lambda is called with the value to check, and the stored values
+in order.
+
+The *print* lambda is called with an `ostream&`, and the stored values in
+order.
+
+You can capture values in the lambdas instead of storing in the matcher, but
+capturing them twice wastes memory, and what's in the lambda capture for the
+*predicate* lambda is not accessible in the *print* lambda.
+
+Example usage:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+};
+
+void test()
+{
+  Mock m;
+  REQUIRE_CALL(m, func(any_of({1, 2, 4, 8})));
+
+  func(&m);
+}
+```
+
+The *print* lambda is only called if a failure is reported.
+The report in the above example will look like:
+
+```
+No match for call of m.func with signature void(int) with.
+  param  _1 = 7
+
+Tried m.func(any_of({1, 2, 4, 8}) at file.cpp:12
+  Expected _1 matching any_of({ 1, 2, 4, 8 });
+```
+Where everything after `Expected _1` is the output from the *print* lambda.
+
+Extending the example above to work with any type, using a template, is
+straight forward:
+
+```Cpp
+  template <typename T>
+  inline auto any_of(std::initializer_list<T> elements)
+  {
+    return trompeloeil::make_matcher<T>( // matcher of T
+    
+      // predicate lambda that checks the condition
+      [](T const& value, std::vector<T> const & alternatives) {
+        return std::any_of(std::begin(alternatives), std::end(alternatives),
+                           [&value](T const& element) { return value == element; });
+      },
+      
+      // print lambda for error message
+      [](std::ostream& os, std::vector<T> const& alternatives) {
+        os << " matching any_of({";
+        char const* prefix=" ";
+        for (auto& element : alternatives)
+        {
+          os << prefix;
+          ::trompeloeil::print(os, element);
+          prefix = ", ";
+        }
+        os << " }";
+      },
+      
+      // stored value
+      std::vector<T>(elements)
+    )
+  }
+```
+
+The only difference compared to the `int` version, is that the *predicate*
+lambda accepts values by `const&` instead of by value, since `T` might be
+expensive to copy, and that the *print* lambda uses
+[**`trompeloeil::print(...)`**](reference.md/#print) to print the elements.
+
+### <A name="duck_typed_matcher"/> Duck-typed matcher
+
+A duck-typed matcher accepts any type that matches a required set of
+operations. An example of a duck-typed matcher is a
+[`not_empty()`](#not_empty) matcher, requiring that a `.empty()` member function
+of the parameter returns false. Another example is an
+[`is_clamped(min, max)`](#is_clamped) matcher, that ensures
+`min <= value && value <= max`.
+
+A duck-typed matcher is created by specifying
+[**`trompeloeil::wildcard`**](reference.md/#wildcard) as the type to
+to [**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher).
+
+It is also important that the *predicate* lambda uses a
+[trailing return type](http://arne-mertz.de/2015/08/new-c-features-auto-for-functions)
+specifier, which uses the required operations, in order to filter out calls
+that would not compile.
+
+#### <A name="not_empty"/> A `not_empty()` matcher.
+
+Here's an implementation of a `not_empty()` matcher.
+
+```Cpp
+  inline auto not_empty()
+  {
+    return trompeloeil::make_matcher<trompeloeil::wildcard>( // duck typed
+    
+      // predicate lambda that checks the condition
+      [](auto const& value) -> decltype(!value.empty()) {
+        return !value.empty();
+      },
+      
+      // print lambda for error message
+      [](std::ostream& os) {
+        os << " is not empty";
+      }
+      
+      // no stored values
+    );
+  }
+```
+
+It is unfortunate that the `!value.empty()` condition is expressed twice,
+but those are the rules of the language.
+
+Here's an example of the usage.
+
+```Cpp
+  struct C
+  {
+    MAKE_MOCK1(func, void(int));
+    MAKE_MOCK1(func, void(std::string&&));
+    MAKE_MOCK1(func2, void(std::vector<int> const&);
+  };
+  
+  void test()
+  {
+    C obj;
+    REQUIRE_CALL(obj, func(not_empty()));  // std::string&&
+    REQUIRE_CALL(obj, func2(not_empty())); // std::vector<int> const&
+    func_under_test(&obj);
+  }
+```
+
+The expectation placed on `func()` is not ambiguous. While `func()` is
+overloaded on both `int` and `std::string&&`, the trailing return type
+specification on the *predicate* lambda causes
+[`SFINAE`](http://en.cppreference.com/w/cpp/language/sfinae) to kick in and
+chose only the `std::string&&` overload, since `.empty()` on an `int` would
+not compile.
+
+If you make a mistake and place an expectation with a duck-typed matcher
+that cannot be used, the
+[`SFINAE`](http://en.cppreference.com/w/cpp/language/sfinae) on the
+trailing return type specification of the *predicate* lambda, ensures a
+compilation error at the site of
+use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
+[**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
+[**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
+
+**TIP!** The expectation on `func()` in the example above is not
+ambigous, as explained, but what if `func2` had been yet an overload of
+`func()` instead? You can easily make your matchers typed or duck-typed
+at the users discretion. Alter the `not_empty()` to be a function template,
+with `trompeloeil::wildcard` as the default.
+
+```Cpp
+  template <typename Type = trompeloeil::wildcard>
+  inline auto not_empty()
+  {
+    return trompeloeil::make_matcher<Type>( // typed or duck typed
+    
+      // predicate lambda that checks the condition
+      [](auto const& value) -> decltype(!value.empty()) {
+        return !value.empty();
+      },
+      
+      // print lambda for error message
+      [](std::ostream& os) {
+        os << " is not empty";
+      }
+      
+      // no stored values
+    );
+  }
+```
+
+Now, if the user writes `EXPECT_CALL(obj, func(not_empty()))`, it is
+duck-typed, but if the user writes `EXPECT_CALL(obj, func<std::string&&>()`
+it will only match a call with a `std::string&&` parameter.
+
+#### <A name="is_clamped"/> An `is_clamped(min, max)` matcher.
+
+Here's an implementation of an `is_clamped(min, max)` matcher.
+
+```Cpp
+  template <typename Type = trompeloeil::wildcard, typename T, typename U>
+  inline auto is_clamped(T const& min, U const& max)
+  {
+    return trompeloeil::make_matcher<Type>( // typed or duck typed
+    
+      // predicate lambda that checks the condition
+      [](auto const& value, auto const& lower, auto const& upper)
+       -> decltype(lower <= value && value <= upper)
+      {
+        return !trompeloeil::is_null(value) && lower <= value && value <= upper;
+      },
+      
+      // print lambda for error message
+      [](std::ostream& os, auto const& lower, auto const& upper) {
+        os << " clamped by [";
+        trompeloeil::print(os, lower);
+        os << ", ";
+        trompeloeil::print(os, upper);
+        os << "]";
+      }
+      
+      // stored values
+      min,
+      max
+    );
+  }
+```
+
+The [`trompeloeil::is_null(value)`](reference.md/#is_null) in the *predicate*
+lambda is there to prevent against e.g. clamp checks for `const char*` between
+two [`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string),
+where the `const char*` may be *null*. The `is_null()` check is omitted in the 
+trailing return specification,
+because it does not add anything to it - it always returns a `bool` and
+it works for all types.
+
+**NOTE!** There is a bug in [GCC](https://gcc.gnu.org) versions 5.3 and
+lower, that does not allow trailing return type specifications in
+lambdas expressed in template functions. The work around is annoying but
+simple:
+
+```Cpp
+  inline auto is_clamped_predicate()
+  {
+    return [](auto const& value, auto const& lower, auto const& upper)
+           -> decltype(lower <= value && value <= upper) {
+             return !trompeloeil::is_null(value) && lower <= value && value <= upper;
+           };
+  }
+  
+  template <typename Type = trompeloeil::wildcard, typename T, typename U>
+  inline auto is_clamped(T const& min, U const% max)
+  {
+    return trompeloeil::make_matcher<Type>( // duck typed
+    
+      // predicate lambda that checks the condition
+      is_clamped_predicate(),
+      ...
+```
+
+By allowing `min` and `max` to be different types, it becomes possible to,
+e.g. check that a
+[`std::string_view`](http://en.cppreference.com/w/cpp/string/basic_string_view)
+is clamped by a
+[`std::string`](http://en.cppreference.com/w/cpp/string/basic_string)
+and a `const char*`.
+
+### <A name="legacy_matcher"/> Legacy Matchers
+
+Before [**`trompeloeil::make_matcher<Type>(...)`**](reference.md/#make_matcher)
+was introduced in *Trompeloeil* v18, writing matchers was more elaborate.
+This section is here for those who need to maintain old matcher code.
+
+All legacy matchers
 - inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
 - implement a `bool matches(parameter_value) const` member function
 - implement an output stream insertion operator
 
-All matchers, including your own custom designed matchers, can be used as
+All legacy matchers can be used as
 [pointer matchers](#matching_pointers) by using the unary prefix `*` dereference
 operator. 
 
-### Typed matcher
+### Typed legacy matcher
 
-The simplest matcher is a typed matcher. As an example of a typed matcher, an
-`any_of` matcher is shown, mimicking the behaviour of the standard library
-algorithm
+Typed legacy matchers are relatively easy to understand. As an example of
+a typed matcher, an `any_of` matcher is shown, mimicking the behaviour of
+the standard library algorithm
 [`std::any_of`](http://en.cppreference.com/w/cpp/algorithm/all_any_none_of),
 allowing a parameter to match any of a set of values.
 
 For templated matchers, it is often convenient to provide a function that
 creates the matcher object. Below is the code for `any_of_t<T>`, which is the
-matcher created by the `any_of(std::initializer_list<T>)` function template.
+matcher created by the `any_of(std::vector<T>)` function template.
 
 ```Cpp
   template <typename T>
@@ -1594,7 +1918,7 @@ matcher created by the `any_of(std::initializer_list<T>)` function template.
   {
   public:
     any_of_t(std::initializer_list<T> elements)
-    : alternatives(std::begin(elements), std::end(elements))
+    : alternatives(elements)
     {
     }
     bool matches(T const& t) const
@@ -1608,7 +1932,8 @@ matcher created by the `any_of(std::initializer_list<T>)` function template.
       char const* prefix=" ";
       for (auto& n : t.alternatives)
       {
-        os << prefix << n;
+        os << prefix;
+        trompeloeil::print(os, n);
         prefix = ", ";
       }
       return os << " })";
@@ -1626,7 +1951,7 @@ matcher created by the `any_of(std::initializer_list<T>)` function template.
 
 The `matches` member function at accepts the parameter and returns
 `true` if the value is in the specified set, in this case if it is any
-of the values stored in the `elements` vector, otherwise `false`.
+of the values stored in the `alternatives` vector, otherwise `false`.
 
 Example usage:
 
@@ -1659,10 +1984,10 @@ Tried m.func(any_of({1, 2, 4, 8}) at file.cpp:12
 Where everything after `Expected _1` is the output from the stream insertion
 operator.
 
-### Duck-typed matcher
+### Duck-typed legacy matcher
 
 A duck-typed matcher accepts any type that matches a required set of
-operations. Duck-typed matchers have a type conversion operator that
+operations. Duck-typed legacy matchers have a type conversion operator that
 selects which types it can operate on. The conversion operator is
 never implemented, but the signature must be available since it
 is used at compile time to select overload.
@@ -1715,7 +2040,8 @@ member function callable on const objects.
 At **//1** the type conversion operator selects for types that has a
 `.empty()` member function.
 [`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if)
-ensures that mismatching types generates a compilation error at the site of
+ensures that no calls to mismatching types will occur, and that if no
+matching call can be found, a compilation error is generated at the site of
 use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
 [**`ALLOW_CALL()`**](reference.md/#ALLOW_CALL) or
 [**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)

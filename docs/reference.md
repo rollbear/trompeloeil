@@ -38,7 +38,7 @@
   - [**`THROW(`** *expr* **`)`**](#THROW)
   - [**`TIMES(`** *limit* **`)`**](#TIMES)
   - [**`WITH(`** *expr* **`)`**](#WITH)
-- [Types and Templates](#types_and_templates) (alphabetical order)
+- [Types and Type Templates](#types_and_templates) (alphabetical order)
   - [`trompeloeil::deadhwatched<T>`](#deathwatched_type)
   - [`trompeloeil::expectation`](#expectation_type)
   - [`trompeloeil::expectation_violation`](#expectation_violation_type)
@@ -49,9 +49,13 @@
   - [`trompeloeil::stream_tracer`](#stream_tracer)
   - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
   - [`tropmeloeil::tracer`](#tracer_type)
-- [Functions](#functions)
+- [Functions and Function Templates](#functions)
+  - [`trompeloeil::get_lock()`](#get_lock)
+  - [`trompeloeil::is_null(T const &)`](#is_null)
+  - [`trompeloeil::make_matcher<Type>(...)`](#make_matcher)
+  - [`trompeloeil::print(std::ostream&, T const&)`](#print)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
-  - [`trompeloein::get_lock()`](#get_lock)
+
   
 ## <A name="notions"/>Notions
 
@@ -1853,7 +1857,58 @@ See "[Writing custom tracers](CookBook.md/#custom_tracer)" in the
 
 ## <A name="functions"/>Functions
 
-### <A name="set_reporter"/>`trompeloeil::set_reporter()`
+### <A name="get_lock"/>`trompeloeil::get_lock()`
+
+Get the global
+[`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
+used by *Trompeloeil*. The mutex is held until the end of the scope.
+
+### <A name="print"/>`trompeloeil::print(std::ostream& os, T const& t)`
+
+By default `print()` uses `os << t`, provided the type `T` can be
+inserted into an `ostream`. If not, it gives a hex-dump of the bytes
+occupied by the object.
+
+You can write specializations of
+`trompeloeil::print(std::ostream& os, T const& t)` for your own types
+`T`. See example in the [CookBook](CookBook.md/#custom_formatting).
+
+### <A name="is_null"/>`trompeloeil::is_null(T const&)`
+
+Null check that works for all types. If `T` is not comparable with
+`nullptr` the value is false. This is mostly used when writing
+[duck typed matchers](CookBook.md/#custom_matchers).
+
+### <A name="make_matcher"/>`trompeloeil::make_matcher<Type>(...)`
+
+```Cpp
+template <typename Type, typename Predicate, typename Printer, typename ... T> 
+auto make_matcher(Predicate predicate /* bool (Type& value, T const& ...) */,
+                  Printer printer     /* void (std::ostream&, T const& ...) */,
+                  T&& ... stored_values);
+```
+
+If `Type` is `trompeloeil::wildcard` a
+[duck typed matcher](CookBook.md/#duck_typed_matcher) is created, otherwise
+a matcher for the specifi type `Type` is created.
+
+`T&&...` is any number of values you want stored in the matcher.
+
+`predicate` is a callable object, typically a lambda, that accepts the
+value to check for, and each of the stored values `T&&...` in order as
+`const&`. When `Type` is `trompeloeil::wildcard`, the first parameter must
+ be of `auto` type.  The return value must be convertible to `bool`.
+
+`printer` is a callable object, typically a lambda, that accepts an
+[`ostream&`](http://en.cppreference.com/w/cpp/io/basic_ostream) and the
+stored values `T&&...` in order as `const&`.
+
+
+Examples are found in the CookBook under
+[Writing custom matchers](CookBook.md/#custom_matchers)
+
+
+### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
 
 This function is used to adapt *Trompeloeil* to your unit test framework
 of choice.
@@ -1879,8 +1934,3 @@ The [Cook Book](CookBook.md) lists
 [adapter code](CookBook.md/#unit_test_frameworks) for a number of popular
 unit test frame works.
 
-### <A name="get_lock"/>`trompeloeil::get_lock()`
-
-Get the global
-[`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
-used by *Trompeloeil*. The mutex is held until the end of the scope.
