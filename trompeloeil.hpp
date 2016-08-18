@@ -1195,7 +1195,7 @@ namespace trompeloeil
     matches(
       V&& v)
       const
-      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V&&>(), std::declval<T const&>()...)))
+      noexcept(noexcept(std::declval<Predicate const&>()(std::declval<V&&>(), std::declval<const T&>()...)))
     {
       return matches_(std::forward<V>(v), std::make_index_sequence<sizeof...(T)>{});
     }
@@ -1226,11 +1226,17 @@ namespace trompeloeil
   namespace lambdas {
     inline auto equal()
     {
-      return [](auto const& x, auto const& y) -> decltype(x == y) { return x == y; };
+      return [](auto const& x, auto const& y) -> decltype(x == y) {
+        ::trompeloeil::ignore(x,y); // VisualStudio warns for unused if nullptr
+       return x == y;
+      };
     }
     inline auto not_equal()
     {
-      return [](auto const& x, auto const& y) -> decltype(x != y) { return x != y; };
+      return [](auto const& x, auto const& y) -> decltype(x != y) {
+        ::trompeloeil::ignore(x,y); // VisualStudio warns for unused if nullptr
+        return x != y;
+        };
     }
     inline auto less()
     {
