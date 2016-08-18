@@ -1,3 +1,15 @@
+v18 2016-08-18
+
+	* Writing custom matchers is much simplified through the use
+	  of function template make_matcher<>, which accepts lambdas
+	  for predicate and printing error message.
+
+	  The old technique of inheriting form trompeloeil::matcher
+	  or trompeloeil::typed_matcher<T> still works.
+
+	* Further internal restructuring for yet reduced test program
+	  build time.
+
 v17 2016-06-11
 
 	* Use template specialization when writing adapter code for unit
