@@ -151,11 +151,16 @@ Paste the following code snippet in global namespace in one of your
         std::ostringstream os;
         if (line) os << file << ':' << line << '\n';
         os << msg;
+        auto failure = os.str();
         if (s == severity::fatal)
         {
-          FAIL(os.str());
+          FAIL(failure);
         }
-        CHECK(os.str() == "");
+        else
+        {
+          CAPTURE(failure);
+          CHECK(failure.empty());
+        }
       }
     };
   }
@@ -173,7 +178,7 @@ If you roll your own `main()`, you may prefer a runtime adapter instead.
 Before running any tests, make sure to call:
 
 ```Cpp
-trompeloeil::set_reporter([](severity s,
+trompeloeil::set_reporter([](trompeloeil::severity s,
                              const char* file,
                              unsigned long line,
                              const char* msg)
@@ -181,11 +186,16 @@ trompeloeil::set_reporter([](severity s,
     std::ostringstream os;
     if (line) os << file << ':' << line << '\n';
     os << msg;
+    auto failure = os.str();
     if (s == trompeloeil::severity::fatal)
     {
-      FAIL(os.str());
+      FAIL(failure);
     }
-    CHECK(os.str() == "");
+    else
+    {
+      CAPTURE(failure);
+      CHECK(failure.empty());
+    }
   })
 ```
 
@@ -226,7 +236,7 @@ extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 If you instead prefer a runtime adapter, make sure to call
 
 ```Cpp
-trompeloeil::set_reporter([](severity,
+trompeloeil::set_reporter([](trompeloeil::severity,
                              const char* file,
                              unsigned long line,
                              const char* msg)
