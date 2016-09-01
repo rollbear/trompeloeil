@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//SIDE_EFFECT and TIMES\(0\) does not make sense
+//THROW for forbidden call does not make sense
 
 #include "../trompeloeil.hpp"
 
@@ -19,11 +19,11 @@ struct MS
 {
   MAKE_MOCK0(f, int());
 };
-int m = 0;
+
 int main()
 {
   MS obj;
   REQUIRE_CALL(obj, f())
-    .SIDE_EFFECT(m = 3)
-    .TIMES(0);
+    .TIMES(0)
+    .THROW(0);
 }

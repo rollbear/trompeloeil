@@ -2169,6 +2169,13 @@ namespace trompeloeil
   };
 
   template <typename Parent>
+  struct call_limit_injector<Parent, 0ULL> : Parent
+  {
+    static bool const call_limit_set = true;
+    static unsigned long long const upper_call_limit = 0ULL;
+  };
+
+  template <typename Parent>
   struct sequence_injector : Parent
   {
     static bool const sequence_set = true;
@@ -2256,7 +2263,12 @@ namespace trompeloeil
       static_assert(!has_return,
                     "THROW and RETURN does not make sense");
 
-      constexpr bool valid = !throws && !has_return;
+      constexpr bool forbidden = upper_call_limit == 0U;
+
+      static_assert(!forbidden,
+                    "THROW for forbidden call does not make sense");
+
+      constexpr bool valid = !throws && !has_return;// && !forbidden;
       using tag = std::integral_constant<bool, valid>;
       auto handler = [=](auto& p) -> decltype(auto)
       {
@@ -2288,6 +2300,9 @@ namespace trompeloeil
       static_assert(H > 0 || !side_effects,
                     "SIDE_EFFECT and TIMES(0) does not make sense");
 
+      static_assert(H > 0 || !sequence_set,
+                    "IN_SEQUENCE and TIMES(0) does not make sense");
+
       matcher->min_calls = L;
       matcher->max_calls = H;
       return {std::move(matcher)};
@@ -2302,6 +2317,9 @@ namespace trompeloeil
       static_assert(!b,
                     "Multiple IN_SEQUENCE does not make sense."
                     " You can list several sequence objects at once");
+
+      static_assert(upper_call_limit > 0ULL,
+                    "IN_SEQUENCE for forbidden call does not make sense");
 
       matcher->set_sequence(std::forward<T>(t)...);
       return {std::move(matcher)};
@@ -2688,9 +2706,10 @@ namespace trompeloeil
       using sigret = return_of_t<typename T::signature>;
       using ret = typename T::return_type;
       constexpr bool retmatch = std::is_same<ret, sigret>::value;
-      constexpr bool legal = T::throws || retmatch;
-      static_assert(legal, "RETURN missing for non-void function");
-      auto tag = std::integral_constant<bool, legal>{};
+      constexpr bool forbidden = T::upper_call_limit == 0ULL;
+      constexpr bool valid_return_type = T::throws || retmatch || forbidden;
+      static_assert(valid_return_type, "RETURN missing for non-void function");
+      auto tag = std::integral_constant<bool, valid_return_type>{};
       return make_expectation(tag, std::move(t));
     }
     Mock& obj;
@@ -3061,17 +3080,14 @@ operator*(
 
 #define TROMPELOEIL_FORBID_CALL_(obj, func, obj_s, func_s)                     \
   TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                          \
-    .TROMPELOEIL_TIMES(0)                                                      \
-    .THROW(false)
+    .TROMPELOEIL_TIMES(0)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL(obj, func)                               \
   TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_(obj, func, obj_s, func_s)               \
   TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
-    .TROMPELOEIL_TIMES(0)                                                      \
-    .THROW(false)
-
+    .TROMPELOEIL_TIMES(0)
 
 
 #define TROMPELOEIL_WITH(...)    TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
