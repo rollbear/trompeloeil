@@ -147,22 +147,21 @@ Paste the following code snippet in global namespace in one of your
                                      const char* file,
                                      unsigned long line,
                                      const char* msg)
+    {
+      std::ostringstream os;
+      if (line) os << file << ':' << line << '\n';
+      os << msg;
+      auto failure = os.str();
+      if (s == severity::fatal)
       {
-        std::ostringstream os;
-        if (line) os << file << ':' << line << '\n';
-        os << msg;
-        auto failure = os.str();
-        if (s == severity::fatal)
-        {
-          FAIL(failure);
-        }
-        else
-        {
-          CAPTURE(failure);
-          CHECK(failure.empty());
-        }
+        FAIL(failure);
       }
-    };
+      else
+      {
+        CAPTURE(failure);
+        CHECK(failure.empty());
+      }
+    }
   }
 ```
 
@@ -212,18 +211,17 @@ Paste the following code snippet in global namespace in one of the
                                      char const *file,
                                      unsigned long line,
                                      const char* msg)
-      {
-        std::ostringstream os;
-        os << file << ':' << line;
-        auto loc = os.str();
-        auto location = line == 0U
-          ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
-          : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
-        ::crpcut::comm::report(::crpcut::comm::exit_fail,
-                               std::ostringstream(msg),
-                               location);
-      }
-    };
+    {
+      std::ostringstream os;
+      os << file << ':' << line;
+      auto loc = os.str();
+      auto location = line == 0U
+        ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
+        : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
+      ::crpcut::comm::report(::crpcut::comm::exit_fail,
+                             std::ostringstream(msg),
+                             location);
+    }
   }
 ```
 
@@ -309,7 +307,7 @@ trompeloeil::set_reporter([](trompeloeil::severity s,
       }
       throw trompeloeil::expectation_violation(os.str() + msg);
     }
-    
+
     ADD_FAILURE_AT(file, line) << msg;
   });
 ```
