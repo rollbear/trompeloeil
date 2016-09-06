@@ -424,6 +424,41 @@ namespace trompeloeil
     return true;
   }
 
+  struct illegal_argument
+  {
+    template <bool b = false>
+    constexpr
+    illegal_argument const& operator&() const
+    {
+      static_assert(b, "illegal argument");
+      return *this;
+    }
+
+    template <bool b = false>
+    constexpr
+    illegal_argument const& operator*() const
+    {
+      static_assert(b, "illegal argument");
+      return *this;
+    }
+
+    template <typename T, bool b = false>
+    constexpr
+    illegal_argument const& operator=(T const&) const
+    {
+      static_assert(b, "illegal argument");
+      return *this;
+    }
+
+    template <typename T, bool b = false>
+    constexpr
+    operator T() const
+    {
+      static_assert(b, "illegal argument");
+      return {};
+    }
+  };
+
   struct matcher { };
 
   inline constexpr std::false_type is_matcher_(...) { return {}; }
@@ -2231,13 +2266,16 @@ namespace trompeloeil
       using ret = decltype(std::declval<H>()(std::declval<params_type>()));
       // don't know why MS VS 2015 RC doesn't like std::result_of
 
+      constexpr bool is_illegal_type   = std::is_same<std::decay_t<ret>, illegal_argument>::value;
       constexpr bool is_first_return   = std::is_same<return_type, void>::value;
       constexpr bool void_signature    = std::is_same<sigret, void>::value;
       constexpr bool matching_ret_type = std::is_constructible<sigret, ret>::value;
 
       static_assert(matching_ret_type || !void_signature,
                     "RETURN does not make sense for void-function");
-      static_assert(matching_ret_type || void_signature,
+      static_assert(!is_illegal_type,
+                    "RETURN illegal argument");
+      static_assert(is_illegal_type || matching_ret_type || void_signature,
                     "RETURN value is not convertible to the return type of the function");
       static_assert(is_first_return,
                     "Multiple RETURN does not make sense");
@@ -2246,7 +2284,7 @@ namespace trompeloeil
       static_assert(upper_call_limit > 0ULL,
                     "RETURN for forbidden call does not make sense");
 
-      constexpr bool valid = matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
+      constexpr bool valid = !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, std::forward<H>(h));
       return {std::move(matcher)};
@@ -2641,27 +2679,13 @@ namespace trompeloeil
   }
 
   template <int N>
-  struct illegal_argument {
-    illegal_argument(illegal_argument&&) = delete;
-    illegal_argument operator&() const = delete;
-
-    template <typename T>
-    operator T()
-    const
-    {
-      static_assert(!N, "illegal argument");
-      return std::declval<T>();
-    }
-  };
-
-  template <int N>
   inline
-  illegal_argument<N>&
+  constexpr
+  illegal_argument const
   arg(void const*, std::false_type)
     noexcept
   {
-      static illegal_argument<N> v{};
-      return v;
+      return {};
   }
 
   template <int N, typename T>
