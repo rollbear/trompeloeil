@@ -47,6 +47,7 @@ sample adaptations are:
 
 - [Catch!](#adapt_catch)
 - [crpcut](#adapt_crpcut)
+- [doctest](#adapt_doctest)
 - [gtest](#adapt_gtest)
 - [boost Unit Test Framework](#adapt_boost_unit_test_framework)
 - [MSTest](#adapt_mstest)
@@ -195,7 +196,7 @@ trompeloeil::set_reporter([](trompeloeil::severity s,
       CAPTURE(failure);
       CHECK(failure.empty());
     }
-  })
+  });
 ```
 
 ### <A name="adapt_crpcut"/>Use *Trompeloeil* with [crpcut](http://crpcut.sourceforge.net)
@@ -252,6 +253,90 @@ trompeloeil::set_reporter([](trompeloeil::severity,
 ```
 
 before any tests are run.
+
+### <A name="adapt_doctest"/>Use *Trompeloeil* with [doctest](https://github.com/onqtam/doctest)
+
+Paste the following code snippet in global namespace in one of your
+[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+
+```Cpp
+  struct doctest_violation : std::ostringstream
+  {
+    friend std::ostream& operator<<(std::ostream& os, doctest_violation const& v)
+    {
+      return os << v.str();
+    }
+  };
+
+  namespace trompeloeil
+  {
+    template <>
+    void reporter<specialized>::send(severity s,
+                                     const char* file,
+                                     unsigned long line,
+                                     const char* msg)
+    {
+      ::doctest_violation violation;
+      if (line) violation << file << ':' << line << '\n';
+      violation << msg;
+      if (s == severity::fatal)
+      {
+        REQUIRE_FALSE(violation);
+      }
+      else
+      {
+        CHECK_FALSE(violation);
+      }
+    }
+  }
+```
+
+If you have several
+[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
+add the following extern declatation in the others:
+
+```Cpp
+extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+```
+
+If you roll your own `main()`, you may prefer a runtime adapter instead.
+As above, create a simple `doctest_violation` type by pasting the below code
+into the file containing `main()`.
+
+
+```Cpp
+  struct doctest_violation : std::ostringstream 
+  {
+    friend std::ostream& operator<<(std::ostream& os, doctest_violation const& v)
+    {
+      return os << v.str();
+    }
+  };
+```
+
+Then, before running any tests, make sure to call:
+
+
+```Cpp
+  trompeloeil::set_reporter([](trompeloeil::severity s,
+                               const char* file,
+                               unsigned long line,
+                               const char* msg)
+  {
+    ::doctest_violation violation;
+    if (line) violation << file << ':' << line << '\n';
+    violation << msg;
+    if (s == trompeloeil::severity::fatal)
+    {
+      REQUIRE_FALSE(violation);
+    }
+    else
+    {
+       CHECK_FALSE(violation);
+    }
+  });
+```
+
 
 ### <A name="adapt_gtest"/>Use *Trompeloeil* with [gtest](https://code.google.com/p/googletest/)
 
