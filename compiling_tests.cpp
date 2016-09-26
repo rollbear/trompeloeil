@@ -89,6 +89,17 @@ struct unmovable
 
 struct uncomparable { };
 
+struct uncomparable_string {
+    template <typename ... V,
+              typename = std::enable_if_t<std::is_constructible<std::string, V...>{}>>
+    uncomparable_string(V&& ... v) : s(std::forward<V>(v)...) {}
+    bool operator==(const uncomparable_string& rh) const noexcept
+    {
+      return s == rh.s;
+    }
+  std::string s;
+};
+
 class C
 {
 public:
@@ -786,10 +797,21 @@ public:
   MAKE_MOCK1(func_ptr_f, void(int (*)(int)));
   MAKE_MOCK1(func_mptr_f, void(mptr_f));
   MAKE_MOCK1(func_mptr_d, void(mptr_d));
+  MAKE_MOCK1(func_ustr, void(const uncomparable_string&));
   int m;
 };
 
 // tests of direct parameter matching with fixed values and wildcards
+
+TEST_CASE_METHOD(Fixture, "apa", "[matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL(u, func_ustr("str"));
+    u.func_ustr("str");
+  }
+  REQUIRE(reports.empty());
+}
 
 TEST_CASE_METHOD(Fixture, "pointer to function matches wildcard", "[matching]")
 {

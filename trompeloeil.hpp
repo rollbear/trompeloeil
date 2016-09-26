@@ -1872,15 +1872,26 @@ namespace trompeloeil
     return t.matches(u);
   }
 
+  template <typename T>
+  T& identity(T& t) noexcept
+  {
+    return t;
+  }
+  template <typename T, typename U>
+  T identity(U const& u) noexcept(noexcept(T(u)))
+  {
+    return u;
+  }
+
   template <typename T, typename U>
   bool
   param_matches_impl(
     T const& t,
     U const& u,
     ...)
-  noexcept(noexcept(t == u))
+      noexcept(noexcept(identity<U>(t) == u))
   {
-    return t == u;
+      return identity<U>(t) == u;
   }
 
   template <typename T, typename U>
