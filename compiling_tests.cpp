@@ -91,12 +91,23 @@ struct uncomparable { };
 
 struct uncomparable_string {
     template <typename ... V,
-              typename = std::enable_if_t<std::is_constructible<std::string, V...>{}>>
-    uncomparable_string(V&& ... v) : s(std::forward<V>(v)...) {}
-    bool operator==(const uncomparable_string& rh) const noexcept
-    {
-      return s == rh.s;
-    }
+              typename = std::enable_if_t<std::is_constructible<std::string, V...>::value>>
+  uncomparable_string(V&& ... v)
+        : s(std::forward<V>(v)...) {}
+  bool operator==(const uncomparable_string& rh) const noexcept
+  {
+    return s == rh.s;
+  }
+
+  template <typename T>
+  std::enable_if_t<!std::is_same<std::decay_t<T>, uncomparable_string>{}>
+  operator==(const T&) const = delete;
+
+  friend
+  std::ostream& operator<<(std::ostream& os, const uncomparable_string& u)
+  {
+    return os << u.s;
+  }
   std::string s;
 };
 
@@ -798,12 +809,13 @@ public:
   MAKE_MOCK1(func_mptr_f, void(mptr_f));
   MAKE_MOCK1(func_mptr_d, void(mptr_d));
   MAKE_MOCK1(func_ustr, void(const uncomparable_string&));
+  MAKE_MOCK1(func_ustrv, void(uncomparable_string));
   int m;
 };
 
 // tests of direct parameter matching with fixed values and wildcards
 
-TEST_CASE_METHOD(Fixture, "apa", "[matching]")
+TEST_CASE_METHOD(Fixture, "An uncomparable but constructible type by reference matches a call", "[matching]")
 {
   {
     U u;
@@ -812,6 +824,61 @@ TEST_CASE_METHOD(Fixture, "apa", "[matching]")
   }
   REQUIRE(reports.empty());
 }
+
+TEST_CASE_METHOD(Fixture, "An uncomparable but constructible type by value matches a call", "[matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL(u, func_ustrv("str"));
+    u.func_ustrv("str");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "An uncomparable but constructible type by reference mmismatch is reported", "[matching]")
+{
+  try
+  {
+    U u;
+    REQUIRE_CALL(u, func_ustr("str"));
+    u.func_ustr("strr");
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    auto re = R":(No match for call of func_ustr with signature void\(const uncomparable_string&\) with\.
+  param  _1 == strr
+
+Tried u\.func_ustr\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
+    INFO("msg=" << msg);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "An uncomparable but constructible type by value mismatch is reported", "[matching]")
+{
+  try
+  {
+    U u;
+    REQUIRE_CALL(u, func_ustrv("str"));
+    u.func_ustrv("strr");
+    FAIL("didn't report");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    auto re = R":(No match for call of func_ustrv with signature void\(uncomparable_string\) with\.
+  param  _1 == strr
+
+Tried u\.func_ustrv\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
+    INFO("msg=" << msg);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
 
 TEST_CASE_METHOD(Fixture, "pointer to function matches wildcard", "[matching]")
 {

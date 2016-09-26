@@ -1873,7 +1873,13 @@ namespace trompeloeil
   }
 
   template <typename T>
-  T& identity(T& t) noexcept
+  inline T& identity(T& t) noexcept
+  {
+    return t;
+  }
+    template <typename T, typename U, typename = decltype(std::declval<U const&>() == std::declval<T const&>())>
+  inline
+  U& identity(U& t) noexcept
   {
     return t;
   }
@@ -1889,9 +1895,9 @@ namespace trompeloeil
     T const& t,
     U const& u,
     ...)
-      noexcept(noexcept(identity<U>(t) == u))
+      noexcept(noexcept(::trompeloeil::identity<U>(t) == u))
   {
-      return identity<U>(t) == u;
+      return ::trompeloeil::identity<U>(t) == u;
   }
 
   template <typename T, typename U>
