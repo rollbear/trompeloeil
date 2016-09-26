@@ -90,13 +90,11 @@ struct unmovable
 struct uncomparable { };
 
 struct uncomparable_string {
-    template <typename ... V,
-              typename = std::enable_if_t<std::is_constructible<std::string, V...>::value>>
-  uncomparable_string(V&& ... v)
-        : s(std::forward<V>(v)...) {}
-  bool operator==(const uncomparable_string& rh) const noexcept
+  uncomparable_string(const char* p) : s(p) {}
+  friend
+  bool operator==(const uncomparable_string& lh, const uncomparable_string& rh) noexcept
   {
-    return s == rh.s;
+    return lh.s == rh.s;
   }
 
   template <typename T>

@@ -1872,19 +1872,34 @@ namespace trompeloeil
     return t.matches(u);
   }
 
-  template <typename T>
-  inline T& identity(T& t) noexcept
-  {
-    return t;
-  }
-    template <typename T, typename U, typename = decltype(std::declval<U const&>() == std::declval<T const&>())>
-  inline
-  U& identity(U& t) noexcept
-  {
-    return t;
-  }
   template <typename T, typename U>
-  T identity(U const& u) noexcept(noexcept(T(u)))
+  struct is_equal_comparable
+  {
+    template <typename P, typename V>
+    static constexpr std::false_type func(...) { return {}; }
+    template <typename P, typename V>
+    static constexpr auto func(P* p, V* v) -> decltype((*p == *v), std::true_type{})
+    {
+      return {};
+    }
+    static constexpr auto value = decltype(func<T, U>(nullptr, nullptr)){};
+  };
+  template <typename T, typename U>
+  inline
+  std::enable_if_t<is_equal_comparable<T, U>::value, U&>
+  identity(
+    U& t)
+  noexcept
+  {
+    return t;
+  }
+
+  template <typename T, typename U>
+  inline
+  std::enable_if_t<!is_equal_comparable<T, U>::value, T>
+  identity(
+    const U& u)
+  noexcept(noexcept(T(u)))
   {
     return u;
   }
@@ -1895,9 +1910,9 @@ namespace trompeloeil
     T const& t,
     U const& u,
     ...)
-      noexcept(noexcept(::trompeloeil::identity<U>(t) == u))
+  noexcept(noexcept(::trompeloeil::identity<U>(t) == u))
   {
-      return ::trompeloeil::identity<U>(t) == u;
+    return ::trompeloeil::identity<U>(t) == u;
   }
 
   template <typename T, typename U>
@@ -3004,8 +3019,6 @@ operator*(
   TROMPELOEIL_MAKE_MOCK_(name,const,15, __VA_ARGS__,,)
 
 #endif
-
-
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_ID(cardinality_match) =                                    \
