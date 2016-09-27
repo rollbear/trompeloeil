@@ -90,16 +90,13 @@ struct unmovable
 struct uncomparable { };
 
 struct uncomparable_string {
+  uncomparable_string(std::nullptr_t) = delete;
   uncomparable_string(const char* p) : s(p) {}
   friend
   bool operator==(const uncomparable_string& lh, const uncomparable_string& rh) noexcept
   {
     return lh.s == rh.s;
   }
-
-  template <typename T>
-  std::enable_if_t<!std::is_same<std::decay_t<T>, uncomparable_string>{}>
-  operator==(const T&) const = delete;
 
   friend
   std::ostream& operator<<(std::ostream& os, const uncomparable_string& u)
