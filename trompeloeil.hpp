@@ -1878,11 +1878,7 @@ namespace trompeloeil
     template <typename P, typename V>
     static constexpr std::false_type func(...) { return {}; }
     template <typename P, typename V>
-    static constexpr auto func(P* p, V* v) -> decltype((*p == *v), std::true_type{})
-    {
-      ::trompeloeil::ignore(p,v); // silence unmotivated VisualStudio warning
-      return {};
-    }
+    static constexpr auto func(P* p, V* v) -> decltype((*p == *v), std::true_type{});
     static constexpr auto value = decltype(func<T, U>(nullptr, nullptr))::value;
     // The obvious solution, to just call func<T,U>(0,0) gives true_type* in VS!!!
   };
