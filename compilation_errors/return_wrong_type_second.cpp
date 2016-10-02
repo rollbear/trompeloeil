@@ -17,7 +17,7 @@
 
 struct MS
 {
-  MAKE_MOCK0(f, int());
+  MAKE_MOCK0(f, char*());
 };
 
 int main()

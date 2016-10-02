@@ -2683,9 +2683,10 @@ namespace trompeloeil
     template <typename T>
     inline                           // Never called. Used to limit errmsg
     static                           // with RETURN of wrong type and after:
-    void                             //   FORBIDDEN_CALL
-    set_return(std::false_type, T&&) //   RETURN
-      noexcept;                      //   THROW
+    auto                             //   FORBIDDEN_CALL
+    set_return(std::false_type, T&&t)//   RETURN
+      noexcept                       //   THROW
+      -> decltype(t(std::declval<const Value&>()));
 
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
