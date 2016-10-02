@@ -11,20 +11,18 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//RETURN value is not convertible to the return type of the function
+//RETURN const\& from function returning non-const reference
 
 #include "../trompeloeil.hpp"
 
 struct MS
 {
-  MAKE_MOCK0(f, char*());
+  MAKE_MOCK0(f, char&());
 };
 
 int main()
 {
-  int n;
   MS obj;
   REQUIRE_CALL(obj, f())
-    .LR_SIDE_EFFECT(n = 0)
-    .RETURN("");
+    .RETURN(*"");
 }

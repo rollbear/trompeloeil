@@ -2301,13 +2301,20 @@ namespace trompeloeil
       constexpr bool is_illegal_type   = std::is_same<std::decay_t<ret>, illegal_argument>::value;
       constexpr bool is_first_return   = std::is_same<return_type, void>::value;
       constexpr bool void_signature    = std::is_same<sigret, void>::value;
+      constexpr bool is_pointer_sigret = std::is_pointer<sigret>::value;
+      constexpr bool is_pointer_ret    = std::is_pointer<std::decay_t<ret>>::value;
+      constexpr bool ptr_const_mismatch = is_pointer_ret && is_pointer_sigret && !std::is_const<std::remove_pointer_t<sigret>>{} && std::is_const<std::remove_pointer_t<std::decay_t<ret>>>{};
+      constexpr bool is_ref_sigret     = std::is_reference<sigret>::value;
+      constexpr bool is_ref_ret        = std::is_reference<sigret>::value;
+      constexpr bool ref_const_mismatch = is_ref_ret && is_ref_sigret && !std::is_const<std::remove_reference_t<sigret>>{} && std::is_const<std::remove_reference_t<ret>>{};
       constexpr bool matching_ret_type = std::is_constructible<sigret, ret>::value;
-
       static_assert(matching_ret_type || !void_signature,
                     "RETURN does not make sense for void-function");
       static_assert(!is_illegal_type,
                     "RETURN illegal argument");
-      static_assert(is_illegal_type || matching_ret_type || void_signature,
+      static_assert(!ptr_const_mismatch, "RETURN const* from function returning pointer to non-const");
+      static_assert(!ref_const_mismatch, "RETURN const& from function returning non-const reference");
+      static_assert(ptr_const_mismatch || ref_const_mismatch || is_illegal_type || matching_ret_type || void_signature,
                     "RETURN value is not convertible to the return type of the function");
       static_assert(is_first_return,
                     "Multiple RETURN does not make sense");
@@ -2683,10 +2690,9 @@ namespace trompeloeil
     template <typename T>
     inline                           // Never called. Used to limit errmsg
     static                           // with RETURN of wrong type and after:
-    auto                             //   FORBIDDEN_CALL
+    void                             //   FORBIDDEN_CALL
     set_return(std::false_type, T&&t)//   RETURN
-      noexcept                       //   THROW
-      -> decltype(t(std::declval<const Value&>()));
+      noexcept;                      //   THROW
 
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
