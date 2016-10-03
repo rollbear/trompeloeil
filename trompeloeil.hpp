@@ -1873,14 +1873,44 @@ namespace trompeloeil
   }
 
   template <typename T, typename U>
+  struct is_equal_comparable
+  {
+    template <typename P, typename V>
+    static constexpr std::false_type func(...) { return {}; }
+    template <typename P, typename V>
+    static constexpr auto func(P* p, V* v) -> decltype((*p == *v), std::true_type{});
+    static constexpr auto value = decltype(func<T, U>(nullptr, nullptr))::value;
+    // The obvious solution, to just call func<T,U>(0,0) gives true_type* in VS!!!
+  };
+  template <typename T, typename U>
+  inline
+  std::enable_if_t<is_equal_comparable<T, U>::value, U&>
+  identity(
+    U& t)
+  noexcept
+  {
+    return t;
+  }
+
+  template <typename T, typename U>
+  inline
+  std::enable_if_t<!is_equal_comparable<T, U>::value, T>
+  identity(
+    const U& u)
+  noexcept(noexcept(T(u)))
+  {
+    return u;
+  }
+
+  template <typename T, typename U>
   bool
   param_matches_impl(
     T const& t,
     U const& u,
     ...)
-  noexcept(noexcept(t == u))
+  noexcept(noexcept(::trompeloeil::identity<U>(t) == u))
   {
-    return t == u;
+    return ::trompeloeil::identity<U>(t) == u;
   }
 
   template <typename T, typename U>
@@ -2269,13 +2299,31 @@ namespace trompeloeil
       constexpr bool is_illegal_type   = std::is_same<std::decay_t<ret>, illegal_argument>::value;
       constexpr bool is_first_return   = std::is_same<return_type, void>::value;
       constexpr bool void_signature    = std::is_same<sigret, void>::value;
+      constexpr bool is_pointer_sigret = std::is_pointer<sigret>::value;
+      constexpr bool is_pointer_ret    = std::is_pointer<std::decay_t<ret>>::value;
+      constexpr bool ptr_const_mismatch = is_pointer_ret && is_pointer_sigret && !std::is_const<std::remove_pointer_t<sigret>>{} && std::is_const<std::remove_pointer_t<std::decay_t<ret>>>{};
+      constexpr bool is_ref_sigret     = std::is_reference<sigret>::value;
+      constexpr bool is_ref_ret        = std::is_reference<ret>::value;
+      constexpr bool ref_const_mismatch=
+        is_ref_ret &&
+        is_ref_sigret &&
+        !std::is_const<std::remove_reference_t<sigret>>{} &&
+        std::is_const<std::remove_reference_t<ret>>{};
       constexpr bool matching_ret_type = std::is_constructible<sigret, ret>::value;
+      constexpr bool ref_value_mismatch = !is_ref_ret && is_ref_sigret;
 
       static_assert(matching_ret_type || !void_signature,
                     "RETURN does not make sense for void-function");
       static_assert(!is_illegal_type,
                     "RETURN illegal argument");
-      static_assert(is_illegal_type || matching_ret_type || void_signature,
+      static_assert(!ptr_const_mismatch,
+                    "RETURN const* from function returning pointer to non-const");
+      static_assert(!ref_value_mismatch || matching_ret_type,
+                    "RETURN non-reference from function returning reference");
+      static_assert(ref_value_mismatch || !ref_const_mismatch,
+                    "RETURN const& from function returning non-const reference");
+
+      static_assert(ptr_const_mismatch || ref_const_mismatch || is_illegal_type || matching_ret_type || void_signature,
                     "RETURN value is not convertible to the return type of the function");
       static_assert(is_first_return,
                     "Multiple RETURN does not make sense");
@@ -2652,7 +2700,7 @@ namespace trompeloeil
     inline                           // Never called. Used to limit errmsg
     static                           // with RETURN of wrong type and after:
     void                             //   FORBIDDEN_CALL
-    set_return(std::false_type, T&&) //   RETURN
+    set_return(std::false_type, T&&t)//   RETURN
       noexcept;                      //   THROW
 
     condition_list<Sig>                    conditions;
@@ -2987,8 +3035,6 @@ operator*(
   TROMPELOEIL_MAKE_MOCK_(name,const,15, __VA_ARGS__,,)
 
 #endif
-
-
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_ID(cardinality_match) =                                    \
