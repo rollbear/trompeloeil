@@ -13,6 +13,7 @@
 - Q. [Why the need to provide the number of parameters in **`MAKE_MOCKn()`** when all information is in the signature?](#why_param_count)
 - Q. [Why *`C++14`* and not *`C++11`* or *`C++03`* that is more widely spread?](#why_cpp14)
 - Q. [Why are my parameter values printed as hexadecimal dumps in violation reports](#why_hex)
+- Q. [Can I mock a C function API?](#func_mock)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -293,3 +294,91 @@ occupied by the value.
 You can change that either by providing a stream insertion operator for your
 type, or by providing a [custom formatter](CookBook.md/#custom_formatting)
 for it.
+
+## <A name="func_mock"/> Q. Can I mock a C function API?
+
+**A.** *Trompeloeil* can mock member functions only. However, there are
+tricks you can use to mock a function API, provided that it is OK
+to use a link seam and link your test program with a special test
+implementation of the API that calls mocks. Heres's an example:
+
+```Cpp
+/* c_api.h */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int func1(const char*);
+const char* func2(int);
+
+#ifdef __cplusplus
+}
+#endif
+```
+
+With the above C-API mocks can be made:
+
+```Cpp
+/* mock_c_api.h */
+#ifndef MOCK_C_API_H
+#define MOCK_C_API_H
+
+#include <c_api.h>
+#include <cassert>
+#include <string>
+#include <trompeloeil.hpp>
+
+struct mock_api
+{
+  static mock_api*& instance() { static mock_api* obj = nullptr; return obj; }
+  mock_api() { assert(instance() == nullptr); instance() = this; }
+  ~mock_api() { assert(instance() == this); instance() = nullptr; }
+  mock_api(const mock_api&) = delete;
+  mock_api& operator=(const mock_api&) = delete;
+
+  MAKE_CONST_MOCK1(func1, int(std::string)); // strings are easier to deal with
+  MAKE_CONST_MOCK1(func2, const char*(int));
+};
+
+endif /* include guard */
+```
+
+Note that the mock constructor stores a globally available pointer to the
+instance, and the destructor clears it.
+
+With the mock available the test version the C-API can easily be implemented:
+
+```Cpp
+#include "mock_c_api.h"
+
+int func1(const char* str)
+{
+  auto obj = mock_api::instance();
+  assert(obj);
+  return obj->func1(str); // creates a std::string
+}
+
+const char* func2(int value)
+{
+  auto obj = mock_api::instance();
+  assert(obj);
+  return obj->func2(value);
+}
+```
+
+Now your tests becomes simple:
+
+```Cpp
+#include "mock_c_api.h"
+#include "my_obj.h"
+TEST("my obj calls func1 with empty string when poked")
+{
+  mock_api api;
+  my_obj tested;
+  {
+    REQUIRE_CALL(api, func1(""))
+      .RETURN(0);
+    tested.poke(0);
+  }
+}
+```
