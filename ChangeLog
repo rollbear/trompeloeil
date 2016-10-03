@@ -1,3 +1,5 @@
+v19 2016-10-03
+
 	* Fixed obscure bug when placing an expectation using a value implicitly
 	  convertible to the target type, but not equal comparable with it.
 
