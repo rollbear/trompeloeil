@@ -1,14 +1,15 @@
-	* Fixed bug when placing an expectation using a value implicitly
+	* Fixed obscure bug when placing an expectation using a value implicitly
 	  convertible to the target type, but not equal comparable with it.
 
 	  Example:
 
 	  struct S
 	  {
-	    S(std::string s_) : s(std::move(s_)) {}
-	    friend bool operator==(const S& lh, const S& rh)
+	    S(const char* s_) : s(s_) {}
+	    bool operator(const char*) = delete;
+	    bool operator==(const S& rh) const
 	    {
-              return lh.s == rh.s;
+              return s == rh.s;
 	    }
 	    std::string s;
 	  };
@@ -19,11 +20,10 @@
 
 	  TEST(...)
 	  {
-	    using namespace std::string_literals;
 	    mock m;
-	    REQUIRE_CALL(m, func("string"s));
+	    REQUIRE_CALL(m, func("string"));
 	    // now compiles and compares the function call parameter value
-	    // with S("string"s)
+	    // with S("string")
 	  }
 
 	* Improved compilation error messages for type-mismatch
