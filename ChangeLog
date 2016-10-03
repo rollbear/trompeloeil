@@ -1,3 +1,34 @@
+	* Fixed bug when placing an expectation using a value implicitly
+	  convertible to the target type, but not equal comparable with it.
+
+	  Example:
+
+	  struct S
+	  {
+	    S(std::string s_) : s(std::move(s_)) {}
+	    friend bool operator==(const S& lh, const S& rh)
+	    {
+              return lh.s == rh.s;
+	    }
+	    std::string s;
+	  };
+
+	  struct mock {
+	    MAKE_MOCK1(func, void(S));
+	  };
+
+	  TEST(...)
+	  {
+	    using namespace std::string_literals;
+	    mock m;
+	    REQUIRE_CALL(m, func("string"s));
+	    // now compiles and compares the function call parameter value
+	    // with S("string"s)
+	  }
+
+	* Improved compilation error messages for type-mismatch
+	  situations in .RETURN()
+
 v18 2016-08-18
 
 	* Writing custom matchers is much simplified through the use
