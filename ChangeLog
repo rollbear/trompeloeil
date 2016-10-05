@@ -1,3 +1,7 @@
+v20 2016-10-05
+
+	* Fixed harmless but very very annoying warning from clang++
+
 v19 2016-10-03
 
 	* Fixed obscure bug when placing an expectation using a value implicitly
