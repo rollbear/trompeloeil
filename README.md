@@ -19,6 +19,7 @@ A thread safe header only mocking framework for C++14 using the Boost Software L
 Documentation
 -------------
 
+- [Intro presentation from Stockholm C++ UG (YouTube)](https://www.youtube.com/watch?v=mPYNsARvTDk)
 - [Introduction](http://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
 - [Cheat Sheet (2*A4)](docs/trompeloeil_cheat_sheet.pdf)
 - [Cook Book](docs/CookBook.md)
