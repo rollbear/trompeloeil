@@ -10,7 +10,10 @@ matrix:
         apt:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-4.9', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
-      env: COMPILER=g++-4.9
+      env:
+        - COMPILER=g++-4.9
+        - WARNINGS="-Wall -Wextra -pedantic"
+        - SANITIZERS="-fsanitize=address,undefined"
 
     - os: linux
       compiler: gcc
@@ -18,27 +21,49 @@ matrix:
         apt:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-5', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
-      env: COMPILER=g++-5
+      env:
+        - COMPILER=g++-5
+        - WARNINGS="-Wall -Wextra -pedantic"
+        - SANITIZERS="-fsanitize=undefined"
 
-#    - os: linux
-#      env:
-#        - LLVM_VERSION=3.8.0
-#        - LLVM_ARCHIVE_PATH=$HOME/clang+llvm.tar.xz
-#        - COMPILER=clang++
-#        - CPPFLAGS="-I $HOME/clang-$LLVM_VERSION/include/c++/v1"
-#        - CXXFLAGS=-lc++
-#        - PATH=$HOME/clang-$LLVM_VERSION/bin:$PATH
-#        - LD_LIBRARY_PATH=$HOME/clang-$LLVM_VERSION/lib:$LD_LIBRARY_PATH
-#      before_install:
-#       - wget http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04.tar.xz -O $LLVM_ARCHIVE_PATH
-#       - mkdir $HOME/clang-$LLVM_VERSION
-#       - tar xf $LLVM_ARCHIVE_PATH -C $HOME/clang-$LLVM_VERSION --strip-components 1
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-6', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+      env:
+        - COMPILER=g++-6
+        - WARNINGS="-Wall -Wextra -pedantic -Wmisleading-indentation"
+        - SANITIZERS="-fsanitize=undefined"
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-precise-3.7', 'ubuntu-toolchain-r-test']
+          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+      env:
+        - COMPILER=clang++-3.7
+        - WARNINGS="-Weverything -Wno-c++98-compat-pedantic -Wno-padded -Wno-weak-vtables -Wno-exit-time-destructors"
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-precise-3.8', 'ubuntu-toolchain-r-test']
+          packages: ['clang-3.8', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+      env:
+        - COMPILER=clang++-3.8
+        - WARNINGS="-Weverything -Wno-c++98-compat-pedantic -Wno-padded -Wno-weak-vtables -Wno-exit-time-destructors"
+        - SANITIZERS="-fsanitize=undefined,address"
+
 
 before_script:
   CXX=$COMPILER  ./check_errors.sh
 
 script:
-  wget https://github.com/philsquared/Catch/archive/v1.2.1-develop.12.tar.gz &&   tar xfz v1.2.1-develop.12.tar.gz && make CXX=$COMPILER CXXFLAGS="${CXXFLAGS} -std=c++14 -I Catch-1.2.1-develop.12/include -g ${CPPFLAGS}" -f Makefile.travis
+  wget https://github.com/philsquared/Catch/archive/V1.5.0.tar.gz &&   tar xfz V1.5.0.tar.gz && make CXX=$COMPILER CXXFLAGS="${WARNINGS} ${SANITIZERS} ${CXXFLAGS}  -std=c++14 -I Catch-1.5.0/include -g ${CPPFLAGS}" -f Makefile.travis
 
 after_success:
-  wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&  unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build && cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make && make install DESTDIR=../built && cd ../.. && ./kcov/built/usr/local/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp --coveralls-id=${TRAVIS_JOB_ID} ./cov ./self_test -s
+  make clean -f Makefile.travis && make CXX=$COMPILER CXXFLAGS="-std=c++14 ${STDLIB} -I Catch-1.5.0/include -g" -f Makefile.travis && wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&  unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build && cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Release .. && make && make install DESTDIR=../built && cd ../.. && ./kcov/built/usr/local/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp --coveralls-id=${TRAVIS_JOB_ID} ./cov ./self_test -s
