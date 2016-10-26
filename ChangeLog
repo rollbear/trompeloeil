@@ -1,3 +1,7 @@
+	* Worked around VisualStudio 2015 update 3 issed with evaluating
+	  regex_search() in trailing return type spec for auto deduced
+	  string type.
+
 v20 2016-10-05
 
 	* Fixed harmless but very very annoying warning from clang++
