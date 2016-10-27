@@ -1393,32 +1393,6 @@ namespace trompeloeil
 
   namespace lambdas {
 
-    class string_helper // a vastly simplified string_view type of class
-    {
-    public:
-      string_helper(
-        std::string const& s)
-      noexcept
-        : str(s.c_str())
-      {}
-
-      constexpr
-      string_helper(
-        char const* s)
-      noexcept
-        : str(s)
-      {}
-
-      char const*
-      c_str()
-        const
-        noexcept
-      {
-        return str;
-      }
-    private:
-      char const* str;
-    };
 
     inline
     auto
@@ -1426,6 +1400,34 @@ namespace trompeloeil
       std::regex&& re,
       std::regex_constants::match_flag_type match_type)
     {
+
+      class string_helper // a vastly simplified string_view type of class
+      {
+      public:
+        string_helper(
+          std::string const& s)
+        noexcept
+          : str(s.c_str())
+        {}
+
+        constexpr
+        string_helper(
+          char const* s)
+        noexcept
+          : str(s)
+        {}
+
+        char const*
+        c_str()
+          const
+          noexcept
+        {
+          return str;
+        }
+      private:
+        char const* str;
+      };
+
       return [re, match_type](string_helper str, auto const&)
         -> decltype(std::regex_search(str.c_str(), re, match_type))
         {
@@ -1433,6 +1435,7 @@ namespace trompeloeil
             && std::regex_search(str.c_str(), re, match_type);
         };
     }
+
     inline auto regex_printer()
     {
       return [](std::ostream& os, auto const& str)
