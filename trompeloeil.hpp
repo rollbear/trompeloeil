@@ -2917,6 +2917,15 @@ namespace trompeloeil
     i->run_actions(param_value, e.saturated);
     return i->return_value(param_value);
   }
+
+  template <typename ... U>
+  using param_t = decltype(std::make_tuple(std::declval<U>()...));
+
+  template <typename sig, typename tag, typename... U>
+  using modifier_t = call_modifier<call_matcher<sig, param_t<U...>>,
+                                   tag,
+                                   matcher_info<sig>>;
+
 }
 
 template <typename M,
@@ -3090,18 +3099,19 @@ operator*(
       template <typename ... U>                                                \
       auto name(                                                               \
         U&& ... u)                                                             \
+        -> ::trompeloeil::modifier_t<sig,                                      \
+                                     TROMPELOEIL_ID(tag_type_trompeloeil),     \
+                                     U...>                                     \
       {                                                                        \
-        using tag     = TROMPELOEIL_ID(tag_type_trompeloeil);                  \
-        using params  = decltype(std::make_tuple(std::forward<U>(u)...));      \
+        using params  = ::trompeloeil::param_t<U...>;                          \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
-        using info    = ::trompeloeil::matcher_info<sig>;                      \
-        using modifier = ::trompeloeil::call_modifier<matcher, tag, info>;     \
                                                                                \
         auto  matcher_obj = std::make_unique<matcher>(file,                    \
                                                       line,                    \
                                                       call_string,             \
                                                       std::forward<U>(u)...);  \
-        return modifier{std::move(matcher_obj)};                               \
+                                                                               \
+        return {std::move(matcher_obj)};                                       \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \

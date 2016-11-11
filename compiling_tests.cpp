@@ -4237,3 +4237,24 @@ TEST_CASE("all non-overridden short mocks can be expected and called", "[signatu
   mock.cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 }
 
+class self_ref_mock
+{
+public:
+  void expect_self()
+  {
+    exp = NAMED_REQUIRE_CALL(*this, mfunc());
+  }
+  MAKE_MOCK0(mfunc, void());
+  std::unique_ptr<trompeloeil::expectation> exp;
+};
+
+
+TEST_CASE("a member function of a mock object can call a mocked function")
+{
+  {
+    self_ref_mock m;
+    m.expect_self();
+    m.mfunc();
+  }
+  REQUIRE(reports.empty());
+}
