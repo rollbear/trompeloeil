@@ -4258,3 +4258,19 @@ TEST_CASE("a member function of a mock object can call a mocked function")
   }
   REQUIRE(reports.empty());
 }
+
+TEST_CASE("expectation on a mock function can call the same mock func recursively as side effect")
+{
+  {
+    self_ref_mock m;
+    unsigned mask = 0U;
+    REQUIRE_CALL(m, mfunc())
+      .LR_SIDE_EFFECT(mask |= 2U);
+    REQUIRE_CALL(m, mfunc())
+      .LR_SIDE_EFFECT(mask |= 1U)
+      .LR_SIDE_EFFECT(m.mfunc());
+    m.mfunc();
+    REQUIRE(mask == 3U);
+  }
+  REQUIRE(reports.empty());
+}
