@@ -1856,13 +1856,6 @@ namespace trompeloeil
 
     virtual
     void
-    trace_call(
-      tracer* obj,
-      call_params_type_t<Sig>& p)
-    const = 0;
-
-    virtual
-    void
     run_actions(
       tracer* t_obj,
       call_params_type_t<Sig> &,
@@ -2604,22 +2597,6 @@ namespace trompeloeil
     }
 
     void
-    trace_call(
-      tracer* t_obj,
-      call_params_type_t<Sig>& params
-    )
-    const
-    override
-    {
-      if (t_obj)
-      {
-        std::ostringstream os;
-        os << name << " with.\n" << missed_values(params);
-        t_obj->trace(loc.file, loc.line, os.str());
-      }
-    }
-
-    void
     run_actions(
       tracer* t_obj,
       call_params_type_t<Sig>& params,
@@ -2644,7 +2621,12 @@ namespace trompeloeil
         this->unlink();
         saturated_list.push_back(this);
       }
-      trace_call(t_obj, params);
+      if (t_obj)
+      {
+        std::ostringstream os;
+        os << name << " with.\n" << missed_values(params);
+        t_obj->trace(loc.file, loc.line, os.str());
+      }
       for (auto& a : actions) a.action(params);
     }
 
