@@ -377,6 +377,8 @@ namespace trompeloeil
     std::ostream& stream;
   };
 
+  class trace_agent;
+
   template <typename T>
   struct reporter;
 
@@ -423,6 +425,9 @@ namespace trompeloeil
   {
     return true;
   }
+
+  template <typename T>
+  using is_void = std::is_same<T, void>;
 
   struct illegal_argument
   {
@@ -1864,7 +1869,6 @@ namespace trompeloeil
     virtual
     void
     run_actions(
-      tracer* t_obj,
       call_params_type_t<Sig> &,
       call_matcher_list<Sig> &saturated_list
     ) = 0;
@@ -1885,7 +1889,7 @@ namespace trompeloeil
     virtual
     return_of_t<Sig>
     return_value(
-      tracer*,
+      trace_agent&,
       call_params_type_t<Sig>& p) = 0;
 
     virtual
@@ -2063,6 +2067,54 @@ namespace trompeloeil
     return os.str();
   }
 
+  class trace_agent
+  {
+  public:
+    trace_agent(
+            location loc_,
+            char const* name_,
+            tracer* t_)
+            : loc{loc_}
+              , t{t_}
+    {
+      if (t)
+      {
+        os << name_ << " with.\n";
+      }
+    }
+    trace_agent(trace_agent const&) = delete;
+    ~trace_agent()
+    {
+      if (t)
+      {
+        t->trace(loc.file, loc.line, os.str());
+      }
+    }
+    trace_agent& operator=(trace_agent const&) = delete;
+
+    template <typename ... T>
+    void trace_params(std::tuple<T...> const& params)
+    {
+      if (t)
+      {
+        stream_params(os, params);
+      }
+    }
+    template <typename T>
+    void trace_return(T const& rv)
+    {
+      if (t)
+      {
+        os << " -> ";
+        print(os, rv);
+      }
+    }
+  private:
+    location loc;
+    tracer* t;
+    std::ostringstream os;
+  };
+
   template <typename Sig>
   call_matcher_base <Sig> *
   find(
@@ -2136,8 +2188,33 @@ namespace trompeloeil
     virtual
     return_of_t<Sig>
     call(
+      trace_agent&,
       call_params_type_t<Sig>& params) = 0;
   };
+
+  template <typename F, typename P>
+  auto
+  trace_return(
+    trace_agent&,
+    F& func,
+    P& params)
+  -> std::enable_if_t<is_void<decltype(func(params))>{}, void>
+  {
+    func(params);
+  }
+
+  template <typename F, typename P>
+  auto
+  trace_return(
+    trace_agent& agent,
+    F& func,
+    P& params)
+  -> std::enable_if_t<!is_void<decltype(func(params))>{}, decltype(func(params))>
+  {
+    auto&& rv = func(params);
+    agent.trace_return(rv);
+    return std::forward<decltype(rv)>(rv);
+  }
 
   template <typename Sig, typename T>
   class return_handler_t : public return_handler<Sig>
@@ -2151,10 +2228,11 @@ namespace trompeloeil
 
     return_of_t<Sig>
     call(
+      trace_agent& agent,
       call_params_type_t<Sig>& params)
     override
     {
-      return func(params);
+      return trace_return(agent, func, params);
     }
   private:
     T func;
@@ -2609,17 +2687,16 @@ namespace trompeloeil
 
     return_of_t<Sig>
     return_value(
-      tracer*,
+      trace_agent& agent,
       call_params_type_t<Sig>& params)
     override
     {
       if (!return_handler_obj) return default_return<return_of_t<Sig>>();
-      return return_handler_obj->call(params);
+      return return_handler_obj->call(agent, params);
     }
 
     void
     run_actions(
-      tracer* t_obj,
       call_params_type_t<Sig>& params,
       call_matcher_list<Sig> &saturated_list)
     override
@@ -2641,13 +2718,6 @@ namespace trompeloeil
       {
         this->unlink();
         saturated_list.push_back(this);
-      }
-      if (t_obj)
-      {
-        std::ostringstream os;
-        os << name << " with.\n";
-        stream_params(os, params);
-        t_obj->trace(loc.file, loc.line, os.str());
       }
       for (auto& a : actions) a.action(params);
     }
@@ -2920,9 +2990,10 @@ namespace trompeloeil
                       func_name + std::string(" with signature ") + sig_name,
                       param_value);
     }
-    auto t_obj = tracer_obj();
-    i->run_actions(t_obj, param_value, e.saturated);
-    return i->return_value(t_obj, param_value);
+    trace_agent ta{i->loc, i->name, tracer_obj()};
+    ta.trace_params(param_value);
+    i->run_actions(param_value, e.saturated);
+    return i->return_value(ta, param_value);
   }
 
   template <typename ... U>

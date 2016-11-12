@@ -3893,9 +3893,12 @@ TEST_CASE_METHOD(Fixture, "matching calls are traced", "[tracing]")
   mock_c obj2;
   REQUIRE_CALL(obj1, getter(_, _));
   REQUIRE_CALL(obj2, foo("bar"));
+  REQUIRE_CALL(obj1, getter(ANY(int)))
+    .RETURN(_1 + 1);
   std::string s = "foo";
   obj1.getter(3, s);
   obj2.foo("bar");
+  obj1.getter(4);
   auto re =
          R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj1\.getter\(_, _\) with.
@@ -3905,6 +3908,11 @@ obj1\.getter\(_, _\) with.
 [A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj2\.foo\("bar"\) with\.
   param  _1 == bar
+
+[A-Za-z0-9_ ./:\]*:[0-9]*.*
+obj1\.getter\(ANY\(int\)\) with\.
+  param  _1 == 4
+ -> 5
 ):";
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
