@@ -2107,6 +2107,25 @@ namespace trompeloeil
       {
         os << " -> ";
         print(os, rv);
+        os << '\n';
+      }
+    }
+
+    void trace_exception(std::exception_ptr eptr)
+    {
+      if (t)
+      {
+        try {
+          std::rethrow_exception(eptr);
+        }
+        catch (std::exception& e)
+        {
+          os << "threw exception: what() = " << e.what() << '\n';
+        }
+        catch (...)
+        {
+          os << "threw unknown exception\n";
+        }
       }
     }
   private:
@@ -2991,9 +3010,17 @@ namespace trompeloeil
                       param_value);
     }
     trace_agent ta{i->loc, i->name, tracer_obj()};
-    ta.trace_params(param_value);
-    i->run_actions(param_value, e.saturated);
-    return i->return_value(ta, param_value);
+    try
+    {
+      ta.trace_params(param_value);
+      i->run_actions(param_value, e.saturated);
+      return i->return_value(ta, param_value);
+    }
+    catch (...)
+    {
+      ta.trace_exception(std::current_exception());
+      throw;
+    }
   }
 
   template <typename ... U>

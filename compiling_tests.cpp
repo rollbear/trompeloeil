@@ -3892,13 +3892,23 @@ TEST_CASE_METHOD(Fixture, "matching calls are traced", "[tracing]")
   mock_c obj1;
   mock_c obj2;
   REQUIRE_CALL(obj1, getter(_, _));
-  REQUIRE_CALL(obj2, foo("bar"));
+  REQUIRE_CALL(obj2, foo("bar"))
+    .THROW(std::logic_error("nonono"));
   REQUIRE_CALL(obj1, getter(ANY(int)))
     .RETURN(_1 + 1);
+  REQUIRE_CALL(obj2, foo("baz"))
+    .THROW(3);
   std::string s = "foo";
   obj1.getter(3, s);
-  obj2.foo("bar");
+  try {
+    obj2.foo("bar");
+  }
+  catch (std::logic_error&) { /* ignore, it's meant to happen */}
   obj1.getter(4);
+  try {
+    obj2.foo("baz");
+  }
+  catch (int) { /* ignore, it's meant to happen */}
   auto re =
          R":([A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj1\.getter\(_, _\) with.
@@ -3908,12 +3918,19 @@ obj1\.getter\(_, _\) with.
 [A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj2\.foo\("bar"\) with\.
   param  _1 == bar
+threw exception: what\(\) = nonono
 
 [A-Za-z0-9_ ./:\]*:[0-9]*.*
 obj1\.getter\(ANY\(int\)\) with\.
   param  _1 == 4
  -> 5
+
+[A-Za-z0-9_ ./:\]*:[0-9]*.*
+obj2\.foo\("baz"\) with\.
+  param  _1 == baz
+threw unknown exception
 ):";
+  INFO(os.str());
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
 
