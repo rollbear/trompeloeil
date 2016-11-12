@@ -2198,7 +2198,7 @@ namespace trompeloeil
     trace_agent&,
     F& func,
     P& params)
-  -> std::enable_if_t<is_void<decltype(func(params))>{}, void>
+  -> std::enable_if_t<is_void<decltype(func(params))>::value, void>
   {
     func(params);
   }
@@ -2209,7 +2209,7 @@ namespace trompeloeil
     trace_agent& agent,
     F& func,
     P& params)
-  -> std::enable_if_t<!is_void<decltype(func(params))>{}, decltype(func(params))>
+  -> std::enable_if_t<!is_void<decltype(func(params))>::value, decltype(func(params))>
   {
     auto&& rv = func(params);
     agent.trace_return(rv);
@@ -2608,7 +2608,7 @@ namespace trompeloeil
       unsigned long line,
       char const *call_string,
       U &&... u)
-    : call_matcher_base<Sig>{location{file, line}, call_string}
+    : call_matcher_base<Sig>(location{file, line}, call_string)
     , val(std::forward<U>(u)...)
     {}
 
