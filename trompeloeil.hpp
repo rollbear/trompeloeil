@@ -1856,7 +1856,7 @@ namespace trompeloeil
 
     virtual
     void
-    log_call(
+    trace_call(
       tracer* obj,
       call_params_type_t<Sig>& p)
     const = 0;
@@ -2601,7 +2601,7 @@ namespace trompeloeil
     }
 
     void
-    log_call(
+    trace_call(
       tracer* t_obj,
       call_params_type_t<Sig>& params
     )
@@ -2912,7 +2912,7 @@ namespace trompeloeil
     }
     if (auto t_obj = tracer_obj())
     {
-      i->log_call(t_obj, param_value);
+      i->trace_call(t_obj, param_value);
     }
     i->run_actions(param_value, e.saturated);
     return i->return_value(param_value);
