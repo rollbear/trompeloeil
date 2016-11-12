@@ -1864,6 +1864,7 @@ namespace trompeloeil
     virtual
     void
     run_actions(
+      tracer* t_obj,
       call_params_type_t<Sig> &,
       call_matcher_list<Sig> &saturated_list
     ) = 0;
@@ -1884,6 +1885,7 @@ namespace trompeloeil
     virtual
     return_of_t<Sig>
     return_value(
+      tracer*,
       call_params_type_t<Sig>& p) = 0;
 
     virtual
@@ -2593,6 +2595,7 @@ namespace trompeloeil
 
     return_of_t<Sig>
     return_value(
+      tracer*,
       call_params_type_t<Sig>& params)
     override
     {
@@ -2608,13 +2611,17 @@ namespace trompeloeil
     const
     override
     {
-      std::ostringstream os;
-      os << name << " with.\n" << missed_values(params);
-      t_obj->trace(loc.file, loc.line, os.str());
+      if (t_obj)
+      {
+        std::ostringstream os;
+        os << name << " with.\n" << missed_values(params);
+        t_obj->trace(loc.file, loc.line, os.str());
+      }
     }
 
     void
     run_actions(
+      tracer* t_obj,
       call_params_type_t<Sig>& params,
       call_matcher_list<Sig> &saturated_list)
     override
@@ -2637,6 +2644,7 @@ namespace trompeloeil
         this->unlink();
         saturated_list.push_back(this);
       }
+      trace_call(t_obj, params);
       for (auto& a : actions) a.action(params);
     }
 
@@ -2910,12 +2918,9 @@ namespace trompeloeil
                       func_name + std::string(" with signature ") + sig_name,
                       param_value);
     }
-    if (auto t_obj = tracer_obj())
-    {
-      i->trace_call(t_obj, param_value);
-    }
-    i->run_actions(param_value, e.saturated);
-    return i->return_value(param_value);
+    auto t_obj = tracer_obj();
+    i->run_actions(t_obj, param_value, e.saturated);
+    return i->return_value(t_obj, param_value);
   }
 
   template <typename ... U>
