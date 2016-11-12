@@ -1832,7 +1832,14 @@ namespace trompeloeil
   template<typename Sig>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
   {
-    call_matcher_base() = default;
+    call_matcher_base(
+      location loc_,
+      char const* name_)
+    : loc{loc_}
+    , name{name_}
+    {
+    }
+
     call_matcher_base(call_matcher_base&&) = delete;
 
     virtual
@@ -1885,6 +1892,9 @@ namespace trompeloeil
     void
     report_missed(
       char const *reason) = 0;
+
+    location loc;
+    char const *name;
   };
 
   template <typename T, typename U>
@@ -2502,15 +2512,17 @@ namespace trompeloeil
   template<typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
+    using call_matcher_base<Sig>::name;
+    using call_matcher_base<Sig>::loc;
+
     template<typename ... U>
     call_matcher(
       char const *file,
       unsigned long line,
       char const *call_string,
       U &&... u)
-    : loc{file, line},
-      name{call_string},
-      val(std::forward<U>(u)...)
+    : call_matcher_base<Sig>{location{file, line}, call_string}
+    , val(std::forward<U>(u)...)
     {}
 
     call_matcher(call_matcher &&r) = delete;
@@ -2731,8 +2743,6 @@ namespace trompeloeil
     side_effect_list<Sig>                  actions;
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
-    location                               loc;
-    char const                            *name;
     unsigned long long                     call_count = 0;
     unsigned long long                     min_calls = 1;
     unsigned long long                     max_calls = 1;
