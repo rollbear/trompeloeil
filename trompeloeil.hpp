@@ -2035,25 +2035,33 @@ namespace trompeloeil
   }
 
   template <size_t ... I, typename ... T>
-  void missed_values(
-    std::ostream& os,
+  void stream_params(
+    std::ostream &os,
     std::index_sequence<I...>,
-    std::tuple<T...> const& t)
+    std::tuple<T...> const &t)
   {
     ::trompeloeil::ignore(os, t);  // Kills unmotivated VS2015 warning in the empty case
     ::trompeloeil::ignore(std::initializer_list<int>{(missed_value(os, I, std::get<I>(t)),0)...});
   }
 
   template <typename ... T>
-  std::string
-  missed_values(
-  std::tuple<T...> const &t)
+  void
+  stream_params(
+    std::ostream &os,
+    std::tuple<T...> const &t)
   {
-    std::ostringstream os;
-    missed_values(os, std::make_index_sequence<sizeof...(T)>{}, t);
-    return os.str();
+    stream_params(os, std::make_index_sequence<sizeof...(T)>{}, t);
   }
 
+  template <typename ... T>
+  std::string
+  params_string(
+    std::tuple<T...> const& t)
+  {
+    std::ostringstream os;
+    stream_params(os, t);
+    return os.str();
+  }
 
   template <typename Sig>
   call_matcher_base <Sig> *
@@ -2090,7 +2098,8 @@ namespace trompeloeil
     call_params_type_t <Sig> const &p)
   {
     std::ostringstream os;
-    os << "No match for call of " << name << " with.\n" << missed_values(p);
+    os << "No match for call of " << name << " with.\n";
+    stream_params(os, p);
     bool saturated_match = false;
     for (auto& m : saturated_list)
     {
@@ -2622,7 +2631,7 @@ namespace trompeloeil
       if (max_calls == 0)
       {
         reported = true;
-        report_forbidden_call(name, loc, missed_values(params));
+        report_forbidden_call(name, loc, params_string(params));
       }
       if (++call_count == min_calls && sequences)
       {
@@ -2636,7 +2645,8 @@ namespace trompeloeil
       if (t_obj)
       {
         std::ostringstream os;
-        os << name << " with.\n" << missed_values(params);
+        os << name << " with.\n";
+        stream_params(os, params);
         t_obj->trace(loc.file, loc.line, os.str());
       }
       for (auto& a : actions) a.action(params);
@@ -2685,7 +2695,7 @@ namespace trompeloeil
       report_unfulfilled(
         reason,
         name,
-        missed_values(val),
+        params_string(val),
         min_calls,
         call_count,
         loc);
