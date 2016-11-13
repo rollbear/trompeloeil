@@ -1,3 +1,5 @@
+v21 2016-11-13
+
 	* Tracing now includes return values and exceptions thrown.
 	  For exception types inherited from std::exception, the
 	  what() string is printed.
