@@ -471,7 +471,7 @@ namespace trompeloeil
   inline constexpr std::true_type is_matcher_(matcher const*) { return {}; }
 
   template <typename T>
-  using is_matcher = decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr)));
+  struct is_matcher : decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr))) {};
 
   template <typename T>
   struct typed_matcher : matcher
@@ -1264,36 +1264,22 @@ namespace trompeloeil
   };
 
   namespace lambdas {
-    inline auto equal()
-    {
-      return [](auto const& x, auto const& y) -> decltype(x == y) {
-        ::trompeloeil::ignore(x,y); // VisualStudio warns for unused if nullptr
-       return x == y;
-      };
+    // The below must be classes/structs to work with VS 2015 update 3
+    // since it doesn't respect the trailing return type declaration on
+    // the lambdas of template deduction context
+
+    #define TROMPELOEIL_MK_PRED_BINOP(name, op) \
+    struct name { \
+      template <typename X, typename Y> \
+      auto operator()(X const& x, Y const& y) const -> decltype(x op y) { return x op y; } \
     }
-    inline auto not_equal()
-    {
-      return [](auto const& x, auto const& y) -> decltype(x != y) {
-        ::trompeloeil::ignore(x,y); // VisualStudio warns for unused if nullptr
-        return x != y;
-        };
-    }
-    inline auto less()
-    {
-      return [](auto const& x, auto const& y) -> decltype(x < y) { return x < y; };
-    }
-    inline auto less_equal()
-    {
-      return [](auto const& x, auto const& y) -> decltype(x <= y) { return x <= y; };
-    }
-    inline auto greater()
-    {
-      return [](auto const& x, auto const& y) -> decltype(x > y) { return x > y; };
-    }
-    inline auto greater_equal()
-    {
-      return [](auto const& x, auto const& y) -> decltype(x >= y) { return x >= y; };
-    }
+    TROMPELOEIL_MK_PRED_BINOP(equal, ==);
+    TROMPELOEIL_MK_PRED_BINOP(not_equal, !=);
+    TROMPELOEIL_MK_PRED_BINOP(less, <);
+    TROMPELOEIL_MK_PRED_BINOP(less_equal, <=);
+    TROMPELOEIL_MK_PRED_BINOP(greater, >);
+    TROMPELOEIL_MK_PRED_BINOP(greater_equal, >=);
+    #undef TROMPELOEIL_MK_PRED_BINOP
   }
   template <typename MatchType, typename Predicate, typename Printer, typename ... T>
   inline
@@ -3033,10 +3019,9 @@ namespace trompeloeil
 
 }
 
-template <typename M,
-          typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
+template <typename M>
 inline
-auto
+std::enable_if_t<::trompeloeil::is_matcher<M>::value, ::trompeloeil::ptr_deref<std::decay_t<M>>>
 operator*(
   M&& m)
 {
