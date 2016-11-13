@@ -1,4 +1,18 @@
-	* Worked around VisualStudio 2015 update 3 issed with evaluating
+	* Tracing now includes return values and exceptions thrown.
+	  For exception types inherited from std::exception, the
+	  what() string is printed.
+
+	* Fixed a bug when a member function in a mocked class calls
+	  a mocked function. This is now explicitly allowed, even
+	  when an expectation recursively calls the same function
+	  as a side effect.
+
+	* Worked around VisualStudio 2015 update 3 issue where trailing
+	  return type for lambdas is not respected in template deduction
+	  context. This caused compilation errors when using matchers
+	  in expectations to overloaded functions.
+
+	* Worked around VisualStudio 2015 update 3 issue with evaluating
 	  regex_search() in trailing return type spec for auto deduced
 	  string type.
 
