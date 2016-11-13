@@ -1268,10 +1268,14 @@ namespace trompeloeil
     // since it doesn't respect the trailing return type declaration on
     // the lambdas of template deduction context
 
-    #define TROMPELOEIL_MK_PRED_BINOP(name, op) \
-    struct name { \
-      template <typename X, typename Y> \
-      auto operator()(X const& x, Y const& y) const -> decltype(x op y) { return x op y; } \
+    #define TROMPELOEIL_MK_PRED_BINOP(name, op)                         \
+    struct name {                                                       \
+      template <typename X, typename Y>                                 \
+      auto operator()(X const& x, Y const& y) const -> decltype(x op y) \
+      {                                                                 \
+        ::trompeloeil::ignore(x,y);                                     \
+        return x op y;                                                  \
+        }                                                               \
     }
     TROMPELOEIL_MK_PRED_BINOP(equal, ==);
     TROMPELOEIL_MK_PRED_BINOP(not_equal, !=);
