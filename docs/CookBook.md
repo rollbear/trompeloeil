@@ -1947,6 +1947,13 @@ trailing return specification,
 because it does not add anything to it - it always returns a `bool` and
 it works for all types.
 
+By allowing `min` and `max` to be different types, it becomes possible to,
+e.g. check that a
+[`std::string_view`](http://en.cppreference.com/w/cpp/string/basic_string_view)
+is clamped by a
+[`std::string`](http://en.cppreference.com/w/cpp/string/basic_string)
+and a `const char*`.
+
 **NOTE!** There is a bug in [GCC](https://gcc.gnu.org) versions 5.3 and
 lower, that does not allow trailing return type specifications in
 lambdas expressed in template functions. The work around is annoying but
@@ -1971,12 +1978,32 @@ simple:
       ...
 ```
 
-By allowing `min` and `max` to be different types, it becomes possible to,
-e.g. check that a
-[`std::string_view`](http://en.cppreference.com/w/cpp/string/basic_string_view)
-is clamped by a
-[`std::string`](http://en.cppreference.com/w/cpp/string/basic_string)
-and a `const char*`.
+**NOTE!** There is also a bug in
+[VisualStudio 2015 Update 3](https://www.visualstudio.com/en-us/news/releasenotes/vs2015-update3-vs),
+which does not respect the trailing return type specifications of
+lambdas in the context of template deduction. The work around is annoying but
+simple - use a `struct` instead:
+
+```Cpp
+  struct is_clamped_predicate
+  {
+    template <typename T, typename L, typename U>
+    auto operator()(T const& value, L const& lower, U const& upper)
+    -> decltype(lower <= value && value <= upper)
+    {
+      return !trompeloeil::is_null(value) && lower <= value && value <= upper;
+    }
+  };
+
+  template <typename Type = trompeloeil::wildcard, typename T, typename U>
+  inline auto is_clamped(T const& min, U const% max)
+  {
+    return trompeloeil::make_matcher<Type>( // duck typed
+    
+      // predicate lambda that checks the condition
+      is_clamped_predicate(),
+      ...
+```
 
 ### <A name="legacy_matcher"/> Legacy Matchers
 
