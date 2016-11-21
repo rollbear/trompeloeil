@@ -1249,6 +1249,15 @@ namespace trompeloeil
       return v.print_(os, std::make_index_sequence<sizeof...(T)>{});
     }
   private:
+    // The below function call operator must be declared to
+    // work around gcc bug 78446
+    //
+    // For some reason microsoft compiler from VS2015 update 3
+    // requires the function call operator to be private to avoid
+    // ambiguities.
+    template <typename ... U>
+    void operator()(U&&...) const = delete;
+
     template <typename V, size_t ... I>
     bool matches_(V&& v, std::index_sequence<I...>) const
     {

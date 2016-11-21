@@ -803,6 +803,7 @@ public:
   MAKE_MOCK1(func_mptr_d, void(mptr_d));
   MAKE_MOCK1(func_ustr, void(const uncomparable_string&));
   MAKE_MOCK1(func_ustrv, void(uncomparable_string));
+  MAKE_MOCK1(func_f, void(std::function<void()>));
   int m;
 };
 
@@ -1205,6 +1206,16 @@ Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 
 // tests of parameter matching using duck typed matcher ne
+
+TEST_CASE_METHOD(Fixture, "nullptr mismatching equal function for duck typed ne", "[matching][matchers][ne]")
+{
+  {
+    U obj;
+    REQUIRE_CALL(obj, func_f(trompeloeil::ne(nullptr)));
+    obj.func_f([](){});
+  }
+  REQUIRE(reports.empty());
+}
 
 TEST_CASE_METHOD(Fixture, "long value mismatching equal int for duck typed ne", "[matching][matchers][ne]")
 {
