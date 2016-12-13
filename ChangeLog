@@ -1,3 +1,15 @@
+v22 2016-12-13
+
+	* Messages from violations of expectations now print collections
+	  member wise. This goes for std::pair<>, std::tuple<> and any data
+	  type for which a range based for loop is possible. This is done
+	  recursively for the contents of the collections.
+
+	* Worked around gcc bug 78446
+	  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78446
+
+	* Cleaned up -Wshadow warnings from gcc
+
 v21 2016-11-13
 
 	* Tracing now includes return values and exceptions thrown.
