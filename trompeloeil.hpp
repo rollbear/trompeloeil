@@ -632,9 +632,9 @@ namespace trompeloeil
 
   template <typename T>
   constexpr
-  std::enable_if_t<decltype(std::begin(std::declval<T>()),
-                            std::end(std::declval<T>()),true){true},
-                   std::true_type>
+  std::integral_constant<decltype(std::next(std::begin(std::declval<T>()))
+                                  != std::end(std::declval<T>())),
+                         true>
   is_collection_(T*)
   {
       return {};
