@@ -1387,10 +1387,10 @@ namespace trompeloeil
       return Predicate::operator()(std::forward<V>(v), std::get<I>(value)...);
     }
     template <size_t ... I>
-    std::ostream& print_(std::ostream& os, std::index_sequence<I...>) const
+    std::ostream& print_(std::ostream& os_, std::index_sequence<I...>) const
     {
-      Printer::operator()(os, std::get<I>(value)...);
-      return os;
+      Printer::operator()(os_, std::get<I>(value)...);
+      return os_;
     }
     std::tuple<T...> value;
   };
@@ -3029,12 +3029,12 @@ namespace trompeloeil
       call_modifier<M, Tag, Info>&& t)
     const
     {
-      using T = call_modifier<M, Tag, Info>;
-      using sigret = return_of_t<typename T::signature>;
-      using ret = typename T::return_type;
+      using call = call_modifier<M, Tag, Info>;
+      using sigret = return_of_t<typename call::signature>;
+      using ret = typename call::return_type;
       constexpr bool retmatch = std::is_same<ret, sigret>::value;
-      constexpr bool forbidden = T::upper_call_limit == 0ULL;
-      constexpr bool valid_return_type = T::throws || retmatch || forbidden;
+      constexpr bool forbidden = call::upper_call_limit == 0ULL;
+      constexpr bool valid_return_type = call::throws || retmatch || forbidden;
       static_assert(valid_return_type, "RETURN missing for non-void function");
       auto tag = std::integral_constant<bool, valid_return_type>{};
       return make_expectation(tag, std::move(t));
