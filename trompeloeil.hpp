@@ -613,6 +613,17 @@ namespace trompeloeil
                                   ::trompeloeil::is_null_comparable<T>::value);
   }
 
+  template <typename T, size_t N>
+  inline
+  constexpr
+  bool
+  is_null(
+    T(&)[N])
+  noexcept
+  {
+      return false;
+  }
+
   template <typename T>
   void
   print(
