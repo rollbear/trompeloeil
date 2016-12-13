@@ -3033,6 +3033,50 @@ TEST_CASE_METHOD(Fixture, "unknown object is one line if 8 bytes", "[streaming]"
   REQUIRE(os.str() == "8-byte object={ 0x10 0x11 0x12 0x13 0x14 0x15 0x16 0x17 }");
 }
 
+TEST_CASE_METHOD(Fixture, "A std::pair<> is printed as { val1, val2 }", "[streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, std::make_pair(3, std::string("hello")));
+  REQUIRE(os.str() == "{ 3, hello }");
+}
+
+TEST_CASE_METHOD(Fixture, "A std::tuple<> is printed as { val1, val2, val3, }", "[streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, std::make_tuple(3, "hello", std::string("world")));
+  REQUIRE(os.str() == "{ 3, hello, world }");
+}
+
+TEST_CASE_METHOD(Fixture, "A C-array is printed as { val1, val2, val3 }", "[streaming]")
+{
+  std::ostringstream os;
+  std::tuple<int, std::string> v[] {
+    std::make_tuple(1, "one"),
+    std::make_tuple(2, "two"),
+    std::make_tuple(3, "three")
+  };
+  static_assert(!trompeloeil::is_output_streamable<decltype(v)>(),"");
+  static_assert(trompeloeil::is_collection<decltype(v)>(), "");
+  trompeloeil::print(os, v);
+  REQUIRE(os.str() == "{ { 1, one }, { 2, two }, { 3, three } }");
+}
+
+TEST_CASE_METHOD(Fixture, "A std::map<> is printed as { { key1, val1 }, { key2, val2 } }", "[streaming]")
+{
+  std::ostringstream os;
+  std::map<std::string, int> m{ {"one", 1}, {"two", 2 }, {"three", 3 } };
+  trompeloeil::print(os, m);
+  REQUIRE(os.str() == "{ { one, 1 }, { three, 3 }, { two, 2 } }");
+}
+
+TEST_CASE_METHOD(Fixture, "A tuple with pairs and maps is printed element wise", "[streaming]")
+{
+    std::ostringstream os;
+    auto v = std::make_tuple(std::make_pair(3, std::string("hello")),
+                             std::map<int, std::string>{{1, "one"},{2, "two"},{3, "three"}});
+    trompeloeil::print(os, v);
+    REQUIRE(os.str() == "{ { 3, hello }, { { 1, one }, { 2, two }, { 3, three } } }");
+}
 namespace nn
 {
 struct TestOutput;

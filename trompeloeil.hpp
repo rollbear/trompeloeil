@@ -520,6 +520,17 @@ namespace trompeloeil
     return {};
   }
 
+  template <typename T, size_t N>
+  inline
+  constexpr
+  auto
+  is_output_streamable_(
+    T(*)[N])
+  -> std::false_type
+  {
+    return {};
+  }
+
   template <typename T>
   inline
   constexpr
@@ -602,7 +613,62 @@ namespace trompeloeil
                                   ::trompeloeil::is_null_comparable<T>::value);
   }
 
-  template <typename T, bool = is_output_streamable<T>()>
+  template <typename T, size_t N>
+  inline
+  constexpr
+  bool
+  is_null(
+    T(&)[N])
+  noexcept
+  {
+      return false;
+  }
+
+  template <typename T>
+  void
+  print(
+    std::ostream& os,
+    T const &t);
+
+  template <typename T>
+  constexpr
+  std::integral_constant<decltype(std::next(std::begin(std::declval<T>()))
+                                  != std::end(std::declval<T>())),
+                         true>
+  is_collection_(T*)
+  {
+      return {};
+  }
+
+  template <typename T>
+  constexpr
+  auto
+  is_collection_(...)
+    -> std::false_type
+  {
+    return {};
+  }
+
+  template <typename T, bool b = is_collection_<T>(nullptr)>
+  struct array_discriminator : std::true_type  {  };
+
+  template <typename T, size_t N>
+  struct array_discriminator<T[N], false> : std::true_type { };
+
+  template <typename T>
+  struct array_discriminator<T, false> : std::false_type { };
+
+  template <typename T>
+  constexpr
+  auto
+  is_collection()
+  {
+    return array_discriminator<T>{};
+  }
+
+  template <typename T,
+            bool = is_output_streamable<T>(),
+            bool = is_collection<std::remove_reference_t<T>>()>
   struct streamer
   {
     static
@@ -616,9 +682,75 @@ namespace trompeloeil
     }
   };
 
+  template <typename ... T>
+  struct streamer<std::tuple<T...>, false, false>
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      std::tuple<T...> const&  t)
+    {
+      print_tuple(os, t, std::index_sequence_for<T...>{});
+    }
+    template <size_t ... I>
+    static
+    void
+    print_tuple(
+      std::ostream& os,
+      std::tuple<T...> const& t,
+      std::index_sequence<I...>)
+    {
+      os << "{ ";
+      const char* sep = "";
+      std::initializer_list<const char*> v{((os << sep),
+                                            ::trompeloeil::print(os, std::get<I>(t)),
+                                            (sep = ", "))...};
+      ignore(v);
+      os << " }";
+    }
+  };
+
+  template <typename T, typename U>
+  struct streamer<std::pair<T, U>, false, false>
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      std::pair<T, U> const& t)
+    {
+      os << "{ ";
+      ::trompeloeil::print(os, t.first);
+      os << ", ";
+      ::trompeloeil::print(os, t.second);
+      os << " }";
+    }
+  };
 
   template <typename T>
-  struct streamer<T, false>
+  struct streamer<T, false, true>
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      T const& t)
+    {
+      os << "{ ";
+      const char* sep = "";
+      for (auto& elem : t)
+      {
+        os << sep;
+        ::trompeloeil::print(os, elem);
+        sep = ", ";
+      }
+      os << " }";
+    }
+  };
+
+  template <typename T>
+  struct streamer<T, false, false>
   {
     static
     void
@@ -1264,10 +1396,10 @@ namespace trompeloeil
       return Predicate::operator()(std::forward<V>(v), std::get<I>(value)...);
     }
     template <size_t ... I>
-    std::ostream& print_(std::ostream& os, std::index_sequence<I...>) const
+    std::ostream& print_(std::ostream& os_, std::index_sequence<I...>) const
     {
-      Printer::operator()(os, std::get<I>(value)...);
-      return os;
+      Printer::operator()(os_, std::get<I>(value)...);
+      return os_;
     }
     std::tuple<T...> value;
   };
@@ -2906,12 +3038,12 @@ namespace trompeloeil
       call_modifier<M, Tag, Info>&& t)
     const
     {
-      using T = call_modifier<M, Tag, Info>;
-      using sigret = return_of_t<typename T::signature>;
-      using ret = typename T::return_type;
+      using call = call_modifier<M, Tag, Info>;
+      using sigret = return_of_t<typename call::signature>;
+      using ret = typename call::return_type;
       constexpr bool retmatch = std::is_same<ret, sigret>::value;
-      constexpr bool forbidden = T::upper_call_limit == 0ULL;
-      constexpr bool valid_return_type = T::throws || retmatch || forbidden;
+      constexpr bool forbidden = call::upper_call_limit == 0ULL;
+      constexpr bool valid_return_type = call::throws || retmatch || forbidden;
       static_assert(valid_return_type, "RETURN missing for non-void function");
       auto tag = std::integral_constant<bool, valid_return_type>{};
       return make_expectation(tag, std::move(t));
