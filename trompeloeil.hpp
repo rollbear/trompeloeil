@@ -520,6 +520,17 @@ namespace trompeloeil
     return {};
   }
 
+  template <typename T, size_t N>
+  inline
+  constexpr
+  auto
+  is_output_streamable_(
+    T(*)[N])
+  -> std::false_type
+  {
+    return {};
+  }
+
   template <typename T>
   inline
   constexpr
@@ -602,7 +613,51 @@ namespace trompeloeil
                                   ::trompeloeil::is_null_comparable<T>::value);
   }
 
-  template <typename T, bool = is_output_streamable<T>()>
+  template <typename T>
+  void
+  print(
+    std::ostream& os,
+    T const &t);
+
+  template <typename T>
+  constexpr
+  std::enable_if_t<decltype(std::begin(std::declval<T>()),
+                            std::end(std::declval<T>()),true){true},
+                   std::true_type>
+  is_collection_(T*)
+  {
+      return {};
+  }
+
+  template <typename T>
+  constexpr
+  auto
+  is_collection_(...)
+    -> std::false_type
+  {
+    return {};
+  }
+
+  template <typename T, bool b = is_collection_<T>(nullptr)>
+  struct array_discriminator : std::true_type  {  };
+
+  template <typename T, size_t N>
+  struct array_discriminator<T[N], false> : std::true_type { };
+
+  template <typename T>
+  struct array_discriminator<T, false> : std::false_type { };
+
+  template <typename T>
+  constexpr
+  auto
+  is_collection()
+  {
+    return array_discriminator<T>{};
+  }
+
+  template <typename T,
+            bool = is_output_streamable<T>(),
+            bool = is_collection<std::remove_reference_t<T>>()>
   struct streamer
   {
     static
@@ -616,9 +671,75 @@ namespace trompeloeil
     }
   };
 
+  template <typename ... T>
+  struct streamer<std::tuple<T...>, false, false>
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      std::tuple<T...> const&  t)
+    {
+      print_tuple(os, t, std::index_sequence_for<T...>{});
+    }
+    template <size_t ... I>
+    static
+    void
+    print_tuple(
+      std::ostream& os,
+      std::tuple<T...> const& t,
+      std::index_sequence<I...>)
+    {
+      os << "{ ";
+      const char* sep = "";
+      std::initializer_list<const char*> v{((os << sep),
+                                            ::trompeloeil::print(os, std::get<I>(t)),
+                                            (sep = ", "))...};
+      ignore(v);
+      os << " }";
+    }
+  };
+
+  template <typename T, typename U>
+  struct streamer<std::pair<T, U>, false, false>
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      std::pair<T, U> const& t)
+    {
+      os << "{ ";
+      ::trompeloeil::print(os, t.first);
+      os << ", ";
+      ::trompeloeil::print(os, t.second);
+      os << " }";
+    }
+  };
 
   template <typename T>
-  struct streamer<T, false>
+  struct streamer<T, false, true>
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      T const& t)
+    {
+      os << "{ ";
+      const char* sep = "";
+      for (auto& elem : t)
+      {
+        os << sep;
+        ::trompeloeil::print(os, elem);
+        sep = ", ";
+      }
+      os << " }";
+    }
+  };
+
+  template <typename T>
+  struct streamer<T, false, false>
   {
     static
     void
