@@ -2349,6 +2349,72 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
   }
 }
 
+// tests of parameter matching using neg_matcher
+
+TEST_CASE_METHOD(Fixture, "! to duck typed equal matches inequal string", "[matching][matchers][eq][neg]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(!trompeloeil::eq("foo")));
+    obj.str("bar");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "! to duck typed equal reports equal string", "[matching][matchers][eq][neg]")
+{
+  try {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(!trompeloeil::eq("foo")));
+    obj.str("foo");
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re= R":(No match for call of str with signature void\(std::string\) with.
+  param  _1 == foo
+
+Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected not _1 == foo):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "! to disambiguated equal matches inequal string", "[matching][matchers][eq][neg]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    obj.overload("bar"s);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "! to disambiguated equal reports equal string", "[matching][matchers][eq][neg]")
+{
+  try {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    obj.overload("foo"s);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re= R":(No match for call of overload with signature void\(std::string const&\) with.
+  param  _1 == foo
+
+Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected not _1 == foo):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
 // tests of parameter matching using ptr deref matcher
 
 class C_ptr
