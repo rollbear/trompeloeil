@@ -14,6 +14,8 @@
     - [**`lt(`** *value* **`)`**](#lt)
     - [**`le(`** *value* **`)`**](#le)
     - [**`re(`** *string* **`)`**](#re)
+    - [**`*`** *matcher*](#deref_matcher)
+    - [**`!`** *matcher*](#negate_matcher)
 - [Macros](#macros) (alphabetical order)
   - [**`ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#ALLOW_CALL)
   - [**`ANY(`** *type* **`)`**](#ANY_MACRO)
@@ -554,7 +556,62 @@ case insensitively matching the regular expression `/end$/`, and also call
 the regular expression `/end/`.
 
 It is also possible to use `*re(string)` to match a pointer to a string with
-a regular expression.
+a regular expression, or `!re(string)` to allow only strings that do not match
+a regular expression..
+
+#### <A name="deref_matcher"/>**`*`** *matcher*
+
+Used in the parameter list of an [expectation](#expectation) together with a
+matcher, to match a value pointed to by a pointer. A
+[`nullptr`](http://en.cppreference.com/w/cpp/language/nullptr) value fails the
+matcher.
+
+Example:
+
+```Cpp
+struct C {
+  MAKE_MOCK1(func, void(int*));
+};
+
+using trompeloeil::eq; // matching equal values
+
+TEST(atest)
+{
+  C mock_obj;
+  REQUIRE_CALL(mock_obj, func(*eq(3)));
+  test_function(&mock_obj);
+}
+```
+
+Above, `test_funciton(&mock_obj)` must call `mock_obj.func()` with a pointer
+to the value `3`.
+
+
+#### <A name="negate_matcher"/>**`!`** *matcher*
+
+Used in the parameter list of an [expectation](#expectation) together with a
+matcher, to negate a matcher, i.e. to fail what the matcher allows, and to
+allow what the matcher fails.
+
+Example:
+
+```Cpp
+struct C {
+  MAKE_MOCK1(func, void(const std::string&));
+};
+
+using trompeloeil::re; // matching regular expressions
+
+TEST(atest)
+{
+  C mock_obj;
+  REQUIRE_CALL(mock_obj, func(!re("^foo")));
+  test_function(&mock_obj);
+}
+```
+
+Above, `test_funciton(&mock_obj)` must call `mock_obj.func()` with a string
+that does not begin with `"foo"`.
 
 ## <A name="macros"/>Macros
 

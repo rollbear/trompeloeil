@@ -12,6 +12,7 @@
   - [Matching values with conditions](#matching_conditions)
   - [Matching strings with regular expressions](#matching_regular_expressions)
   - [Matching pointers to values](#matching_pointers)
+  - [Matching the opposite of a matcher](#negating_matchers)
   - [Matching calls with conditions depending on several parameters](#matching_multiconditions)
   - [Matching `std::unique_ptr<T>` and other non-copyable values](#matching_non_copyable)
   - [Matching calls to overloaded member functions](#matching_overloads)
@@ -832,8 +833,8 @@ can massively help getting regular expression escapes right.
 ### <A name="matching_pointers"/> Matching pointers to values
 
 All [matchers](reference.md/#matcher) can be converted to a pointer matcher
-by using the dereference prefix operator `*`. This works for smart pointers
-too. These pointer matchers fail if the pointer parameter is `nullptr`.
+by using the dereference prefix operator [**`*`**](reference.md/#deref_matcher).
+This works for smart pointers too. These pointer matchers fail if the pointer parameter is `nullptr`.
 
 Example:
 
@@ -855,6 +856,30 @@ void test()
   REQUIRE_CALL(m, func(*gt<short>(5))); // unique_ptr<short> to >5 once
   func(&m);
   // expectations must be met before end of scope
+}
+```
+
+### <A name="negating_matchers"/> Matching the opposite of a matcher
+
+All [matchers](reference.md/#matcher) can be negated, allowing what the matcher
+disallows and disallowing what the matcher allows, using the operator
+ [**`!`**](reference.md/#negate_matcher) on the matcher.
+
+Example:
+
+```Cpp
+struct Mock {
+  MAKE_MOCK1(func, void(const std::string&));
+};
+
+using trompeloeil::re; // matching regular expressions
+
+TEST(atest)
+{
+  Mock m;
+  REQUIRE_CALL(m, func(!re("^foo")));
+  func(&m);
+  // m.func() must've been called with a string not beginning with "foo"
 }
 ```
 

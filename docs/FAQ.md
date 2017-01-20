@@ -14,6 +14,8 @@
 - Q. [Why *`C++14`* and not *`C++11`* or *`C++03`* that is more widely spread?](#why_cpp14)
 - Q. [Why are my parameter values printed as hexadecimal dumps in violation reports](#why_hex)
 - Q. [Can I mock a C function API?](#func_mock)
+- Q. [Can I match a value pointed to by a pointer parameter?](#match_deref)
+- Q. [Can I negate the effect of a matcher?](#negate_matcher)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -382,3 +384,27 @@ TEST("my obj calls func1 with empty string when poked")
   }
 }
 ```
+## <A name="match_deref"/> Q. Can I match a value pointed to by a pointer parameter?
+
+**A.** You can always match with [**`_`**](reference.md/#wildcard)
+and use [**`LR_WITH()`**](reference.md/#LR_WITH) or
+[**`WITH()`**](reference.md/#WITH) using whatever logic you
+like. But using [matchers](CookBook.md/#matching_conditions)
+you can match the value pointed to using unary operator
+[**`*`**](reference.md/#deref_matcher) on the *matcher*
+
+See [Matching pointers to values](CookBook.md/#matching_pointers)
+in the [Cook Book](CookBook.md).
+
+## <A name="negate_matcher"/> Q. Can I negate the effect of a matcher?
+
+**A.** You can always match with [**`_`**](reference.md/#wildcard)
+and use [**`LR_WITH()`**](reference.md/#LR_WITH) or
+[**`WITH()`**](reference.md/#WITH) using whatever logic you
+like. But using [matchers](CookBook.md/#matching_conditions)
+you can negate the effect of the matcher, allowing what the
+match er disallows and vice versa, using operator
+[**`!`**](reference.md/#negate_matcher) on the *matcher*
+
+See [Matching the opposite of a matcher](CookBook.md/#negating_matchers)
+in the [Cook Book](CookBook.md).
