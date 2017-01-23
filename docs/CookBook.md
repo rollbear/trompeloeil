@@ -238,7 +238,7 @@ If you instead prefer a runtime adapter, make sure to call
 trompeloeil::set_reporter([](trompeloeil::severity,
                              const char* file,
                              unsigned long line,
-                             const char* msg)
+                             const std::string& msg)
   {
     std::ostringstream os;
     os << file << ':' << line;
