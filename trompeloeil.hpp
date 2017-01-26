@@ -822,26 +822,34 @@ namespace trompeloeil
   class list_elem
   {
   public:
-    list_elem(list_elem const&) = delete;
-    list_elem& operator=(list_elem const&) = delete;
     list_elem(
       list_elem &&r)
     noexcept
-      : next(r.next)
-      , prev(&r)
     {
-      r.invariant_check();
+      *this = std::move(r);
+    }
+    list_elem& operator=(
+        list_elem &&r)
+        noexcept
+    {
+        if (this != &r)
+        {
+            next = r.next;
+            prev = &r;
+            r.invariant_check();
 
-      next->prev = this;
-      r.next = this;
+            next->prev = this;
+            r.next = this;
 
-      TROMPELOEIL_ASSERT(next->prev == this);
-      TROMPELOEIL_ASSERT(prev->next == this);
+            TROMPELOEIL_ASSERT(next->prev == this);
+            TROMPELOEIL_ASSERT(prev->next == this);
 
-      r.unlink();
+            r.unlink();
 
-      TROMPELOEIL_ASSERT(!r.is_linked());
-      invariant_check();
+            TROMPELOEIL_ASSERT(!r.is_linked());
+            invariant_check();
+        }
+        return *this;
     }
     virtual
     ~list_elem()
@@ -936,6 +944,7 @@ namespace trompeloeil
   public:
     list() noexcept;
     list(list&&) noexcept;
+    list& operator=(list&&) noexcept;
     ~list();
     class iterator;
     iterator begin() const noexcept;
@@ -1037,6 +1046,9 @@ namespace trompeloeil
   list<T, Disposer>::list(list&&) noexcept = default;
 
   template <typename T, typename Disposer>
+  list<T, Disposer>& list<T, Disposer>::operator=(list&&) noexcept = default;
+
+  template <typename T, typename Disposer>
   auto
   list<T, Disposer>::begin()
   const
@@ -1095,6 +1107,7 @@ namespace trompeloeil
   public:
     sequence() noexcept = default;
     sequence(sequence&&) = default;
+    sequence& operator=(sequence&&) = default;
     ~sequence();
 
     bool
