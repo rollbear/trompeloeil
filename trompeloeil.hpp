@@ -466,8 +466,12 @@ namespace trompeloeil
 
   struct matcher { };
 
+  inline constexpr std::false_type is_matcher_(...) { return {}; }
+
+  inline constexpr std::true_type is_matcher_(matcher const*) { return {}; }
+
   template <typename T>
-  using is_matcher = std::is_base_of<matcher, std::decay_t<T>>;
+  struct is_matcher : decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr))) {};
 
   template <typename T>
   struct typed_matcher : matcher
@@ -930,6 +934,8 @@ namespace trompeloeil
   class list : private list_elem<T>, private Disposer
   {
   public:
+    list() noexcept;
+    list(list&&) noexcept;
     ~list();
     class iterator;
     iterator begin() const noexcept;
@@ -1012,6 +1018,10 @@ namespace trompeloeil
     list_elem<T>* p;
   };
 
+
+  template <typename T, typename Disposer>
+  list<T, Disposer>::list() noexcept = default;
+
   template <typename T, typename Disposer>
   list<T, Disposer>::~list()
   {
@@ -1022,6 +1032,9 @@ namespace trompeloeil
       Disposer::dispose(&*p);
     }
   }
+
+  template <typename T, typename Disposer>
+  list<T, Disposer>::list(list&&) noexcept = default;
 
   template <typename T, typename Disposer>
   auto
@@ -1081,7 +1094,7 @@ namespace trompeloeil
   {
   public:
     sequence() noexcept = default;
-    sequence(sequence&&) = delete;
+    sequence(sequence&&) = default;
     ~sequence();
 
     bool
@@ -1318,43 +1331,6 @@ namespace trompeloeil
     operator<<(
       std::ostream& os,
       ptr_deref<M> const& p)
-    {
-      return os << p.m;
-    }
-  private:
-    M m;
-  };
-
-  template <typename M>
-  class neg_matcher : public matcher
-  {
-  public:
-    template <typename U,
-              typename = decltype(can_match_parameter<std::remove_reference_t<decltype(std::declval<U>())>>(std::declval<M>()))>
-    operator U() const;
-
-    template <typename U>
-    explicit
-    neg_matcher(
-      U&& m_)
-      : m( std::forward<U>(m_) )
-    {}
-
-    template <typename U>
-    bool
-    matches(
-      const U& u)
-    const
-    noexcept(noexcept(!std::declval<M>().matches(u)))
-    {
-      return !m.matches(u);
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      neg_matcher<M> const& p)
     {
       return os << p.m;
     }
@@ -1653,13 +1629,6 @@ namespace trompeloeil
     return "*" + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
   }
 
-  template <typename M>
-  std::string
-  param_name_prefix(
-    const neg_matcher<M>*)
-  {
-    return "not " + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
-  }
 
   template <typename T>
   struct null_on_move
@@ -3202,25 +3171,15 @@ namespace trompeloeil
                                    tag,
                                    matcher_info<sig>>;
 
+}
 
-  template <typename M>
-  inline
-  std::enable_if_t<::trompeloeil::is_matcher<M>::value, ::trompeloeil::ptr_deref<std::decay_t<M>>>
-  operator*(
-    M&& m)
-  {
-    return ::trompeloeil::ptr_deref<std::decay_t<M>>{std::forward<M>(m)};
-  }
-
-  template <typename M>
-  inline
-  std::enable_if_t<::trompeloeil::is_matcher<M>::value, ::trompeloeil::neg_matcher<std::decay_t<M>>>
-  operator!(
-    M&& m)
-  {
-    return ::trompeloeil::neg_matcher<std::decay_t<M>>{std::forward<M>(m)};
-  }
-
+template <typename M>
+inline
+std::enable_if_t<::trompeloeil::is_matcher<M>::value, ::trompeloeil::ptr_deref<std::decay_t<M>>>
+operator*(
+  M&& m)
+{
+  return ::trompeloeil::ptr_deref<std::decay_t<M>>{std::forward<M>(m)};
 }
 
 #define TROMPELOEIL_ID(name)                                             \
