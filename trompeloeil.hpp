@@ -822,27 +822,43 @@ namespace trompeloeil
   class list_elem
   {
   public:
+    // Moveable but not copyable
     list_elem(list_elem const&) = delete;
     list_elem& operator=(list_elem const&) = delete;
+
     list_elem(
       list_elem &&r)
     noexcept
-      : next(r.next)
-      , prev(&r)
     {
-      r.invariant_check();
-
-      next->prev = this;
-      r.next = this;
-
-      TROMPELOEIL_ASSERT(next->prev == this);
-      TROMPELOEIL_ASSERT(prev->next == this);
-
-      r.unlink();
-
-      TROMPELOEIL_ASSERT(!r.is_linked());
-      invariant_check();
+      *this = std::move(r);
     }
+
+    list_elem& 
+    operator=(
+      list_elem &&r)
+    noexcept
+    {
+      if( this != &r )
+      {
+        next = r.next;
+        prev = &r;
+
+        r.invariant_check();
+
+        next->prev = this;
+        r.next = this;
+
+        TROMPELOEIL_ASSERT(next->prev == this);
+        TROMPELOEIL_ASSERT(prev->next == this);
+
+        r.unlink();
+
+        TROMPELOEIL_ASSERT(!r.is_linked());
+        invariant_check();
+      }
+      return *this;
+    }
+
     virtual
     ~list_elem()
     {
@@ -934,7 +950,14 @@ namespace trompeloeil
   class list : private list_elem<T>, private Disposer
   {
   public:
+    // Copyable, moveable, and default constructable
     ~list();
+    list() = default;
+    list( list&& ) = default;
+    list( const list& ) = default;
+    list& operator=( list&& ) = default;
+    list& operator=( const list& ) = default;
+
     class iterator;
     iterator begin() const noexcept;
     iterator end() const noexcept;
@@ -1084,8 +1107,12 @@ namespace trompeloeil
   class sequence
   {
   public:
+    // Copyable, moveable, and default constructable
     sequence() noexcept = default;
-    sequence(sequence&&) = delete;
+    sequence(sequence&&) noexcept = default;
+    sequence(const sequence&) = default;
+    sequence& operator = (sequence&&) noexcept = default;
+    sequence& operator = (const sequence&) = default;
     ~sequence();
 
     bool
