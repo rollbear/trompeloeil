@@ -466,12 +466,8 @@ namespace trompeloeil
 
   struct matcher { };
 
-  inline constexpr std::false_type is_matcher_(...) { return {}; }
-
-  inline constexpr std::true_type is_matcher_(matcher const*) { return {}; }
-
   template <typename T>
-  struct is_matcher : decltype(::trompeloeil::is_matcher_(static_cast<std::decay_t<T>*>(nullptr))) {};
+  using is_matcher = std::is_base_of<matcher, std::decay_t<T>>;
 
   template <typename T>
   struct typed_matcher : matcher
