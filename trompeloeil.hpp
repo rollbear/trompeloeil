@@ -818,12 +818,14 @@ namespace trompeloeil
     list_elem(
       const list_elem&)
     = delete;
+
     list_elem(
       list_elem &&r)
     noexcept
     {
       *this = std::move(r);
     }
+
     list_elem&
     operator=(
       list_elem &&r)
@@ -848,15 +850,18 @@ namespace trompeloeil
       }
       return *this;
     }
+
     list_elem&
     operator=(
       const list_elem&)
     = delete;
+
     virtual
     ~list_elem()
     {
       unlink();
     }
+
     void
     unlink()
     noexcept
@@ -870,6 +875,7 @@ namespace trompeloeil
       prev = this;
       invariant_check();
     }
+
     void
     invariant_check()
     const
@@ -896,6 +902,7 @@ namespace trompeloeil
       } while (nn != this);
 #endif
     }
+
     bool
     is_linked()
     const
@@ -969,6 +976,7 @@ namespace trompeloeil
     noexcept
       : p{nullptr}
     {}
+
     friend
     bool
     operator==(
@@ -978,6 +986,7 @@ namespace trompeloeil
     {
       return lh.p == rh.p;
     }
+
     friend
     bool
     operator!=(
@@ -1004,6 +1013,7 @@ namespace trompeloeil
       operator++();
       return rv;
     }
+
     T&
     operator*()
     noexcept
@@ -1150,6 +1160,7 @@ namespace trompeloeil
     {
       seq.add_last(this);
     }
+
     void
     validate_match(
       severity s,
@@ -1159,6 +1170,7 @@ namespace trompeloeil
     {
       seq.validate_match(s, this, seq_name, match_name, loc);
     }
+
     bool
     is_first()
     const
@@ -1405,7 +1417,10 @@ namespace trompeloeil
     typename matcher_kind<MatchType, Predicate, ActualType...>::type;
 
   template <typename Predicate, typename Printer, typename MatcherType, typename ... T>
-  class predicate_matcher : private Predicate, private Printer, public MatcherType
+  class predicate_matcher
+    : private Predicate
+    , private Printer
+    , public MatcherType
   {
   public:
     template <typename ... U>
@@ -1454,12 +1469,14 @@ namespace trompeloeil
     {
       return Predicate::operator()(std::forward<V>(v), std::get<I>(value)...);
     }
+
     template <size_t ... I>
     std::ostream& print_(std::ostream& os_, std::index_sequence<I...>) const
     {
       Printer::operator()(os_, std::get<I>(value)...);
       return os_;
     }
+
     std::tuple<T...> value;
   };
 
@@ -1823,6 +1840,7 @@ namespace trompeloeil
         e.validate_match(s, match_name, loc);
       }
     }
+
     bool
     is_first()
     const
@@ -1838,6 +1856,7 @@ namespace trompeloeil
       }
       return true;
     }
+
     void
     retire()
     noexcept
@@ -1905,7 +1924,9 @@ namespace trompeloeil
       , call_name(call_name_)
     {
     }
+
     lifetime_monitor(lifetime_monitor const&) = delete;
+
     ~lifetime_monitor()
     {
       auto lock = get_lock();
@@ -1917,6 +1938,7 @@ namespace trompeloeil
         object_monitor = nullptr; // prevent its death poking this cadaver
       }
     }
+
     void
     notify()
     noexcept
@@ -1924,6 +1946,7 @@ namespace trompeloeil
       died = true;
       if (sequences) sequences->validate(severity::nonfatal, call_name, loc);
     }
+
     template <typename ... T>
     void
     set_sequence(
@@ -2114,14 +2137,17 @@ namespace trompeloeil
   {
     template <typename P, typename V>
     static constexpr std::false_type func(...) { return {}; }
+
     template <typename P, typename V>
     static constexpr auto func(P* p, V* v) -> decltype((*p == *v), std::true_type{})
     {
       return ::trompeloeil::ignore(p,v),std::true_type{};
     }
+
     static constexpr auto value = decltype(func<T, U>(nullptr, nullptr))::value;
     // The obvious solution, to just call func<T,U>(0,0) gives true_type* in VS!!!
   };
+
   template <typename T, typename U>
   inline
   std::enable_if_t<is_equal_comparable<T, U>::value, U&>
@@ -2268,18 +2294,20 @@ namespace trompeloeil
   {
   public:
     trace_agent(
-            location loc_,
-            char const* name_,
-            tracer* t_)
-            : loc{loc_}
-              , t{t_}
+      location loc_,
+      char const* name_,
+      tracer* t_)
+    : loc{loc_}
+    , t{t_}
     {
       if (t)
       {
         os << name_ << " with.\n";
       }
     }
+
     trace_agent(trace_agent const&) = delete;
+
     ~trace_agent()
     {
       if (t)
@@ -2287,18 +2315,24 @@ namespace trompeloeil
         t->trace(loc.file, loc.line, os.str());
       }
     }
+
     trace_agent& operator=(trace_agent const&) = delete;
 
     template <typename ... T>
-    void trace_params(std::tuple<T...> const& params)
+    void
+    trace_params(
+      std::tuple<T...> const& params)
     {
       if (t)
       {
         stream_params(os, params);
       }
     }
+
     template <typename T>
-    void trace_return(T const& rv)
+    void
+    trace_return(
+      T const& rv)
     {
       if (t)
       {
@@ -2308,7 +2342,9 @@ namespace trompeloeil
       }
     }
 
-    void trace_exception(std::exception_ptr eptr)
+    void
+    trace_exception(
+      std::exception_ptr eptr)
     {
       if (t)
       {
@@ -3051,7 +3087,9 @@ namespace trompeloeil
   constexpr
   inline
   decltype(auto)
-  arg(T* t, std::true_type)
+  arg(
+    T* t,
+    std::true_type)
   {
     return std::get<N-1>(*t);
   }
@@ -3060,8 +3098,10 @@ namespace trompeloeil
   inline
   constexpr
   illegal_argument const
-  arg(void const*, std::false_type)
-    noexcept
+  arg(
+    void const*,
+    std::false_type)
+  noexcept
   {
       return {};
   }
@@ -3118,12 +3158,14 @@ namespace trompeloeil
   };
 
   template <typename Mock>
-  call_validator_t<Mock> call_validator(
+  call_validator_t<Mock>
+  call_validator(
     void const*,
     Mock& obj)
   {
     return {obj};
   }
+
   template <typename T,
             typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
   inline
