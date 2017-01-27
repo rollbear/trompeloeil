@@ -2308,6 +2308,8 @@ namespace trompeloeil
 
     trace_agent(trace_agent const&) = delete;
 
+    trace_agent(trace_agent &&) = delete;
+
     ~trace_agent()
     {
       if (t)
@@ -2316,7 +2318,11 @@ namespace trompeloeil
       }
     }
 
-    trace_agent& operator=(trace_agent const&) = delete;
+    trace_agent&
+    operator=(trace_agent const&) = delete;
+
+    trace_agent&
+    operator=(trace_agent &&) = delete;
 
     template <typename ... T>
     void
@@ -2343,13 +2349,12 @@ namespace trompeloeil
     }
 
     void
-    trace_exception(
-      std::exception_ptr eptr)
+    trace_exception()
     {
       if (t)
       {
         try {
-          std::rethrow_exception(eptr);
+          throw;
         }
         catch (std::exception& e)
         {
@@ -3257,7 +3262,7 @@ namespace trompeloeil
     }
     catch (...)
     {
-      ta.trace_exception(std::current_exception());
+      ta.trace_exception();
       throw;
     }
   }
