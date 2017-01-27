@@ -426,9 +426,6 @@ namespace trompeloeil
     return true;
   }
 
-  template <typename T>
-  using is_void = std::is_same<T, void>;
-
   struct illegal_argument
   {
     template <bool b = false>
@@ -2409,7 +2406,7 @@ namespace trompeloeil
     trace_agent&,
     F& func,
     P& params)
-  -> std::enable_if_t<is_void<decltype(func(params))>::value, void>
+  -> std::enable_if_t<std::is_void<decltype(func(params))>::value, void>
   {
     func(params);
   }
@@ -2420,7 +2417,7 @@ namespace trompeloeil
     trace_agent& agent,
     F& func,
     P& params)
-  -> std::enable_if_t<!is_void<decltype(func(params))>::value, decltype(func(params))>
+  -> std::enable_if_t<!std::is_void<decltype(func(params))>::value, decltype(func(params))>
   {
     auto&& rv = func(params);
     agent.trace_return(rv);
