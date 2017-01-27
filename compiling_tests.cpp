@@ -156,10 +156,18 @@ private:
 
 TEST_CASE_METHOD(Fixture, "follow single sequence gives no reports", "[sequences]")
 {
+  { // Compile-time tests
+    static_assert(std::is_nothrow_default_constructible<trompeloeil::sequence>::value, "Should be default constructible");
+    static_assert(std::is_nothrow_move_constructible<trompeloeil::sequence>::value, "Should be move constructible");
+    static_assert(std::is_nothrow_move_assignable<trompeloeil::sequence>::value, "Should be move assignable");
+    static_assert(!std::is_copy_constructible<trompeloeil::sequence>::value, "Should NOT be copy constructible");
+    static_assert(!std::is_copy_assignable<trompeloeil::sequence>::value, "Should NOT be copy assignable");
+  }
+
   {
     mock_c obj1(1), obj2("apa");
 
-    trompeloeil::sequence seq;
+    auto seq = trompeloeil::sequence{}; // Use "almost always auto" style
 
     REQUIRE_CALL(obj1, count())
       .IN_SEQUENCE(seq)
