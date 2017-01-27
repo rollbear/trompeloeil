@@ -2336,9 +2336,10 @@ namespace trompeloeil
     }
 
     template <typename T>
-    void
+    auto
     trace_return(
-      T const& rv)
+      T&& rv)
+    -> T
     {
       if (t)
       {
@@ -2346,6 +2347,7 @@ namespace trompeloeil
         print(os, rv);
         os << '\n';
       }
+      return std::forward<T>(rv);
     }
 
     void
@@ -2449,28 +2451,25 @@ namespace trompeloeil
       call_params_type_t<Sig>& params) = 0;
   };
 
-  template <typename F, typename P>
-  auto
+
+  template <typename Ret, typename F, typename P, typename = std::enable_if_t<std::is_void<Ret>::value>>
+  void
   trace_return(
     trace_agent&,
     F& func,
     P& params)
-  -> std::enable_if_t<std::is_void<decltype(func(params))>::value, void>
   {
     func(params);
   }
 
-  template <typename F, typename P>
-  auto
+  template <typename Ret, typename F, typename P, typename = std::enable_if_t<!std::is_void<Ret>::value>>
+  Ret
   trace_return(
     trace_agent& agent,
     F& func,
     P& params)
-  -> std::enable_if_t<!std::is_void<decltype(func(params))>::value, decltype(func(params))>
   {
-    auto&& rv = func(params);
-    agent.trace_return(rv);
-    return std::forward<decltype(rv)>(rv);
+    return agent.trace_return(func(params));
   }
 
   template <typename Sig, typename T>
@@ -2489,7 +2488,7 @@ namespace trompeloeil
       call_params_type_t<Sig>& params)
     override
     {
-      return trace_return(agent, func, params);
+      return trace_return<return_of_t<Sig>>(agent, func, params);
     }
   private:
     T func;
