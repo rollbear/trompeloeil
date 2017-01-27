@@ -211,27 +211,21 @@ namespace trompeloeil
     static std::recursive_mutex lock;
     return std::unique_lock<std::recursive_mutex>{ lock };
   }
-
-  template <size_t N, typename T, bool legal = (N < std::tuple_size<T>::value)>
-  struct conditional_tuple_element
-  {
-    using type = typename std::tuple_element<N, T>::type;
-  };
   template <size_t N, typename T>
-  struct conditional_tuple_element<N, T, false>
-  {
-    using type = int;
-  };
+  using conditional_tuple_element
+    = std::conditional_t<(N < std::tuple_size<T>::value),
+                         typename std::tuple_element<N, T>::type,
+                         int>;
+
   template <typename T>
   struct param_list;
 
   template <typename R, typename ... P>
   struct param_list<R(P...)>
   {
-    using param_tuple = std::tuple<P...>;
-    static size_t const size = std::tuple_size<param_tuple>::value;
+    static size_t constexpr const size = sizeof...(P);
     template <size_t N>
-    using type = typename conditional_tuple_element<N, param_tuple>::type;
+    using type = conditional_tuple_element<N, std::tuple<P...>>;
   };
 
   template <typename Sig, size_t N>
@@ -1680,10 +1674,10 @@ namespace trompeloeil
                               std::move(s));
   }
 
-  template <typename T>
+  inline
   std::string
   param_name_prefix(
-    const T*)
+    ...)
   {
     return "";
   }
@@ -2017,13 +2011,6 @@ namespace trompeloeil
     }
   };
 
-  template <>
-  struct default_return_t<void>
-  {
-    // g++ 4.9 does not allow constexpr for void function
-    static void value() {}
-  };
-
   template <typename R>
   inline
   R
@@ -2032,6 +2019,12 @@ namespace trompeloeil
     return default_return_t<R>::value();
   }
 
+  template <>
+  inline
+  void
+  default_return<void>()
+  {
+  }
 
   template<typename Sig>
   struct call_matcher_base;
@@ -3107,7 +3100,7 @@ namespace trompeloeil
     std::false_type)
   noexcept
   {
-      return {};
+    return {};
   }
 
   template <int N, typename T>
