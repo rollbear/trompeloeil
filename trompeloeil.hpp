@@ -816,12 +816,16 @@ namespace trompeloeil
   {
   public:
     list_elem(
+      const list_elem&)
+    = delete;
+    list_elem(
       list_elem &&r)
     noexcept
     {
       *this = std::move(r);
     }
-    list_elem& operator=(
+    list_elem&
+    operator=(
       list_elem &&r)
     noexcept
     {
@@ -844,6 +848,10 @@ namespace trompeloeil
       }
       return *this;
     }
+    list_elem&
+    operator=(
+      const list_elem&)
+    = delete;
     virtual
     ~list_elem()
     {
