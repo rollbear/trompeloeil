@@ -946,7 +946,9 @@ namespace trompeloeil
   public:
     list() noexcept;
     list(list&&) noexcept;
+    list(const list&) = delete;
     list& operator=(list&&) noexcept;
+    list& operator=(const list&) = delete;
     ~list();
     class iterator;
     iterator begin() const noexcept;
@@ -1111,7 +1113,9 @@ namespace trompeloeil
   public:
     sequence() noexcept = default;
     sequence(sequence&&) noexcept = default;
+    sequence(const sequence&) = delete;
     sequence& operator=(sequence&&) noexcept = default;
+    sequence& operator=(const sequence&) = delete;
     ~sequence();
 
     bool
