@@ -307,6 +307,7 @@ namespace trompeloeil
     tracer* obj)
   noexcept
   {
+    // std::exchange would be sane here, but it costs compilation time
     auto& ptr = tracer_obj();
     auto rv = ptr;
     ptr = obj;
