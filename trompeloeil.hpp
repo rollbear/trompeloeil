@@ -1194,6 +1194,7 @@ namespace trompeloeil
   bool
   sequence::is_first(
     sequence_matcher const *m)
+  const
   noexcept
   {
     return !matchers.empty() && &*matchers.begin() == m;
