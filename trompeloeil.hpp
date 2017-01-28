@@ -239,23 +239,8 @@ namespace trompeloeil
 
   struct location
   {
-    location()
-    noexcept
-      : file("")
-      , line(0U)
-    {}
-
-    location(
-      char const* file_,
-      unsigned long line_
-    )
-    noexcept
-      : file{file_}
-      , line{line_}
-    {}
-
-    char const *file;
-    unsigned long line;
+    char const *file = "";
+    unsigned long line = 0U;
   };
 
   inline
@@ -1193,6 +1178,7 @@ namespace trompeloeil
 
     char const*
     sequence_name()
+    const
     noexcept
     {
       return seq_name;
@@ -1208,7 +1194,6 @@ namespace trompeloeil
   bool
   sequence::is_first(
     sequence_matcher const *m)
-  const
   noexcept
   {
     return !matchers.empty() && &*matchers.begin() == m;
