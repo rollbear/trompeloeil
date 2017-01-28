@@ -2624,9 +2624,9 @@ namespace trompeloeil
     using Parent::side_effects;
 
     call_modifier(
-       std::unique_ptr<Matcher>&& m)
+       Matcher* m)
     noexcept
-      : matcher{std::move(m)}
+      : matcher{m}
     {}
 
     template <typename D>
@@ -2701,7 +2701,7 @@ namespace trompeloeil
       constexpr bool valid = !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, std::forward<H>(h));
-      return {std::move(matcher)};
+      return {matcher};
     }
 
     template <typename H>
@@ -2728,7 +2728,7 @@ namespace trompeloeil
         return trompeloeil::default_return<return_of_t<signature>>();
       };
       matcher->set_return(tag{}, std::move(handler));
-      return {std::move(matcher)};
+      return {matcher};
     }
     template <unsigned long long L,
               unsigned long long H,
@@ -2757,7 +2757,7 @@ namespace trompeloeil
 
       matcher->min_calls = L;
       matcher->max_calls = H;
-      return {std::move(matcher)};
+      return {matcher};
     }
 
     template <typename ... T,
@@ -2774,9 +2774,9 @@ namespace trompeloeil
                     "IN_SEQUENCE for forbidden call does not make sense");
 
       matcher->set_sequence(std::forward<T>(t)...);
-      return {std::move(matcher)};
+      return {matcher};
     }
-    std::unique_ptr<Matcher> matcher;
+    Matcher* matcher;
   };
 
   inline
@@ -3116,7 +3116,7 @@ namespace trompeloeil
     {
       auto lock = get_lock();
       m.matcher->hook_last(obj.trompeloeil_matcher_list(Tag{}));
-      return std::move(m).matcher;
+      return std::unique_ptr<expectation>(m.matcher);
     }
 
     template <typename T>
@@ -3447,12 +3447,12 @@ namespace trompeloeil
         using params  = ::trompeloeil::param_t<U...>;                          \
         using matcher = ::trompeloeil::call_matcher<sig, params>;              \
                                                                                \
-        auto  matcher_obj = std::make_unique<matcher>(file,                    \
-                                                      line,                    \
-                                                      call_string,             \
-                                                      std::forward<U>(u)...);  \
+        auto  matcher_obj = new matcher(file,                                  \
+                                        line,                                  \
+                                        call_string,                           \
+                                        std::forward<U>(u)...);                \
                                                                                \
-        return {std::move(matcher_obj)};                                       \
+        return {matcher_obj};                                                  \
       }                                                                        \
     };                                                                         \
     template <typename Mock>                                                   \
