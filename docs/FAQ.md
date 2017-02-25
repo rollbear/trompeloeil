@@ -3,7 +3,7 @@
 - Q. [Why a name that can neither be pronounced nor spelled?](#why_name)
 - Q. [Which compilers supports *Trompeloeil*?](#compilers)
 - Q. [How do I use *Trompeloeil* with XXX unit test framework?](#unit_test_adaptation)
-- Q. [Is *Trompeloeil* thread safe?](#thread_safety)
+- Q. [Is *Trompeloeil* thread-safe?](#thread_safety)
 - Q. [Can a mock function be marked `override`?](#override)
 - Q. [Why can't I **`.RETURN()`** a reference?](#return_reference)
 - Q. [Why can't I change a local variable in **`.SIDE_EFFECT()`**?](#change_side_effect)
@@ -72,7 +72,7 @@ or may not, suffice.
 examples for some popular unit test frame works are listed in the
 [cook book](CookBook.md/#unit_test_frameworks)
 
-## <A name="thread_safety"/>Q. Is *Trompeloeil* thread safe?
+## <A name="thread_safety"/>Q. Is *Trompeloeil* thread-safe?
 
 **A.** Yes, with caveats.
 
@@ -92,7 +92,7 @@ and [mock functions](reference.md/#mock_function) can be called in different
 threads, all protected by the global lock. However, it is essential that the
 [mock object](reference.md/#mock_object) is not deleted while establishing the
 [expectation](reference.md/#expectation) or calling the
-[mock function](reference.md/#mock_function), as per normal thread safety
+[mock function](reference.md/#mock_function), as per normal thread-safety
 diligence.
 
 Should you need to access the lock in your tests, you can do so with
