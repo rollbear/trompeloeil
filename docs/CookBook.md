@@ -50,6 +50,7 @@ sample adaptations are:
 - [crpcut](#adapt_crpcut)
 - [doctest](#adapt_doctest)
 - [gtest](#adapt_gtest)
+- [lest](#adapt_lest)
 - [boost Unit Test Framework](#adapt_boost_unit_test_framework)
 - [MSTest](#adapt_mstest)
 
@@ -399,6 +400,35 @@ trompeloeil::set_reporter([](trompeloeil::severity s,
 ```
 
 before running any tests.
+
+### <A name="adapt_lest"/>Use *Trompeloeil* with [lest](https://github.com/martinmoene/lest)
+
+With *lest*, you always provide your own `main()`. In it, provide a runtime adapter like the one below.
+
+```Cpp
+int main(int argc, char *argv[])
+{
+    std::ostream& stream = std::cout;
+    
+    trompeloeil::set_reporter([&stream](
+        trompeloeil::severity s, 
+        const char* file, 
+        unsigned long line, 
+        std::string const& msg)
+    {
+        if (s == trompeloeil::severity::fatal)
+        {
+            throw lest::message{"", lest::location{ line ? file : "[file/line unavailable]", int(line) }, "", msg };
+        }
+        else
+        {   
+            stream << lest::location{ line ? file : "[file/line unavailable]", int(line) } << ": " << msg;
+        }
+    });
+
+    return lest::run(specification, argc, argv, stream);
+}
+```
 
 ### <A name="adapt_boost_unit_test_framework"/>Use *Trompeloeil* with [boost Unit Test Framework](http://www.boost.org/doc/libs/1_59_0/libs/test/doc/html/index.html)
 
