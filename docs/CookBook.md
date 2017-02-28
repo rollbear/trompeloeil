@@ -418,25 +418,25 @@ With *lest*, you always provide your own `main()`. In it, provide a runtime adap
 ```Cpp
 int main(int argc, char *argv[])
 {
-    std::ostream& stream = std::cout;
+  std::ostream& stream = std::cout;
 
-    trompeloeil::set_reporter([&stream](
-        trompeloeil::severity s,
-        const char* file,
-        unsigned long line,
-        std::string const& msg)
+  trompeloeil::set_reporter([&stream](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    std::string const& msg)
+  {
+    if (s == trompeloeil::severity::fatal)
     {
-        if (s == trompeloeil::severity::fatal)
-        {
-            throw lest::message{"", lest::location{ line ? file : "[file/line unavailable]", int(line) }, "", msg };
-        }
-        else
-        {   
-            stream << lest::location{ line ? file : "[file/line unavailable]", int(line) } << ": " << msg;
-        }
-    });
+      throw lest::message{"", lest::location{ line ? file : "[file/line unavailable]", int(line) }, "", msg };
+    }
+    else
+    {   
+      stream << lest::location{ line ? file : "[file/line unavailable]", int(line) } << ": " << msg;
+    }
+  });
 
-    return lest::run(specification, argc, argv, stream);
+  return lest::run(specification, argc, argv, stream);
 }
 ```
 
