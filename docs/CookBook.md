@@ -71,13 +71,14 @@ enter the following code:
 namespace trompeloeil
 {
   template <>
-  void reporter<specialized>::send(severity s,
-                                   const char* file,
-                                   unsigned long line,
-                                   const char* message)
-   {
-     // your adaptation here
-   }
+  void reporter<specialized>::send(
+    severity s,
+    const char* file,
+    unsigned long line,
+    const char* message)
+  {
+    // your adaptation here
+  }
 }
 ```
 
@@ -111,10 +112,11 @@ are no expectations. In these cases `file` will be `""` string and
 Run time adaptation to unit test frame works is done with this function:
 
 ```Cpp
-using reporter_func = std::function<void(severity,
-                                         char const *file,
-                                         unsigned long line,
-                                         std::string const &msg)>;
+using reporter_func = std::function<void(
+  severity,
+  char const *file,
+  unsigned long line,
+  std::string const &msg)>;
 reporter_func trompeloeil::set_reporter(reporter_func new_reporter)
 ```
 
@@ -146,10 +148,11 @@ Paste the following code snippet in global namespace in one of your
   namespace trompeloeil
   {
     template <>
-    void reporter<specialized>::send(severity s,
-                                     const char* file,
-                                     unsigned long line,
-                                     const char* msg)
+    void reporter<specialized>::send(
+      severity s,
+      const char* file,
+      unsigned long line,
+      const char* msg)
     {
       std::ostringstream os;
       if (line) os << file << ':' << line << '\n';
@@ -180,10 +183,11 @@ If you roll your own `main()`, you may prefer a runtime adapter instead.
 Before running any tests, make sure to call:
 
 ```Cpp
-trompeloeil::set_reporter([](trompeloeil::severity s,
-                             const char* file,
-                             unsigned long line,
-                             const char* msg)
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    const char* msg)
   {
     std::ostringstream os;
     if (line) os << file << ':' << line << '\n';
@@ -210,10 +214,11 @@ Paste the following code snippet in global namespace in one of the
   namespace trompeloeil
   {
     template <>
-    void reporter<specialized>::send(severity,
-                                     char const *file,
-                                     unsigned long line,
-                                     const char* msg)
+    void reporter<specialized>::send(
+      severity,
+      char const *file,
+      unsigned long line,
+      const char* msg)
     {
       std::ostringstream os;
       os << file << ':' << line;
@@ -237,10 +242,11 @@ extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 If you instead prefer a runtime adapter, make sure to call
 
 ```Cpp
-trompeloeil::set_reporter([](trompeloeil::severity,
-                             const char* file,
-                             unsigned long line,
-                             const char* msg)
+  trompeloeil::set_reporter([](
+    trompeloeil::severity,
+    const char* file,
+    unsigned long line,
+    const char* msg)
   {
     std::ostringstream os;
     os << file << ':' << line;
@@ -273,10 +279,11 @@ Paste the following code snippet in global namespace in one of your
   namespace trompeloeil
   {
     template <>
-    void reporter<specialized>::send(severity s,
-                                     const char* file,
-                                     unsigned long line,
-                                     const char* msg)
+    void reporter<specialized>::send(
+      severity s,
+      const char* file,
+      unsigned long line,
+      const char* msg)
     {
       ::doctest_violation violation;
       if (line) violation << file << ':' << line << '\n';
@@ -320,10 +327,11 @@ Then, before running any tests, make sure to call:
 
 
 ```Cpp
-  trompeloeil::set_reporter([](trompeloeil::severity s,
-                               const char* file,
-                               unsigned long line,
-                               const char* msg)
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    const char* msg)
   {
     ::doctest_violation violation;
     if (line) violation << file << ':' << line << '\n';
@@ -349,10 +357,11 @@ Paste the following code snippet in global namespace in one of the
   namespace trompeloeil
   {
     template <>
-    void reporter<specialized>::send(severity s,
-                                     char const *file,
-                                     unsigned long line,
-                                     const char* msg)
+    void reporter<specialized>::send(
+      severity s,
+      char const *file,
+      unsigned long line,
+      const char* msg)
     {
       if (s == severity::fatal)
       {
@@ -380,10 +389,11 @@ extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 If you instead prefer a runtime adapter, make sure to call
 
 ```Cpp
-trompeloeil::set_reporter([](trompeloeil::severity s,
-                             const char* file,
-                             unsigned long line,
-                             const char* msg)
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    const char* msg)
   {
     if (s == trompeloeil::severity::fatal)
     {
@@ -409,11 +419,11 @@ With *lest*, you always provide your own `main()`. In it, provide a runtime adap
 int main(int argc, char *argv[])
 {
     std::ostream& stream = std::cout;
-    
+
     trompeloeil::set_reporter([&stream](
-        trompeloeil::severity s, 
-        const char* file, 
-        unsigned long line, 
+        trompeloeil::severity s,
+        const char* file,
+        unsigned long line,
         std::string const& msg)
     {
         if (s == trompeloeil::severity::fatal)
@@ -439,10 +449,11 @@ Paste the following code snippet in global namespace in one of your
   namespace trompeloeil
   {
     template <>
-    void reporter<specialized>::send(severity s,
-                                     char const *file,
-                                     unsigned long line,
-                                     const char* msg)
+    void reporter<specialized>::send(
+      severity s,
+      char const *file,
+      unsigned long line,
+      const char* msg)
     {
       std::ostringstream os;
       if (line != 0U) os << file << ':' << line << '\n';
@@ -466,10 +477,11 @@ extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 If you instead prefer a runtime adapter, make sure to call
 
 ```Cpp
-trompeloeil::set_reporter([](trompeloeil::severity s,
-                             const char* file,
-                             unsigned long line,
-                             const char* msg)
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    const char* msg)
   {
     std::ostringstream os;
     if (line != 0U) os << file << ':' << line << '\n';
@@ -489,7 +501,12 @@ Place the below code snippet in, for example, your `TEST_CLASS_INITIALIZE(...)`
 
 ```Cpp
   using namespace trompeloeil;
-  set_reporter([](severity, char const* file, unsigned long line, std::string const& msg) {
+  set_reporter([](
+    severity,
+    char const* file,
+    unsigned long line,
+    std::string const& msg)
+  {
     std::wstring wideMsg(msg.begin(), msg.end());
     std::wstring wfile;
     if (line > 0) wfile.append(file, file + strlen(file));
