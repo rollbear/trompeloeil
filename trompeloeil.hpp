@@ -3265,7 +3265,12 @@ namespace trompeloeil
   }
 
   template <typename ... U>
-  using param_t = decltype(std::make_tuple(std::declval<U>()...));
+  struct param_helper {
+	using type = decltype(std::make_tuple(std::declval<U>()...));
+  };
+
+  template <typename ... U>
+  using param_t = typename param_helper<U...>::type;
 
   template <typename sig, typename tag, typename... U>
   using modifier_t = call_modifier<call_matcher<sig, param_t<U...>>,
