@@ -1,3 +1,7 @@
+v24 2017-03-10
+
+	* Worked around VS2017 bug. Thanks mlimber and xiangfan-ms
+
 v23 2017-01-29
 
 	* Matchers can be negated using the logical not operator !.
