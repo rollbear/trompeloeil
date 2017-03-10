@@ -1,3 +1,31 @@
+v23 2017-01-29
+
+	* Matchers can be negated using the logical not operator !.
+
+	  Example:
+
+	  struct Mock {
+	    MAKE_MOCK1(func, void(const std::string&));
+	  };
+
+	  TEST(...)
+	  {
+	    using trompeloeil::re; // match regular expressions
+	    Mock m;
+	    REQUIRE_CALL(m, func(!re("^foo")));
+	      // calls to func with strings not matching the regex /^foo/
+	    ...
+	  }
+
+	* Made sequence and its dependencies moveable. (mlimber)
+
+	  This means it's now possible to use tha Almost Always Auto
+	  style for sequence objects:
+
+	  auto seq = trompeloeil::sequence{};
+
+	* Internal refactoring for substantially reduced compilation time.
+
 v22 2016-12-13
 
 	* Messages from violations of expectations now print collections

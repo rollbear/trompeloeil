@@ -1,7 +1,7 @@
 /*
 * Trompeloeil C++ mocking framework
 *
-* Copyright Björn Fahller 2014-2016
+* Copyright Björn Fahller 2014-2017
 *
 *  Use, modification and distribution is subject to the
 *  Boost Software License, Version 1.0. (See accompanying
@@ -156,10 +156,18 @@ private:
 
 TEST_CASE_METHOD(Fixture, "follow single sequence gives no reports", "[sequences]")
 {
+  { // Compile-time tests
+    static_assert(std::is_nothrow_default_constructible<trompeloeil::sequence>::value, "Should be default constructible");
+    static_assert(std::is_nothrow_move_constructible<trompeloeil::sequence>::value, "Should be move constructible");
+    static_assert(std::is_nothrow_move_assignable<trompeloeil::sequence>::value, "Should be move assignable");
+    static_assert(!std::is_copy_constructible<trompeloeil::sequence>::value, "Should NOT be copy constructible");
+    static_assert(!std::is_copy_assignable<trompeloeil::sequence>::value, "Should NOT be copy assignable");
+  }
+
   {
     mock_c obj1(1), obj2("apa");
 
-    trompeloeil::sequence seq;
+    auto seq = trompeloeil::sequence{}; // Use "almost always auto" style
 
     REQUIRE_CALL(obj1, count())
       .IN_SEQUENCE(seq)
@@ -2349,6 +2357,72 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
   }
 }
 
+// tests of parameter matching using neg_matcher
+
+TEST_CASE_METHOD(Fixture, "! to duck typed equal matches inequal string", "[matching][matchers][eq][neg]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(!trompeloeil::eq("foo")));
+    obj.str("bar");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "! to duck typed equal reports equal string", "[matching][matchers][eq][neg]")
+{
+  try {
+    mock_str obj;
+    REQUIRE_CALL(obj, str(!trompeloeil::eq("foo")));
+    obj.str("foo");
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re= R":(No match for call of str with signature void\(std::string\) with.
+  param  _1 == foo
+
+Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected not _1 == foo):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(Fixture, "! to disambiguated equal matches inequal string", "[matching][matchers][eq][neg]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    obj.overload("bar"s);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "! to disambiguated equal reports equal string", "[matching][matchers][eq][neg]")
+{
+  try {
+    mock_str obj;
+    REQUIRE_CALL(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    obj.overload("foo"s);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re= R":(No match for call of overload with signature void\(std::string const&\) with.
+  param  _1 == foo
+
+Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected not _1 == foo):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
 // tests of parameter matching using ptr deref matcher
 
 class C_ptr
@@ -4329,7 +4403,7 @@ public:
 };
 
 
-TEST_CASE("a member function of a mock object can call a mocked function")
+TEST_CASE_METHOD(Fixture, "a member function of a mock object can call a mocked function")
 {
   {
     self_ref_mock m;
@@ -4339,7 +4413,7 @@ TEST_CASE("a member function of a mock object can call a mocked function")
   REQUIRE(reports.empty());
 }
 
-TEST_CASE("expectation on a mock function can call the same mock func recursively as side effect")
+TEST_CASE_METHOD(Fixture, "expectation on a mock function can call the same mock func recursively as side effect")
 {
   {
     self_ref_mock m;
