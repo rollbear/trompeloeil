@@ -99,5 +99,5 @@ Compiler compatibility
 Trompeloeil is known to work with:
 
 * GCC 4.9, 5, 6
-* Clang 3.5, 3.6, 3.7, 3.8, 3.9
+* Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4
 * Visual Studio 2015, 2017
