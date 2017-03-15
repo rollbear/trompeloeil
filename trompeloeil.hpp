@@ -3293,8 +3293,11 @@ namespace trompeloeil
 
 }
 
-#define TROMPELOEIL_ID(name)                                             \
-  TROMPELOEIL_CONCAT(trompeloeil_ ## name ## _, __LINE__)
+#define TROMPELOEIL_LINE_ID(name)                                        \
+  TROMPELOEIL_CONCAT(trompeloeil_l_ ## name ## _, __LINE__)
+#define TROMPELOEIL_COUNT_ID(name)                                       \
+  TROMPELOEIL_CONCAT(trompeloeil_c_ ## name ## _, __COUNTER__)
+
 #ifdef _MSC_VER
 #define TROMPELOEIL_MAKE_MOCK0(name, sig, ...)                           \
   TROMPELOEIL_MAKE_MOCK_(name,,0, sig, __VA_ARGS__,,)
@@ -3435,14 +3438,14 @@ namespace trompeloeil
 #endif
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
-  using TROMPELOEIL_ID(cardinality_match) =                                    \
+  using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
     std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
-  static_assert(TROMPELOEIL_ID(cardinality_match)::value,                      \
+  static_assert(TROMPELOEIL_LINE_ID(cardinality_match)::value,                 \
                 "Function signature does not have " #num " parameters");       \
-  using TROMPELOEIL_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
-  using TROMPELOEIL_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
-  mutable TROMPELOEIL_ID(expectation_list_t) TROMPELOEIL_ID(expectations);     \
-  struct TROMPELOEIL_ID(tag_type_trompeloeil)                                  \
+  using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
+  using TROMPELOEIL_LINE_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
+  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations);     \
+  struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
     template <typename Mock>                                                   \
     struct maker_obj {                                                         \
@@ -3455,7 +3458,7 @@ namespace trompeloeil
       auto name(                                                               \
         U&& ... u)                                                             \
         -> ::trompeloeil::modifier_t<sig,                                      \
-                                     TROMPELOEIL_ID(tag_type_trompeloeil),     \
+                                     TROMPELOEIL_LINE_ID(tag_type_trompeloeil),\
                                      U...>                                     \
       {                                                                        \
         using params  = ::trompeloeil::param_t<U...>;                          \
@@ -3482,13 +3485,13 @@ namespace trompeloeil
     }                                                                          \
   };                                                                           \
                                                                                \
-  TROMPELOEIL_ID(matcher_list_t)&                                              \
+  TROMPELOEIL_LINE_ID(matcher_list_t)&                                         \
   trompeloeil_matcher_list(                                                    \
-    TROMPELOEIL_ID(tag_type_trompeloeil))                                      \
+    TROMPELOEIL_LINE_ID(tag_type_trompeloeil))                                 \
   constness                                                                    \
   noexcept                                                                     \
   {                                                                            \
-    return TROMPELOEIL_ID(expectations).active;                                \
+    return TROMPELOEIL_LINE_ID(expectations).active;                           \
   }                                                                            \
   ::trompeloeil::return_of_t<sig>                                              \
   name(                                                                        \
@@ -3496,14 +3499,14 @@ namespace trompeloeil
   constness                                                                    \
   spec                                                                         \
   {                                                                            \
-    return ::trompeloeil::mock_func<sig>(TROMPELOEIL_ID(cardinality_match){},  \
-                                         TROMPELOEIL_ID(expectations),         \
+    return ::trompeloeil::mock_func<sig>(TROMPELOEIL_LINE_ID(cardinality_match){},  \
+                                         TROMPELOEIL_LINE_ID(expectations),    \
                                          #name,                                \
                                          #sig                                  \
                                          TROMPELOEIL_PARAMS(num));             \
   }                                                                            \
                                                                                \
-  TROMPELOEIL_ID(tag_type_trompeloeil)                                         \
+  TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                                    \
   trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness
 
 
@@ -3513,7 +3516,7 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
-  auto TROMPELOEIL_ID(call_obj) = TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func,      \
+  auto TROMPELOEIL_COUNT_ID(call_obj) = TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func,\
                                                                obj_s, func_s)
 
 

@@ -4428,3 +4428,17 @@ TEST_CASE("expectation on a mock function can call the same mock func recursivel
   }
   REQUIRE(reports.empty());
 }
+
+#define MANY_REQS(obj) \
+	       REQUIRE_CALL(obj, f0());		\
+	       REQUIRE_CALL(obj, f1(0));	\
+	       REQUIRE_CALL(obj, f2(0,1))
+
+TEST_CASE_METHOD(Fixture, "A macro may instantiate many expectations)")
+{
+  all_mock m;
+  MANY_REQS(m);
+  m.f0();
+  m.f1(0);
+  m.f2(0,1);
+}
