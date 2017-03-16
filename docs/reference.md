@@ -616,6 +616,7 @@ that does not begin with `"foo"`.
 ## <A name="macros"/>Macros
 
 <A name="ALLOW_CALL"/>
+
 ### **`ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
 Make an expectation that *mock_object*.*func_name*(*parameter_list*) may be
 called zero or more times until the end of the surrounding scope.
