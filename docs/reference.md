@@ -664,6 +664,7 @@ expectation as a
 stored in test fixtures or otherwise have its lifetime programmatically controlled.
 
 <A name="ANY_MACRO"/>
+
 ### **`ANY(`** *type* **`)`**  
 
 A [matcher](#matcher) for use in the parameter list of an
@@ -671,6 +672,7 @@ A [matcher](#matcher) for use in the parameter list of an
 the exact value is unimportant. See the matcher [**`ANY(`** *type* **`)`**](#ANY) above.
 
 <A name="AT_LEAST"/>
+
 ### **`AT_LEAST(`** *number* **`)`**  
 Used in [**`TIMES(...)`**](#TIMES) to set the range *number*..infinity.
 *number* must be
@@ -704,6 +706,7 @@ _In reality the upper limit is ~0ULL, but that is for all practical purposes
 "infinity"_.
 
 <A name="AT_MOST"/>
+
 ### **`AT_MOST(`** *number* **`)`**  
 Used in [**`TIMES(...)`**](#TIMES) to set the range 0..*number*.
 *number* must be
@@ -735,6 +738,7 @@ is reported.
 
 
 <A name="FORBID_CALL"/>
+
 ### **`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
 Make an expectation that *mock_object*.*func_name*(*parameter_list*) must not
 be called until the end of the scope. *parameter_list* may contain exact values
@@ -786,6 +790,7 @@ expectation as a
 stored in test fixtures.
 
 <A name="IN_SEQUENCE"/>
+
 ### **`IN_SEQUENCE(`** *seq...* **`)`**  
 Where *seq...* is one or more instances of `trompeloeil::sequence`. Impose an
 order in which [expectations](#expectation) and destruction of
@@ -852,6 +857,7 @@ The above allows the following two sequences only.
 Any other sequence of calls renders a violation report.
 
 <A name="LR_RETURN"/>
+
 ### **`LR_RETURN(`** *expr* **`)`**  
 Used in [expectations](#expectation) to set the return value after having
 evaluated every [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
@@ -903,6 +909,7 @@ of the returned reference will be 4 if called from within `test_func(...)`.
 See also [**`RETURN(...)`**](#RETURN) which accesses copies of local variables.
 
 <A name="LR_SIDE_EFFECT"/>
+
 ### **`LR_SIDE_EFFECT(`** *expr* **`)`**  
 Used in [expectations](#expectation) to cause side effects for matching calls.
 *expr* is only evaluated when all [**`WITH(...)`**](#WITH) and
@@ -944,6 +951,7 @@ See also [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) which accesses copies of local
 objects.
 
 <A name="LR_THROW"/>
+
 ### **`LR_THROW(`** *expr* **`)`**  
 Used in [expectations](#expectation) to throw after having evaluated every
 [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
@@ -982,6 +990,7 @@ Above, **`LR_THROW(std::invalid_argument(what))`** will refer to the c-string
 See also [**`THROW(...)`**](#THROW) which accesses copies of local objects.
 
 <A name="LR_WITH"/>
+
 ### **`LR_WITH(`** *expr* **`)`**
 Used with [expectations](#expectation) to add further conditions for a
 matching call. Typically used when [matchers](#matcher) are used for the
@@ -1033,6 +1042,7 @@ global/static objects will be modified also by those
 See also [**`WITH(...)`**](#WITH) which accesses copies of local objects.
 
 <A name="MAKE_CONST_MOCKn"/>
+
 ### **`MAKE_CONST_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**  
 Make a `const` [mock function](#mock_function) named *func_name*. It is a good
 idea for this to implement a pure virtual function from an interface, but
@@ -1073,6 +1083,7 @@ See also [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) for non-`const`
 member functions.
 
 <A name="MAKE_MOCKn"/>
+
 ### **`MAKE_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**  
 Make a non-const [mock function](#mock_function) named *func_name*. It is a
 good idea for this to implement a pure virtual function from an interface, but
@@ -1113,6 +1124,7 @@ See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
 member functions.
 
 <A name="NAMED_ALLOW_CALL"/>
+
 ### **`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
 Make a [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 allowing *mock_object*.*func_name*(*parameter_list*) to be
@@ -1172,6 +1184,7 @@ that is valid until the end of the surrounding scope.
 
 
 <A name="NAMED_FORBID_CALL"/>
+
 ### **`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
 Make a [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 disallowing calls to *mock_object*.*func_name*(*parameter_list*) until the
@@ -1235,6 +1248,7 @@ See also [**`FORBID_CALL(...)`**](#FORBID_CALL) which creates an
 [expectation](#expectation) that is valid until the end of the surrounding scope.
 
 <A name="NAMED_REQUIRE_CALL"/>
+
 ### **`NAMED_REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
 Make a [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 requiring that *mock_obj*.*func_name*(*parameter_list*) is called exactly once
@@ -1289,6 +1303,7 @@ See also [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL) which creates an
 [expectation](#expectation) that is valid until the end of the surrounding scope.
 
 <A name="NAMED_REQUIRE_DESTRUCTION"/>
+
 ### **`NAMED_REQUIRE_DESTRUCTION(`** *mock_object* **`)`**
 Create a
 [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
@@ -1339,6 +1354,7 @@ a requirement that the [`deathwatched`](#deathwatched_type)
 [mock object](#mock_object) is destroyed before the end of the scope.
 
 <A name="REQUIRE_CALL"/>
+
 ### **`REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
 Make an [expectation](#expectation) requiring that
 *mock_obj*.*func_name*(*parameter_list*) is called exactly once before
@@ -1390,6 +1406,7 @@ fixtures.
 
 
 <A name="REQUIRE_DESTRUCTION"/>
+
 ### **`REQUIRE_DESTRUCTION(`** *mock_object* **`)`**  
 Create an anonymous [`lifetime_monitor`](#lifetime_monitor_type) which reports
 a violation if the [**`deathwatched`**](#deathwatched_type)
@@ -1439,6 +1456,7 @@ which creates the requirement that the [`deathwatched`](#deathwatched_type)
 which can be stored in test fixtures.
 
 <A name="RETURN"/>
+
 ### **`RETURN(`** *expr* **`)`**  
 Used in [expectations](#expectation) to set the return value after having
 evaluated every [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
@@ -1490,6 +1508,7 @@ See also [**`LR_RETURN(...)`**](#LR_RETURN) which accesses local variables
 by reference.
 
 <A name="SIDE_EFFECT"/>
+
 ### **`SIDE_EFFECT(`** *expr* **`)`**
 Used in [expectations](#expectation) to cause side effects for matching calls.
 *expr* is only evaluated when all [**`WITH(...)`**](#WITH) and
@@ -1538,6 +1557,7 @@ objects by reference.
 
 
 <A name="THROW"/>
+
 ### **`THROW(`** *expr* **`)`**  
 Used in [expectations](#expectation) to throw after having evaluated every
 [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
@@ -1577,6 +1597,7 @@ See also [**`LR_THROW(...)`**](#LR_THROW) which accesses copies of local objects
 
 
 <A name="TIMES"/>
+
 ### **`TIMES(`** *limits* **`)`**  
 Used in [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL) and
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL) to set the limits on
@@ -1627,6 +1648,7 @@ See also the helpers [**`AT_LEAST(...)`**](#AT_LEAST) and
 [**`AT_MOST(...)`**](#AT_MOST).
 
 <A name="WITH"/>
+
 ### **`WITH(`** *expr* **`)`**  
 Used with [expectations](#expectation) to add further conditions for a
 matching call. Typically used when [matchers](#matcher) are used for the
