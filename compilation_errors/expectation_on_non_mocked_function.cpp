@@ -11,18 +11,20 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//Function is not callable on object
+//Function is not mocked for object
 
 #include "../trompeloeil.hpp"
 
 struct MS
 {
-  MAKE_MOCK1(f, int(int));
+  void f(int, void*, int);
+  MAKE_MOCK3(f, int(int,int,int));
 };
+using trompeloeil::_;
 
 int main()
 {
   MS obj;
-  REQUIRE_CALL(obj, x(1))
+  REQUIRE_CALL(obj, f(1,nullptr,_))
     .RETURN(_2);
 }
