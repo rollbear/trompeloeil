@@ -3159,15 +3159,6 @@ namespace trompeloeil
     Mock& obj;
   };
 
-  template <typename Mock>
-  call_validator_t<Mock>
-  call_validator(
-    void const*,
-    Mock& obj)
-  {
-    return {obj};
-  }
-
   template <typename T,
             typename = std::enable_if_t<std::is_lvalue_reference<T&&>::value>>
   inline
@@ -3530,10 +3521,11 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
-  ::trompeloeil::call_validator(static_cast<std::decay_t<decltype((obj).func)>*>(nullptr), (obj)) + \
+    (static_cast<std::decay_t<decltype((obj).func)>*>(nullptr),                \
+   ::trompeloeil::call_validator_t<decltype(obj)>{(obj)}) +                    \
   decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::                \
   trompeloeil_expectation_maker(                                               \
-     __FILE__, __LINE__, obj_s "." func_s                                      \
+    __FILE__, __LINE__, obj_s "." func_s                                       \
   ).func
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
