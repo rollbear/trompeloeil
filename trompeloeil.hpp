@@ -3444,44 +3444,47 @@ namespace trompeloeil
                 "Function signature does not have " #num " parameters");       \
   using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
   using TROMPELOEIL_LINE_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
-  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations);     \
+  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations);\
   struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
-    template <typename Mock>                                                   \
-    struct maker_obj {                                                         \
-      Mock& obj;                                                               \
-      const char* file;                                                        \
-      unsigned long line;                                                      \
-      const char* call_string;                                                 \
+    struct trompeloeil_expectation_maker_obj                                   \
+    {                                                                          \
+      const char* trompeloeil_expectation_file;                                \
+      unsigned long trompeloeil_expectation_line;                              \
+      const char *trompeloeil_expectation_string;                              \
                                                                                \
-      template <typename ... U>                                                \
+      template <typename ... trompeloeil_param_type>                           \
       auto name(                                                               \
-        U&& ... u)                                                             \
+        trompeloeil_param_type&& ... trompeloeil_param)                        \
         -> ::trompeloeil::modifier_t<sig,                                      \
                                      TROMPELOEIL_LINE_ID(tag_type_trompeloeil),\
-                                     U...>                                     \
+                                     trompeloeil_param_type...>                \
       {                                                                        \
-        using params  = ::trompeloeil::param_t<U...>;                          \
-        using matcher = ::trompeloeil::call_matcher<sig, params>;              \
-                                                                               \
-        auto  matcher_obj = new matcher(file,                                  \
-                                        line,                                  \
-                                        call_string,                           \
-                                        std::forward<U>(u)...);                \
-                                                                               \
-        return {matcher_obj};                                                  \
+        using matcher = ::trompeloeil::call_matcher<                           \
+                            sig,                                               \
+                            ::trompeloeil::param_t<trompeloeil_param_type...>>;\
+        return {                                                               \
+            new matcher {                                                      \
+                  trompeloeil_expectation_file,                                \
+                  trompeloeil_expectation_line,                                \
+                  trompeloeil_expectation_string,                              \
+                  std::forward<trompeloeil_param_type>(trompeloeil_param)...   \
+                }                                                              \
+        };                                                                     \
       }                                                                        \
     };                                                                         \
-    template <typename Mock>                                                   \
     static                                                                     \
-    maker_obj<Mock>                                                            \
-    maker(                                                                     \
-      Mock& m_obj,                                                             \
-      const char* file,                                                        \
-      unsigned long line,                                                      \
-      const char* name)                                                        \
+    trompeloeil_expectation_maker_obj                                          \
+    trompeloeil_expectation_maker(                                             \
+      const char* trompeloeil_expectation_file,                                \
+      unsigned long trompeloeil_expectation_line,                              \
+      const char* trompeloeil_expectation_name)                                \
     {                                                                          \
-      return { m_obj, file, line, name };                                      \
+      return {                                                                 \
+        trompeloeil_expectation_file,                                          \
+        trompeloeil_expectation_line,                                          \
+        trompeloeil_expectation_name                                           \
+      };                                                                       \
     }                                                                          \
   };                                                                           \
                                                                                \
@@ -3528,8 +3531,9 @@ namespace trompeloeil
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
   ::trompeloeil::call_validator(static_cast<std::decay_t<decltype((obj).func)>*>(nullptr), (obj)) + \
-  decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::maker(          \
-    (obj), __FILE__, __LINE__, obj_s "." func_s \
+  decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::                \
+  trompeloeil_expectation_maker(                                               \
+     __FILE__, __LINE__, obj_s "." func_s                                      \
   ).func
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
