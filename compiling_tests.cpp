@@ -4403,7 +4403,7 @@ public:
 };
 
 
-TEST_CASE("a member function of a mock object can call a mocked function")
+TEST_CASE_METHOD(Fixture, "a member function of a mock object can call a mocked function")
 {
   {
     self_ref_mock m;
@@ -4413,7 +4413,7 @@ TEST_CASE("a member function of a mock object can call a mocked function")
   REQUIRE(reports.empty());
 }
 
-TEST_CASE("expectation on a mock function can call the same mock func recursively as side effect")
+TEST_CASE_METHOD(Fixture, "expectation on a mock function can call the same mock func recursively as side effect")
 {
   {
     self_ref_mock m;
