@@ -3156,12 +3156,6 @@ namespace trompeloeil
       auto tag = std::integral_constant<bool, valid_return_type>{};
       return make_expectation(tag, std::move(t));
     }
-
-    std::unique_ptr<expectation> // never called, used to limit
-    operator+(                   // errmsg when expectation on function
-      std::nullptr_t             // that is not mocked
-    );
-
     Mock& obj;
   };
 
@@ -3269,58 +3263,6 @@ namespace trompeloeil
                                    tag,
                                    matcher_info<sig>>;
 
-
-  template <typename T, typename F>
-  auto is_callable(T* obj, F&& func) -> decltype(func(*obj),std::true_type{});
-
-  template <typename F>
-  auto is_callable(const void*, F&&) -> std::false_type;
-
-  template <typename Mock, typename MockFunc>
-  inline auto make_expectation_maker(
-    Mock& obj,
-    MockFunc& mock_func,
-    const char* file,
-    unsigned long line,
-    const char* call_string,
-    std::true_type)
-  {
-    using maker = decltype(mock_func(obj));
-    return maker::trompeloeil_expectation_maker(file, line, call_string);
-  }
-
-
-  template <typename Mock, typename MockFunc> // never called. Used to
-  std::nullptr_t make_expectation_maker(      // limit errmsg when expectation
-    Mock&,                                    // on function that is not mocked
-    MockFunc&,
-    const char*,
-    unsigned long,
-    const char*,
-    std::false_type);
-
-  template <typename Mock, typename Func, typename MockFunc>
-  inline auto make_expectation_maker(
-    Mock& obj,
-    Func&& raw_func,
-    MockFunc&& mock_func,
-    const char* file,
-    unsigned long line,
-    const char* call_string)
-  {
-    using raw_callable = decltype(is_callable(&obj, raw_func));
-    using mock_callable = decltype(is_callable(&obj, mock_func));
-    static_assert(raw_callable{}, "Function is not callable on object");
-    static_assert(mock_callable{} || !raw_callable{},
-                  "Function is not mocked for object");
-    return make_expectation_maker(
-        obj,
-        mock_func,
-        file,
-        line,
-        call_string,
-        std::integral_constant<bool, raw_callable{} && mock_callable{}>{});
-  }
 
   template <typename M>
   inline
@@ -3579,14 +3521,12 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
-  ::trompeloeil::call_validator_t<decltype(obj)>{(obj)}+                       \
-  ::trompeloeil::make_expectation_maker(                                       \
-      obj,                                                                     \
-      [](auto& x) -> decltype(x.func) {},                                      \
-      [](auto& x) -> decltype(x.TROMPELOEIL_CONCAT(trompeloeil_tag_, func)) {},\
-      __FILE__,                                                                \
-      __LINE__,                                                                \
-      obj_s "." func_s).func
+    (static_cast<std::decay_t<decltype((obj).func)>*>(nullptr),                \
+   ::trompeloeil::call_validator_t<decltype(obj)>{(obj)}) +                    \
+  decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func) )::                \
+  trompeloeil_expectation_maker(                                               \
+    __FILE__, __LINE__, obj_s "." func_s                                       \
+  ).func
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
