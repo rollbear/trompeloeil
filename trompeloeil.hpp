@@ -3534,7 +3534,7 @@ namespace trompeloeil
         trompeloeil_expectation_line,                                          \
         trompeloeil_expectation_name                                           \
       };                                                                       \
-      }                                                                        \
+    }                                                                          \
   };                                                                           \
                                                                                \
   TROMPELOEIL_LINE_ID(matcher_list_t)&                                         \
@@ -3578,23 +3578,12 @@ namespace trompeloeil
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)              \
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
-// Required work around for GCC bug
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=64834
-#if defined(__GNUC__) && (__GNUC__ == 4 && __GNUC_MINOR__ == 9) || (__GNUC__ == 5 && __GNUC_MINOR__ < 4)
-#pragma GCC diagnostic ignored "-Wunused-value"
-#pragma GCC diagnostic push
-#define TROMPELOEIL_SELF_OBJ(a,b) (a,b)
-#pragma GCC diagnostic pop
-#else
-#define TROMPELOEIL_SELF_OBJ(a,b) a
-#endif
-
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
   ::trompeloeil::call_validator_t<decltype(obj)>{(obj)}+                       \
   ::trompeloeil::make_expectation_maker(                                       \
       obj,                                                                     \
-      [&](auto& x) -> decltype(TROMPELOEIL_SELF_OBJ(x,obj).func) { return {};}, \
-      [&](auto& x) -> decltype(TROMPELOEIL_SELF_OBJ(x,obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func)) { return {};}, \
+      [](auto& x) -> decltype(x.func) {},                                      \
+      [](auto& x) -> decltype(x.TROMPELOEIL_CONCAT(trompeloeil_tag_, func)) {},\
       __FILE__,                                                                \
       __LINE__,                                                                \
       obj_s "." func_s).func
