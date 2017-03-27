@@ -3129,7 +3129,7 @@ namespace trompeloeil
     noexcept
     {
       auto lock = get_lock();
-      m.matcher->hook_last(obj.trompeloeil_matcher_list(Tag{}));
+      m.matcher->hook_last(obj.trompeloeil_matcher_list(static_cast<Tag*>(nullptr)));
       return std::unique_ptr<expectation>(m.matcher);
     }
 
@@ -3263,13 +3263,6 @@ namespace trompeloeil
                                    tag,
                                    matcher_info<sig>>;
 
-
-  template <typename, typename MockTag>
-  auto expectation_maker(const char* file ,unsigned long line, const char* call)
-  {
-    using maker = typename MockTag::trompeloeil_expectation_maker_obj;
-    return maker{file, line, call};
-  }
 
   template <typename M>
   inline
@@ -3445,37 +3438,34 @@ namespace trompeloeil
   mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations);\
   struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
-    struct trompeloeil_expectation_maker_obj                                   \
-    {                                                                          \
-      const char* trompeloeil_expectation_file;                                \
-      unsigned long trompeloeil_expectation_line;                              \
-      const char *trompeloeil_expectation_string;                              \
+    const char* trompeloeil_expectation_file;                                  \
+    unsigned long trompeloeil_expectation_line;                                \
+    const char *trompeloeil_expectation_string;                                \
                                                                                \
-      template <typename ... trompeloeil_param_type>                           \
-      auto name(                                                               \
-        trompeloeil_param_type&& ... trompeloeil_param)                        \
-        -> ::trompeloeil::modifier_t<sig,                                      \
-                                     TROMPELOEIL_LINE_ID(tag_type_trompeloeil),\
-                                     trompeloeil_param_type...>                \
-      {                                                                        \
-        using matcher = ::trompeloeil::call_matcher<                           \
-                            sig,                                               \
-                            ::trompeloeil::param_t<trompeloeil_param_type...>>;\
-        return {                                                               \
-            new matcher {                                                      \
-                  trompeloeil_expectation_file,                                \
-                  trompeloeil_expectation_line,                                \
-                  trompeloeil_expectation_string,                              \
-                  std::forward<trompeloeil_param_type>(trompeloeil_param)...   \
-                }                                                              \
-        };                                                                     \
-      }                                                                        \
-    };                                                                         \
+    template <typename ... trompeloeil_param_type>                             \
+    auto name(                                                                 \
+      trompeloeil_param_type&& ... trompeloeil_param)                          \
+      -> ::trompeloeil::modifier_t<sig,                                        \
+                                   TROMPELOEIL_LINE_ID(tag_type_trompeloeil),  \
+                                   trompeloeil_param_type...>                  \
+    {                                                                          \
+      using matcher = ::trompeloeil::call_matcher<                             \
+                          sig,                                                 \
+                          ::trompeloeil::param_t<trompeloeil_param_type...>>;  \
+      return {                                                                 \
+          new matcher {                                                        \
+                trompeloeil_expectation_file,                                  \
+                trompeloeil_expectation_line,                                  \
+                trompeloeil_expectation_string,                                \
+                std::forward<trompeloeil_param_type>(trompeloeil_param)...     \
+              }                                                                \
+      };                                                                       \
+    }                                                                          \
   };                                                                           \
                                                                                \
   TROMPELOEIL_LINE_ID(matcher_list_t)&                                         \
   trompeloeil_matcher_list(                                                    \
-    TROMPELOEIL_LINE_ID(tag_type_trompeloeil))                                 \
+    TROMPELOEIL_LINE_ID(tag_type_trompeloeil)*)                                \
   constness                                                                    \
   noexcept                                                                     \
   {                                                                            \
@@ -3514,16 +3504,14 @@ namespace trompeloeil
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)              \
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
-namespace trompeloeil {
-}
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
     ::trompeloeil::call_validator_t<decltype(obj)>{(obj)} +                    \
-    ::trompeloeil::expectation_maker<                                          \
-        decltype((obj).func),                                                  \
-        decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_, func))             \
-      >(__FILE__, __LINE__, obj_s "." func_s).func
+    std::conditional_t<false,                                                  \
+                       decltype((obj).func),                                   \
+                       decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_,func))>\
+    {__FILE__, __LINE__, obj_s "." func_s}.func
 
-#define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
+#define TROMPELOEIL_ALLOW_CALL(obj, func)               \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)                      \
