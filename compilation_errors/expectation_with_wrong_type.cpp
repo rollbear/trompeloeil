@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//Function is not callable on object
+//argument.*2
 
 #include "../trompeloeil.hpp"
 
