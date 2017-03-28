@@ -3514,7 +3514,7 @@ namespace trompeloeil
     std::conditional_t<false,                                                  \
                        decltype((obj).func),                                   \
                        decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_,func))>\
-    {__FILE__, __LINE__, obj_s "." func_s}.func
+    {__FILE__, static_cast<unsigned long>(__LINE__), obj_s "." func_s}.func
 
 #define TROMPELOEIL_ALLOW_CALL(obj, func)               \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
