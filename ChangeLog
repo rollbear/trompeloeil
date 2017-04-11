@@ -1,3 +1,6 @@
+	* Sequence objects are now movable and can, for example, be
+	  returned from functions.
+
 v24 2017-03-10
 
 	* Worked around VS2017 bug. Thanks mlimber and xiangfan-ms

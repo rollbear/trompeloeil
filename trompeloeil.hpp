@@ -1109,15 +1109,15 @@ namespace trompeloeil
 
   class sequence_matcher;
 
-  class sequence
+  class sequence_type
   {
   public:
-    sequence() noexcept = default;
-    sequence(sequence&&) noexcept = default;
-    sequence(const sequence&) = delete;
-    sequence& operator=(sequence&&) noexcept = default;
-    sequence& operator=(const sequence&) = delete;
-    ~sequence();
+    sequence_type() noexcept = default;
+    sequence_type(sequence_type&&) noexcept = delete;
+    sequence_type(const sequence_type&) = delete;
+    sequence_type& operator=(sequence_type&&) noexcept = delete;
+    sequence_type& operator=(const sequence_type&) = delete;
+    ~sequence_type();
 
     bool
     is_first(
@@ -1143,6 +1143,15 @@ namespace trompeloeil
     list<sequence_matcher> matchers;
   };
 
+  class sequence
+  {
+  public:
+    sequence() : obj(new sequence_type) {}
+    sequence_type& operator*() { return *obj; }
+  private:
+    std::unique_ptr<sequence_type> obj;
+  };
+
   class sequence_matcher : public list_elem<sequence_matcher>
   {
   public:
@@ -1155,7 +1164,7 @@ namespace trompeloeil
     : seq_name(i.first)
     , exp_name(exp)
     , exp_loc(loc)
-    , seq(i.second)
+    , seq(*i.second)
     {
       seq.add_last(this);
     }
@@ -1202,12 +1211,12 @@ namespace trompeloeil
     char const *seq_name;
     char const *exp_name;
     location    exp_loc;
-    sequence&   seq;
+    sequence_type& seq;
   };
 
   inline
   bool
-  sequence::is_first(
+  sequence_type::is_first(
     sequence_matcher const *m)
   const
   noexcept
@@ -1217,7 +1226,7 @@ namespace trompeloeil
 
   inline
   void
-  sequence::validate_match(
+  sequence_type::validate_match(
     severity s,
     sequence_matcher const *matcher,
     char const* seq_name,
@@ -1240,7 +1249,7 @@ namespace trompeloeil
   }
 
   inline
-  sequence::~sequence()
+  sequence_type::~sequence_type()
   {
     bool touched = false;
     std::ostringstream os;
@@ -1266,7 +1275,7 @@ namespace trompeloeil
 
   inline
   void
-  sequence::add_last(
+  sequence_type::add_last(
     sequence_matcher *m)
   noexcept
   {

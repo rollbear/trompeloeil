@@ -1384,22 +1384,22 @@ using trompeloeil::ne;
 void test()
 {
   FileOps ops;
-  
+
   trompeloeil::sequence seq;
-  
+
   int handle = 4711;
-  
+
   REQUIRE_CALL(ops, open("name"))
     .RETURN(handle)
     .IN_SEQUENCE(seq);
-    
+
   REQUIRE_CALL(ops, write(handle, ne(nullptr), ne(0)))
     .RETURN(_3)
     .IN_SEQUENCE(seq);
-    
+
   REQUIRE_CALL(ops, close(handle))
     .IN_SEQUENCE(seq);
-    
+
   test_writes(&ops);
 }
 ```
@@ -1430,15 +1430,15 @@ using trompeloeil::ne;
 void test()
 {
   FileOps ops;
-  
+
   trompeloeil::sequence seq;
-  
+
   int handle = 4711;
-  
+
   REQUIRE_CALL(ops, open("name"))
     .RETURN(handle)
     .IN_SEQUENCE(seq);
-    
+
   REQUIRE_CALL(ops, write(handle, ne(nullptr), ne(0)))
     .RETURN(0)                                         // indicate failure
     .IN_SEQUENCE(seq);
@@ -1449,7 +1449,7 @@ void test()
 
   REQUIRE_CALL(ops, close(handle))
     .IN_SEQUENCE(seq);
-    
+
   test_writes(&ops);
 }
 ```

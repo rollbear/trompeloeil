@@ -157,7 +157,7 @@ private:
 TEST_CASE_METHOD(Fixture, "follow single sequence gives no reports", "[sequences]")
 {
   { // Compile-time tests
-    static_assert(std::is_nothrow_default_constructible<trompeloeil::sequence>::value, "Should be default constructible");
+    static_assert(std::is_default_constructible<trompeloeil::sequence>::value, "Should be default constructible");
     static_assert(std::is_nothrow_move_constructible<trompeloeil::sequence>::value, "Should be move constructible");
     static_assert(std::is_nothrow_move_assignable<trompeloeil::sequence>::value, "Should be move assignable");
     static_assert(!std::is_copy_constructible<trompeloeil::sequence>::value, "Should NOT be copy constructible");
@@ -186,6 +186,55 @@ TEST_CASE_METHOD(Fixture, "follow single sequence gives no reports", "[sequences
     obj2.count();
   }
   REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "correct sequence on moved seq object is not reported", "[sequences]")
+{
+  {
+    mock_c obj;
+    auto seq1 = trompeloeil::sequence{};
+    REQUIRE_CALL(obj, count())
+      .IN_SEQUENCE(seq1)
+      .RETURN(1);
+
+    auto seq2 = std::move(seq1);
+
+    REQUIRE_CALL(obj, func(_,_))
+      .IN_SEQUENCE(seq2);
+
+    obj.count();
+    std::string foo = "foo";
+    obj.func(3, foo);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "incorrect sequence on moved seq object is reported", "[sequences]")
+{
+  try
+  {
+    mock_c obj;
+    auto seq1 = trompeloeil::sequence{};
+    REQUIRE_CALL(obj, count())
+      .IN_SEQUENCE(seq1)
+      .RETURN(1);
+
+    auto seq2 = std::move(seq1);
+
+    REQUIRE_CALL(obj, func(_,_))
+      .IN_SEQUENCE(seq2);
+
+    std::string foo = "foo";
+    obj.func(3, foo);
+    FAIL("did not report");
+  }
+  catch (reported)
+  {
+    auto re = R":(Sequence mismatch.*\"seq2\".*matching.*obj.func\(_,_\).*has obj.count\(\) at.*first):";
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
 }
 
 TEST_CASE_METHOD(Fixture, "join two sequences gives no report", "[sequences]")
