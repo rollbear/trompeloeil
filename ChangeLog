@@ -1,3 +1,12 @@
+v25 2017-04-17
+
+	* Changed the expectation macros such that you can now have a
+	  macro that expands into several REQUIRE_CALL() (and the likes)
+
+	* Fixed macro expansion bugs causing name clashes.
+
+	* Documented clang++ 4 compatibility
+
 	* Sequence objects are now movable and can, for example, be
 	  returned from functions.
 
