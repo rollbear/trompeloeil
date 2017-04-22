@@ -19,6 +19,7 @@ A thread-safe header-only mocking framework for C++14 using the Boost Software L
 Documentation
 -------------
 
+- [Integrating with unit test frame works](docs/CookBook.md/#unit_test_frameworks)
 - [Intro presentation from Stockholm C++ UG (YouTube)](https://www.youtube.com/watch?v=mPYNsARvTDk)
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
 - [Trompeloeil on CppCast](http://cppcast.com/2017/02/bjorn-fahller/)
