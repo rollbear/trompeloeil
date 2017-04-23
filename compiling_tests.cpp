@@ -466,6 +466,30 @@ TEST_CASE_METHOD(Fixture, "Sequence object destruction with live expectations is
   REQUIRE(std::regex_search(msg, std::regex(re)));
 }
 
+TEST_CASE_METHOD(Fixture, "a sequence is completed when no expectations remain on it", "[sequences]")
+{
+  mock_c obj;
+  trompeloeil::sequence seq;
+  REQUIRE_CALL(obj, getter(ANY(int)))
+    .IN_SEQUENCE(seq)
+    .RETURN(0);
+  REQUIRE_CALL(obj, foo(_))
+    .IN_SEQUENCE(seq)
+    .TIMES(2);
+  REQUIRE_CALL(obj, getter(ANY(int)))
+    .IN_SEQUENCE(seq)
+    .RETURN(0);
+
+  REQUIRE(!seq.is_completed());
+  obj.getter(3);
+  REQUIRE(!seq.is_completed());
+  obj.foo("");
+  REQUIRE(!seq.is_completed());
+  obj.foo("bar");
+  REQUIRE(!seq.is_completed());
+  obj.getter(0);
+  REQUIRE(seq.is_completed());
+}
 // SIDE_EFFECT and LR_SIDE_EFFECT tests
 
 static int global_n = 0;

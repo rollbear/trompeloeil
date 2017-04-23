@@ -1120,6 +1120,11 @@ namespace trompeloeil
     ~sequence_type();
 
     bool
+    is_completed()
+      const
+    noexcept;
+
+    bool
     is_first(
       sequence_matcher const *m)
     const
@@ -1148,6 +1153,7 @@ namespace trompeloeil
   public:
     sequence() : obj(new sequence_type) {}
     sequence_type& operator*() { return *obj; }
+    bool is_completed() const { return obj->is_completed(); }
   private:
     std::unique_ptr<sequence_type> obj;
   };
@@ -1213,6 +1219,15 @@ namespace trompeloeil
     location    exp_loc;
     sequence_type& seq;
   };
+
+  inline
+  bool
+  sequence_type::is_completed()
+    const
+  noexcept
+  {
+    return matchers.empty();
+  }
 
   inline
   bool
