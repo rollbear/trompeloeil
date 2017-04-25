@@ -2170,9 +2170,11 @@ namespace trompeloeil
     // The obvious solution, to just call func<T,U>(0,0) gives true_type* in VS!!!
   };
 
-  template <typename T, typename U>
+  template <typename T,
+	    typename U,
+	    typename = std::enable_if_t<is_equal_comparable<T, U>::value>>
   inline
-  std::enable_if_t<is_equal_comparable<T, U>::value, U&>
+  U&
   identity(
     U& t)
   noexcept
@@ -2180,9 +2182,11 @@ namespace trompeloeil
     return t;
   }
 
-  template <typename T, typename U>
+  template <typename T,
+	    typename U,
+	    typename = std::enable_if_t<!is_equal_comparable<T, U>::value>>
   inline
-  std::enable_if_t<!is_equal_comparable<T, U>::value, T>
+  T
   identity(
     const U& u)
   noexcept(noexcept(T(u)))
@@ -2711,8 +2715,8 @@ namespace trompeloeil
       constexpr bool ref_const_mismatch=
         is_ref_ret &&
         is_ref_sigret &&
-        !std::is_const<std::remove_reference_t<sigret>>{} &&
-        std::is_const<std::remove_reference_t<ret>>{};
+        !std::is_const<std::remove_reference_t<sigret>>::value &&
+        std::is_const<std::remove_reference_t<ret>>::value;
       constexpr bool matching_ret_type = std::is_constructible<sigret, ret>::value;
       constexpr bool ref_value_mismatch = !is_ref_ret && is_ref_sigret;
 
@@ -3293,18 +3297,20 @@ namespace trompeloeil
                                    matcher_info<sig>>;
 
 
-  template <typename M>
+  template <typename M,
+	    typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
   inline
-  std::enable_if_t<::trompeloeil::is_matcher<M>::value, ::trompeloeil::ptr_deref<std::decay_t<M>>>
+  ::trompeloeil::ptr_deref<std::decay_t<M>>
   operator*(
     M&& m)
   {
     return ::trompeloeil::ptr_deref<std::decay_t<M>>{std::forward<M>(m)};
   }
 
-  template <typename M>
+  template <typename M,
+	    typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
   inline
-  std::enable_if_t<::trompeloeil::is_matcher<M>::value, ::trompeloeil::neg_matcher<std::decay_t<M>>>
+  ::trompeloeil::neg_matcher<std::decay_t<M>>
   operator!(
     M&& m)
   {
