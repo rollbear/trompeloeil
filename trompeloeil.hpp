@@ -456,10 +456,38 @@ namespace trompeloeil
     }
   };
 
+  template <typename ...>
+  struct void_t_
+  {
+    using type = void;
+  };
+
+  template <typename ... T>
+  using void_t = typename void_t_<T...>::type;
+
+  template <template <typename ...> class, typename, typename ...>
+  struct is_detected_{
+    using type = std::false_type;
+    static constexpr const auto value = type{};
+  };
+
+  template <template <typename ...> class D, typename ... Ts>
+  struct is_detected_<D, void_t<D<Ts...>>, Ts...>
+  {
+    using type = std::true_type;
+    static constexpr const auto value = type{};
+  };
+
+  template <template <typename ...> class D, typename ... Ts>
+  using is_detected = typename is_detected_<D, void, Ts...>::type;
+
   struct matcher { };
 
   template <typename T>
-  using is_matcher = std::is_base_of<matcher, std::decay_t<T>>;
+  using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
+
+  template <typename T>
+  using is_matcher = typename is_detected<matcher_access, T>::type; 
 
   template <typename T>
   struct typed_matcher : matcher
@@ -495,38 +523,11 @@ namespace trompeloeil
     operator V&() const;
   };
 
-  constexpr inline std::false_type is_output_streamable_(...) { return {}; }
+  template <typename T>
+  using ostream_insertion = decltype(std::declval<std::ostream&>() << std::declval<T>());
 
   template <typename T>
-  constexpr
-  inline
-  auto
-  is_output_streamable_(
-    T*)
-  -> decltype((std::declval<std::ostream&>() << std::declval<T&>()),std::true_type{})
-  {
-    return {};
-  }
-
-  template <typename T, size_t N>
-  inline
-  constexpr
-  auto
-  is_output_streamable_(
-    T(*)[N])
-  -> std::false_type
-  {
-    return {};
-  }
-
-  template <typename T>
-  inline
-  constexpr
-  auto
-  is_output_streamable()
-  {
-    return is_output_streamable_(static_cast<T*>(nullptr));
-  }
+  using is_output_streamable = std::integral_constant<bool, is_detected<ostream_insertion, T>{} && !std::is_array<T>{}>;
 
   struct stream_sentry
   {
@@ -550,21 +551,14 @@ namespace trompeloeil
     char fill;
   };
 
+  template <typename T, typename U>
+  using equality_comparison = decltype(std::declval<T>() == std::declval<U>());
+
+  template <typename T, typename U>
+  using is_equal_comparable = is_detected<equality_comparison, T, U>;
 
   template <typename T>
-  struct is_null_comparable
-  {
-    template <typename U>
-    static auto func(...)
-      -> std::false_type;
-
-    template <typename U>
-    static auto func(U* u)
-      -> std::integral_constant<decltype(*u == nullptr), !is_matcher<U>::value>;
-
-    using type = decltype(func<T>(nullptr));
-    static constexpr type value = {};
-  };
+  using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
 
   template <typename T>
   inline
@@ -573,7 +567,7 @@ namespace trompeloeil
   is_null(
     T const &t,
     std::true_type)
-  noexcept(noexcept(std::declval<T>() == nullptr))
+  noexcept(noexcept(std::declval<const T&>() == nullptr))
   {
     return t == nullptr;
   }
@@ -597,8 +591,7 @@ namespace trompeloeil
   is_null(
     T const &t)
   {
-    return ::trompeloeil::is_null(t,
-                                  ::trompeloeil::is_null_comparable<T>::value);
+    return ::trompeloeil::is_null(t, std::integral_constant<bool, is_null_comparable<T>().value && !is_matcher<T>::value>{});
   }
 
   template <typename T, size_t N>
@@ -619,44 +612,14 @@ namespace trompeloeil
     T const &t);
 
   template <typename T>
-  constexpr
-  std::integral_constant<decltype(std::next(std::begin(std::declval<T>()))
-                                  != std::end(std::declval<T>())),
-                         true>
-  is_collection_(T*)
-  {
-      return {};
-  }
+  using iterable = decltype(std::begin(std::declval<T&>()) == std::end(std::declval<T&>()));
 
   template <typename T>
-  constexpr
-  auto
-  is_collection_(...)
-    -> std::false_type
-  {
-    return {};
-  }
-
-  template <typename T, bool b = is_collection_<T>(nullptr)>
-  struct array_discriminator : std::true_type  {  };
-
-  template <typename T, size_t N>
-  struct array_discriminator<T[N], false> : std::true_type { };
-
-  template <typename T>
-  struct array_discriminator<T, false> : std::false_type { };
-
-  template <typename T>
-  constexpr
-  auto
-  is_collection()
-  {
-    return array_discriminator<T>{};
-  }
+  using is_collection = is_detected<iterable, T>;
 
   template <typename T,
-            bool = is_output_streamable<T>(),
-            bool = is_collection<std::remove_reference_t<T>>()>
+            bool = is_output_streamable<T>::value,
+            bool = is_collection<std::remove_reference_t<T>>::value>
   struct streamer
   {
     static
@@ -2153,22 +2116,6 @@ namespace trompeloeil
   {
     return t.matches(u);
   }
-
-  template <typename T, typename U>
-  struct is_equal_comparable
-  {
-    template <typename P, typename V>
-    static constexpr std::false_type func(...) { return {}; }
-
-    template <typename P, typename V>
-    static constexpr auto func(P* p, V* v) -> decltype((*p == *v), std::true_type{})
-    {
-      return ::trompeloeil::ignore(p,v),std::true_type{};
-    }
-
-    static constexpr auto value = decltype(func<T, U>(nullptr, nullptr))::value;
-    // The obvious solution, to just call func<T,U>(0,0) gives true_type* in VS!!!
-  };
 
   template <typename T,
 	    typename U,
