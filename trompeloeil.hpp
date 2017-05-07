@@ -591,18 +591,11 @@ namespace trompeloeil
   is_null(
     T const &t)
   {
-    return ::trompeloeil::is_null(t, std::integral_constant<bool, is_null_comparable<T>().value && !is_matcher<T>::value>{});
-  }
-
-  template <typename T, size_t N>
-  inline
-  constexpr
-  bool
-  is_null(
-    T(&)[N])
-  noexcept
-  {
-      return false;
+    constexpr bool null_comparable =
+      is_null_comparable<T>::value
+      && !is_matcher<T>::value
+      && !std::is_array<T>::value;
+    return ::trompeloeil::is_null(t, std::integral_constant<bool, null_comparable>{});
   }
 
   template <typename T>
