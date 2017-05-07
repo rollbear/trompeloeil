@@ -468,14 +468,12 @@ namespace trompeloeil
   template <template <typename ...> class, typename, typename ...>
   struct is_detected_{
     using type = std::false_type;
-    static constexpr const auto value = type{};
   };
 
   template <template <typename ...> class D, typename ... Ts>
   struct is_detected_<D, void_t<D<Ts...>>, Ts...>
   {
     using type = std::true_type;
-    static constexpr const auto value = type{};
   };
 
   template <template <typename ...> class D, typename ... Ts>
