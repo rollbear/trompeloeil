@@ -525,7 +525,7 @@ namespace trompeloeil
   using ostream_insertion = decltype(std::declval<std::ostream&>() << std::declval<T>());
 
   template <typename T>
-  using is_output_streamable = std::integral_constant<bool, is_detected<ostream_insertion, T>{} && !std::is_array<T>{}>;
+  using is_output_streamable = std::integral_constant<bool, is_detected<ostream_insertion, T>::value && !std::is_array<T>::value>;
 
   struct stream_sentry
   {
