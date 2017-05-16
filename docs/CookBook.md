@@ -264,6 +264,71 @@ before any tests are run.
 
 ### <A name="adapt_doctest"/>Use *Trompeloeil* with [doctest](https://github.com/onqtam/doctest)
 
+* [doctest 1.2 or newer](#doctest12)
+* [doctest &lt; 1.2](#doctest_old)
+
+#### <A name="doctest12"/> doctest 1.2 or newer
+
+Paste the following code snippet in global namespace in one of your
+[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+
+```Cpp
+  namespace trompeloeil
+  {
+    template <>
+    void reporter<specialized>::send(
+      severity s,
+      const char* file,
+      unsigned long line,
+      const char* msg)
+    {
+      auto f = line ? file : "[file/line unavailable]";
+      if (s == severity::fatal)
+      {
+        ADD_FAIL_AT(f, line, msg);
+      }
+      else
+      {
+        ADD_FAIL_CHECK_AT(f, line, msg);
+      }
+    }
+  }
+```
+
+If you have several
+[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
+add the following extern declatation in the others:
+
+```Cpp
+extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+```
+
+If you roll your own `main()`, you may prefer a runtime adapter instead.
+Before running any tests, make sure to call:
+
+
+```Cpp
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    const char* msg)
+  {
+    auto f = line ? file : "[file/line unavailable]";
+    if (s == severity::fatal)
+    {
+      ADD_FAIL_AT(f, line, msg);
+    }
+    else
+    {
+      ADD_FAIL_CHECK_AT(f, line, msg);
+    }
+  });
+```
+
+
+#### <A name="doctest_old"/> doctest &lt; 1.2
+
 Paste the following code snippet in global namespace in one of your
 [translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
 
