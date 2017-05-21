@@ -3665,7 +3665,7 @@ TEST_CASE_METHOD(Fixture, "require destruction is neither satisfied nor saturate
 {
   {
     auto obj = new trompeloeil::deathwatched<mock_c>();
-    std::unique_ptr<trompeloeil::expectation> p = NAMED_REQUIRE_DESTRUCTION(*obj);
+    auto p = NAMED_REQUIRE_DESTRUCTION(*obj);
     REQUIRE(!p->is_saturated());
     REQUIRE(!p->is_satisfied());
     delete obj;
@@ -3676,7 +3676,7 @@ TEST_CASE_METHOD(Fixture, "require destruction is neither satisfied nor saturate
 TEST_CASE_METHOD(Fixture, "require destruction is both satisfied and saturated when object is destroyed", "[deathwatched]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>();
-  std::unique_ptr<trompeloeil::expectation> p = NAMED_REQUIRE_DESTRUCTION(*obj);
+  auto p = NAMED_REQUIRE_DESTRUCTION(*obj);
   delete obj;
   REQUIRE(p->is_saturated());
   REQUIRE(p->is_satisfied());

@@ -3208,6 +3208,18 @@ namespace trompeloeil
     std::unique_ptr<lifetime_monitor> monitor;
   };
 
+  struct lifetime_monitor_releaser
+  {
+    template <bool b>
+    std::unique_ptr<expectation>
+    operator+(
+      lifetime_monitor_modifier<b>&& m)
+    const
+    {
+      return m;
+    }
+  };
+
   template <typename Sig>
   struct expectations
   {
@@ -3668,7 +3680,8 @@ namespace trompeloeil
 #define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION(obj)                             \
   TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_("NAMED_", obj, #obj)
 
-#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(prefix, obj, obj_s)                 \
+#define TROMPELOEIL_NAMED_REQUIRE_DESTRUCTION_(prefix, obj, obj_s)             \
+  trompeloeil::lifetime_monitor_releaser{} +                                   \
   trompeloeil::lifetime_monitor_modifier<false>{                               \
     std::make_unique<trompeloeil::lifetime_monitor>(                           \
       obj,                                                                     \
