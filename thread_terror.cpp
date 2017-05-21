@@ -3,6 +3,7 @@
 #include <thread>
 #include <atomic>
 #include <iostream>
+#include <cassert>
 
 class C
 {
@@ -67,6 +68,8 @@ void allow(size_t count, int id)
       exp = NAMED_ALLOW_CALL(*m, func())
         .SIDE_EFFECT(++call_count[id])
         .RETURN(id);
+      assert(exp->is_satisfied());
+      assert(!exp->is_saturated());
     }
   }
 }

@@ -46,6 +46,7 @@
 #include <cstring>
 #include <regex>
 #include <mutex>
+#include <atomic>
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -1883,6 +1884,8 @@ namespace trompeloeil
 
   struct expectation {
     virtual ~expectation() = default;
+    virtual bool is_satisfied() const noexcept = 0;
+    virtual bool is_saturated() const noexcept = 0;
   };
 
   struct lifetime_monitor : public expectation
@@ -1901,6 +1904,16 @@ namespace trompeloeil
       , invocation_name(invocation_name_)
       , call_name(call_name_)
     {
+    }
+
+    bool is_satisfied() const noexcept override
+    {
+      return died;
+    }
+
+    bool is_saturated() const noexcept override
+    {
+      return died;
     }
 
     lifetime_monitor(lifetime_monitor const&) = delete;
@@ -1936,7 +1949,7 @@ namespace trompeloeil
       sequences.reset(seq);
     }
   private:
-    bool               died = false;
+    std::atomic<bool>  died{false};
     lifetime_monitor *&object_monitor;
     location           loc;
     char const        *object_name;
@@ -2846,6 +2859,25 @@ namespace trompeloeil
     }
 
     bool
+    is_satisfied()
+      const
+      noexcept
+      override
+    {
+      auto lock = get_lock();
+      return call_count >= min_calls;
+    }
+
+    bool
+    is_saturated()
+      const
+      noexcept
+      override
+    {
+      auto lock = get_lock();
+      return call_count >= max_calls;
+    }
+    bool
     is_unfulfilled()
     const
     noexcept
@@ -2922,23 +2954,26 @@ namespace trompeloeil
       call_matcher_list<Sig> &saturated_list)
     override
     {
-      if (call_count < min_calls && sequences)
-      {
-        sequences->validate(severity::fatal, name, loc);
-      }
       if (max_calls == 0)
       {
-        reported = true;
-        report_forbidden_call(name, loc, params_string(params));
+	reported = true;
+	report_forbidden_call(name, loc, params_string(params));
       }
-      if (++call_count == min_calls && sequences)
+      auto lock = get_lock();
       {
-        sequences->retire();
-      }
-      if (call_count == max_calls)
-      {
-        this->unlink();
-        saturated_list.push_back(this);
+	if (call_count < min_calls && sequences)
+	{
+	  sequences->validate(severity::fatal, name, loc);
+	}
+	if (++call_count == min_calls && sequences)
+	{
+	  sequences->retire();
+	}
+	if (call_count == max_calls)
+	{
+	  this->unlink();
+	  saturated_list.push_back(this);
+	}
       }
       for (auto& a : actions) a.action(params);
     }
@@ -3045,8 +3080,8 @@ namespace trompeloeil
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
     unsigned long long                     call_count = 0;
-    unsigned long long                     min_calls = 1;
-    unsigned long long                     max_calls = 1;
+    std::atomic<unsigned long long>        min_calls{1};
+    std::atomic<unsigned long long>        max_calls{1};
     Value                                  val;
     bool                                   reported = false;
   };
