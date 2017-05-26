@@ -20,6 +20,7 @@ Documentation
 -------------
 
 - [Integrating with unit test frame works](docs/CookBook.md/#unit_test_frameworks)
+- Detailed presentation from ACCU 2017 [(YouTube 1h25m)](https://www.youtube.com/watch?v=HCh6cs9nXt0) [(Slides with extra material)](https://speakerdeck.com/rollbear/using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)
 - [Intro presentation from Stockholm C++ UG (YouTube)](https://www.youtube.com/watch?v=mPYNsARvTDk)
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
 - [Trompeloeil on CppCast](http://cppcast.com/2017/02/bjorn-fahller/)
