@@ -466,6 +466,30 @@ TEST_CASE_METHOD(Fixture, "Sequence object destruction with live expectations is
   REQUIRE(std::regex_search(msg, std::regex(re)));
 }
 
+TEST_CASE_METHOD(Fixture, "a sequence is completed when no expectations remain on it", "[sequences]")
+{
+  mock_c obj;
+  trompeloeil::sequence seq;
+  REQUIRE_CALL(obj, getter(ANY(int)))
+    .IN_SEQUENCE(seq)
+    .RETURN(0);
+  REQUIRE_CALL(obj, foo(_))
+    .IN_SEQUENCE(seq)
+    .TIMES(2);
+  REQUIRE_CALL(obj, getter(ANY(int)))
+    .IN_SEQUENCE(seq)
+    .RETURN(0);
+
+  REQUIRE(!seq.is_completed());
+  obj.getter(3);
+  REQUIRE(!seq.is_completed());
+  obj.foo("");
+  REQUIRE(!seq.is_completed());
+  obj.foo("bar");
+  REQUIRE(!seq.is_completed());
+  obj.getter(0);
+  REQUIRE(seq.is_completed());
+}
 // SIDE_EFFECT and LR_SIDE_EFFECT tests
 
 static int global_n = 0;
@@ -3374,6 +3398,56 @@ Expected obj\.func\(3, _\) to be called once, actually never called
 
 // test of multiplicity retiring expectations, fulfilled or not
 
+TEST_CASE_METHOD(Fixture, "FORBID_CALL is always both satisfied and saturated", "[multiplicity]")
+{
+  {
+    mock_c obj;
+    auto e = NAMED_FORBID_CALL(obj, count());
+    REQUIRE(e->is_satisfied());
+    REQUIRE(e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "ALLOW_ALL is always satisfied and never saturated", "[multiplicity]")
+{
+  {
+    mock_c obj;
+    auto e = NAMED_ALLOW_CALL(obj, count())
+      .RETURN(1);
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+    obj.count();
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+    obj.count();
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, ".TIMES is satisfied when min calls is reached, and not saturated until max calls is reached", "[multiplicity]")
+{
+ {
+    mock_c obj;
+    auto e = NAMED_REQUIRE_CALL(obj, count())
+      .TIMES(1,3)
+      .RETURN(1);
+    REQUIRE(!e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+    obj.count();
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+    obj.count();
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+    obj.count();
+    REQUIRE(e->is_satisfied());
+    REQUIRE(e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
 TEST_CASE_METHOD(Fixture, "unsatisfied expectation when mock dies is reported", "[scoping][multiplicity]")
 {
   auto m = std::make_unique<mock_c>();
@@ -3587,6 +3661,26 @@ TEST_CASE_METHOD(Fixture, "object alive when destruction expectation goes out of
   REQUIRE(std::regex_search(reports.front().msg, std::regex("Object obj is still alive")));
 }
 
+TEST_CASE_METHOD(Fixture, "require destruction is neither satisfied nor saturated while object is alive", "[deathwatched]")
+{
+  {
+    auto obj = new trompeloeil::deathwatched<mock_c>();
+    auto p = NAMED_REQUIRE_DESTRUCTION(*obj);
+    REQUIRE(!p->is_saturated());
+    REQUIRE(!p->is_satisfied());
+    delete obj;
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(Fixture, "require destruction is both satisfied and saturated when object is destroyed", "[deathwatched]")
+{
+  auto obj = new trompeloeil::deathwatched<mock_c>();
+  auto p = NAMED_REQUIRE_DESTRUCTION(*obj);
+  delete obj;
+  REQUIRE(p->is_saturated());
+  REQUIRE(p->is_satisfied());
+}
 TEST_CASE_METHOD(Fixture, "require destruction succeeds also without deathwatch", "[deatwatched]")
 {
   {
