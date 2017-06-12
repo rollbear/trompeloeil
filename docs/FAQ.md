@@ -16,6 +16,7 @@
 - Q. [Can I mock a C function API?](#func_mock)
 - Q. [Can I match a value pointed to by a pointer parameter?](#match_deref)
 - Q. [Can I negate the effect of a matcher?](#negate_matcher)
+- Q. [Can I check if an expectation is fulfilled?](#query_expectation)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -408,3 +409,30 @@ match er disallows and vice versa, using operator
 
 See [Matching the opposite of a matcher](CookBook.md/#negating_matchers)
 in the [Cook Book](CookBook.md).
+
+## <A name="query_expectation"/> Q. Can I check if an expectation is fulfilled?
+
+Yes, if you use [**`NAMED_ALLOW_CALL(...)`**](reference.md/#NAMED_ALLOW_CALL),
+[**`NAMED_REQUIRE_CALL(...)`**](reference.md/#NAMED_REQUIRE_CALL) or
+[**`NAMED_FORBID_CALL(...)`**](reference.md/#NAMED_FORBID_CALL), then you can
+ask [`is_satisfied()`](reference.md/#is_satisfied) and
+[`is_saturated()`](reference.md/#is_saturated). Example:
+
+```Cpp
+TEST("something")
+{
+  mock_obj mock;
+  auto ptr = NAMED_REQUIRE_CALL(mock, some_func())
+               .TIMES(2,4);
+  ...
+  if (ptr->is_satisfied()) // at least two call have been made
+  ...
+  if (ptr->is_saturated()) // four calls have been made
+}
+```
+
+Likewise you can ask [sequence objects](reference.md/#sequence_type) if the
+sequence they describe [`is_completed()`](reference.md/#is_completed).
+
+These are rarely useful in pure unit tests, but it can be useful for mini
+integration tests, especially when threading is involved.

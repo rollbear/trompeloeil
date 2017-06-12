@@ -52,11 +52,14 @@
   - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
   - [`tropmeloeil::tracer`](#tracer_type)
 - [Functions and Function Templates](#functions)
+  - [`trompeloeil::expectation::is_satisfied()`](#is_satisfied)
+  - [`trompeloeil::expectation::is_saturated()`](#is_saturated)
   - [`trompeloeil::get_lock()`](#get_lock)
   - [`trompeloeil::is_null(T const &)`](#is_null)
   - [`trompeloeil::make_matcher<Type>(...)`](#make_matcher)
   - [`trompeloeil::print(std::ostream&, T const&)`](#print)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
+  - [`trompeloeil::sequence::is_completed()`](#sequence_type_completed)
 
   
 ## <A name="notions"/>Notions
@@ -1867,7 +1870,8 @@ Sequence objects are moveable but not copyable.
 **NOTE!** The [**`.IN_SEQUENCE(...)`**](#IN_SEQUENCE) macro accepts many
 sequence objects.
 
-### <A name="severity_type"/>`trompeloeil::severity`
+
+### <A name="severity_type"/> `trompeloeil::severity`
 
 Type used in violation reports to dictate what actions are allowed by the
 report handler.
@@ -1939,7 +1943,52 @@ See "[Writing custom tracers](CookBook.md/#custom_tracer)" in the
 
 ## <A name="functions"/>Functions
 
-### <A name="get_lock"/>`trompeloeil::get_lock()`
+### <A name="is_satisfied"/> `trompeloeil::expectation::is_satisfied() const`
+
+Query an [expectation object](#expectation_type) if it is satisfied, i.e. if
+it will not report a missing call if it is destroyed. If
+[**`.TIMES()`**](#TIMES) is used, this is true if the minimum number of calls
+has been reached.
+
+```Cpp
+test(...)
+{
+  ...
+  auto e = NAMED_REQUIRE_CALL(mock_obj, func())
+             .TIMES(2,5);
+  assert(!e->is_satisfied()); // no calls made yet.
+  mock_obj.func();
+  assert(!e->is_satisfied()); // Only one call made, min is 2.
+  mock_obj.func();
+  assert(e->is_satisfied()); // now 2 calls are made, so it's satisfied
+  mock_obj.func();
+  assert(e->is_satisfied()); // 3 calls are made, it's still satisfied
+}
+```
+
+### <A name="is_saturated"/> `trompeloeil::expectation::is_saturated() const`
+
+Query an [expectation object](#expectation_type) if it is saturated, i.e. if
+another call will report an unexpected call. If [**`.TIMES()`**](#TIMES) is
+used, this is true if the maximum number of calls has been reached.
+
+```Cpp
+  ...
+  auto e = NAMED_REQUIRE_CALL(mock_obj, func())
+             .TIMES(2,4);
+  assert(!e->is_saturated()); // no calls made yet.
+  mock_obj.func();
+  assert(!e->is_saturated()); // Only one call made, max is 4.
+  mock_obj.func();
+  assert(!e->is_saturated()); // now 2 calls are made, still not saturated
+  mock_obj.func();
+  assert(!e->is_saturated()); // 3 calls, one more to go.
+  mock_obj.func();
+  assert(e->is_saturated());  // 4 calls, the expectation is now saturated
+
+  /* mock_obj.func();*/ // would cause "unexpected call" error.
+```
+### <A name="get_lock"/> `trompeloeil::get_lock()`
 
 Get the global
 [`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
@@ -2016,3 +2065,27 @@ The [Cook Book](CookBook.md) lists
 [adapter code](CookBook.md/#unit_test_frameworks) for a number of popular
 unit test frame works.
 
+### <A name="sequence_type_completed"/> `bool trompeloeil::sequence::is_completed() const`
+
+Member function of [`sequence`](#sequence_type) object, used to query if
+the sequence it describes is completed or not.
+
+Example:
+
+```Cpp
+void test()
+{
+  auto seq = trompeloeil::sequence;
+  mock_type mock;
+  REQUIRE_CALL(mock, func1())
+    .IN_SEQUENCE(seq);
+  REQUIRE_CALL(mock, func2())
+    .TIMES(100)
+    .IN_SEQUENCE(seq);
+  assert(!seq.is_completed()); // no calls yet
+  mock.func1();
+  assert(!seq.is_completed()); // only first call, one remaining
+  mock.func2();
+  assert(seq.is_completed());  // now sequence is completed
+}
+```
