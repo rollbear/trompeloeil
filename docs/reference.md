@@ -59,7 +59,7 @@
   - [`trompeloeil::make_matcher<Type>(...)`](#make_matcher)
   - [`trompeloeil::print(std::ostream&, T const&)`](#print)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
-  - [`trompeloeil::sequence::is_completed()`](#sequence_type_completed)
+  - [`trompeloeil::sequence::is_completed()`](#is_completed)
 
   
 ## <A name="notions"/>Notions
@@ -2065,7 +2065,7 @@ The [Cook Book](CookBook.md) lists
 [adapter code](CookBook.md/#unit_test_frameworks) for a number of popular
 unit test frame works.
 
-### <A name="sequence_type_completed"/> `bool trompeloeil::sequence::is_completed() const`
+### <A name="is_completed"/> `bool trompeloeil::sequence::is_completed() const`
 
 Member function of [`sequence`](#sequence_type) object, used to query if
 the sequence it describes is completed or not.
