@@ -1,3 +1,13 @@
+v26 2017-06-12
+
+	* Support for threaded semi-integration tests by allowing
+	  queries if a sequence object "is_completed()", if an
+	  expectation objet "is_satisfied()" or "is_saturated()".
+
+	  See FAQ and reference manual for details.
+
+	* Internal restructuring for reduced code size.
+
 v25 2017-04-17
 
 	* Changed the expectation macros such that you can now have a
