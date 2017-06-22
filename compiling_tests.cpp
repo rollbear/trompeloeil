@@ -3664,8 +3664,10 @@ TEST_CASE_METHOD(Fixture, "object alive when destruction expectation goes out of
 TEST_CASE_METHOD(Fixture, "require destruction is neither satisfied nor saturated while object is alive", "[deathwatched]")
 {
   {
+    using monitor = std::unique_ptr<trompeloeil::lifetime_monitor>;
+
     auto obj = new trompeloeil::deathwatched<mock_c>();
-    auto p = NAMED_REQUIRE_DESTRUCTION(*obj);
+    monitor p = NAMED_REQUIRE_DESTRUCTION(*obj);
     REQUIRE(!p->is_saturated());
     REQUIRE(!p->is_satisfied());
     delete obj;
