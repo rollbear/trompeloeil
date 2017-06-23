@@ -3194,7 +3194,6 @@ namespace trompeloeil
   struct lifetime_monitor_modifier
   {
     operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
-    operator std::unique_ptr<expectation>() { return std::move(monitor);}
     template <typename ... T, bool b = sequence_set>
     lifetime_monitor_modifier<true>
     in_sequence(T&& ... t)
