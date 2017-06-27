@@ -1,3 +1,11 @@
+v27 2017-06-27
+
+	* Fixed a regression where NAMED_REQUIRE_DESTRUCTION(obj) accidentally
+	  resulted in a std::unique_ptr<trompeloeil::expectation> instead
+	  of std::unique_ptr<trompeloeil::lifetime_monitor> as documented.
+
+	* Added a rudimentary CMakeLists.txt file. Thanks Harald Achitz.
+
 v26 2017-06-12
 
 	* Support for threaded semi-integration tests by allowing
