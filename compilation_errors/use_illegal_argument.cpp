@@ -25,6 +25,17 @@ void func(const int&);
 int main()
 {
   MS obj;
+
+#if __cplusplus == 201103L
+
+  using m_t = NAMED_MOCK_TYPE(obj, f(ANY(int)));
+  REQUIRE_CALL(obj, f(ANY(int)))
+    .SIDE_EFFECT_TYPE(m_t, func(_2));
+
+#else /* __cplusplus == 201103L */
+
   REQUIRE_CALL(obj, f(ANY(int)))
     .SIDE_EFFECT(func(_2));
+
+#endif /* !__cplusplus == 201103L */
 }

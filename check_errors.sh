@@ -34,7 +34,7 @@ for f in *.cpp
 do
   RE=`sed -n "$SCRIPT" < $f`
   printf "%-45s" $f
-  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include -std=c++14 $f -c 2>&1 | egrep -q "${RE}" && echo ${PASS} && continue || echo ${FAIL} && false
+  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include $f -c 2>&1 | egrep -q "${RE}" && echo ${PASS} && continue || echo ${FAIL} && false
   FAILURES=$((FAILURES+$?))
 done
 exit $FAILURES

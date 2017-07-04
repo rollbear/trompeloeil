@@ -23,6 +23,17 @@ struct MS
 int main()
 {
   MS obj;
+
+#if __cplusplus == 201103L
+
+  using m_t = NAMED_MOCK_TYPE(obj, f());
+  REQUIRE_CALL(obj, f())
+    .RETURN_TYPE(m_t, *"");
+
+#else /* __cplusplus == 201103L */
+
   REQUIRE_CALL(obj, f())
     .RETURN(*"");
+
+#endif /* !__cplusplus == 201103L */
 }
