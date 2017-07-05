@@ -2123,8 +2123,8 @@ namespace trompeloeil
   }
 
   template <typename T,
-	    typename U,
-	    typename = std::enable_if_t<is_equal_comparable<T, U>::value>>
+            typename U,
+            typename = std::enable_if_t<is_equal_comparable<T, U>::value>>
   inline
   U&
   identity(
@@ -2135,8 +2135,8 @@ namespace trompeloeil
   }
 
   template <typename T,
-	    typename U,
-	    typename = std::enable_if_t<!is_equal_comparable<T, U>::value>>
+            typename U,
+            typename = std::enable_if_t<!is_equal_comparable<T, U>::value>>
   inline
   T
   identity(
@@ -2956,24 +2956,24 @@ namespace trompeloeil
     {
       if (max_calls == 0)
       {
-	reported = true;
-	report_forbidden_call(name, loc, params_string(params));
+        reported = true;
+        report_forbidden_call(name, loc, params_string(params));
       }
       auto lock = get_lock();
       {
-	if (call_count < min_calls && sequences)
-	{
-	  sequences->validate(severity::fatal, name, loc);
-	}
-	if (++call_count == min_calls && sequences)
-	{
-	  sequences->retire();
-	}
-	if (call_count == max_calls)
-	{
-	  this->unlink();
-	  saturated_list.push_back(this);
-	}
+        if (call_count < min_calls && sequences)
+        {
+          sequences->validate(severity::fatal, name, loc);
+        }
+        if (++call_count == min_calls && sequences)
+        {
+          sequences->retire();
+        }
+        if (call_count == max_calls)
+        {
+          this->unlink();
+          saturated_list.push_back(this);
+        }
       }
       for (auto& a : actions) a.action(params);
     }
@@ -3270,7 +3270,7 @@ namespace trompeloeil
 
   template <typename ... U>
   struct param_helper {
-	using type = decltype(std::make_tuple(std::declval<U>()...));
+    using type = decltype(std::make_tuple(std::declval<U>()...));
   };
 
   template <typename ... U>
@@ -3283,7 +3283,7 @@ namespace trompeloeil
 
 
   template <typename M,
-	    typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
+            typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
   inline
   ::trompeloeil::ptr_deref<std::decay_t<M>>
   operator*(
@@ -3293,7 +3293,7 @@ namespace trompeloeil
   }
 
   template <typename M,
-	    typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
+            typename = std::enable_if_t<::trompeloeil::is_matcher<M>::value>>
   inline
   ::trompeloeil::neg_matcher<std::decay_t<M>>
   operator!(
