@@ -888,6 +888,23 @@ public:
   int m;
 };
 
+// multiple inheritance
+
+struct combined
+  : mock_c
+  , tmock<int>
+{
+};
+
+TEST_CASE_METHOD(Fixture, "mocks can be inherited", "[matching]")
+{
+  combined obj;
+  REQUIRE_CALL(obj, getter(3))
+    .RETURN(2);
+  auto n = obj.getter(3);
+  REQUIRE(n == 2);
+}
+
 // tests of direct parameter matching with fixed values and wildcards
 
 TEST_CASE_METHOD(Fixture, "An uncomparable but constructible type by reference matches a call", "[matching]")
