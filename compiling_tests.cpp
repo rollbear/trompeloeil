@@ -4592,9 +4592,9 @@ TEST_CASE_METHOD(Fixture, "expectation on a mock function can call the same mock
 }
 
 #define MANY_REQS(obj) \
-	       REQUIRE_CALL(obj, f0());		\
-	       REQUIRE_CALL(obj, f1(0));	\
-	       REQUIRE_CALL(obj, f2(0,1))
+               REQUIRE_CALL(obj, f0());         \
+               REQUIRE_CALL(obj, f1(0));        \
+               REQUIRE_CALL(obj, f2(0,1))
 
 TEST_CASE_METHOD(Fixture, "A macro may instantiate many expectations)")
 {
