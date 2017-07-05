@@ -3504,6 +3504,10 @@ namespace trompeloeil
                                          TROMPELOEIL_PARAMS(num));             \
   }                                                                            \
                                                                                \
+  auto                                                                         \
+  trompeloeil_self_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness        \
+    -> decltype(*this);                                                        \
+                                                                               \
   TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                                    \
   trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness
 
@@ -3525,7 +3529,7 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)
 
 #define TROMPELOEIL_REQUIRE_CALL_OBJ(obj, func, obj_s, func_s)                 \
-    ::trompeloeil::call_validator_t<decltype(obj)>{(obj)} +                    \
+  ::trompeloeil::call_validator_t<decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_self_, func))>{(obj)} + \
     std::conditional_t<false,                                                  \
                        decltype((obj).func),                                   \
                        decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_,func))>\
