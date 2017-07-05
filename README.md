@@ -20,9 +20,8 @@ Documentation
 -------------
 
 - [Integrating with unit test frame works](docs/CookBook.md/#unit_test_frameworks)
-- Detailed presentation from ACCU 2017 [(YouTube 1h25m)](https://www.youtube.com/watch?v=HCh6cs9nXt0) [(Slides with extra material)](https://speakerdeck.com/rollbear/using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)
-- [Intro presentation from Stockholm C++ UG (YouTube)](https://www.youtube.com/watch?v=mPYNsARvTDk)
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
+- [Presentation videos](#videos)
 - [Trompeloeil on CppCast](http://cppcast.com/2017/02/bjorn-fahller/)
 - [Cheat Sheet (2*A4)](docs/trompeloeil_cheat_sheet.pdf)
 - [Cook Book](docs/CookBook.md)
@@ -103,3 +102,10 @@ Trompeloeil is known to work with:
 * GCC 4.9, 5, 6, 7
 * Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4
 * Visual Studio 2015, 2017
+
+<A name="videos"/> Videos
+------
+
+- Intro presentation from Stockholm C++ UG [(YouTube 34m)](https://www.youtube.com/watch?v=mPYNsARvTDk) [(Slides)](https://speakerdeck.com/rollbear/mocking-modern-c-plus-plus-with-trompeloeil)
+- Presentation from NDC{Oslo} [(YouTube 52m)](https://www.youtube.com/watch?v=vvQ-kK4coYM&t=1122s) [(Slides)](https://speakerdeck.com/rollbear/ndc-oslo-using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)
+- Detailed presentation from ACCU 2017 [(YouTube 1h25m)](https://www.youtube.com/watch?v=HCh6cs9nXt0) [(Slides with extra material)](https://speakerdeck.com/rollbear/using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)
