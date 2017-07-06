@@ -2338,7 +2338,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION > 40803
+#if !(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804)
 
 // g++ prior to 4.8.5 (possibly 4.8.4) cannot handle this test case,
 // producing an unhandled exception.
@@ -2357,7 +2357,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION > 40803 */
+#endif /* !(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804) */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -6135,7 +6135,7 @@ public:
   MAKE_MOCK1(coverload, void(const int*));
 };
 
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION > 40803
+#if !(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804)
 
 // g++ prior to 4.8.5 (possibly 4.8.4) cannot handle this test case,
 // reporting "call of overload ... is ambiguous".
@@ -6154,7 +6154,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION > 40803 */
+#endif /* !(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804) */
 
 TEST_CASE_METHOD(
   Fixture,
