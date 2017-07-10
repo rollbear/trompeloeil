@@ -16,7 +16,6 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 
-
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -25,6 +24,15 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+#if defined(_MSC_VER)
+
+#define TROMPELOEIL_TEST_REGEX_FAILURES 1
+#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 1
+#define TROMPELOEIL_TEST_NEG_MATCHER_FAILURES 1
+#define TROMPELOEIL_DEBUG_RE_FAILURE 1
+
+#else /* defined(_MSC_VER) */
 
 // Detect if using libc++.
 #include <ciso646>
@@ -60,6 +68,18 @@
 #endif /* !defined(TROMPELOEIL_TEST_REGEX_FAILURES) */
 
 /*
+ * This is a temporary macro used to debug the runtime
+ * errors occurring with the re() matcher.  Appears fixed on MSVC.
+ * Time to regression test on GCC and Clang.  If all is well,
+ * then this macro will be removed from the source code.
+ */
+#if !defined(TROMPELOEIL_DEBUG_RE_FAILURE)
+
+#define TROMPELOEIL_DEBUG_RE_FAILURE 0
+
+#endif /* !defined(TROMPELOEIL_DEBUG_RE_FAILURE) */
+
+/*
  * GCC 4.8 has issues with overloading that affects wildcard
  * and duck_typed_matcher.
  */
@@ -86,12 +106,14 @@
 
 #endif /* !defined(TROMPELOEIL_TEST_NEG_MATCHER_FAILURES) */
 
+#endif /* !defined(_MSC_VER) */
 
-#if __cplusplus > 201103L
+
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 using namespace std::string_literals;
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 namespace detail
 {
@@ -785,7 +807,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 // Exercise C++14 Trompeloeil interface
 
@@ -1332,7 +1354,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 struct mstr
 {
@@ -1681,7 +1703,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 // Exercise C++14 Trompeloeil interface
 
@@ -1998,7 +2020,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 class U
 {
@@ -2027,6 +2049,45 @@ public:
   MAKE_MOCK1(func_f, void(std::function<void()>));
   int m;
 };
+
+// multiple inheritance
+
+struct combined
+  : mock_c
+    , tmock<int>
+{
+};
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: mocks can be inherited",
+  "[C++11][C++14][matching]")
+{
+  combined obj;
+
+  using m_t = NAMED_MOCK_TYPE(obj, getter(3));
+  REQUIRE_CALL(obj, getter(3))
+    .RETURN_TYPE(m_t, 2);
+
+  auto n = obj.getter(3);
+  REQUIRE(n == 2);
+}
+
+#if TROMPELOEIL_CPLUSPLUS > 201103L
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: mocks can be inherited",
+  "[C++14][matching]")
+{
+  combined obj;
+  REQUIRE_CALL(obj, getter(3))
+    .RETURN(2);
+  auto n = obj.getter(3);
+  REQUIRE(n == 2);
+}
+
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of direct parameter matching with fixed values and wildcards
 
@@ -2688,7 +2749,7 @@ Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3307,7 +3368,7 @@ Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 struct C_foo1
 {
@@ -3357,7 +3418,7 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3398,7 +3459,7 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 struct C_foo2
 {
@@ -3496,7 +3557,7 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3579,10 +3640,9 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 //
-
 
 struct C_foo3
 {
@@ -4294,7 +4354,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4923,7 +4983,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of parameter matching using typed matcher re
 
@@ -5537,7 +5597,7 @@ Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 #if TROMPELOEIL_TEST_REGEX_FAILURES && TROMPELOEIL_DEBUG_RE_FAILURE
 
@@ -6116,7 +6176,7 @@ Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of parameter matching using ptr deref matcher
 
@@ -6646,7 +6706,7 @@ Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES && TROMPELOEIL_DEBUG_RE_FAILURE */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -7066,7 +7126,7 @@ Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 // tests of parameter matching using custom typed matcher
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 template <typename T>
 class any_of_t : public trompeloeil::typed_matcher<T>
@@ -7190,7 +7250,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -7273,7 +7333,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of parameter matching using custom duck-typed matcher
 
@@ -7346,7 +7406,7 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -7468,7 +7528,7 @@ TEST_CASE_METHOD(
   obj.foo(std::string("c"));
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 auto is_clamped_lambda =
   [](auto x, auto min, auto max) ->decltype(x >= min && x <= max)
@@ -7530,7 +7590,7 @@ TEST_CASE_METHOD(
   obj.foo(std::string("c"));
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of parameter values ostream insertion
 
@@ -7685,7 +7745,7 @@ TEST_CASE_METHOD(
     REQUIRE(os.str() == "{ { 3, hello }, { { 1, one }, { 2, two }, { 3, three } } }");
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -7834,7 +7894,7 @@ TEST_CASE_METHOD(
     REQUIRE(os.str() == "{ { 3, hello }, { { 1, one }, { 2, two }, { 3, three } } }");
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 namespace nn
 {
@@ -7893,7 +7953,7 @@ TEST_CASE_METHOD(
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -7915,7 +7975,7 @@ TEST_CASE_METHOD(
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests on scoping (lifetime) of expectations
 
@@ -8385,7 +8445,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -8789,7 +8849,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 class none
 {
@@ -9049,7 +9109,7 @@ TEST_CASE_METHOD(
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -9273,7 +9333,7 @@ TEST_CASE_METHOD(
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of calls that do not match any valid expectations
 
@@ -9566,7 +9626,7 @@ Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -9816,7 +9876,7 @@ Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 // tests of parameter passing to expectations
 
@@ -10067,7 +10127,7 @@ obj2\.foo\("bar"\) with\.
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -10284,7 +10344,7 @@ obj2\.foo\("bar"\) with\.
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 template <int N>
 struct I
@@ -10595,7 +10655,7 @@ TEST_CASE(
   mock.cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE(
   "C++14: all overridden short mocks can be expected and called",
@@ -10741,7 +10801,7 @@ TEST_CASE(
   mock.cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 class self_ref_mock
 {
@@ -10787,7 +10847,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -10821,7 +10881,7 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
 
 #define MANY_REQS(obj) \
                REQUIRE_CALL(obj, f0());         \
@@ -10840,7 +10900,7 @@ TEST_CASE_METHOD(
   m.f2(0,1);
 }
 
-#if __cplusplus > 201103L
+#if TROMPELOEIL_CPLUSPLUS > 201103L
 
 TEST_CASE_METHOD(
   Fixture,
@@ -10854,4 +10914,4 @@ TEST_CASE_METHOD(
   m.f2(0,1);
 }
 
-#endif /* __cplusplus > 201103L */
+#endif /* TROMPELOEIL_CPLUSPLUS > 201103L */

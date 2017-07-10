@@ -26,6 +26,18 @@
 // * Mocking function templates is not supported
 // * If a macro kills a kitten, this threatens extinction of all felines!
 
+#if defined(_MSC_VER)
+#  define TROMPELOEIL_NORETURN __declspec(noreturn)
+#  if (!defined(__cplusplus) || _MSC_VER < 1900)
+#    error requires C++ in Visual Studio 2015 RC or later
+#  endif
+#else
+#  define TROMPELOEIL_NORETURN [[noreturn]]
+#  if (!defined(__cplusplus) || __cplusplus < 201103L)
+#    error requires C++11 or higher
+#  endif
+#endif
+
 #if defined(__clang__)
 
 #define TROMPELOEIL_CLANG 1
@@ -33,6 +45,8 @@
 #define TROMPELOEIL_MSVC 0
 
 #define TROMPELOEIL_GCC_VERSION 0
+
+#define TROMPELOEIL_CPLUSPLUS __cplusplus
 
 #elif defined(__GNUC__)
 
@@ -43,6 +57,8 @@
 #define TROMPELOEIL_GCC_VERSION                                                \
   (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
+#define TROMPELOEIL_CPLUSPLUS __cplusplus
+
 #elif defined(_MSC_VER)
 
 #define TROMPELOEIL_CLANG 0
@@ -51,19 +67,14 @@
 
 #define TROMPELOEIL_GCC_VERSION 0
 
+/* MSVC is an amalgam of C++ versions, with no provision to
+ * force C++11 mode.  It also has a __cplusplus macro stuck at 199711L.
+ * Assume the C++14 code path.
+ */
+#define TROMPELOEIL_CPLUSPLUS 201401L
+
 #endif
 
-#if defined(_MSC_VER)
-#  define TROMPELOEIL_NORETURN
-#  if (!defined(__cplusplus) || _MSC_VER < 1900)
-#    error requires C++ in Visual Studio 2015 RC or later
-#  endif
-#else
-#  define TROMPELOEIL_NORETURN [[noreturn]]
-#  if (!defined(__cplusplus) || __cplusplus < 201103L)
-#    error requires C++11 or higher
-#  endif
-#endif
 #include <tuple>
 #include <iomanip>
 #include <sstream>
@@ -232,29 +243,29 @@
 
 #define TROMPELOEIL_PARAMS(num) TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
 
-#if (__cplusplus == 201103L)
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
-#define TROMPELOEIL_CXX11_DECLTYPE_AUTO \
+#define TROMPELOEIL_DECLTYPE_AUTO \
   auto
 
-#define TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(return_type) \
+#define TROMPELOEIL_TRAILING_RETURN_TYPE(return_type) \
   -> return_type
 
-#else /* __cplusplus == 201103L */
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 
-#define TROMPELOEIL_CXX11_DECLTYPE_AUTO \
+#define TROMPELOEIL_DECLTYPE_AUTO \
   decltype(auto)
 
-#define TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(return_type) \
+#define TROMPELOEIL_TRAILING_RETURN_TYPE(return_type) \
   /**/
 
-#endif /* !__cplusplus == 201103L */
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
 namespace trompeloeil
 {
   namespace detail
   {
-# if (__cplusplus == 201103L)
+# if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
     /* Implement C++14 features using only C++11 entities. */
 
@@ -448,8 +459,7 @@ namespace trompeloeil
     template <typename... T>
     using index_sequence_for = make_index_sequence<sizeof...(T)>;
 
-
-# else /* __cplusplus == 201103L */
+# else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 
     using std::make_unique;
 
@@ -465,8 +475,7 @@ namespace trompeloeil
     using std::integer_sequence;
     using std::make_index_sequence;
 
-
-# endif /* !__cplusplus == 201103L */
+# endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
     template <bool b>
     using cond = std::conditional<b, std::true_type, std::false_type>;
@@ -1038,7 +1047,7 @@ namespace trompeloeil
   auto
   param_compare_operator(
     ...)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(const char*)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(const char*)
   {
     return " == ";
   }
@@ -1048,7 +1057,7 @@ namespace trompeloeil
   auto
   param_compare_operator(
     matcher const*)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(const char*)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(const char*)
   {
     return "";
   }
@@ -1879,7 +1888,7 @@ namespace trompeloeil
   inline
   auto
   any_matcher(char const* type_name)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::any_predicate(), lambdas::any_printer(type_name));
   }
@@ -1892,7 +1901,7 @@ namespace trompeloeil
   auto
   eq(
     V&& v)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::equal(),
                            lambdas::equal_printer(),
@@ -1907,7 +1916,7 @@ namespace trompeloeil
   auto
   ne(
     V&& v)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::not_equal(),
                            lambdas::not_equal_printer(),
@@ -1922,7 +1931,7 @@ namespace trompeloeil
   auto
   ge(
     V&& v)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::greater_equal(),
                            lambdas::greater_equal_printer(),
@@ -1937,7 +1946,7 @@ namespace trompeloeil
   auto
   gt(
     V&& v)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::greater(),
                            lambdas::greater_printer(),
@@ -1952,7 +1961,7 @@ namespace trompeloeil
   auto
   lt(
     V&& v)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::less(),
                            lambdas::less_printer(),
@@ -1967,7 +1976,7 @@ namespace trompeloeil
   auto
   le(
     V&& v)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::less_equal(),
                            lambdas::less_equal_printer(),
@@ -2025,7 +2034,7 @@ namespace trompeloeil
       }
 
     private:
-      std::regex&& re;
+      std::regex re;
       std::regex_constants::match_flag_type match_type;
     };
 
@@ -2051,7 +2060,7 @@ namespace trompeloeil
     std::string s,
     std::regex_constants::syntax_option_type opt = std::regex_constants::ECMAScript,
     std::regex_constants::match_flag_type match_type = std::regex_constants::match_default)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<Kind>(lambdas::regex_check(std::regex(s, opt),
                                                    match_type),
@@ -2066,7 +2075,7 @@ namespace trompeloeil
   re(
     std::string s,
     std::regex_constants::match_flag_type match_type)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<Kind>(lambdas::regex_check(std::regex(s), match_type),
                               lambdas::regex_printer(),
@@ -3536,11 +3545,11 @@ namespace trompeloeil
   >
   inline
   constexpr
-  TROMPELOEIL_CXX11_DECLTYPE_AUTO
+  TROMPELOEIL_DECLTYPE_AUTO
   arg(
     T* t,
     std::true_type)
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return std::get<N-1>(*t);
   }
@@ -3562,11 +3571,11 @@ namespace trompeloeil
     typename T,
     typename R = decltype(arg<N>(std::declval<T*>(), detail::cond_t<(N <= std::tuple_size<T>::value)>{}))
   >
-  TROMPELOEIL_CXX11_DECLTYPE_AUTO
+  TROMPELOEIL_DECLTYPE_AUTO
   mkarg(
     T& t)
   noexcept
-  TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(R)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return arg<N>(&t, detail::cond_t<(N <= std::tuple_size<T>::value)>{});
   }
@@ -3581,7 +3590,7 @@ namespace trompeloeil
       call_modifier<M, Tag, Info>&& m)
     const
     noexcept
-    TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
+    TROMPELOEIL_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
     {
       auto lock = get_lock();
       m.matcher->hook_last(obj.trompeloeil_matcher_list(static_cast<Tag*>(nullptr)));
@@ -3600,7 +3609,7 @@ namespace trompeloeil
     operator+(
       call_modifier<M, Tag, Info>&& t)
     const
-    TROMPELOEIL_CXX11_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
+    TROMPELOEIL_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
     {
       using call = call_modifier<M, Tag, Info>;
       using sigret = return_of_t<typename call::signature>;
