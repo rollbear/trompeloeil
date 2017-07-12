@@ -24,8 +24,21 @@ int main()
 {
   MS obj;
   int n;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  using m_t = NAMED_MOCK_TYPE(obj, f());
+  REQUIRE_CALL(obj, f())
+    .LR_SIDE_EFFECT_TYPE(m_t, n = 1)
+    .RETURN_TYPE(m_t, 1)
+    .RETURN_TYPE(m_t, 2);
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f())
     .LR_SIDE_EFFECT(n = 1)
     .RETURN(1)
     .RETURN(2);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

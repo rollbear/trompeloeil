@@ -23,6 +23,17 @@ using trompeloeil::_;
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  using m_t = NAMED_MOCK_TYPE(obj, f(_,_));
+  REQUIRE_CALL(obj, f(_,_))
+    .RETURN_TYPE(m_t, _2);
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f(_,_))
     .RETURN(_2);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

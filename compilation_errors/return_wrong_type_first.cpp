@@ -25,18 +25,18 @@ int main()
   int n;
   MS obj;
 
-#if __cplusplus == 201103L
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
   using m_t = NAMED_MOCK_TYPE(obj, f());
   REQUIRE_CALL(obj, f())
     .RETURN_TYPE(m_t, "")
     .LR_SIDE_EFFECT_TYPE(m_t, n = 0);
 
-#else /* __cplusplus == 201103L */
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 
   REQUIRE_CALL(obj, f())
     .RETURN("")
     .LR_SIDE_EFFECT(n = 0);
 
-#endif /* !__cplusplus == 201103L */
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

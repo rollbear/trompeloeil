@@ -23,6 +23,17 @@ struct MS
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  using m_t = NAMED_MOCK_TYPE(obj, x(1));
+  REQUIRE_CALL(obj, x(1))
+    .RETURN_TYPE(m_t, _2);
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, x(1))
     .RETURN(_2);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

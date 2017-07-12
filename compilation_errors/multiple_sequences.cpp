@@ -23,8 +23,21 @@ int main()
 {
   trompeloeil::sequence seq;
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  using m_t = NAMED_MOCK_TYPE(obj, f());
+  REQUIRE_CALL(obj, f())
+    .IN_SEQUENCE(seq)
+    .RETURN_TYPE(m_t, 0)
+    .IN_SEQUENCE(seq);
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f())
     .IN_SEQUENCE(seq)
     .RETURN(0)
     .IN_SEQUENCE(seq);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }
