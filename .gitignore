@@ -1,0 +1,5 @@
+.*
+cmake-build*
+*~
+a.out
+*.o
