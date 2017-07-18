@@ -1,4 +1,4 @@
-#include "trompeloeil.hpp"
+#include <trompeloeil.hpp>
 #include <iterator>
 #include <thread>
 #include <atomic>
@@ -76,7 +76,7 @@ void allow(size_t count, int id)
 
 int main()
 {
-  trompeloeil::set_reporter([](auto s, auto file, auto line, auto& msg)
+  trompeloeil::set_reporter([](auto , auto , auto,  auto&)
     {
       abort();
     });
@@ -103,5 +103,7 @@ int main()
   std::copy(std::begin(ret_count), std::end(ret_count),
             std::ostream_iterator<std::size_t>(std::cout, " "));
   std::cout << "\n";
+  assert(std::equal(std::begin(call_count), std::end(call_count),
+                    std::begin(ret_count), std::end(ret_count)));
   obj.reset();
 }
