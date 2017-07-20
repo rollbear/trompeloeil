@@ -61,7 +61,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   target_include_directories(self_test PRIVATE ${CATCH_DIR})
   if (SANITIZE)
     set_target_properties(self_test PROPERTIES
-            LINK_FLAGS "${SSAN} -fuse-ld=gold"
+            LINK_FLAGS ${SSAN}
             COMPILE_FLAGS ${SSAN})
   endif()
   target_link_libraries(self_test trompeloeil)
