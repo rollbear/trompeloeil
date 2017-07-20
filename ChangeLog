@@ -1,3 +1,16 @@
+	* Changed directory structure. "trompeloeil.hpp" now resides in
+	  directory "include". Self test programs "compiling_tests.cpp"
+	  and "thread_terror.cpp" resides in directory "test".
+
+	* Major work on CMakeLists.txt
+	  - "make install" - works as before
+	  - use "include_directory(trompeloeil)" for CMake based projects. Set
+	    a dependency on "trompeloeil" for test targets.
+	  - "cmake -DBUILD_TYPE=Debug" enables the test targets "self_test" and
+	    "thread_terror"
+	  - "-DSANITIZE" enables ASAN and UBSAN for "self_test", and TSAN and
+	    UBSAN for "thread_terror"
+
 v27 2017-06-27
 
 	* Fixed a regression where NAMED_REQUIRE_DESTRUCTION(obj) accidentally
