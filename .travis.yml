@@ -73,6 +73,14 @@ matrix:
       env:
         - COMPILER="clang++-3.9"
         - SANITIZE=true
+      before_script:
+        - wget http://llvm.org/releases/3.9.1/clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        - tar -xvf clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        - sudo cp clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.9.1/lib/linux/*.a /usr/lib/llvm-3.9/lib/clang/3.9.1/lib/linux/
+        - CXX=${COMPILER}  ./check_errors.sh
+        - mkdir build && cd build
+        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+        - make VERBOSE=1 self_test kcov
 
     - os: linux
       addons:
