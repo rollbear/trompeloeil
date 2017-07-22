@@ -69,7 +69,7 @@ matrix:
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
             - g++-6
-            - clang
+            - clang-3.7
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
@@ -77,7 +77,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER="clang++"
+        - COMPILER="clang++-3.7"
         - SANITIZE=true
 
     - os: linux
