@@ -65,11 +65,11 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - ppa:george-edison55/cmake-3.x
-            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.7 main"
+            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
             - g++-6
-            - clang-3.7
+            - clang
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
