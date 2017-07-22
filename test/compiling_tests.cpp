@@ -33,16 +33,6 @@
 
 #else /* defined(_MSC_VER) */
 
-// Detect if using libc++.
-#include <ciso646>
-#if defined(_LIBCPP_VERSION)
-// Using libc++.
-#define TROMPELOEIL_USING_LIBCPP 1
-#else
-// Not using libc++
-#define TROMPELOEIL_USING_LIBCPP 0
-#endif
-
 // Detect if using libstdc++.
 #if defined(__GLIBCXX__)
 // Using libstdc++.
@@ -7474,7 +7464,7 @@ cxx11_is_clamped(T min, T max)
     cxx11_is_clamped_printer,
     min,
     max);
-};
+}
 
 #if TROMPELOEIL_TEST_REGEX_FAILURES
 
