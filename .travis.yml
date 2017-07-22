@@ -18,8 +18,6 @@ matrix:
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-            - cmake
-            - cmake-data
             - gdb
       env:
         - COMPILER="clang++-3.7"
@@ -39,15 +37,12 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-3.8
-            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-6
             - clang-3.8
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-            - cmake
-            - cmake-data
             - gdb
       env:
         - COMPILER="clang++-3.8"
@@ -59,16 +54,12 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.9
-            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-6
             - clang-3.9
-            - llvm-3.9-runtime
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-            - cmake
-            - cmake-data
             - gdb
       env:
         - COMPILER="clang++-3.9"
@@ -87,14 +78,11 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-4.9
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-            - cmake
-            - cmake-data
             - gdb
       env:
         - COMPILER="g++-4.9"
@@ -105,14 +93,11 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-5
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-            - cmake
-            - cmake-data
             - gdb
       env:
         - COMPILER="g++-5"
@@ -123,14 +108,11 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-6
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-            - cmake
-            - cmake-data
             - gdb
       env:
         - COMPILER="g++-6"
