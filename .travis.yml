@@ -6,7 +6,6 @@ matrix:
   include:
 
     - os: linux
-      compiler: gcc
       addons:
         apt:
           sources:
@@ -25,7 +24,6 @@ matrix:
         - SANITIZE=true
 
     - os: linux
-      compiler: gcc
       addons:
         apt:
           sources:
@@ -44,7 +42,6 @@ matrix:
         - SANITIZE=true
 
     - os: linux
-      compiler: gcc
       addons:
         apt:
           sources:
@@ -63,7 +60,6 @@ matrix:
         - SANITIZE=true
 
     - os: linux
-      compiler: clang
       addons:
         apt:
           sources:
@@ -84,7 +80,6 @@ matrix:
         - SANITIZE=true
 
     - os: linux
-      compiler: clang
       addons:
         apt:
           sources:
@@ -105,7 +100,6 @@ matrix:
         - SANITIZE=true
 
     - os: linux
-      compiler: clang
       addons:
         apt:
           sources:
