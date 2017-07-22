@@ -11,7 +11,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/cmake-3.x
+            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-4.9
             - libcurl4-openssl-dev
@@ -30,7 +30,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/cmake-3.x
+            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-5
             - libcurl4-openssl-dev
@@ -49,7 +49,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/cmake-3.x
+            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-6
             - libcurl4-openssl-dev
@@ -68,7 +68,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/cmake-3.x
+            - ppa:george-edison55/cmake-3.x
             - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.7 main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
@@ -89,7 +89,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/cmake-3.x
+            - ppa:george-edison55/cmake-3.x
             - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.8 main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
@@ -110,7 +110,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/cmake-3.x
+            - ppa:george-edison55/cmake-3.x
             - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.9 main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
