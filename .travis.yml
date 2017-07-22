@@ -76,7 +76,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER="clang++-3.7"
+        - COMPILER="clang++"
         - SANITIZE=true
 
     - os: linux
