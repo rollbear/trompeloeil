@@ -29,7 +29,7 @@ for f in *.cpp
 do
   RE=$(sed -n 's:^//\(.*\)$:\1:g;T;P' < $f)
   printf "%-45s" $f
-  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include -std=c++14 $f -c |& egrep -q "$RE" && echo $PASS && continue || echo $FAIL && false
+  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include -std=c++14 $f -c |& egrep "$RE"
   FAILURES=$((FAILURES+$?))
 done
 exit $FAILURES
