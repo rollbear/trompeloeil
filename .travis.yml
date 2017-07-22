@@ -21,7 +21,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER=g++-4.9
+        - COMPILER="g++-4.9"
         - SANITIZE=true
 
     - os: linux
@@ -40,7 +40,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER=g++-5
+        - COMPILER="g++-5"
         - SANITIZE=true
 
     - os: linux
@@ -59,7 +59,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER=g++-6
+        - COMPILER="g++-6"
         - SANITIZE=true
 
     - os: linux
@@ -80,7 +80,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER=clang++-3.7
+        - COMPILER="clang++-3.7"
         - SANITIZE=true
 
     - os: linux
@@ -101,7 +101,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER=clang++-3.8
+        - COMPILER="clang++-3.8"
         - SANITIZE=true
 
     - os: linux
@@ -122,7 +122,7 @@ matrix:
             - cmake-data
             - gdb
       env:
-        - COMPILER=clang++-3.9
+        - COMPILER="clang++-3.9"
         - SANITIZE=true
 
 before_script:
