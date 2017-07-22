@@ -68,6 +68,7 @@ matrix:
             - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.7 main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
+            - g++-6
             - clang-3.7
             - libcurl4-openssl-dev
             - libelf-dev
@@ -88,6 +89,7 @@ matrix:
             - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.8 main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
+            - g++-6
             - clang-3.8
             - libcurl4-openssl-dev
             - libelf-dev
@@ -108,6 +110,7 @@ matrix:
             - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-precise-3.9 main"
               key_url : "http://apt.llvm.org/llvm-snapshot.gpg.key"
           packages:
+            - g++-6
             - clang-3.9
             - libcurl4-openssl-dev
             - libelf-dev
