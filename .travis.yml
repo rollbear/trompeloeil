@@ -69,6 +69,7 @@ matrix:
           packages:
             - g++-6
             - clang-3.7
+            - llvm-3.7-runtime
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
@@ -109,6 +110,7 @@ matrix:
           packages:
             - g++-6
             - clang-3.9
+            - llvm-3.9-runtime
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
