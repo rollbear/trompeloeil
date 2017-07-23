@@ -3,6 +3,7 @@ project(trompeloeil)
 
 include(GNUInstallDirs)
 include(ExternalProject)
+
 set(CMAKE_CXX_STANDARD 14)
 
 add_library(trompeloeil INTERFACE)
@@ -11,12 +12,15 @@ set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_sources(
   trompeloeil
-  INTERFACE  $<BUILD_INTERFACE:${INCLUDE_DIR}/trompeloeil.hpp>)
+  INTERFACE
+    $<BUILD_INTERFACE:${INCLUDE_DIR}/trompeloeil.hpp>
+)
+
 target_include_directories(
   trompeloeil
-  INTERFACE $<BUILD_INTERFACE:${INCLUDE_DIR}>)
-
-include(GNUInstallDirs)
+  INTERFACE
+    $<BUILD_INTERFACE:${INCLUDE_DIR}>
+)
 
 set(MASTER_PROJECT_OFF)
 if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
@@ -29,11 +33,14 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     if (NOT EXISTS ${CATCH_DIR})
       make_directory(${CATCH_DIR})
     endif()
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp
-            ${CATCH_DIR}/catch.hpp
-            STATUS status
-            LOG log)
+    file(
+      DOWNLOAD
+        https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp  ${CATCH_DIR}/catch.hpp
+      STATUS
+        status
+      LOG
+        log
+    )
     list(GET status 0 status_code)
     list(GET status 1 status_string)
 
@@ -42,11 +49,19 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
         "${log}")
     endif()
   endif()
-  ExternalProject_Add(kcov
-    GIT_REPOSITORY https://github.com/simonkagstrom/kcov
-    GIT_TAG v33
-    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/kcov
-    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov")
+
+  ExternalProject_Add(
+    kcov
+    GIT_REPOSITORY
+      https://github.com/simonkagstrom/kcov
+    GIT_TAG
+      v33
+    INSTALL_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/kcov
+    CMAKE_ARGS
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
+    )
+
   if (CMAKE_COMPILER_IS_GNUCXX)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       set(WARN_FLAGS "-Weverything -Wno-c++98-compat-pedantic -Wno-padded -Wno-weak-vtables -Wno-exit-time-destructors")
@@ -55,43 +70,102 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS} -Werror")
   endif()
+
   set(TSAN "-fsanitize=undefined,thread")
   set(SSAN "-fsanitize=address,undefined")
-  add_executable(self_test EXCLUDE_FROM_ALL test/compiling_tests.cpp)
-  target_include_directories(self_test PRIVATE ${CATCH_DIR})
+
+  add_executable(
+    self_test
+    EXCLUDE_FROM_ALL
+    test/compiling_tests.cpp
+    )
+
+  target_include_directories(
+    self_test
+    PRIVATE
+    ${CATCH_DIR}
+  )
+
   if (SANITIZE)
-    set_target_properties(self_test PROPERTIES
-            LINK_FLAGS "${SSAN} -fuse-ld=gold"
-            COMPILE_FLAGS ${SSAN})
+    set_target_properties(
+      self_test
+      PROPERTIES
+        LINK_FLAGS
+          "${SSAN} -fuse-ld=gold"
+        COMPILE_FLAGS
+          ${SSAN}
+    )
   endif()
-  target_link_libraries(self_test trompeloeil)
-  add_executable(thread_terror EXCLUDE_FROM_ALL test/thread_terror.cpp)
-  target_link_libraries(thread_terror PUBLIC trompeloeil pthread)
+
+  target_link_libraries(
+    self_test
+    PUBLIC
+      trompeloeil
+  )
+
+  add_executable(
+    thread_terror
+    EXCLUDE_FROM_ALL
+    test/thread_terror.cpp
+    )
+
+  target_link_libraries(
+    thread_terror
+    PUBLIC
+      trompeloeil
+      pthread
+  )
+
   if (SANITIZE)
-    set_target_properties(thread_terror PROPERTIES
-            LINK_FLAGS ${TSAN}
-            COMPILE_FLAGS ${TSAN})
+    set_target_properties(
+      thread_terror
+      PROPERTIES
+        LINK_FLAGS
+          ${TSAN}
+        COMPILE_FLAGS
+          ${TSAN}
+    )
   endif()
-  add_custom_target(run_self_test
-          COMMAND ${CMAKE_CURRENT_BINARY_DIR}/self_test
-          DEPENDS self_test)
+
+  add_custom_target(
+    run_self_test
+    COMMAND
+      ${CMAKE_CURRENT_BINARY_DIR}/self_test
+    DEPENDS
+      self_test
+  )
+
   if(TRAVIS_JOB_ID)
     set(COVERALLS_FLAG "--coveralls-id=${TRAVIS_JOB_ID}")
   endif()
-  add_custom_target(run_coverage
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
-    DEPENDS self_test kcov)
+
+  add_custom_target(
+    run_coverage
+    COMMAND
+      ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
+    DEPENDS
+      self_test
+      kcov
+  )
 endif()
 
-install(FILES include/trompeloeil.hpp
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+install(
+  FILES
+    include/trompeloeil.hpp
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(FILES LICENSE_1_0.txt
-        DESTINATION ${CMAKE_INSTALL_DOCDIR}
+install(
+  FILES
+    LICENSE_1_0.txt
+  DESTINATION
+    ${CMAKE_INSTALL_DOCDIR}
 )
 
-install (DIRECTORY docs 
-         DESTINATION ${CMAKE_INSTALL_DOCDIR}
+install (
+  DIRECTORY
+    docs
+  DESTINATION
+    ${CMAKE_INSTALL_DOCDIR}
 )
-
