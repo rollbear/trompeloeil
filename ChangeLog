@@ -2,14 +2,20 @@
 	  directory "include". Self test programs "compiling_tests.cpp"
 	  and "thread_terror.cpp" resides in directory "test".
 
-	* Major work on CMakeLists.txt
-	  - "make install" - works as before
-	  - use "include_directory(trompeloeil)" for CMake based projects. Set
-	    a dependency on "trompeloeil" for test targets.
-	  - "cmake -DBUILD_TYPE=Debug" enables the test targets "self_test" and
-	    "thread_terror"
-	  - "-DSANITIZE" enables ASAN and UBSAN for "self_test", and TSAN and
-	    UBSAN for "thread_terror"
+	* Major work on CMake support
+	  - "make install" - works as before and also includes a package
+	  - For CMake based project you can use
+	    . "find_package(trompeloeil 27 REQUIRED)" and add
+	      "target_link_libraries(<test_program> trompeloeil)" for your test
+	      target
+	    . use "add_subdirectory(trompeloeil)" if you prefer to track
+	      the trompeloeil git repository and also here add
+	      "target_link_libraries(<test_program> trompeloeil)" for your test
+	      target
+	  - "cmake -DBUILD_TYPE=Debug <trompeloeil-dir>" enables the test
+	    targets "self_test" and "thread_terror"
+	    . "-DSANITIZE" enables ASAN and UBSAN for "self_test", and TSAN and
+	      UBSAN for "thread_terror"
 
 v27 2017-06-27
 
