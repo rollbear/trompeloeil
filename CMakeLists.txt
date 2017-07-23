@@ -1,8 +1,14 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.0)
 project(trompeloeil)
 
 include(GNUInstallDirs)
 include(ExternalProject)
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
+  VERSION 27
+  COMPATIBILITY AnyNewerVersion)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -20,6 +26,12 @@ target_include_directories(
   trompeloeil
   INTERFACE
     $<BUILD_INTERFACE:${INCLUDE_DIR}>
+)
+
+target_include_directories(
+  trompeloeil
+  INTERFACE
+    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
 )
 
 set(MASTER_PROJECT_OFF)
@@ -150,6 +162,31 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 install(
+  TARGETS
+    trompeloeil
+  EXPORT
+    trompeloeil-targets
+  INCLUDES DESTINATION
+    include
+)
+
+install(
+  EXPORT
+    trompeloeil-targets
+  DESTINATION
+    lib/cmake/trompeloeil
+)
+install(
+  FILES
+    trompeloeil-config.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
+  DESTINATION
+    lib/cmake/trompeloeil
+  COMPONENT
+    Devel
+)
+
+install(
   FILES
     include/trompeloeil.hpp
   DESTINATION
@@ -163,7 +200,7 @@ install(
     ${CMAKE_INSTALL_DOCDIR}
 )
 
-install (
+install(
   DIRECTORY
     docs
   DESTINATION
