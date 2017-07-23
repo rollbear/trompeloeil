@@ -89,7 +89,7 @@ matrix:
       env:
         - COMPILER="clang++-4.0"
 
-- os: linux
+    - os: linux
       addons:
         apt:
           sources:
