@@ -9,7 +9,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7 
+            - llvm-toolchain-precise-3.7
             - ppa:george-edison55/cmake-3.x
           packages:
             - g++-6
@@ -23,6 +23,9 @@ matrix:
         - COMPILER="clang++-3.7"
         - SANITIZE=true
       before_script:
+        # The clang runtime for the address sanitizer is missing from the
+        # apt, hence the downloaded tarballs.
+
         - wget http://llvm.org/releases/3.7.1/clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - tar -xvf clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - sudo cp -n clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.7.1/lib/linux/*.a /usr/lib/llvm-3.7/lib/clang/3.7.1/lib/linux/
@@ -65,6 +68,10 @@ matrix:
         - COMPILER="clang++-3.9"
         - SANITIZE=true
       before_script:
+        # Unlike with clang++-3.7, the runtime libraries exists with 3.9,
+        # but still doesn't work because of gold linker version incompatibility.
+        # The tarball download takes care of that.
+
         - wget http://llvm.org/releases/3.9.1/clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - tar -xvf clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - sudo cp clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.9.1/lib/linux/*.a /usr/lib/llvm-3.9/lib/clang/3.9.1/lib/linux/
