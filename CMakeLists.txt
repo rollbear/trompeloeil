@@ -34,7 +34,7 @@ target_include_directories(
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
 )
 
-set(MASTER_PROJECT_OFF)
+set(MASTER_PROJECT OFF)
 if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
   set(MASTER_PROJECT ON)
 endif()
