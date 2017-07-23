@@ -1,85 +1,131 @@
 language: cpp
-dist: precise # because trusty has issues with clang
+sudo: required
+dist: trusty
 
 matrix:
   include:
-
     - os: linux
-      compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-4.9', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7 
+            - ppa:george-edison55/cmake-3.x
+          packages:
+            - g++-6
+            - clang-3.7
+            - llvm-3.7-runtime
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - gdb
       env:
-        - COMPILER=g++-4.9
+        - COMPILER="clang++-3.7"
+        - SANITIZE=true
+      before_script:
+        - wget http://llvm.org/releases/3.7.1/clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        - tar -xvf clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        - sudo cp -n clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.7.1/lib/linux/*.a /usr/lib/llvm-3.7/lib/clang/3.7.1/lib/linux/
+        - CXX=${COMPILER}  ./check_errors.sh
+        - mkdir build && cd build
+        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+        - make VERBOSE=1 self_test kcov
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-3.8
+          packages:
+            - g++-6
+            - clang-3.8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - gdb
+      env:
+        - COMPILER="clang++-3.8"
         - SANITIZE=true
 
     - os: linux
-      compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-5', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.9
+          packages:
+            - g++-6
+            - clang-3.9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - gdb
       env:
-        - COMPILER=g++-5
+        - COMPILER="clang++-3.9"
+        - SANITIZE=true
+      before_script:
+        - wget http://llvm.org/releases/3.9.1/clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        - tar -xvf clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        - sudo cp clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.9.1/lib/linux/*.a /usr/lib/llvm-3.9/lib/clang/3.9.1/lib/linux/
+        - CXX=${COMPILER}  ./check_errors.sh
+        - mkdir build && cd build
+        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+        - make VERBOSE=1 self_test kcov
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - gdb
+      env:
+        - COMPILER="g++-4.9"
         - SANITIZE=true
 
     - os: linux
-      compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-6', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - gdb
       env:
-        - COMPILER=g++-6
+        - COMPILER="g++-5"
         - SANITIZE=true
 
     - os: linux
-      compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-precise-3.7', 'ubuntu-toolchain-r-test']
-          packages: ['clang-3.7', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb']
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - gdb
       env:
-        - COMPILER=clang++-3.7
-        - SANITIZE=false # why does it not work in travis env but elsewhere?
-
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources: ['llvm-toolchain-precise-3.8', 'ubuntu-toolchain-r-test']
-          packages: ['clang-3.8', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb' ]
-      env:
-        - COMPILER=clang++-3.8
+        - COMPILER="g++-6"
         - SANITIZE=true
-
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources: ['llvm-toolchain-precise-3.9', 'ubuntu-toolchain-r-test']
-          packages: ['clang-3.9', 'libcurl4-openssl-dev', 'libelf-dev', 'libdw-dev', 'cmake', 'gdb' ]
-      env:
-        - COMPILER=clang++-3.9
-        - SANITIZE=true
-
-install:
-  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
-  - mkdir -p ${DEPS_DIR} && pushd ${DEPS_DIR}
-  - CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.tar.gz"
-  - mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
-  - popd
-  - export PATH=${DEPS_DIR}/cmake/bin:${PATH}
-  - cmake --version
 
 before_script:
   - CXX=${COMPILER}  ./check_errors.sh
   - mkdir build && cd build
   - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
   - make VERBOSE=1 self_test kcov
+
 script:
-   make run_self_test
+  make run_self_test
 
 after_success:
   make VERBOSE=1 run_coverage

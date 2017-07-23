@@ -47,6 +47,7 @@
 #include <regex>
 #include <mutex>
 #include <atomic>
+#include <type_traits>
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>

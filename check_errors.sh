@@ -22,7 +22,6 @@ FAILURES=0
 #echo "CPPFLAGS=$CPPFLAGS"
 
 #${CXX} --version
-
 cd compilation_errors
 
 for f in *.cpp
