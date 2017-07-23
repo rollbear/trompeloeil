@@ -21,7 +21,6 @@ matrix:
             - gdb
       env:
         - COMPILER="clang++-3.7"
-        - SANITIZE=true
       before_script:
         # The clang runtime for the address sanitizer is missing from the
         # apt, hence the downloaded tarballs.
@@ -31,7 +30,7 @@ matrix:
         - sudo cp -n clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.7.1/lib/linux/*.a /usr/lib/llvm-3.7/lib/clang/3.7.1/lib/linux/
         - CXX=${COMPILER}  ./check_errors.sh
         - mkdir build && cd build
-        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
         - make VERBOSE=1 self_test kcov
 
     - os: linux
@@ -49,7 +48,6 @@ matrix:
             - gdb
       env:
         - COMPILER="clang++-3.8"
-        - SANITIZE=true
 
     - os: linux
       addons:
@@ -66,7 +64,6 @@ matrix:
             - gdb
       env:
         - COMPILER="clang++-3.9"
-        - SANITIZE=true
       before_script:
         # Unlike with clang++-3.7, the runtime libraries exists with 3.9,
         # but still doesn't work because of gold linker version incompatibility.
@@ -77,7 +74,7 @@ matrix:
         - sudo cp clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.9.1/lib/linux/*.a /usr/lib/llvm-3.9/lib/clang/3.9.1/lib/linux/
         - CXX=${COMPILER}  ./check_errors.sh
         - mkdir build && cd build
-        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+        - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
         - make VERBOSE=1 self_test kcov
 
     - os: linux
@@ -93,7 +90,6 @@ matrix:
             - gdb
       env:
         - COMPILER="g++-4.9"
-        - SANITIZE=true
 
     - os: linux
       addons:
@@ -108,7 +104,6 @@ matrix:
             - gdb
       env:
         - COMPILER="g++-5"
-        - SANITIZE=true
 
     - os: linux
       addons:
@@ -123,12 +118,11 @@ matrix:
             - gdb
       env:
         - COMPILER="g++-6"
-        - SANITIZE=true
 
 before_script:
   - CXX=${COMPILER}  ./check_errors.sh
   - mkdir build && cd build
-  - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+  - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
   - make VERBOSE=1 self_test kcov
 
 script:
