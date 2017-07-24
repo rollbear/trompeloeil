@@ -12,7 +12,7 @@
 */
 
 #define TROMPELOEIL_SANITY_CHECKS
-#include "trompeloeil.hpp"
+#include <trompeloeil.hpp>
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <vector>

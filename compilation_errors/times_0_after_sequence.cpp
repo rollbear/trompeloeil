@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2015
+ * Copyright Björn Fahller 2015,2017
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -13,7 +13,7 @@
 
 //IN_SEQUENCE and TIMES\(0\) does not make sense
 
-#include "../trompeloeil.hpp"
+#include <trompeloeil.hpp>
 
 struct MS
 {

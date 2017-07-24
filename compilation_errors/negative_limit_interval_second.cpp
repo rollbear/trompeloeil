@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014
+ * Copyright Björn Fahller 2014,2017
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -12,7 +12,7 @@
  */
 
 //In TIMES the first value must not exceed the second
-#include "../trompeloeil.hpp"
+#include <trompeloeil.hpp>
 
 struct MS
 {
