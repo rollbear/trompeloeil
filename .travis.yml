@@ -147,6 +147,18 @@ matrix:
       env:
         - COMPILER="clang++" SANIZITE=false
 
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANIZITE=false
+
+install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      which cmake || brew install cmake
+    fi
+
 before_script:
   - CXX=${COMPILER}  ./check_errors.sh
   - mkdir build && cd build
