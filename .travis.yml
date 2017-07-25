@@ -45,7 +45,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-3.8"
+        - COMPILER="clang++-3.8" SANITIZE=true
 
     - os: linux
       addons:
@@ -87,7 +87,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-4.0"
+        - COMPILER="clang++-4.0" SANITIZE=true
 
     - os: linux
       addons:
@@ -100,7 +100,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-4.9"
+        - COMPILER="g++-4.9" SANITIZE=true
 
     - os: linux
       addons:
@@ -113,7 +113,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-5"
+        - COMPILER="g++-5" SANITIZE=true
 
     - os: linux
       addons:
@@ -126,7 +126,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-6"
+        - COMPILER="g++-6" SANITIZE=true
 
     - os: linux
       addons:
@@ -139,16 +139,25 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-7"
+        - COMPILER="g++-7" SANITIZE=true
+
+    - os: osx
+      osx_image: xcode8
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANIZITE=false
 
 before_script:
   - CXX=${COMPILER}  ./check_errors.sh
   - mkdir build && cd build
-  - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
-  - make VERBOSE=1 self_test kcov
+  - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+  - make VERBOSE=1 self_test
 
 script:
   make run_self_test
 
 after_success:
-  make VERBOSE=1 run_coverage
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      make VERBOSE=1 run_coverage
+    fi
