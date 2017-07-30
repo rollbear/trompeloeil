@@ -99,11 +99,8 @@ matrix:
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
-          env:
-            - COMPILER="g++-4.8"
-            - CXXFLAGS="-std=c++11"
-            - CXX_STANDARD="11"
-            - SANITIZE=true
+      env:
+        - COMPILER="g++-4.8" CXXFLAGS="-std=c++11" CXX_STANDARD="11" SANITIZE=true
 
     - os: linux
       addons:
