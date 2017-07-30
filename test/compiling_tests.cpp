@@ -480,7 +480,7 @@ TEST_CASE_METHOD(
     count += obj1.count();
     count += obj1.count();
     std::string s = "apa";
-    obj1.func(3, s);
+    obj1.func(count, s);
   }
   REQUIRE(reports.empty());
 }
@@ -510,7 +510,7 @@ TEST_CASE_METHOD(
     count += obj1.count();
     count += obj1.count();
     std::string s = "apa";
-    obj1.func(3, s);
+    obj1.func(count, s);
   }
   REQUIRE(reports.empty());
 }
@@ -1006,7 +1006,7 @@ TEST_CASE_METHOD(
     count += obj1.count();
     count += obj1.count();
     std::string s = "apa";
-    obj1.func(3, s);
+    obj1.func(count, s);
   }
   REQUIRE(reports.empty());
 }
@@ -1035,7 +1035,7 @@ TEST_CASE_METHOD(
     count += obj1.count();
     count += obj1.count();
     std::string s = "apa";
-    obj1.func(3, s);
+    obj1.func(count, s);
   }
   REQUIRE(reports.empty());
 }
@@ -1062,7 +1062,7 @@ TEST_CASE_METHOD(
 
   try {
     std::string s = "apa";
-    obj1.func(3, s);
+    obj1.func(count, s);
     FAIL("didn't throw");
   }
   catch (reported)
@@ -1618,6 +1618,9 @@ TEST_CASE_METHOD(
       .RETURN_TYPE(m_t, _1);
     n = 2;
     obj.getter(1);
+
+    // Read n.
+    CHECK(n == 2);
   }
   REQUIRE(reports.empty());
 }
@@ -1939,6 +1942,9 @@ TEST_CASE_METHOD(
       .RETURN(_1);
     n = 2;
     obj.getter(1);
+
+    // Read n.
+    CHECK(n == 2);
   }
   REQUIRE(reports.empty());
 }
