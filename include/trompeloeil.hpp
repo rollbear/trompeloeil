@@ -3144,7 +3144,7 @@ namespace trompeloeil
       }
 
     private:
-      H&& h;
+      H h;
     };
 
   public:
