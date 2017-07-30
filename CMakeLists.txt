@@ -10,7 +10,11 @@ write_basic_package_version_file(
   VERSION 28
   COMPATIBILITY AnyNewerVersion)
 
-set(CMAKE_CXX_STANDARD 14)
+if (CXX_STANDARD MATCHES "11")
+  set(CMAKE_CXX_STANDARD 11)
+else()
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
 add_library(trompeloeil INTERFACE)
 
@@ -90,8 +94,15 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
-  set(TSAN "-fsanitize=undefined,thread")
-  set(SSAN "-fsanitize=address,undefined")
+  if (CMAKE_COMPILER_IS_GNUCXX AND
+    ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.8") AND
+    (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9")))
+    set(TSAN "-fsanitize=thread")
+    set(SSAN "-fsanitize=address")
+  else()
+    set(TSAN "-fsanitize=undefined,thread")
+    set(SSAN "-fsanitize=address,undefined")
+  endif()
 
   add_executable(
     self_test
