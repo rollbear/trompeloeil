@@ -1620,7 +1620,7 @@ namespace trompeloeil
         char const* str;
       };
 
-      return [re, match_type](string_helper str, auto const&)
+      return [re = std::move(re), match_type](string_helper str, auto const&)
         -> decltype(std::regex_search(str.c_str(), re, match_type))
         {
           return !::trompeloeil::is_null(str.c_str())
