@@ -1,3 +1,5 @@
+	* Fix Issue #48: Move "re" in lambda capture list in "regex_check".
+
 	* Changed directory structure. "trompeloeil.hpp" now resides in
 	  directory "include". Self test programs "compiling_tests.cpp"
 	  and "thread_terror.cpp" resides in directory "test".
