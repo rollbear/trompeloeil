@@ -207,12 +207,25 @@ namespace trompeloeil
 {
   class specialized;
 
+  namespace {
+    inline
+    const std::shared_ptr<std::recursive_mutex>&
+    get_mutex_obj()
+    {
+      static auto obj = std::make_shared<std::recursive_mutex>();
+      return obj;
+    }
+
+    auto mutex_holder = get_mutex_obj();
+
+  }
+
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
-    static std::recursive_mutex lock;
-    return std::unique_lock<std::recursive_mutex>{ lock };
+    return std::unique_lock<std::recursive_mutex>{ *get_mutex_obj() };
   }
+
   template <size_t N, typename T>
   using conditional_tuple_element
     = std::conditional_t<(N < std::tuple_size<T>::value),
@@ -1620,7 +1633,7 @@ namespace trompeloeil
         char const* str;
       };
 
-      return [re, match_type](string_helper str, auto const&)
+      return [re = std::move(re), match_type](string_helper str, auto const&)
         -> decltype(std::regex_search(str.c_str(), re, match_type))
         {
           return !::trompeloeil::is_null(str.c_str())
