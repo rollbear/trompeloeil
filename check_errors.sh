@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # Trompeloeil C++ mocking framework
@@ -13,8 +13,8 @@
 # Project home: https://github.com/rollbear/trompeloeil
 #
 
-PASS=$'\E[32mPASS\E[0m'
-FAIL=$'\E[1;31mFAIL\E[0m'
+PASS="\033[32mPASS\033[0m"
+FAIL="\033[1;31mFAIL\033[0m"
 FAILURES=0
 
 #echo "CXX=$CXX"
@@ -23,12 +23,18 @@ FAILURES=0
 
 #${CXX} --version
 cd compilation_errors
-
+SCRIPT='
+s:^//\(.*\)$:\1:g
+t print
+b
+:print
+P
+'
 for f in *.cpp
 do
-  RE=$(sed -n 's:^//\(.*\)$:\1:g;T;P' < $f)
+  RE=`sed -n "$SCRIPT" < $f`
   printf "%-45s" $f
-  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include -std=c++14 $f -c |& egrep -q "$RE" && echo $PASS && continue || echo $FAIL && false
+  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include -std=c++14 $f -c 2>&1 | egrep -q "${RE}" && echo ${PASS} && continue || echo ${FAIL} && false
   FAILURES=$((FAILURES+$?))
 done
 exit $FAILURES

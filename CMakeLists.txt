@@ -7,7 +7,7 @@ include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
-  VERSION 27
+  VERSION 28
   COMPATIBILITY AnyNewerVersion)
 
 set(CMAKE_CXX_STANDARD 14)
