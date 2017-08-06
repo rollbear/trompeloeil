@@ -108,7 +108,9 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     self_test
     EXCLUDE_FROM_ALL
     test/compiling_tests.cpp
-    )
+    test/compiling_tests_11.cpp
+    test/compiling_tests_14.cpp
+  )
 
   target_include_directories(
     self_test
