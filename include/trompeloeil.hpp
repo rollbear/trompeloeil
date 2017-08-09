@@ -3481,6 +3481,16 @@ namespace trompeloeil
 
 #endif
 
+// Define a preprocessor definition named TROMPELOEIL_OVERRIDE_BY_DEFAULT to
+// make `override` the default specifier for all mocked functions. When this
+// is enabled, the actual `spec` parameter of `TROMPELOEIL_MAKE_MOCK_()` is
+// ignored.
+#if defined(TROMPELOEIL_OVERRIDE_BY_DEFAULT)
+#  define TROMPELOEIL_OVERRIDE_SPEC(...) override
+#else
+#  define TROMPELOEIL_OVERRIDE_SPEC(...) __VA_ARGS__
+#endif
+
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
     std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
@@ -3528,7 +3538,7 @@ namespace trompeloeil
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
-  spec                                                                         \
+  TROMPELOEIL_OVERRIDE_SPEC(spec)                                              \
   {                                                                            \
     /* Use the auxiliary functions to avoid unneeded-member-function warning */\
     using T_ ## name = typename std::remove_reference<decltype(*this)>::type;  \
