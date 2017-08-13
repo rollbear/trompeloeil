@@ -3842,22 +3842,25 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-auto cxx11_is_clamped_lambda =
-  [](std::string x, std::string min, std::string max)
-    ->decltype(x >= min && x <= max)
-  {
-    return x >= min && x <= max;
-  };
+namespace
+{
 
-auto cxx11_is_clamped_printer =
-  [](std::ostream& os, std::string amin, std::string amax)
-  {
-    os << " in range [";
-    ::trompeloeil::print(os, amin);
-    os << ", ";
-    ::trompeloeil::print(os, amax);
-    os << "]";
-  };
+  auto cxx11_is_clamped_lambda =
+    [](std::string x, std::string min, std::string max)
+      -> decltype(x >= min && x <= max) {
+      return x >= min && x <= max;
+    };
+
+  auto cxx11_is_clamped_printer =
+    [](std::ostream &os, std::string amin, std::string amax) {
+      os << " in range [";
+      ::trompeloeil::print(os, amin);
+      os << ", ";
+      ::trompeloeil::print(os, amax);
+      os << "]";
+    };
+
+} /* unnamed namespace */
 
 template <typename kind = trompeloeil::wildcard, typename T>
 auto
