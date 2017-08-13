@@ -26,11 +26,24 @@ int main()
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
+#if (TROMPELOEIL_CXX11_API_VERSION == 1)
+
   using m_t = NAMED_MOCK_TYPE(obj, f());
   REQUIRE_CALL(obj, f())
     .IN_SEQUENCE(seq)
     .RETURN_TYPE(m_t, 0)
     .IN_SEQUENCE(seq);
+
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+
+  MAKE_EXPECTATION(obj, f(),
+  REQUIRE_CALL(obj, f())
+    .IN_SEQUENCE(seq)
+    .RETURN(0)
+    .IN_SEQUENCE(seq)
+  );
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

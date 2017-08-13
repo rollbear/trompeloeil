@@ -12,6 +12,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
+#define TROMPELOEIL_CXX11_API_VERSION 1
 #define TROMPELOEIL_SANITY_CHECKS
 #include <trompeloeil.hpp>
 #include <catch.hpp>
@@ -1730,7 +1731,7 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C+11: pointer to member call with ne(nullptr) matched",
+  "C++11: pointer to member call with ne(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1816,7 +1817,7 @@ Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "pointer to function call with ne(nullptr) matched",
+  "C++11: pointer to function call with ne(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -3747,7 +3748,7 @@ Tried obj\.foo\(cxx11_is_clamped\("b", "d"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a custom duck typed make_matcher-matcher that succeeds is not reported",
-  "[C+11][C++14][matching][matchers][custom]")
+  "[C++11][C++14][matching][matchers][custom]")
 {
   mock_c obj;
   REQUIRE_CALL(obj, foo(cxx11_is_clamped("b", "d")));

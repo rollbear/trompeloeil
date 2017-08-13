@@ -28,9 +28,20 @@ int main()
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
+#if (TROMPELOEIL_CXX11_API_VERSION == 1)
+
   using m_t = NAMED_MOCK_TYPE(obj, f(ANY(int)));
   REQUIRE_CALL(obj, f(ANY(int)))
     .SIDE_EFFECT_TYPE(m_t, func(&_2));
+
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+
+  MAKE_EXPECTATION(obj, f(ANY(int)),
+  REQUIRE_CALL(obj, f(ANY(int)))
+    .SIDE_EFFECT(func(&_2))
+  );
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

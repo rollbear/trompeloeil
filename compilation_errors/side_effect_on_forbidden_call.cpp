@@ -27,9 +27,20 @@ int main()
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
+#if (TROMPELOEIL_CXX11_API_VERSION == 1)
+
   using m_t = NAMED_MOCK_TYPE(obj, f());
   FORBID_CALL(obj, f())
     .SIDE_EFFECT_TYPE(m_t, std::cout << 3);
+
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+
+  MAKE_EXPECTATION(obj, f(),
+  FORBID_CALL(obj, f())
+    .SIDE_EFFECT(std::cout << 3)
+  );
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 
