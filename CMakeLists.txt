@@ -15,6 +15,8 @@ if (CXX_STANDARD MATCHES "11")
 else()
   set(CMAKE_CXX_STANDARD 14)
 endif()
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(trompeloeil INTERFACE)
 
@@ -94,14 +96,29 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
-  if (CMAKE_COMPILER_IS_GNUCXX AND
-    ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.8") AND
-    (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9")))
-    set(TSAN "-fsanitize=thread")
-    set(SSAN "-fsanitize=address")
-  else()
-    set(TSAN "-fsanitize=undefined,thread")
-    set(SSAN "-fsanitize=address,undefined")
+  # Default sanitizer target properties.
+  set(TSAN "-fsanitize=undefined,thread")
+  set(SSAN "-fsanitize=undefined,address")
+
+  # Exceptions to sanitizer target properties based on compiler and compiler version.
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+    if (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0"))
+        set(SSAN "-fsanitize=undefined,address -fsanitize-address-use-after-scope")
+    else()
+      set(SSAN "-fsanitize=undefined,address")
+    endif()
+
+  elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+    if ((NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.8")) AND
+       (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9"))
+      set(TSAN "-fsanitize=thread")
+      set(SSAN "-fsanitize=address")
+    elseif (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0"))
+      set(SSAN "-fsanitize=undefined,address -fno-sanitize-address-use-after-scope")
+    endif()
+
   endif()
 
   add_executable(
