@@ -180,7 +180,7 @@ before_script:
     fi
   - mkdir build && cd build
   - CXX=${COMPILER} cmake -DCXX_STANDARD="${CXX_STANDARD}" -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
-  - travis_wait make -j 4 VERBOSE=1 self_test
+  - make -j 4 VERBOSE=1 self_test
 
 script:
   make run_self_test
