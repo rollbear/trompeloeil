@@ -34,14 +34,19 @@ int main()
   REQUIRE_CALL(obj, f(ANY(int)))
     .SIDE_EFFECT_TYPE(m_t, *_2 = 1);
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(ANY(int)),
   REQUIRE_CALL(obj, f(ANY(int)))
     .SIDE_EFFECT(*_2 = 1)
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  REQUIRE_CALL_V(obj, f(ANY(int)),
+    .SIDE_EFFECT(*_2 = 1));
+
+#endif /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

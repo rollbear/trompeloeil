@@ -32,6 +32,54 @@
 
 // Exercise C++11/14 Trompeloeil interface
 
+using trompeloeil::_;
+
+namespace
+{
+  /*
+   * These types are local to this file as their definition depends on
+   * macros whose names are particular to each API version.
+   */
+
+  template <typename T>
+  class tmock
+  {
+  public:
+    MAKE_MOCK1(func, void(int));
+    MAKE_MOCK1(tfunc, void(T));
+
+    tmock() : m(NAMED_FORBID_CALL(*this, func(_))) {}
+
+  private:
+    std::unique_ptr<trompeloeil::expectation> m;
+  };
+
+  // multiple inheritance
+
+  struct combined
+    : mock_c
+    , tmock<int>
+  {
+  };
+
+  class self_ref_mock
+  {
+  public:
+    void expect_self()
+    {
+      exp = NAMED_REQUIRE_CALL(*this, mfunc());
+    }
+    MAKE_MOCK0(mfunc, void());
+    std::unique_ptr<trompeloeil::expectation> exp;
+  };
+
+#define MANY_REQS(obj)                          \
+               REQUIRE_CALL(obj, f0());         \
+               REQUIRE_CALL(obj, f1(0));        \
+               REQUIRE_CALL(obj, f2(0,1))
+
+} /* unnamed namespace */
+
 // IN_SEQUENCE tests
 
 TEST_CASE_METHOD(

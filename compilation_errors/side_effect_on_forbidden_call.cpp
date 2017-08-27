@@ -33,14 +33,19 @@ int main()
   FORBID_CALL(obj, f())
     .SIDE_EFFECT_TYPE(m_t, std::cout << 3);
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(),
   FORBID_CALL(obj, f())
     .SIDE_EFFECT(std::cout << 3)
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  FORBID_CALL_V(obj, f(),
+    .SIDE_EFFECT(std::cout << 3));
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

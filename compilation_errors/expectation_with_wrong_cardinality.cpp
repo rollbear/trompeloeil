@@ -32,14 +32,19 @@ int main()
   REQUIRE_CALL(obj, f(_,_))
     .RETURN_TYPE(m_t, _2);
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(_,_),
   REQUIRE_CALL(obj, f(_,_))
     .RETURN(_2)
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  REQUIRE_CALL_V(obj, f(_,_),
+    .RETURN(_2));
+
+#endif /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

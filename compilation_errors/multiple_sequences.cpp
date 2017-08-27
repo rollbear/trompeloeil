@@ -34,7 +34,7 @@ int main()
     .RETURN_TYPE(m_t, 0)
     .IN_SEQUENCE(seq);
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(),
   REQUIRE_CALL(obj, f())
@@ -43,7 +43,14 @@ int main()
     .IN_SEQUENCE(seq)
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  REQUIRE_CALL_V(obj, f(),
+    .IN_SEQUENCE(seq)
+    .RETURN(0)
+    .IN_SEQUENCE(seq));
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

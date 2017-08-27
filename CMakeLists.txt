@@ -127,6 +127,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     test/compiling_tests.cpp
     test/compiling_tests_11_v1.cpp
     test/compiling_tests_11_v2.cpp
+    test/compiling_tests_11_v3.cpp
     test/compiling_tests_14.cpp
   )
 

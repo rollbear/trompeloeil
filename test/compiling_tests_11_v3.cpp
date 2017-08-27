@@ -12,7 +12,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-#define TROMPELOEIL_CXX11_API_VERSION 2
+#define TROMPELOEIL_CXX11_API_VERSION 3
 #define TROMPELOEIL_SANITY_CHECKS
 #include <trompeloeil.hpp>
 #include <catch.hpp>
@@ -32,17 +32,11 @@
 
 // Exercise C++11/14 Trompeloeil interface
 
-#if (TROMPELOEIL_CLANG == 0)
-/*
- * Compilers other than Clang understand the C++11 version two API.
- */
-
 using trompeloeil::_;
 
 namespace
 {
-  /*
-   * These types are local to this file as their definition depends on
+  /* These types are local to this file as their definition depends on
    * macros whose names are particular to each API version.
    */
 
@@ -53,7 +47,7 @@ namespace
     MAKE_MOCK1(func, void(int));
     MAKE_MOCK1(tfunc, void(T));
 
-    tmock() : m(NAMED_FORBID_CALL(*this, func(_))) {}
+    tmock() : m(NAMED_FORBID_CALL_0(*this, func(_))) {}
 
   private:
     std::unique_ptr<trompeloeil::expectation> m;
@@ -63,7 +57,7 @@ namespace
 
   struct combined
     : mock_c
-      , tmock<int>
+    , tmock<int>
   {
   };
 
@@ -72,25 +66,24 @@ namespace
   public:
     void expect_self()
     {
-      exp = NAMED_REQUIRE_CALL(*this, mfunc());
+      exp = NAMED_REQUIRE_CALL_0(*this, mfunc());
     }
     MAKE_MOCK0(mfunc, void());
     std::unique_ptr<trompeloeil::expectation> exp;
   };
 
-#define MANY_REQS(obj)                          \
-               REQUIRE_CALL(obj, f0());         \
-               REQUIRE_CALL(obj, f1(0));        \
-               REQUIRE_CALL(obj, f2(0,1))
+#define MANY_REQS(obj)                            \
+               REQUIRE_CALL_0(obj, f0());         \
+               REQUIRE_CALL_0(obj, f1(0));        \
+               REQUIRE_CALL_0(obj, f2(0,1))
 
 } /* unnamed namespace */
-
 
 // IN_SEQUENCE tests
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: follow single sequence gives no reports",
+  "C++11v3: follow single sequence gives no reports",
   "[C++11][C++14][sequences]")
 {
   { // Compile-time tests
@@ -106,20 +99,16 @@ TEST_CASE_METHOD(
 
     auto seq = trompeloeil::sequence{}; // Use "almost always auto" style
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    REQUIRE_CALL(obj2, func(_, _))
-      .IN_SEQUENCE(seq);
+    REQUIRE_CALL_V(obj2, func(_, _),
+      .IN_SEQUENCE(seq));
 
-    MAKE_EXPECTATION(obj2, count(),
-    REQUIRE_CALL(obj2, count())
+    REQUIRE_CALL_V(obj2, count(),
       .IN_SEQUENCE(seq)
-      .RETURN(3)
-    );
+      .RETURN(3));
 
     std::string str = "apa";
     obj1.count();
@@ -129,26 +118,23 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: correct sequence on moved seq object is not reported",
+  "C++11v3: correct sequence on moved seq object is not reported",
   "[C++11][C++14][sequences]")
 {
   {
     mock_c obj;
     auto seq1 = trompeloeil::sequence{};
 
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
+    REQUIRE_CALL_V(obj, count(),
       .IN_SEQUENCE(seq1)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
     auto seq2 = std::move(seq1);
 
-    REQUIRE_CALL(obj, func(_,_))
-      .IN_SEQUENCE(seq2);
+    REQUIRE_CALL_V(obj, func(_,_),
+      .IN_SEQUENCE(seq2));
 
     obj.count();
     std::string foo = "foo";
@@ -163,7 +149,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: incorrect sequence on moved seq object is reported",
+  "C++11v3: incorrect sequence on moved seq object is reported",
   "[C++11][C++14][sequences]")
 {
   try
@@ -171,16 +157,14 @@ TEST_CASE_METHOD(
     mock_c obj;
     auto seq1 = trompeloeil::sequence{};
 
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
+    REQUIRE_CALL_V(obj, count(),
       .IN_SEQUENCE(seq1)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
     auto seq2 = std::move(seq1);
 
-    REQUIRE_CALL(obj, func(_,_))
-      .IN_SEQUENCE(seq2);
+    REQUIRE_CALL_V(obj, func(_,_),
+      .IN_SEQUENCE(seq2));
 
     std::string foo = "foo";
     obj.func(3, foo);
@@ -199,7 +183,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: join two sequences gives no report",
+  "C++11v3: join two sequences gives no report",
   "[C++11][C++14][sequences]")
 {
   {
@@ -207,20 +191,16 @@ TEST_CASE_METHOD(
 
     trompeloeil::sequence seq1, seq2;
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq1)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    REQUIRE_CALL(obj2, func(_, _))
-      .IN_SEQUENCE(seq2);
+    REQUIRE_CALL_V(obj2, func(_, _),
+      .IN_SEQUENCE(seq2));
 
-    MAKE_EXPECTATION(obj2, count(),
-    REQUIRE_CALL(obj2, count())
+    REQUIRE_CALL_V(obj2, count(),
       .IN_SEQUENCE(seq2, seq1)
-      .RETURN(3)
-    );
+      .RETURN(3));
 
     std::string str = "apa";
     obj2.func(3, str);
@@ -236,7 +216,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: violating single sequence reports first violation as fatal",
+  "C++11v3: violating single sequence reports first violation as fatal",
   "[C++11][C++14][sequences]")
 {
   try {
@@ -244,20 +224,16 @@ TEST_CASE_METHOD(
 
     trompeloeil::sequence seq;
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    REQUIRE_CALL(obj2, func(_,_))
-      .IN_SEQUENCE(seq);
+    REQUIRE_CALL_V(obj2, func(_,_),
+      .IN_SEQUENCE(seq));
 
-    MAKE_EXPECTATION(obj2, count(),
-    REQUIRE_CALL(obj2, count())
+    REQUIRE_CALL_V(obj2, count(),
       .IN_SEQUENCE(seq)
-      .RETURN(3)
-    );
+      .RETURN(3));
 
     std::string str = "apa";
     obj1.count();
@@ -281,7 +257,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: violating parallel sequences reports first violation as fatal",
+  "C++11v3: violating parallel sequences reports first violation as fatal",
   "[C++11][C++14][sequences]")
 {
   try {
@@ -289,26 +265,20 @@ TEST_CASE_METHOD(
 
     trompeloeil::sequence seq1, seq2;
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq1)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    REQUIRE_CALL(obj2, func(_, _))
-      .IN_SEQUENCE(seq2, seq1);
+    REQUIRE_CALL_V(obj2, func(_, _),
+      .IN_SEQUENCE(seq2, seq1));
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq2)
-      .RETURN(3)
-    );
+      .RETURN(3));
 
-    MAKE_EXPECTATION(obj2, count(),
-    REQUIRE_CALL(obj2, count())
+    REQUIRE_CALL_V(obj2, count(),
       .IN_SEQUENCE(seq2)
-      .RETURN(3)
-    );
+      .RETURN(3));
 
     std::string str = "apa";
     obj1.count();
@@ -328,7 +298,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a sequence retires after min calls",
+  "C++11v3: a sequence retires after min calls",
   "[C++11][C++14][sequences]")
 {
   {
@@ -337,15 +307,13 @@ TEST_CASE_METHOD(
     mock_c obj1;
     trompeloeil::sequence seq1;
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq1)
       .TIMES(AT_LEAST(3))
-      .RETURN(1);
-    );
+      .RETURN(1));
 
-    REQUIRE_CALL(obj1, func(_, _))
-      .IN_SEQUENCE(seq1);
+    REQUIRE_CALL_V(obj1, func(_, _),
+      .IN_SEQUENCE(seq1));
 
     count += obj1.count();
     count += obj1.count();
@@ -358,7 +326,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: calling a sequenced match after seq retires is allowed",
+  "C++11v3: calling a sequenced match after seq retires is allowed",
   "[C++11][C++14][sequences]")
 {
   {
@@ -367,15 +335,13 @@ TEST_CASE_METHOD(
     mock_c obj1;
     trompeloeil::sequence seq1;
 
-    MAKE_EXPECTATION(obj1, count(),
-    REQUIRE_CALL(obj1, count())
+    REQUIRE_CALL_V(obj1, count(),
       .IN_SEQUENCE(seq1)
       .TIMES(AT_LEAST(3))
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    REQUIRE_CALL(obj1, func(_, _))
-      .IN_SEQUENCE(seq1);
+    REQUIRE_CALL_V(obj1, func(_, _),
+      .IN_SEQUENCE(seq1));
 
     count += obj1.count();
     count += obj1.count();
@@ -394,7 +360,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: breaking a sequence before retirement is illegal",
+  "C++11v3: breaking a sequence before retirement is illegal",
   "[C++11][C++14][sequences]")
 {
   int count = 0;
@@ -402,15 +368,13 @@ TEST_CASE_METHOD(
   mock_c obj1;
   trompeloeil::sequence seq1;
 
-  MAKE_EXPECTATION(obj1, count(),
-  REQUIRE_CALL(obj1, count())
+  REQUIRE_CALL_V(obj1, count(),
     .IN_SEQUENCE(seq1)
     .TIMES(AT_LEAST(3))
-    .RETURN(1)
-  );
+    .RETURN(1));
 
-  REQUIRE_CALL(obj1, func(_, _))
-    .IN_SEQUENCE(seq1);
+  REQUIRE_CALL_V(obj1, func(_, _),
+    .IN_SEQUENCE(seq1));
 
   count += obj1.count();
   count += obj1.count();
@@ -435,30 +399,24 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: sequences impose order between multiple matching expectations",
+  "C++11v3: sequences impose order between multiple matching expectations",
   "[C++11][C++14][sequences]")
 {
   mock_c obj;
 
   trompeloeil::sequence seq;
 
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
     .RETURN(1)
-    .IN_SEQUENCE(seq)
-  );
+    .IN_SEQUENCE(seq));
 
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
     .RETURN(2)
-    .IN_SEQUENCE(seq)
-  );
+    .IN_SEQUENCE(seq));
 
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
     .RETURN(3)
-    .IN_SEQUENCE(seq)
-  );
+    .IN_SEQUENCE(seq));
 
   std::string s;
   s += std::to_string(obj.getter(1));
@@ -471,7 +429,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: Sequence object destruction with live expectations is reported",
+  "C++11v3: Sequence object destruction with live expectations is reported",
   "[C++11][C++14][sequences]")
 {
   mock_c obj;
@@ -481,13 +439,11 @@ TEST_CASE_METHOD(
 
     trompeloeil::sequence s;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    e[0] = NAMED_REQUIRE_CALL(obj, getter(ANY(int)))
+    e[0] = NAMED_REQUIRE_CALL_V(obj, getter(ANY(int)),
       .IN_SEQUENCE(s)
-      .RETURN(0);
-    e[1] = NAMED_REQUIRE_CALL(obj, foo(_))
-      .IN_SEQUENCE(s)
-    );
+      .RETURN(0));
+    e[1] = NAMED_REQUIRE_CALL_V(obj, foo(_),
+      .IN_SEQUENCE(s));
   }
 
   REQUIRE(!reports.empty());
@@ -504,26 +460,23 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a sequence is completed when no expectations remain on it",
+  "C++11v3: a sequence is completed when no expectations remain on it",
   "[C++11][C++14][sequences]")
 {
   mock_c obj;
   trompeloeil::sequence seq;
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .IN_SEQUENCE(seq)
-    .RETURN(0)
-  );
 
-  REQUIRE_CALL(obj, foo(_))
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
     .IN_SEQUENCE(seq)
-    .TIMES(2);
+    .RETURN(0));
 
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
+  REQUIRE_CALL_V(obj, foo(_),
     .IN_SEQUENCE(seq)
-    .RETURN(0)
-  );
+    .TIMES(2));
+
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
+    .IN_SEQUENCE(seq)
+    .RETURN(0));
 
   REQUIRE(!seq.is_completed());
   obj.getter(3);
@@ -540,18 +493,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: side effect access copy of local object",
+  "C++11v3: side effect access copy of local object",
   "[C++11][C++14][side effects]")
 {
   {
     int n = 1;
     mock_c obj;
-
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .SIDE_EFFECT(global_n = n)
-      .RETURN(_1)
-    );
+      .RETURN(_1));
     n = 2;
     obj.getter(n);
   }
@@ -560,17 +510,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: lr side effect access reference of local object",
+  "C++11v3: lr side effect access reference of local object",
   "[C++11][C++14][side effects]")
 {
   {
     int n = 1;
     mock_c obj;
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .LR_SIDE_EFFECT(global_n = n)
-      .RETURN(_1)
-    );
+      .RETURN(_1));
     n = 2;
     obj.getter(n);
   }
@@ -580,20 +528,18 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: multiple side effects are executed in the order declared",
+  "C++11v3: multiple side effects are executed in the order declared",
   "[C++11][C++14][side effects]")
 {
   std::string s;
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .LR_SIDE_EFFECT(s = std::to_string(_1))
       .LR_SIDE_EFFECT(s += "_")
       .LR_SIDE_EFFECT(s += s)
-      .RETURN(_1)
-    );
+      .RETURN(_1));
 
     obj.getter(3);
   }
@@ -606,17 +552,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN access copy of local object",
+  "C++11v3: RETURN access copy of local object",
   "[C++11][C++14][return values]")
 {
   {
     int n = 1;
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
-      .RETURN(n)
-    );
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
+      .RETURN(n));
 
     n = 2;
     auto m = obj.getter(n);
@@ -627,17 +571,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: LR_RETURN access the actual local object",
+  "C++11v3: LR_RETURN access the actual local object",
   "[C++11][C++14][return values]")
 {
   {
     int n = 1;
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
-      .LR_RETURN(n)
-    );
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
+      .LR_RETURN(n));
 
     n = 2;
     auto m = obj.getter(n);
@@ -648,16 +590,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN a ref to local obj, std::ref(obj) returns object given",
+  "C++11v3: RETURN a ref to local obj, std::ref(obj) returns object given",
   "[C++11][C++14][return values]")
 {
   {
     mock_c obj;
     unmovable s;
-    MAKE_EXPECTATION(obj, getter(ANY(unmovable&)),
-    REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-      .LR_RETURN(std::ref(s))
-    );
+    REQUIRE_CALL_V(obj, getter(ANY(unmovable&)),
+      .LR_RETURN(std::ref(s)));
 
     REQUIRE(&obj.getter(s) == &s);
   }
@@ -666,17 +606,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN a ref to local obj, (obj) returns object given",
+  "C++11v3: RETURN a ref to local obj, (obj) returns object given",
   "[C++11][C++14][return values]")
 {
   {
     mock_c obj;
     unmovable s;
 
-    MAKE_EXPECTATION(obj, getter(ANY(unmovable&)),
-    REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-      .LR_RETURN((s))
-    );
+    REQUIRE_CALL_V(obj, getter(ANY(unmovable&)),
+      .LR_RETURN((s)));
 
     REQUIRE(&obj.getter(s) == &s);
   }
@@ -685,198 +623,173 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const char* from const char*",
+  "C++11v3: RETURN const char* from const char*",
   "[C++11][C++14][return]")
 {
   mstr m;
   const char* s = "foo";
 
-  MAKE_EXPECTATION(m, cc_str(),
-  REQUIRE_CALL(m, cc_str())
-    .RETURN(s);
-  );
+  REQUIRE_CALL_V(m, cc_str(),
+    .RETURN(s));
 
   REQUIRE(m.cc_str() == std::string("foo"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const char* from string literal",
+  "C++11v3: RETURN const char* from string literal",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cc_str(),
-  REQUIRE_CALL(m, cc_str())
-    .RETURN("foo");
-  );
+  REQUIRE_CALL_V(m, cc_str(),
+    .RETURN("foo"));
 
   REQUIRE(m.cc_str() == std::string("foo"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const char* from static char array",
+  "C++11v3: RETURN const char* from static char array",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cc_str(),
-  REQUIRE_CALL(m, cc_str())
-    .RETURN(carr)
-  );
+  REQUIRE_CALL_V(m, cc_str(),
+    .RETURN(carr));
 
   REQUIRE(m.cc_str() == std::string("foo"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const char* from static const char array",
+  "C++11v3: RETURN const char* from static const char array",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cc_str(),
-  REQUIRE_CALL(m, cc_str())
-    .RETURN(ccarr)
-  );
+  REQUIRE_CALL_V(m, cc_str(),
+    .RETURN(ccarr));
 
   REQUIRE(m.cc_str() == std::string("bar"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN char* from char*",
+  "C++11v3: RETURN char* from char*",
   "[C++11][C++14][return]")
 {
   mstr m;
   char* s = carr;
 
-  MAKE_EXPECTATION(m, cc_str(),
-  REQUIRE_CALL(m, cc_str())
-    .RETURN(s)
-  );
+  REQUIRE_CALL_V(m, cc_str(),
+    .RETURN(s));
 
   REQUIRE(m.cc_str() == std::string("foo"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN char* from char array",
+  "C++11v3: RETURN char* from char array",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cc_str(),
-  REQUIRE_CALL(m, cc_str())
-    .RETURN(carr)
-  );
+  REQUIRE_CALL_V(m, cc_str(),
+    .RETURN(carr));
 
   REQUIRE(m.cc_str() == std::string("foo"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN string from string literal",
+  "C++11v3: RETURN string from string literal",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, str(),
-  REQUIRE_CALL(m, str())
-    .RETURN("foo")
-  );
-  REQUIRE(m.str() == "foo");
-}
-
-TEST_CASE_METHOD(
-  Fixture,
-  "C++11v2: RETURN string from static char array",
-  "[C++11][C++14][return]")
-{
-  mstr m;
-
-  MAKE_EXPECTATION(m, str(),
-  REQUIRE_CALL(m, str())
-    .RETURN(carr)
-  );
+  REQUIRE_CALL_V(m, str(),
+    .RETURN("foo"));
 
   REQUIRE(m.str() == "foo");
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN string from static const char array",
+  "C++11v3: RETURN string from static char array",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, str(),
-  REQUIRE_CALL(m, str())
-    .RETURN(ccarr)
-  );
+  REQUIRE_CALL_V(m, str(),
+    .RETURN(carr));
+
+  REQUIRE(m.str() == "foo");
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11v3: RETURN string from static const char array",
+  "[C++11][C++14][return]")
+{
+  mstr m;
+
+  REQUIRE_CALL_V(m, str(),
+    .RETURN(ccarr));
 
   REQUIRE(m.str() == std::string("bar"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const string from string literal",
+  "C++11v3: RETURN const string from string literal",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cstr(),
-  REQUIRE_CALL(m, cstr())
-    .RETURN("foo")
-  );
+  REQUIRE_CALL_V(m, cstr(),
+    .RETURN("foo"));
 
   REQUIRE(m.cstr() == "foo");
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const string from static char array",
+  "C++11v3: RETURN const string from static char array",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cstr(),
-  REQUIRE_CALL(m, cstr())
-    .RETURN(carr)
-  );
+  REQUIRE_CALL_V(m, cstr(),
+    .RETURN(carr));
 
   REQUIRE(m.cstr() == "foo");
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN const string from static const char array",
+  "C++11v3: RETURN const string from static const char array",
   "[C++11][C++14][return]")
 {
   mstr m;
 
-  MAKE_EXPECTATION(m, cstr(),
-  REQUIRE_CALL(m, cstr())
-    .RETURN(ccarr)
-  );
+  REQUIRE_CALL_V(m, cstr(),
+    .RETURN(ccarr));
 
   REQUIRE(m.cstr() == std::string("bar"));
 }
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: RETURN ref param returns object given",
+  "C++11v3: RETURN ref param returns object given",
   "[C++11][C++14][return values]")
 {
   {
     mock_c obj;
     unmovable s;
 
-    MAKE_EXPECTATION(obj, getter(ANY(unmovable&)),
-    REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-      .RETURN(_1)
-    );
+    REQUIRE_CALL_V(obj, getter(ANY(unmovable&)),
+      .RETURN(_1));
 
     REQUIRE(&obj.getter(s) == &s);
   }
@@ -887,16 +800,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: THROW access copy of local object",
+  "C++11v3: THROW access copy of local object",
   "[C++11][C++14][return values]")
 {
   int n = 1;
   mock_c obj;
 
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .THROW(n)
-  );
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
+    .THROW(n));
 
   n = 2;
   try {
@@ -911,16 +822,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: LR_THROW access actual local object",
+  "C++11v3: LR_THROW access actual local object",
   "[C++11][C++14][return values]")
 {
   int n = 1;
   mock_c obj;
 
-  MAKE_EXPECTATION(obj, getter(ANY(int)),
-  REQUIRE_CALL(obj, getter(ANY(int)))
-    .LR_THROW(n)
-  );
+  REQUIRE_CALL_V(obj, getter(ANY(int)),
+    .LR_THROW(n));
 
   n = 2;
   try {
@@ -935,7 +844,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: THROW throws after side effect when replacing return for non void functions",
+  "C++11v3: THROW throws after side effect when replacing return for non void functions",
   "[C++11][C++14][return values]")
 {
   int thrown = 0;
@@ -943,11 +852,9 @@ TEST_CASE_METHOD(
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .THROW(8)
-      .LR_SIDE_EFFECT(global = _1)
-    );
+      .LR_SIDE_EFFECT(global = _1));
 
     obj.getter(8);
     FAIL("didn't throw");
@@ -962,7 +869,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: THROW throws after side effect in void functions",
+  "C++11v3: THROW throws after side effect in void functions",
   "[C++11][C++14][return values]")
 {
   int thrown = 0;
@@ -970,11 +877,9 @@ TEST_CASE_METHOD(
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, func(_, _),
-    REQUIRE_CALL(obj, func(_, _))
+    REQUIRE_CALL_V(obj, func(_, _),
       .THROW(8)
-      .SIDE_EFFECT(_2 = std::to_string(_1))
-    );
+      .SIDE_EFFECT(_2 = std::to_string(_1)));
 
     obj.func(8, s);
     FAIL("didn't throw");
@@ -991,18 +896,16 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: WITH matches copy of local object",
+  "C++11v3: WITH matches copy of local object",
   "[C++11][C++14][matching]")
 {
   {
     mock_c obj;
     int n = 1;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .WITH(_1 == n)
-      .RETURN(_1)
-    );
+      .RETURN(_1));
 
     n = 2;
     obj.getter(1);
@@ -1015,18 +918,16 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: LR_WITH access actual local object",
+  "C++11v3: LR_WITH access actual local object",
   "[C++11][C++14][matching]")
 {
   {
     mock_c obj;
     int n = 1;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .LR_WITH(_1 == n)
-      .RETURN(_1)
-    );
+      .RETURN(_1));
 
     n = 2;
     obj.getter(2);
@@ -1036,17 +937,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: rvalue reference parameter can be compared with nullptr in WITH",
+  "C++11v3: rvalue reference parameter can be compared with nullptr in WITH",
   "[C++11][C++14][matching]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, ptr(_),
-    REQUIRE_CALL(obj, ptr(_))
+    REQUIRE_CALL_V(obj, ptr(_),
       .WITH(_1 != nullptr)
-      .RETURN(std::move(_1))
-    );
+      .RETURN(std::move(_1)));
 
     auto p = obj.ptr(std::unique_ptr<int>(new int{3}));
     REQUIRE(p);
@@ -1057,18 +956,16 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: rvalue reference parameter can be compared with external value on WITH",
+  "C++11v3: rvalue reference parameter can be compared with external value on WITH",
   "[C++11][C++14][matching]")
 {
   {
     mock_c obj;
     auto pi = new int{3};
 
-    MAKE_EXPECTATION(obj, ptr(_),
-    REQUIRE_CALL(obj, ptr(_))
+    REQUIRE_CALL_V(obj, ptr(_),
       .WITH(_1.get() == pi)
-      .RETURN(std::move(_1))
-    );
+      .RETURN(std::move(_1)));
 
     auto p = obj.ptr(std::unique_ptr<int>(pi));
     REQUIRE(p);
@@ -1079,15 +976,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: mocks can be inherited",
+  "C++11v3: mocks can be inherited",
   "[C++11][C++14][matching]")
 {
   combined obj;
 
-  MAKE_EXPECTATION(obj, getter(3),
-  REQUIRE_CALL(obj, getter(3))
-    .RETURN(2)
-  );
+  REQUIRE_CALL_V(obj, getter(3),
+    .RETURN(2));
 
   auto n = obj.getter(3);
   REQUIRE(n == 2);
@@ -1097,12 +992,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: An uncomparable but constructible type by reference matches a call",
+  "C++11v3: An uncomparable but constructible type by reference matches a call",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_ustr("str"));
+    REQUIRE_CALL_0(u, func_ustr("str"));
     u.func_ustr("str");
   }
   REQUIRE(reports.empty());
@@ -1110,12 +1005,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: An uncomparable but constructible type by value matches a call",
+  "C++11v3: An uncomparable but constructible type by value matches a call",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_ustrv("str"));
+    REQUIRE_CALL_0(u, func_ustrv("str"));
     u.func_ustrv("str");
   }
   REQUIRE(reports.empty());
@@ -1125,13 +1020,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: An uncomparable but constructible type by reference mmismatch is reported",
+  "C++11v3: An uncomparable but constructible type by reference mmismatch is reported",
   "[C++11][C++14][matching]")
 {
   try
   {
     U u;
-    REQUIRE_CALL(u, func_ustr("str"));
+    REQUIRE_CALL_0(u, func_ustr("str"));
     u.func_ustr("strr");
     FAIL("didn't report");
   }
@@ -1154,13 +1049,13 @@ Tried u\.func_ustr\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: An uncomparable but constructible type by value mismatch is reported",
+  "C++11v3: An uncomparable but constructible type by value mismatch is reported",
   "[C++11][C++14][matching]")
 {
   try
   {
     U u;
-    REQUIRE_CALL(u, func_ustrv("str"));
+    REQUIRE_CALL_0(u, func_ustrv("str"));
     u.func_ustrv("strr");
     FAIL("didn't report");
   }
@@ -1181,12 +1076,12 @@ Tried u\.func_ustrv\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to function matches wildcard",
+  "C++11v3: pointer to function matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_ptr_f(_));
+    REQUIRE_CALL_0(u, func_ptr_f(_));
     u.func_ptr_f(intfunc);
   }
   REQUIRE(reports.empty());
@@ -1194,12 +1089,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to member function matches wildcard",
+  "C++11v3: pointer to member function matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_mptr_f(_));
+    REQUIRE_CALL_0(u, func_mptr_f(_));
     u.func_mptr_f(&U::func_cstr);
   }
   REQUIRE(reports.empty());
@@ -1207,12 +1102,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to member data matches wildcard",
+  "C++11v3: pointer to member data matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_mptr_d(_));
+    REQUIRE_CALL_0(u, func_mptr_d(_));
     u.func_mptr_d(&U::m);
   }
   REQUIRE(reports.empty());
@@ -1220,12 +1115,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ostream& matches wildcard",
+  "C++11v3: ostream& matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_streamref(_));
+    REQUIRE_CALL_0(u, func_streamref(_));
     u.func_streamref(std::cout);
   }
   REQUIRE(reports.empty());
@@ -1233,12 +1128,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: uncomparable parameter matches wildcard",
+  "C++11v3: uncomparable parameter matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_u(_));
+    REQUIRE_CALL_0(u, func_u(_));
     u.func_u(uncomparable{});
   }
   REQUIRE(reports.empty());
@@ -1246,12 +1141,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: uncomparable parameter matches typed wildcard",
+  "C++11v3: uncomparable parameter matches typed wildcard",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_u(ANY(uncomparable)));
+    REQUIRE_CALL_0(u, func_u(ANY(uncomparable)));
     u.func_u(uncomparable{});
   }
   REQUIRE(reports.empty());
@@ -1259,12 +1154,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches parameter value type",
+  "C++11v3: wildcard matches parameter value type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_v(_));
+    REQUIRE_CALL_0(u, func_v(_));
     u.func_v(1);
   }
   REQUIRE(reports.empty());
@@ -1272,12 +1167,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches parameter const value type",
+  "C++11v3: wildcard matches parameter const value type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_cv(_));
+    REQUIRE_CALL_0(u, func_cv(_));
     u.func_cv(1);
   }
   REQUIRE(reports.empty());
@@ -1285,12 +1180,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches unique_ptr<> value type",
+  "C++11v3: wildcard matches unique_ptr<> value type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_uniqv(_));
+    REQUIRE_CALL_0(u, func_uniqv(_));
     u.func_uniqv(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1298,12 +1193,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches shared_ptr<> value type",
+  "C++11v3: wildcard matches shared_ptr<> value type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_sharedv(_));
+    REQUIRE_CALL_0(u, func_sharedv(_));
     u.func_sharedv(std::make_shared<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1311,12 +1206,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches parameter lvalue reference type",
+  "C++11v3: wildcard matches parameter lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_lr(_));
+    REQUIRE_CALL_0(u, func_lr(_));
     int v = 1;
     u.func_lr(v);
   }
@@ -1325,12 +1220,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches parameter const lvalue reference type",
+  "C++11v3: wildcard matches parameter const lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_clr(_));
+    REQUIRE_CALL_0(u, func_clr(_));
     int v = 1;
     u.func_clr(v);
   }
@@ -1339,12 +1234,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches parameter rvalue reference type",
+  "C++11v3: wildcard matches parameter rvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_rr(_));
+    REQUIRE_CALL_0(u, func_rr(_));
     u.func_rr(1);
   }
   REQUIRE(reports.empty());
@@ -1352,12 +1247,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcard matches parameter const rvalue reference type",
+  "C++11v3: wildcard matches parameter const rvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_crr(_));
+    REQUIRE_CALL_0(u, func_crr(_));
     u.func_crr(1);
   }
   REQUIRE(reports.empty());
@@ -1365,12 +1260,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ANY can match unique_ptr<> by value",
+  "C++11v3: ANY can match unique_ptr<> by value",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_uniqv(ANY(std::unique_ptr<int>)));
+    REQUIRE_CALL_0(u, func_uniqv(ANY(std::unique_ptr<int>)));
     u.func_uniqv(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1378,12 +1273,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ANY can match shared_ptr<> by value",
+  "C++11v3: ANY can match shared_ptr<> by value",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func_sharedv(ANY(std::shared_ptr<int>)));
+    REQUIRE_CALL_0(u, func_sharedv(ANY(std::shared_ptr<int>)));
     u.func_sharedv(std::make_shared<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1391,12 +1286,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ANY can select overload on lvalue reference type",
+  "C++11v3: ANY can select overload on lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func(ANY(int&)));
+    REQUIRE_CALL_0(u, func(ANY(int&)));
     int i = 1;
     u.func(i);
   }
@@ -1410,12 +1305,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ANY can select overload on const lvalue reference type",
+  "C++11v3: ANY can select overload on const lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func(ANY(const int&)));
+    REQUIRE_CALL_0(u, func(ANY(const int&)));
     const int i = 1;
     u.func(i);
   }
@@ -1426,12 +1321,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ANY can select overload on rvalue reference type",
+  "C++11v3: ANY can select overload on rvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
     U u;
-    REQUIRE_CALL(u, func(ANY(int&&)));
+    REQUIRE_CALL_0(u, func(ANY(int&&)));
     u.func(1);
   }
   REQUIRE(reports.empty());
@@ -1439,12 +1334,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: Expectation matches a mocked function with param from template",
+  "C++11v3: Expectation matches a mocked function with param from template",
   "[C++11][C++14][matching][templates]")
 {
   {
     tmock<int> m;
-    REQUIRE_CALL(m, tfunc(_));
+    REQUIRE_CALL_0(m, tfunc(_));
     m.tfunc(3);
   }
   REQUIRE(reports.empty());
@@ -1454,23 +1349,19 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: wildcards matches overload on type and parameter count",
+  "C++11v3: wildcards matches overload on type and parameter count",
   "[C++11][C++14][matching][overloads]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(unmovable&)),
-    REQUIRE_CALL(obj, getter(ANY(unmovable&)))
-      .RETURN(_1)
-    );
+    REQUIRE_CALL_V(obj, getter(ANY(unmovable&)),
+      .RETURN(_1));
 
-    FORBID_CALL(obj, getter(ANY(int)));
+    FORBID_CALL_0(obj, getter(ANY(int)));
 
-    MAKE_EXPECTATION(obj, getter(_, _),
-    REQUIRE_CALL(obj, getter(_, _))
-      .SIDE_EFFECT(_2 = std::to_string(_1))
-    );
+    REQUIRE_CALL_V(obj, getter(_, _),
+      .SIDE_EFFECT(_2 = std::to_string(_1)));
 
     unmovable u;
     auto& ur = obj.getter(u);
@@ -1488,12 +1379,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: long value matches equal int for duck typed eq",
+  "C++11v3: long value matches equal int for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func_v(trompeloeil::eq(3L)));
+    REQUIRE_CALL_0(obj, func_v(trompeloeil::eq(3L)));
     obj.func_v(3);
   }
   REQUIRE(reports.empty());
@@ -1503,12 +1394,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: long value with mismatches int is reported for duck typed eq",
+  "C++11v3: long value with mismatches int is reported for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func_v(trompeloeil::eq(3L)));
+    REQUIRE_CALL_0(obj, func_v(trompeloeil::eq(3L)));
     obj.func_v(0);
     FAIL("didn't report");
   }
@@ -1530,12 +1421,12 @@ Tried obj\.func_v\(trompeloeil::eq\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: std::string value matches equal const char* for duck typed eq",
+  "C++11v3: std::string value matches equal const char* for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
+    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
     obj.func_cstr("foo");
   }
   REQUIRE(reports.empty());
@@ -1545,12 +1436,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: std::string value mismatching const char* is reported for duck typed eq",
+  "C++11v3: std::string value mismatching const char* is reported for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
+    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
     obj.func_cstr("bar");
     FAIL("didn't report");
   }
@@ -1574,12 +1465,12 @@ Tried obj\.func_cstr\(trompeloeil::eq\(std::string\(\"foo\"\)\)\) at [A-Za-z0-9_
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: disambiguated eq<int&> matches equal value",
+  "C++11v3: disambiguated eq<int&> matches equal value",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::eq<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::eq<int&>(3)));
     int i = 3;
     obj.func(i);
   }
@@ -1590,12 +1481,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: disambiguated eq<int&> reports mismatching value",
+  "C++11v3: disambiguated eq<int&> reports mismatching value",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::eq<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::eq<int&>(3)));
     int i = 0;
     obj.func(i);
     FAIL("didn't report");
@@ -1620,12 +1511,12 @@ Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: nullptr mismatching equal function for duck typed ne",
+  "C++11v3: nullptr mismatching equal function for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func_f(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, func_f(trompeloeil::ne(nullptr)));
     obj.func_f([](){});
   }
   REQUIRE(reports.empty());
@@ -1633,12 +1524,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: long value mismatching equal int for duck typed ne",
+  "C++11v3: long value mismatching equal int for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func_v(trompeloeil::ne(3L)));
+    REQUIRE_CALL_0(obj, func_v(trompeloeil::ne(3L)));
     obj.func_v(0);
   }
   REQUIRE(reports.empty());
@@ -1648,12 +1539,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: long value with matching int is reported for duck typed ne",
+  "C++11v3: long value with matching int is reported for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func_v(trompeloeil::ne(3L)));
+    REQUIRE_CALL_0(obj, func_v(trompeloeil::ne(3L)));
     obj.func_v(3);
     FAIL("didn't report");
   }
@@ -1675,12 +1566,12 @@ Tried obj\.func_v\(trompeloeil::ne\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: std::string value mismatches inequal const char* for duck typed ne",
+  "C++11v3: std::string value mismatches inequal const char* for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
+    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
     obj.func_cstr("bar");
   }
   REQUIRE(reports.empty());
@@ -1690,12 +1581,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: std::string value matching const char* is reported for duck typed ne",
+  "C++11v3: std::string value matching const char* is reported for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
+    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
     obj.func_cstr("foo");
     FAIL("didn't report");
   }
@@ -1719,12 +1610,12 @@ Tried obj\.func_cstr\(trompeloeil::ne\(std::string\(\"foo\"\)\)\) at [A-Za-z0-9_
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a non equal value matches ne",
+  "C++11v3: a non equal value matches ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     mock_c obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne<std::string>("bar")));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<std::string>("bar")));
     obj.foo("baz");
   }
   REQUIRE(reports.empty());
@@ -1734,12 +1625,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value fails ne with report",
+  "C++11v3: an equal value fails ne with report",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     mock_c obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne<std::string>("bar")));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<std::string>("bar")));
     obj.foo("bar");
     FAIL("didn't report");
   }
@@ -1760,12 +1651,12 @@ Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: non-nullptr call matches ne(nullptr)",
+  "C++11v3: non-nullptr call matches ne(nullptr)",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo1 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
     int n;
     obj.foo(&n);
   }
@@ -1776,12 +1667,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: nullptr call with ne(nullptr) is reported",
+  "C++11v3: nullptr call with ne(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo1 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
     obj.foo(nullptr);
     FAIL("didn't report");
   }
@@ -1803,12 +1694,12 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: overloaded non-nullptr call disambiguated with ne<type>(nullptr) is matched",
+  "C++11v3: overloaded non-nullptr call disambiguated with ne<type>(nullptr) is matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo2 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne<int*>(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<int*>(nullptr)));
     int i;
     obj.foo(&i);
   }
@@ -1819,12 +1710,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: overloaded nullptr call disambiguated with ne<type>(nullptr) is reported",
+  "C++11v3: overloaded nullptr call disambiguated with ne<type>(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo2 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne<int*>(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<int*>(nullptr)));
     int* i_null = nullptr;
     obj.foo(i_null);
     FAIL("didn't report");
@@ -1849,12 +1740,12 @@ Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: overloaded nullptr call disambiguated with eq<type>(nullptr) is matched",
+  "C++11v3: overloaded nullptr call disambiguated with eq<type>(nullptr) is matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo2 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::eq<int*>(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::eq<int*>(nullptr)));
     int *i_null = nullptr;
     obj.foo(i_null);
   }
@@ -1865,12 +1756,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: overloaded non-nullptr call disambiguated with eq<type>(nullptr) is reported",
+  "C++11v3: overloaded non-nullptr call disambiguated with eq<type>(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo2 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::eq<int*>(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::eq<int*>(nullptr)));
     int i;
     obj.foo(&i);
     FAIL("didn't report");
@@ -1893,12 +1784,12 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to member call with ne(nullptr) matched",
+  "C++11v3: pointer to member call with ne(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
     obj.foo(&C_foo3::m);
   }
   REQUIRE(reports.empty());
@@ -1908,12 +1799,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to member ptr call with ne(nullptr) is reported",
+  "C++11v3: pointer to member ptr call with ne(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
     obj.foo(nullptr);
     FAIL("didn't report");
   }
@@ -1937,12 +1828,12 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to member ptr call with eq(nullptr) matched",
+  "C++11v3: pointer to member ptr call with eq(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::eq(nullptr)));
     obj.foo(nullptr);
   }
   REQUIRE(reports.empty());
@@ -1952,12 +1843,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to member ptr call with eq(nullptr) is reported",
+  "C++11v3: pointer to member ptr call with eq(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL(obj, foo(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, foo(trompeloeil::eq(nullptr)));
     obj.foo(&C_foo3::m);
     FAIL("didn't report");
   }
@@ -1979,12 +1870,12 @@ Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to function call with ne(nullptr) matched",
+  "C++11v3: pointer to function call with ne(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL(obj, bar(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, bar(trompeloeil::ne(nullptr)));
     obj.bar(intfunc);
   }
   REQUIRE(reports.empty());
@@ -1994,12 +1885,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to function call with ne(nullptr) is reported",
+  "C++11v3: pointer to function call with ne(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL(obj, bar(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_0(obj, bar(trompeloeil::ne(nullptr)));
     obj.bar(nullptr);
     FAIL("didn't report");
   }
@@ -2023,12 +1914,12 @@ Tried obj\.bar\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to function call with eq(nullptr) matched",
+  "C++11v3: pointer to function call with eq(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL(obj, bar(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, bar(trompeloeil::eq(nullptr)));
     obj.bar(nullptr);
   }
   REQUIRE(reports.empty());
@@ -2038,12 +1929,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: pointer to function call with eq(nullptr) is reported",
+  "C++11v3: pointer to function call with eq(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL(obj, bar(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, bar(trompeloeil::eq(nullptr)));
     obj.bar(intfunc);
     FAIL("didn't report");
   }
@@ -2068,16 +1959,14 @@ Tried obj\.bar\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value matches ge",
+  "C++11v3: an equal value matches ge",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::ge(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::ge(3)),
+      .RETURN(0));
 
     obj.getter(3);
   }
@@ -2086,16 +1975,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value matches ge",
+  "C++11v3: a greater value matches ge",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::ge(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::ge(3)),
+      .RETURN(0));
 
     obj.getter(4);
   }
@@ -2106,16 +1993,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value is reported by ge",
+  "C++11v3: a lesser value is reported by ge",
   "[C++11][C++14][matching][matchers][ge]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::ge(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::ge(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::ge(3)),
+      .RETURN(0));
 
     obj.getter(2);
     FAIL("didn't report");
@@ -2138,12 +2023,12 @@ Tried obj\.getter\(trompeloeil::ge\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value matches disambiguated ge<int&>",
+  "C++11v3: an equal value matches disambiguated ge<int&>",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::ge<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::ge<int&>(3)));
     int i = 3;
     obj.func(i);
   }
@@ -2152,12 +2037,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value matches disambiguated ge<int&>",
+  "C++11v3: a greater value matches disambiguated ge<int&>",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::ge<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::ge<int&>(3)));
     int i = 4;
     obj.func(i);
   }
@@ -2168,12 +2053,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value is reported by disambiguated ge<int&>",
+  "C++11v3: a lesser value is reported by disambiguated ge<int&>",
   "[C++11][C++14][matching][matchers][ge]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::ge<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::ge<int&>(3)));
     int i = 2;
     obj.func(i);
     FAIL("didn't report");
@@ -2198,16 +2083,14 @@ Tried obj\.func\(trompeloeil::ge<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value is reported by gt",
+  "C++11v3: an equal value is reported by gt",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::gt(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::gt(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::gt(3)),
+      .RETURN(0));
 
     obj.getter(3);
     FAIL("didn't report");
@@ -2228,16 +2111,14 @@ Tried obj\.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value matches gt",
+  "C++11v3: a greater value matches gt",
   "[C++11][C++14][matching][matchers][gt]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::gt(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::gt(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::gt(3)),
+      .RETURN(0));
 
     obj.getter(4);
   }
@@ -2248,16 +2129,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value is reported by gt",
+  "C++11v3: a lesser value is reported by gt",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::gt(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::gt(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::gt(3)),
+      .RETURN(0));
 
     obj.getter(2);
     FAIL("didn't report");
@@ -2282,12 +2161,12 @@ Tried obj.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value is reported by disambiguated gt<int&>",
+  "C++11v3: an equal value is reported by disambiguated gt<int&>",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::gt<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::gt<int&>(3)));
     int i = 3;
     obj.func(i);
     FAIL("didn't report");
@@ -2308,12 +2187,12 @@ Tried obj\.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value matches disambiguated gt<int&>",
+  "C++11v3: a greater value matches disambiguated gt<int&>",
   "[C++11][C++14][matching][matchers][gt]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::gt<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::gt<int&>(3)));
     int i = 4;
     obj.func(i);
   }
@@ -2324,12 +2203,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value is reported by disambiguated gt<int&>",
+  "C++11v3: a lesser value is reported by disambiguated gt<int&>",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::gt<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::gt<int&>(3)));
     int i = 2;
     obj.func(i);
     FAIL("didn't report");
@@ -2354,16 +2233,14 @@ Tried obj.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value is reported by lt",
+  "C++11v3: an equal value is reported by lt",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::lt(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::lt(3)),
+      .RETURN(0));
 
     obj.getter(3);
     FAIL("didn't report");
@@ -2386,16 +2263,14 @@ Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value is reported by lt",
+  "C++11v3: a greater value is reported by lt",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::lt(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::lt(3)),
+      .RETURN(0));
 
     obj.getter(4);
     FAIL("didn't report");
@@ -2416,16 +2291,14 @@ Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value matches lt",
+  "C++11v3: a lesser value matches lt",
   "[C++11][C++14][matching][matchers][lt]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::lt(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::lt(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::lt(3)),
+      .RETURN(0));
 
     obj.getter(2);
   }
@@ -2438,12 +2311,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value is reported by disambiguated lt<int&>",
+  "C++11v3: an equal value is reported by disambiguated lt<int&>",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::lt<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::lt<int&>(3)));
     int i = 3;
     obj.func(i);
     FAIL("didn't report");
@@ -2466,12 +2339,12 @@ Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value is reported by disambiguated lt<int&>",
+  "C++11v3: a greater value is reported by disambiguated lt<int&>",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::lt<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::lt<int&>(3)));
     int i = 4;
     obj.func(i);
     FAIL("didn't report");
@@ -2492,12 +2365,12 @@ Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value matches disambiguated lt<int&>",
+  "C++11v3: a lesser value matches disambiguated lt<int&>",
   "[C++11][C++14][matching][matchers][lt]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::lt<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::lt<int&>(3)));
     int i = 2;
     obj.func(i);
   }
@@ -2508,16 +2381,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value matches le",
+  "C++11v3: an equal value matches le",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::le(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::le(3)),
+      .RETURN(0));
 
     obj.getter(3);
   }
@@ -2528,16 +2399,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value is reported by le",
+  "C++11v3: a greater value is reported by le",
   "[C++11][C++14][matching][matchers][le]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::le(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::le(3)),
+      .RETURN(0));
+
     obj.getter(4);
     FAIL("didn't report");
   }
@@ -2557,16 +2427,14 @@ Tried obj\.getter\(trompeloeil::le\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value matches le",
+  "C++11v3: a lesser value matches le",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(trompeloeil::le(3)),
-    REQUIRE_CALL(obj, getter(trompeloeil::le(3)))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(trompeloeil::le(3)),
+      .RETURN(0));
 
     obj.getter(2);
   }
@@ -2577,12 +2445,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an equal value matches disambiguated le<int&>",
+  "C++11v3: an equal value matches disambiguated le<int&>",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::le<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::le<int&>(3)));
     int i = 3;
     obj.func(i);
   }
@@ -2593,12 +2461,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a greater value is reported by disambiguated le<int&>",
+  "C++11v3: a greater value is reported by disambiguated le<int&>",
   "[C++11][C++14][matching][matchers][le]")
 {
   try {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::le<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::le<int&>(3)));
     int i = 4;
     obj.func(i);
     FAIL("didn't report");
@@ -2619,12 +2487,12 @@ Tried obj\.func\(trompeloeil::le<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a lesser value matches disambiguated le<int&>",
+  "C++11v3: a lesser value matches disambiguated le<int&>",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
     U obj;
-    REQUIRE_CALL(obj, func(trompeloeil::le<int&>(3)));
+    REQUIRE_CALL_0(obj, func(trompeloeil::le<int&>(3)));
     int i = 2;
     obj.func(i);
   }
@@ -2637,12 +2505,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to const c-string function matching regex is not reported",
+  "C++11v3: call to const c-string function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, c_c_str(trompeloeil::re("mid")));
+    REQUIRE_CALL_0(obj, c_c_str(trompeloeil::re("mid")));
     char str[] = "pre mid post";
     obj.c_c_str(str);
   }
@@ -2655,11 +2523,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to const c-string function with nullptr to regex is reported",
+  "C++11v3: call to const c-string function with nullptr to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, c_c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, c_c_str(trompeloeil::re("mid")));
   try
   {
     obj.c_c_str(nullptr);
@@ -2685,11 +2553,11 @@ Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++11v2: call to const c-string function with non-matching string to regex is reported",
+    "C++11v3: call to const c-string function with non-matching string to regex is reported",
     "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, c_c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, c_c_str(trompeloeil::re("mid")));
   try
   {
     char str[] = "abcde";
@@ -2718,12 +2586,12 @@ Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const c-string function matching regex is not reported",
+  "C++11v3: call to non-const c-string function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, c_str(trompeloeil::re("mid")));
+    REQUIRE_CALL_0(obj, c_str(trompeloeil::re("mid")));
     char str[] = "pre mid post";
     obj.c_str(str);
   }
@@ -2736,11 +2604,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const c-string function with nullptr to regex is reported",
+  "C++11v3: call to non-const c-string function with nullptr to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, c_str(trompeloeil::re("mid")));
   try
   {
     obj.c_str(nullptr);
@@ -2766,11 +2634,11 @@ Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const c-string function with non-matching string to regex is reported",
+  "C++11v3: call to non-const c-string function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, c_str(trompeloeil::re("mid")));
   try
   {
     char str[] = "abcde";
@@ -2799,12 +2667,12 @@ Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to const strref function matching regex is not reported",
+  "C++11v3: call to const strref function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, strcref(trompeloeil::re("mid")));
+    REQUIRE_CALL_0(obj, strcref(trompeloeil::re("mid")));
     obj.strcref(std::string("pre mid post"));
   }
   REQUIRE(reports.empty());
@@ -2816,11 +2684,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to const strref function with non-matching string to regex is reported",
+  "C++11v3: call to const strref function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, strcref(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, strcref(trompeloeil::re("mid")));
   try
   {
     obj.strcref(std::string("abcde"));
@@ -2848,12 +2716,12 @@ Tried obj\.strcref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const strref function matching regex is not reported",
+  "C++11v3: call to non-const strref function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, strref(trompeloeil::re("mid")));
+    REQUIRE_CALL_0(obj, strref(trompeloeil::re("mid")));
     std::string str = "pre mid post";
     obj.strref(str);
   }
@@ -2866,11 +2734,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const strref function with non-matching string to regex is reported",
+  "C++11v3: call to non-const strref function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, strref(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, strref(trompeloeil::re("mid")));
   try
   {
     std::string str = "abcde";
@@ -2899,12 +2767,12 @@ Tried obj.strref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const strrref function matching regex is not reported",
+  "C++11v3: call to non-const strrref function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, strrref(trompeloeil::re("mid")));
+    REQUIRE_CALL_0(obj, strrref(trompeloeil::re("mid")));
     std::string str = "pre mid post";
     obj.strrref(std::move(str));
   }
@@ -2917,11 +2785,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to non-const strrref function with non-matching string to regex is reported",
+  "C++11v3: call to non-const strrref function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, strrref(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, strrref(trompeloeil::re("mid")));
   try
   {
     std::string str = "abcde";
@@ -2950,12 +2818,12 @@ Tried obj.strrref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to str val function matching regex is not reported",
+  "C++11v3: call to str val function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, str(trompeloeil::re("mid")));
+    REQUIRE_CALL_0(obj, str(trompeloeil::re("mid")));
     std::string str = "pre mid post";
     obj.str(std::move(str));
   }
@@ -2968,11 +2836,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to str val function with non-matching string to regex is reported",
+  "C++11v3: call to str val function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, str(trompeloeil::re("mid")));
+  REQUIRE_CALL_0(obj, str(trompeloeil::re("mid")));
   try
   {
     std::string str = "abcde";
@@ -2999,11 +2867,11 @@ Tried obj.str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to mismatching regex of typed overload is reported",
+  "C++11v3: call to mismatching regex of typed overload is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL(obj, overload(trompeloeil::re<char const*>("mid")));
+  REQUIRE_CALL_0(obj, overload(trompeloeil::re<char const*>("mid")));
   try
   {
     obj.overload("abcde");
@@ -3029,12 +2897,12 @@ Tried obj.overload\(trompeloeil::re<char const\*>\("mid"\)\) at [A-Za-z0-9_ ./:\
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to matching regex of typed overload is not reported",
+  "C++11v3: call to matching regex of typed overload is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, overload(trompeloeil::re<std::string const&>("mid")));
+    REQUIRE_CALL_0(obj, overload(trompeloeil::re<std::string const&>("mid")));
     std::string str = "pre mid post";
     obj.overload(str);
   }
@@ -3049,12 +2917,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: case insensitive regex matches case mismatch without explicit type",
+  "C++11v3: case insensitive regex matches case mismatch without explicit type",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, str(trompeloeil::re("MiXeD", std::regex_constants::icase)));
+    REQUIRE_CALL_0(obj, str(trompeloeil::re("MiXeD", std::regex_constants::icase)));
     std::string str = "mIXEd";
     obj.str(str);
   }
@@ -3067,12 +2935,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: case insensitive regex matches case mismatch overload",
+  "C++11v3: case insensitive regex matches case mismatch overload",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, overload(trompeloeil::re<std::string const&>("MiXeD", std::regex_constants::icase)));
+    REQUIRE_CALL_0(obj, overload(trompeloeil::re<std::string const&>("MiXeD", std::regex_constants::icase)));
     std::string str = "mIXEd";
     obj.overload(str);
   }
@@ -3085,12 +2953,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: not_eol regex mismatching $ without explicit type is reported",
+  "C++11v3: not_eol regex mismatching $ without explicit type is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   try {
     mock_str obj;
-    REQUIRE_CALL(obj, str(trompeloeil::re("end$", std::regex_constants::match_not_eol)));
+    REQUIRE_CALL_0(obj, str(trompeloeil::re("end$", std::regex_constants::match_not_eol)));
     std::string str = "begin end";
     obj.str(str);
   }
@@ -3114,12 +2982,12 @@ Tried obj.str\(trompeloeil::re\("end\$", std::regex_constants::match_not_eol\)\)
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: not_eol regex mismatching $ overload is reported",
+  "C++11v3: not_eol regex mismatching $ overload is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   try {
     mock_str obj;
-    REQUIRE_CALL(obj, overload(trompeloeil::re<std::string const&>("end$", std::regex_constants::match_not_eol)));
+    REQUIRE_CALL_0(obj, overload(trompeloeil::re<std::string const&>("end$", std::regex_constants::match_not_eol)));
     std::string str = "begin end";
     obj.overload(str);
     FAIL("did not throw");
@@ -3146,12 +3014,12 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ! to duck typed equal matches inequal string",
+  "C++11v3: ! to duck typed equal matches inequal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, str(!trompeloeil::eq("foo")));
+    REQUIRE_CALL_0(obj, str(!trompeloeil::eq("foo")));
     obj.str("bar");
   }
   REQUIRE(reports.empty());
@@ -3163,12 +3031,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ! to duck typed equal reports equal string",
+  "C++11v3: ! to duck typed equal reports equal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   try {
     mock_str obj;
-    REQUIRE_CALL(obj, str(!trompeloeil::eq("foo")));
+    REQUIRE_CALL_0(obj, str(!trompeloeil::eq("foo")));
     obj.str("foo");
     FAIL("did not throw");
   }
@@ -3190,12 +3058,12 @@ Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ! to disambiguated equal matches inequal string",
+  "C++11v3: ! to disambiguated equal matches inequal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   {
     mock_str obj;
-    REQUIRE_CALL(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    REQUIRE_CALL_0(obj, overload(!trompeloeil::eq<std::string>("foo")));
     obj.overload(std::string("bar"));
   }
   REQUIRE(reports.empty());
@@ -3205,12 +3073,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ! to disambiguated equal reports equal string",
+  "C++11v3: ! to disambiguated equal reports equal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   try {
     mock_str obj;
-    REQUIRE_CALL(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    REQUIRE_CALL_0(obj, overload(!trompeloeil::eq<std::string>("foo")));
     obj.overload(std::string("foo"));
     FAIL("did not throw");
   }
@@ -3239,12 +3107,12 @@ Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to disambiguated equal const value matches deref",
+  "C++11v3: ptr to disambiguated equal const value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, coverload(*trompeloeil::eq<const int&>(3)));
+    REQUIRE_CALL_0(obj, coverload(*trompeloeil::eq<const int&>(3)));
     const int n = 3;
     obj.coverload(&n);
   }
@@ -3255,12 +3123,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to equal value matches deref",
+  "C++11v3: ptr to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3)));
     int n = 3;
     obj.ptr(&n);
   }
@@ -3269,7 +3137,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to equal nullptr matrches deref",
+  "C++11v3: ptr to equal nullptr matrches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3285,12 +3153,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to overloaded ptr matches equal deref",
+  "C++11v3: ptr to overloaded ptr matches equal deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, overloaded(*trompeloeil::eq(nullptr)));
     int* p = nullptr;
     obj.overloaded(&p);
   }
@@ -3301,12 +3169,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to overloaded string matches equal deref to string literal",
+  "C++11v3: ptr to overloaded string matches equal deref to string literal",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, overloaded(*trompeloeil::eq<std::string&>(std::string("apa"))));
+    REQUIRE_CALL_0(obj, overloaded(*trompeloeil::eq<std::string&>(std::string("apa"))));
     std::string s{"apa"};
     obj.overloaded(&s);
   }
@@ -3317,13 +3185,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: nullptr when equal ptr deref expected is reported",
+  "C++11v3: nullptr when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3)));
     obj.ptr(nullptr);
     FAIL("didn't throw");
   }
@@ -3347,13 +3215,13 @@ Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: non-nullptr when equal nullptr ptr deref expected is reported",
+  "C++11v3: non-nullptr when equal nullptr ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, pp(*trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, pp(*trompeloeil::eq(nullptr)));
     int i = 3;
     auto pi = &i;
     obj.pp(&pi);
@@ -3379,13 +3247,13 @@ Tried obj\.pp\(\*trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to different value when equal ptr deref expected is reported",
+  "C++11v3: ptr to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3)));
     int n = 2;
     obj.ptr(&n);
     FAIL("didn't throw");
@@ -3407,12 +3275,12 @@ Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ptr to equal value of different size matches deref",
+  "C++11v3: ptr to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, ptr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3L)));
     int n = 3;
     obj.ptr(&n);
   }
@@ -3422,12 +3290,12 @@ TEST_CASE_METHOD(
 ////
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique_ptr value to equal value matches deref",
+  "C++11v3: unique_ptr value to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3)));
     obj.uptr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3437,13 +3305,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique_ptr<>() value when equal ptr deref expected is reported",
+  "C++11v3: unique_ptr<>() value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3)));
     obj.uptr(nullptr);
     FAIL("didn't throw");
   }
@@ -3466,13 +3334,13 @@ Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique ptr value to different value when equal ptr deref expected is reported",
+  "C++11v3: unique ptr value to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3)));
     obj.uptr(detail::make_unique<int>(2));
     FAIL("didn't throw");
   }
@@ -3492,12 +3360,12 @@ Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique value ptr to equal value of different size matches deref",
+  "C++11v3: unique value ptr to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3L)));
     obj.uptr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3506,12 +3374,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique_ptr rvalue ref to equal value matches deref",
+  "C++11v3: unique_ptr rvalue ref to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3)));
     obj.uptrrr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3521,13 +3389,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique_ptr<>() rvalue ref when equal ptr deref expected is reported",
+  "C++11v3: unique_ptr<>() rvalue ref when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3)));
     obj.uptrrr(nullptr);
     FAIL("didn't throw");
   }
@@ -3549,13 +3417,13 @@ Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique ptr rvalue ref to different value when equal ptr deref expected is reported",
+  "C++11v3: unique ptr rvalue ref to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3)));
     obj.uptrrr(detail::make_unique<int>(2));
     FAIL("didn't throw");
   }
@@ -3575,12 +3443,12 @@ Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique ptr rvalue ref to equal value of different size matches deref",
+  "C++11v3: unique ptr rvalue ref to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrrr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3L)));
     obj.uptrrr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3590,12 +3458,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique_ptr const lvalue ref to equal value matches deref",
+  "C++11v3: unique_ptr const lvalue ref to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
     obj.uptrcr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3605,13 +3473,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique_ptr<>() const lvalue ref when equal ptr deref expected is reported",
+  "C++11v3: unique_ptr<>() const lvalue ref when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
     obj.uptrcr(nullptr);
     FAIL("didn't throw");
   }
@@ -3634,13 +3502,13 @@ Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique ptr const lvalue ref to different value when equal ptr deref expected is reported",
+  "C++11v3: unique ptr const lvalue ref to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
     obj.uptrcr(detail::make_unique<int>(2));
     FAIL("didn't throw");
   }
@@ -3662,12 +3530,12 @@ Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique ptr const lvalue ref to equal value of different size matches deref",
+  "C++11v3: unique ptr const lvalue ref to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3L)));
     obj.uptrcr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3677,12 +3545,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: missing call to unique ptr const lvalue ref to equal value is reported",
+  "C++11v3: missing call to unique ptr const lvalue ref to equal value is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
   }
   REQUIRE(!reports.empty());
   auto re = R":(Unfulfilled expectation:
@@ -3701,12 +3569,12 @@ Expected obj\.uptrcr\(\*trompeloeil::eq\(3\)\) to be called once, actually never
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to string* function matching regex is not reported",
+  "C++11v3: call to string* function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, strptr(*trompeloeil::re("end$")));
+    REQUIRE_CALL_0(obj, strptr(*trompeloeil::re("end$")));
     std::string s = "begin end";
     obj.strptr(&s);
   }
@@ -3719,12 +3587,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call to string* function not matching regex is reported",
+  "C++11v3: call to string* function not matching regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   try {
     C_ptr obj;
-    REQUIRE_CALL(obj, strptr(*trompeloeil::re("end$")));
+    REQUIRE_CALL_0(obj, strptr(*trompeloeil::re("end$")));
     std::string s = "begin end;";
     obj.strptr(&s);
   }
@@ -3747,16 +3615,14 @@ Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: custom matcher of first element is not reported",
+  "C++11v3: custom matcher of first element is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(any_of({ 1, 5, 77 })),
-    REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(any_of({ 1, 5, 77 })),
+      .RETURN(0));
 
     obj.getter(1);
   }
@@ -3765,16 +3631,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: custom matcher of last element is not reported",
+  "C++11v3: custom matcher of last element is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(any_of({ 1, 5, 77 })),
-    REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(any_of({ 1, 5, 77 })),
+      .RETURN(0));
 
     obj.getter(77);
   }
@@ -3783,16 +3647,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: custom matcher of mid element is not reported",
+  "C++11v3: custom matcher of mid element is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(any_of({ 1, 5, 77 })),
-    REQUIRE_CALL(obj, getter(any_of({ 1, 5, 77 })))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(any_of({ 1, 5, 77 })),
+      .RETURN(0));
 
     obj.getter(5);
   }
@@ -3803,16 +3665,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: custom matcher of unlisted element is reported",
+  "C++11v3: custom matcher of unlisted element is reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(any_of({ 1,5,77 })),
-    REQUIRE_CALL(obj, getter(any_of({ 1,5,77 })))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(any_of({ 1,5,77 })),
+      .RETURN(0));
 
     obj.getter(4);
     FAIL("didn't report");
@@ -3834,12 +3694,12 @@ Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: custom matcher can math pointer via *deref",
+  "C++11v3: custom matcher can math pointer via *deref",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, ptr(*any_of({1,5,7})));
+    REQUIRE_CALL_0(obj, ptr(*any_of({1,5,7})));
     int n = 5;
     obj.ptr(&n);
   }
@@ -3850,12 +3710,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a non empty string gives no report",
+  "C++11v3: a non empty string gives no report",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
     mock_c obj;
-    REQUIRE_CALL(obj, foo(not_empty{}));
+    REQUIRE_CALL_0(obj, foo(not_empty{}));
     obj.foo("bar");
   }
   REQUIRE(reports.empty());
@@ -3865,12 +3725,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an empty string is reported",
+  "C++11v3: an empty string is reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   try {
     mock_c obj;
-    REQUIRE_CALL(obj, foo(not_empty{}));
+    REQUIRE_CALL_0(obj, foo(not_empty{}));
     obj.foo("");
     FAIL("didn't report");
   }
@@ -3932,12 +3792,12 @@ trompeloeil::make_matcher<kind>(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a custom duck typed make_matcher-matcher that fails is reported",
+  "C++11v3: a custom duck typed make_matcher-matcher that fails is reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   try {
     mock_c obj;
-    REQUIRE_CALL(obj, foo(cxx11_is_clamped("b", "d")));
+    REQUIRE_CALL_0(obj, foo(cxx11_is_clamped("b", "d")));
     obj.foo(std::string("a"));
     FAIL("din't report");
   }
@@ -3959,11 +3819,11 @@ Tried obj\.foo\(cxx11_is_clamped\("b", "d"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a custom duck typed make_matcher-matcher that succeeds is not reported",
+  "C++11v3: a custom duck typed make_matcher-matcher that succeeds is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   mock_c obj;
-  REQUIRE_CALL(obj, foo(cxx11_is_clamped("b", "d")));
+  REQUIRE_CALL_0(obj, foo(cxx11_is_clamped("b", "d")));
   obj.foo(std::string("c"));
 }
 
@@ -3971,7 +3831,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unknown type is printed as hex dump",
+  "C++11v3: unknown type is printed as hex dump",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3981,7 +3841,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: print after unknown has flags back to default",
+  "C++11v3: print after unknown has flags back to default",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3993,7 +3853,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: previous formatting is ignored before hexdump and then reset",
+  "C++11v3: previous formatting is ignored before hexdump and then reset",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4005,7 +3865,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: call predefined ostream operator with defaulted flags and then reset",
+  "C++11v3: call predefined ostream operator with defaulted flags and then reset",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4017,7 +3877,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: large unknown is multi row hex dump",
+  "C++11v3: large unknown is multi row hex dump",
   "[C++11][C++14][streaming]")
 {
   struct big {
@@ -4044,7 +3904,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unknown object is one line if 8 bytes",
+  "C++11v3: unknown object is one line if 8 bytes",
   "[C++11][C++14][streaming]")
 {
   struct big {
@@ -4058,7 +3918,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: A std::pair<> is printed as { val1, val2 }",
+  "C++11v3: A std::pair<> is printed as { val1, val2 }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4068,7 +3928,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: A std::tuple<> is printed as { val1, val2, val3, }",
+  "C++11v3: A std::tuple<> is printed as { val1, val2, val3, }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4078,7 +3938,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: A C-array is printed as { val1, val2, val3 }",
+  "C++11v3: A C-array is printed as { val1, val2, val3 }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4095,7 +3955,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: A std::map<> is printed as { { key1, val1 }, { key2, val2 } }",
+  "C++11v3: A std::map<> is printed as { { key1, val1 }, { key2, val2 } }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4106,7 +3966,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: A tuple with pairs and maps is printed element wise",
+  "C++11v3: A tuple with pairs and maps is printed element wise",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -4120,7 +3980,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: failure on parameter of user type is printed with custom print func",
+  "C++11v3: failure on parameter of user type is printed with custom print func",
   "[C++11][C++14][streaming]")
 {
   TestOutputMock m;
@@ -4144,22 +4004,18 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require calls are matched in reversed order of creation",
+  "C++11v3: require calls are matched in reversed order of creation",
   "[C++11][C++14][scoping]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(_, _),
-    ALLOW_CALL(obj, getter(_, _))
-      .SIDE_EFFECT(_2 = std::to_string(_1))
-    );
+    ALLOW_CALL_V(obj, getter(_, _),
+      .SIDE_EFFECT(_2 = std::to_string(_1)));
 
-    MAKE_EXPECTATION(obj, getter(3, _),
-    REQUIRE_CALL(obj, getter(3, _))
+    REQUIRE_CALL_V(obj, getter(3, _),
       .SIDE_EFFECT(_2 = "III")
-      .TIMES(2)
-    );
+      .TIMES(2));
 
     std::string s;
     obj.getter(2, s);
@@ -4187,24 +4043,20 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require calls are removed when they go out of scope",
+  "C++11v3: require calls are removed when they go out of scope",
   "[C++11][C++14][scoping]")
 {
   {
     mock_c obj;
     std::string s;
 
-    MAKE_EXPECTATION(obj, getter(_, _),
-    ALLOW_CALL(obj, getter(_, _))
-      .SIDE_EFFECT(_2 = std::to_string(_1))
-    );
+    ALLOW_CALL_V(obj, getter(_, _),
+      .SIDE_EFFECT(_2 = std::to_string(_1)));
 
     {
-      MAKE_EXPECTATION(obj, getter(3, _),
-      REQUIRE_CALL(obj, getter(3, _))
+      REQUIRE_CALL_V(obj, getter(3, _),
         .SIDE_EFFECT(_2 = "III")
-        .TIMES(1, 8)
-      );
+        .TIMES(1, 8));
 
       obj.getter(3, s);
 
@@ -4230,12 +4082,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a pending unsatisfied require call is reported at end of scope",
+  "C++11v3: a pending unsatisfied require call is reported at end of scope",
   "[C++11][C++14][scoping]")
 {
   mock_c obj;
   {
-    REQUIRE_CALL(obj, foo("bar"));
+    REQUIRE_CALL_0(obj, foo("bar"));
   }
   REQUIRE(reports.size() == 1U);
 
@@ -4252,12 +4104,12 @@ Expected obj\.foo\("bar"\) to be called once, actually never called
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: Unfulfilled expectation with ANY is reported with expected values all parameters",
+  "C++11v3: Unfulfilled expectation with ANY is reported with expected values all parameters",
   "[C++11][C++14][scoping][wildcard]")
 {
  {
     mock_c obj;
-    REQUIRE_CALL(obj, func(3, ANY(std::string&)));
+    REQUIRE_CALL_0(obj, func(3, ANY(std::string&)));
     std::string s = "foo";
   }
 
@@ -4277,12 +4129,12 @@ Expected obj\.func\(3, ANY\(std::string&\)\) to be called once, actually never c
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: Unfulfilled expectation with _ is reported with expected values all parameters",
+  "C++11v3: Unfulfilled expectation with _ is reported with expected values all parameters",
   "[C++11][C++14][scoping][wildcard]")
 {
  {
     mock_c obj;
-    REQUIRE_CALL(obj, func(3, _));
+    REQUIRE_CALL_0(obj, func(3, _));
     std::string s = "foo";
   }
 
@@ -4302,12 +4154,12 @@ Expected obj\.func\(3, _\) to be called once, actually never called
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: FORBID_CALL is always both satisfied and saturated",
+  "C++11v3: FORBID_CALL is always both satisfied and saturated",
   "[C++11][C++14][multiplicity]")
 {
   {
     mock_c obj;
-    auto e = NAMED_FORBID_CALL(obj, count());
+    auto e = NAMED_FORBID_CALL_0(obj, count());
     REQUIRE(e->is_satisfied());
     REQUIRE(e->is_saturated());
   }
@@ -4316,16 +4168,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: ALLOW_ALL is always satisfied and never saturated",
+  "C++11v3: ALLOW_ALL is always satisfied and never saturated",
   "[C++11][C++14][multiplicity]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, count(),
-    auto e = NAMED_ALLOW_CALL(obj, count())
-      .RETURN(1)
-    );
+    auto e = NAMED_ALLOW_CALL_V(obj, count(),
+      .RETURN(1));
 
     REQUIRE(e->is_satisfied());
     REQUIRE(!e->is_saturated());
@@ -4341,17 +4191,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: .TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
+  "C++11v3: .TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
   "[C++11][C++14][multiplicity]")
 {
   {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, count(),
-    auto e = NAMED_REQUIRE_CALL(obj, count())
+    auto e = NAMED_REQUIRE_CALL_V(obj, count(),
       .TIMES(1,3)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
     REQUIRE(!e->is_satisfied());
     REQUIRE(!e->is_saturated());
@@ -4372,15 +4220,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unsatisfied expectation when mock dies is reported",
+  "C++11v3: unsatisfied expectation when mock dies is reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
   auto m = detail::make_unique<mock_c>();
 
-  MAKE_EXPECTATION(*m, count(),
-  REQUIRE_CALL(*m, count())
-    .RETURN(1)
-  );
+  REQUIRE_CALL_V(*m, count(),
+    .RETURN(1));
 
   m.reset();
   REQUIRE(reports.size() == 1U);
@@ -4396,20 +4242,16 @@ Expected .*count\(\) to be called once, actually never called):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: multiple unsatisfied expectation when mock dies are reported in mock definition order",
+  "C++11v3: multiple unsatisfied expectation when mock dies are reported in mock definition order",
   "[C++11][C++14][scoping][multiplicity]")
 {
   auto m = detail::make_unique<mock_c>();
 
-  MAKE_EXPECTATION(*m, count(),
-  REQUIRE_CALL(*m, count())
-    .RETURN(1)
-  );
+  REQUIRE_CALL_V(*m, count(),
+    .RETURN(1));
 
-  MAKE_EXPECTATION(*m, getter(1),
-  REQUIRE_CALL(*m, getter(1))
-    .RETURN(1)
-  );
+  REQUIRE_CALL_V(*m, getter(1),
+    .RETURN(1));
 
   m.reset();
   REQUIRE(reports.size() == 2U);
@@ -4427,16 +4269,14 @@ Expected .*getter\(1\) to be called once, actually never called):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: active allow call when mock dies is not reported",
+  "C++11v3: active allow call when mock dies is not reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
   {
     auto m = detail::make_unique<mock_c>();
 
-    MAKE_EXPECTATION(*m, count(),
-    ALLOW_CALL(*m, count())
-      .RETURN(1)
-    );
+    ALLOW_CALL_V(*m, count(),
+      .RETURN(1));
 
     m.reset();
   }
@@ -4445,7 +4285,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: active forbid call when mock dies is not reported",
+  "C++11v3: active forbid call when mock dies is not reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
   {
@@ -4458,16 +4298,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: saturated expectation when mock dies is not reported",
+  "C++11v3: saturated expectation when mock dies is not reported",
   "[C++11][C++14][scoping]")
 {
   {
     auto m = detail::make_unique<mock_c>();
 
-    MAKE_EXPECTATION(*m, count(),
-    REQUIRE_CALL(*m, count())
-      .RETURN(1)
-    );
+    REQUIRE_CALL_V(*m, count(),
+      .RETURN(1));
 
     m->count();
     m.reset();
@@ -4479,15 +4317,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: no calls reported as never called",
+  "C++11v3: no calls reported as never called",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
   {
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
-      .RETURN(1)
-    );
+    REQUIRE_CALL_V(obj, count(),
+      .RETURN(1));
   }
   REQUIRE(reports.size() == 1U);
   REQUIRE(std::regex_search(reports.front().msg, std::regex("actually never called")));
@@ -4499,16 +4335,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: undersatisfied with one call reported as once",
+  "C++11v3: undersatisfied with one call reported as once",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
   {
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
+    REQUIRE_CALL_V(obj, count(),
       .RETURN(1)
-      .TIMES(2)
-    );
+      .TIMES(2));
 
     obj.count();
   }
@@ -4522,16 +4356,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: undersatisfied with two call reported as count",
+  "C++11v3: undersatisfied with two call reported as count",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
   {
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
+    REQUIRE_CALL_V(obj, count(),
       .RETURN(1)
-      .TIMES(3)
-    );
+      .TIMES(3));
 
     obj.count();
     obj.count();
@@ -4546,15 +4378,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: no calls when one required reported as expected once",
+  "C++11v3: no calls when one required reported as expected once",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
   {
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
-      .RETURN(1)
-    );
+    REQUIRE_CALL_V(obj, count(),
+      .RETURN(1));
   }
   REQUIRE(reports.size() == 1U);
   REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called once")));
@@ -4566,16 +4396,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: no calls when two required reported as expected 2 times",
+  "C++11v3: no calls when two required reported as expected 2 times",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
   {
-    MAKE_EXPECTATION(obj, count(),
-    REQUIRE_CALL(obj, count())
+    REQUIRE_CALL_V(obj, count(),
       .TIMES(2)
-      .RETURN(1)
-    );
+      .RETURN(1));
   }
   REQUIRE(reports.size() == 1U);
   REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called 2 times")));
@@ -4587,7 +4415,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: TIMES works for templated mock classes",
+  "C++11v3: TIMES works for templated mock classes",
   "[C++11][C++14][multiplicity][templates]")
 {
   try
@@ -4614,7 +4442,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an unexpected destruction of monitored object is reported",
+  "C++11v3: an unexpected destruction of monitored object is reported",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4628,7 +4456,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: an expected destruction of monitored object is not reported",
+  "C++11v3: an expected destruction of monitored object is not reported",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4643,7 +4471,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a copy of a deathwatched object with expectation is not expected to die",
+  "C++11v3: a copy of a deathwatched object with expectation is not expected to die",
   "[C++11][C++14][deathwatched]")
 {
   auto orig = new trompeloeil::deathwatched<none>;
@@ -4664,7 +4492,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a deathwatched object move constructed from original with expectation is not expected to die and the original still is",
+  "C++11v3: a deathwatched object move constructed from original with expectation is not expected to die and the original still is",
   "[C++11][C++14][deathwatched]")
 {
   auto orig = new trompeloeil::deathwatched<none>;
@@ -4685,7 +4513,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: object alive when destruction expectation goes out of scope is reported",
+  "C++11v3: object alive when destruction expectation goes out of scope is reported",
   "[C++11][C++14][deathwatched]")
 {
   trompeloeil::deathwatched<mock_c> obj;
@@ -4700,7 +4528,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require destruction is neither satisfied nor saturated while object is alive",
+  "C++11v3: require destruction is neither satisfied nor saturated while object is alive",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4717,7 +4545,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require destruction is both satisfied and saturated when object is destroyed",
+  "C++11v3: require destruction is both satisfied and saturated when object is destroyed",
   "[C++11][C++14][deathwatched]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>();
@@ -4729,7 +4557,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require destruction succeeds also without deathwatch",
+  "C++11v3: require destruction succeeds also without deathwatch",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4742,7 +4570,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a deathwatched object's constructor passes params to mock",
+  "C++11v3: a deathwatched object's constructor passes params to mock",
   "[C++11][C++14][deathwatched]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>{ "apa" };
@@ -4753,13 +4581,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require destruction fulfilled in sequence is not reported",
+  "C++11v3: require destruction fulfilled in sequence is not reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
   trompeloeil::sequence s;
-  REQUIRE_CALL(*obj, foo("foo"))
-    .IN_SEQUENCE(s);
+  REQUIRE_CALL_V(*obj, foo("foo"),
+    .IN_SEQUENCE(s));
   REQUIRE_DESTRUCTION(*obj)
     .IN_SEQUENCE(s);
   obj->foo("foo");
@@ -4769,13 +4597,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: named require destruction fulfilled in sequence is not reported",
+  "C++11v3: named require destruction fulfilled in sequence is not reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
   trompeloeil::sequence s;
-  REQUIRE_CALL(*obj, foo("foo"))
-    .IN_SEQUENCE(s);
+  REQUIRE_CALL_V(*obj, foo("foo"),
+    .IN_SEQUENCE(s));
   auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
     .IN_SEQUENCE(s);
   obj->foo("foo");
@@ -4787,13 +4615,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: require destruction fulfilled out of sequence is reported",
+  "C++11v3: require destruction fulfilled out of sequence is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
   trompeloeil::sequence s;
-  REQUIRE_CALL(*obj, foo("foo"))
-    .IN_SEQUENCE(s);
+  REQUIRE_CALL_V(*obj, foo("foo"),
+    .IN_SEQUENCE(s));
   REQUIRE_DESTRUCTION(*obj)
     .IN_SEQUENCE(s);
   delete obj;
@@ -4810,7 +4638,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: sequence mismatch with require destruction first is reported",
+  "C++11v3: sequence mismatch with require destruction first is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   std::unique_ptr<trompeloeil::deathwatched<mock_c>> obj;
@@ -4819,8 +4647,8 @@ TEST_CASE_METHOD(
     trompeloeil::sequence s;
     REQUIRE_DESTRUCTION(*obj)
       .IN_SEQUENCE(s);
-    REQUIRE_CALL(*obj, foo("foo"))
-      .IN_SEQUENCE(s);
+    REQUIRE_CALL_V(*obj, foo("foo"),
+      .IN_SEQUENCE(s));
     obj->foo("foo");
     FAIL("didn't throw");
   }
@@ -4840,13 +4668,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: named require destruction fulfilled out of sequence is reported",
+  "C++11v3: named require destruction fulfilled out of sequence is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
   trompeloeil::sequence s;
-  REQUIRE_CALL(*obj, foo("foo"))
-    .IN_SEQUENCE(s);
+  REQUIRE_CALL_V(*obj, foo("foo"),
+    .IN_SEQUENCE(s));
   auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
     .IN_SEQUENCE(s);
   delete obj;
@@ -4863,7 +4691,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: sequence mismatch with named require destruction first is reported",
+  "C++11v3: sequence mismatch with named require destruction first is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   std::unique_ptr<trompeloeil::deathwatched<mock_c>> obj;
@@ -4872,8 +4700,8 @@ TEST_CASE_METHOD(
     trompeloeil::sequence s;
     auto d = NAMED_REQUIRE_DESTRUCTION(*obj)
       .IN_SEQUENCE(s);
-    REQUIRE_CALL(*obj, foo("foo"))
-      .IN_SEQUENCE(s);
+    REQUIRE_CALL_V(*obj, foo("foo"),
+      .IN_SEQUENCE(s));
     obj->foo("foo");
     FAIL("didn't throw");
   }
@@ -4895,7 +4723,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unmatched call is reported",
+  "C++11v3: unmatched call is reported",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -4918,24 +4746,20 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: match of saturated call is reported",
+  "C++11v3: match of saturated call is reported",
   "[C++11][C++14][mismatches]")
 {
   int count = 0;
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    ALLOW_CALL(obj, getter(ANY(int)))
+    ALLOW_CALL_V(obj, getter(ANY(int)),
       .WITH(_1 != 3)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    MAKE_EXPECTATION(obj, getter(3),
-    REQUIRE_CALL(obj, getter(3))
+    REQUIRE_CALL_V(obj, getter(3),
       .TIMES(3)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
     count += obj.getter(4); // 1
     count += obj.getter(2); // 2
@@ -4969,25 +4793,21 @@ Matches saturated call requirement
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a matching call that throws is saturated",
+  "C++11v3: a matching call that throws is saturated",
   "[C++11][C++14][mismatches]")
 {
   int count = 0;
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    ALLOW_CALL(obj, getter(ANY(int)))
+    ALLOW_CALL_V(obj, getter(ANY(int)),
       .WITH(_1 != 3)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
-    MAKE_EXPECTATION(obj, getter(3),
-    REQUIRE_CALL(obj, getter(3))
+    REQUIRE_CALL_V(obj, getter(3),
       .TIMES(3)
       .SIDE_EFFECT(throw 0)
-      .RETURN(1)
-    );
+      .RETURN(1));
 
     count += obj.getter(4); // 1
     count += obj.getter(2); // 2
@@ -5033,21 +4853,17 @@ Matches saturated call requirement
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unmatched call with mismatching requirements is reported",
+  "C++11v3: unmatched call with mismatching requirements is reported",
   "[C++11][C++14][mismatches]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(4),
-    REQUIRE_CALL(obj, getter(4))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(4),
+      .RETURN(0));
 
-    MAKE_EXPECTATION(obj, getter(5),
-    REQUIRE_CALL(obj, getter(5))
-      .RETURN(0)
-    );
+    REQUIRE_CALL_V(obj, getter(5),
+      .RETURN(0));
 
     obj.getter(3);
   }
@@ -5073,17 +4889,16 @@ Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unmatched with wildcard reports failed WITH clauses",
+  "C++11v3: unmatched with wildcard reports failed WITH clauses",
   "[C++11][C++14][mismatches]")
 {
   try {
     mock_c obj;
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .WITH(_1 < 3)
       .WITH(_1 > 5)
-      .RETURN(0)
-    );
+      .RETURN(0));
 
     obj.getter(4);
   }
@@ -5107,18 +4922,16 @@ Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unmatched with wildcard reports only failed WITH clauses",
+  "C++11v3: unmatched with wildcard reports only failed WITH clauses",
   "[C++11][C++14][mismatches]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    REQUIRE_CALL(obj, getter(ANY(int)))
+    REQUIRE_CALL_V(obj, getter(ANY(int)),
       .WITH(_1 < 3)
       .WITH(_1 > 3)
-      .RETURN(0)
-    );
+      .RETURN(0));
 
     obj.getter(4);
   }
@@ -5141,18 +4954,16 @@ Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: match of forbidden call is reported",
+  "C++11v3: match of forbidden call is reported",
   "[C++11][C++14][mismatches]")
 {
   try {
     mock_c obj;
 
-    MAKE_EXPECTATION(obj, getter(ANY(int)),
-    ALLOW_CALL(obj, getter(ANY(int)))
-      .RETURN(0)
-    );
+    ALLOW_CALL_V(obj, getter(ANY(int)),
+      .RETURN(0));
 
-    FORBID_CALL(obj, getter(3));
+    FORBID_CALL_0(obj, getter(3));
 
     obj.getter(4);
     obj.getter(2);
@@ -5175,12 +4986,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: Mismatched call to a mocked function with param from template is reported",
+  "C++11v3: Mismatched call to a mocked function with param from template is reported",
   "[C++11][C++14][mismatches][templates]")
 {
   try {
     tmock<int> obj;
-    REQUIRE_CALL(obj, tfunc(3));
+    REQUIRE_CALL_0(obj, tfunc(3));
     obj.tfunc(2);
     FAIL("didn't report");
   }
@@ -5203,15 +5014,13 @@ Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: parameters are passed in correct order when matching",
+  "C++11v3: parameters are passed in correct order when matching",
   "[C++11][C++14][parameters]")
 {
   T obj;
 
-  MAKE_EXPECTATION(obj, concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-  REQUIRE_CALL(obj, concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
-    .RETURN("")
-  );
+  REQUIRE_CALL_V(obj, concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+    .RETURN(""));
 
   auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
   REQUIRE(s == "");
@@ -5219,19 +5028,17 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: parameters are passed in correct order to WITH",
+  "C++11v3: parameters are passed in correct order to WITH",
   "[C++11][C++14][parameters]")
 {
   T obj;
 
-  MAKE_EXPECTATION(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
-  REQUIRE_CALL(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _))
+  REQUIRE_CALL_V(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
     .WITH(_1  ==  1 &&  _2 ==  2 &&  _3 ==  3 &&  _4 ==  4 &&
           _5  ==  5 &&  _6 ==  6 &&  _7 ==  7 &&  _8 ==  8 &&
           _9  ==  9 && _10 == 10 && _11 == 11 && _12 == 12 &&
           _13 == 13 && _14 == 14 && _15 == 15)
-    .RETURN("")
-  );
+    .RETURN(""));
 
   auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
   REQUIRE(s == "");
@@ -5239,17 +5046,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: parameters are passed in correct order to LR_SIDE_EFFECT",
+  "C++11v3: parameters are passed in correct order to LR_SIDE_EFFECT",
   "[C++11][C++14][parameters]")
 {
   T obj;
   int n = 0;
 
-  MAKE_EXPECTATION(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
-  REQUIRE_CALL(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _))
+  REQUIRE_CALL_V(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
     .LR_SIDE_EFFECT(n = _1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15)
-    .RETURN("")
-  );
+    .RETURN(""));
 
   auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
   REQUIRE(n == -6);
@@ -5257,13 +5062,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: parameters are passed in correct order to RETURN",
+  "C++11v3: parameters are passed in correct order to RETURN",
   "[C++11][C++14][parameters]")
 {
   T obj;
 
-  MAKE_EXPECTATION(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
-  REQUIRE_CALL(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _))
+  REQUIRE_CALL_V(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
     .RETURN(std::to_string(_1) +
             std::to_string(_2) +
             std::to_string(_3) +
@@ -5278,8 +5082,7 @@ TEST_CASE_METHOD(
             std::to_string(_12) +
             std::to_string(_13) +
             std::to_string(_14) +
-            std::to_string(_15))
-  );
+            std::to_string(_15)));
 
   auto s = obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
   REQUIRE(s == "123456789101112131415");
@@ -5287,15 +5090,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: parameters are passed in correct order to THROW",
+  "C++11v3: parameters are passed in correct order to THROW",
   "[C++11][C++14][parameters]")
 {
   T obj;
 
-  MAKE_EXPECTATION(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
-  REQUIRE_CALL(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _))
-    .THROW(_1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15)
-  );
+  REQUIRE_CALL_V(obj, concats(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
+    .THROW(_1 + _2 - _3 + _4 - _5 + _6 - _7 + _8 - _9 + _10 - _11 + _12 - _13 + _14 - _15));
 
   try {
     obj.concats(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
@@ -5309,13 +5110,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: shared ptr by value in expectation is copied",
+  "C++11v3: shared ptr by value in expectation is copied",
   "[C++11][C++14][parameters]")
 {
   T obj;
   auto s = std::make_shared<int>(3);
   {
-    REQUIRE_CALL(obj, ptr(s));
+    REQUIRE_CALL_0(obj, ptr(s));
     REQUIRE(s.use_count() == 2U);
     obj.ptr(s);
   }
@@ -5325,13 +5126,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: shared ptr by std ref in expectation is not copied",
+  "C++11v3: shared ptr by std ref in expectation is not copied",
   "[C++11][C++14][parameters]")
 {
   T obj;
   auto s = std::make_shared<int>(3);
   {
-    REQUIRE_CALL(obj, ptr(std::ref(s)));
+    REQUIRE_CALL_0(obj, ptr(std::ref(s)));
     REQUIRE(s.use_count() == 1U);
     obj.ptr(s);
   }
@@ -5341,7 +5142,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: unique ptr by value is matched with raw ptr in WITH",
+  "C++11v3: unique ptr by value is matched with raw ptr in WITH",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5349,10 +5150,8 @@ TEST_CASE_METHOD(
   {
     auto sr = s.get();
 
-    MAKE_EXPECTATION(obj, ptr(ANY(std::unique_ptr<int>)),
-    REQUIRE_CALL(obj, ptr(ANY(std::unique_ptr<int>)))
-      .WITH(_1.get() == sr)
-    );
+    REQUIRE_CALL_V(obj, ptr(ANY(std::unique_ptr<int>)),
+      .WITH(_1.get() == sr));
 
     obj.ptr(std::move(s));
     REQUIRE_FALSE(s);
@@ -5366,29 +5165,23 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: matching calls are traced",
+  "C++11v3: matching calls are traced",
   "[C++11][C++14][tracing]")
 {
   std::ostringstream os;
   trompeloeil::stream_tracer logger(os);
   mock_c obj1;
   mock_c obj2;
-  REQUIRE_CALL(obj1, getter(_, _));
+  REQUIRE_CALL_0(obj1, getter(_, _));
 
-  MAKE_EXPECTATION(obj2, foo("bar"),
-  REQUIRE_CALL(obj2, foo("bar"))
-    .THROW(std::logic_error("nonono"))
-  );
+  REQUIRE_CALL_V(obj2, foo("bar"),
+    .THROW(std::logic_error("nonono")));
 
-  MAKE_EXPECTATION(obj1, getter(ANY(int)),
-  REQUIRE_CALL(obj1, getter(ANY(int)))
-    .RETURN(_1 + 1)
-  );
+  REQUIRE_CALL_V(obj1, getter(ANY(int)),
+    .RETURN(_1 + 1));
 
-  MAKE_EXPECTATION(obj2, foo("baz"),
-  REQUIRE_CALL(obj2, foo("baz"))
-    .THROW(3)
-  );
+  REQUIRE_CALL_V(obj2, foo("baz"),
+    .THROW(3));
 
   std::string s = "foo";
   obj1.getter(3, s);
@@ -5432,14 +5225,14 @@ threw unknown exception
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: tracing is only active when tracer obj is alive",
+  "C++11v3: tracing is only active when tracer obj is alive",
   "[C++11][C++14][tracing]")
 {
   std::ostringstream os;
   mock_c obj1;
   mock_c obj2;
-  ALLOW_CALL(obj1, getter(_, _));
-  REQUIRE_CALL(obj2, foo("bar"));
+  ALLOW_CALL_0(obj1, getter(_, _));
+  REQUIRE_CALL_0(obj2, foo("bar"));
   std::string s = "foo";
   obj1.getter(3, s);
   {
@@ -5458,42 +5251,42 @@ obj2\.foo\("bar"\) with\.
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE(
-  "C++11v2: all overridden short mocks can be expected and called",
+  "C++11v3: all overridden short mocks can be expected and called",
   "[C++11][C++14][signatures][override]")
 {
   all_mock_if mock;
-  REQUIRE_CALL(mock, f0());
-  REQUIRE_CALL(mock, f1(0));
-  REQUIRE_CALL(mock, f2(0,1));
-  REQUIRE_CALL(mock, f3(0,1,2));
-  REQUIRE_CALL(mock, f4(0,1,2,3));
-  REQUIRE_CALL(mock, f5(0,1,2,3,4));
-  REQUIRE_CALL(mock, f6(0,1,2,3,4,5));
-  REQUIRE_CALL(mock, f7(0,1,2,3,4,5,6));
-  REQUIRE_CALL(mock, f8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL(mock, f9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL(mock, f10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
-  REQUIRE_CALL(mock, cf0());
-  REQUIRE_CALL(mock, cf1(0));
-  REQUIRE_CALL(mock, cf2(0,1));
-  REQUIRE_CALL(mock, cf3(0,1,2));
-  REQUIRE_CALL(mock, cf4(0,1,2,3));
-  REQUIRE_CALL(mock, cf5(0,1,2,3,4));
-  REQUIRE_CALL(mock, cf6(0,1,2,3,4,5));
-  REQUIRE_CALL(mock, cf7(0,1,2,3,4,5,6));
-  REQUIRE_CALL(mock, cf8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL(mock, cf9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL(mock, cf10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_0(mock, f0());
+  REQUIRE_CALL_0(mock, f1(0));
+  REQUIRE_CALL_0(mock, f2(0,1));
+  REQUIRE_CALL_0(mock, f3(0,1,2));
+  REQUIRE_CALL_0(mock, f4(0,1,2,3));
+  REQUIRE_CALL_0(mock, f5(0,1,2,3,4));
+  REQUIRE_CALL_0(mock, f6(0,1,2,3,4,5));
+  REQUIRE_CALL_0(mock, f7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_0(mock, f8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_0(mock, f9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_0(mock, f10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_0(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_0(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_0(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_0(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_0(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_0(mock, cf0());
+  REQUIRE_CALL_0(mock, cf1(0));
+  REQUIRE_CALL_0(mock, cf2(0,1));
+  REQUIRE_CALL_0(mock, cf3(0,1,2));
+  REQUIRE_CALL_0(mock, cf4(0,1,2,3));
+  REQUIRE_CALL_0(mock, cf5(0,1,2,3,4));
+  REQUIRE_CALL_0(mock, cf6(0,1,2,3,4,5));
+  REQUIRE_CALL_0(mock, cf7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_0(mock, cf8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_0(mock, cf9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_0(mock, cf10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_0(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_0(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_0(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_0(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_0(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
 
   mock.f0();
   mock.f1(0);
@@ -5530,42 +5323,42 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "C++11v2: all non-overridden short mocks can be expected and called",
+  "C++11v3: all non-overridden short mocks can be expected and called",
   "[C++11][C++14][signatures]")
 {
   all_mock mock;
-  REQUIRE_CALL(mock, f0());
-  REQUIRE_CALL(mock, f1(0));
-  REQUIRE_CALL(mock, f2(0,1));
-  REQUIRE_CALL(mock, f3(0,1,2));
-  REQUIRE_CALL(mock, f4(0,1,2,3));
-  REQUIRE_CALL(mock, f5(0,1,2,3,4));
-  REQUIRE_CALL(mock, f6(0,1,2,3,4,5));
-  REQUIRE_CALL(mock, f7(0,1,2,3,4,5,6));
-  REQUIRE_CALL(mock, f8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL(mock, f9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL(mock, f10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
-  REQUIRE_CALL(mock, cf0());
-  REQUIRE_CALL(mock, cf1(0));
-  REQUIRE_CALL(mock, cf2(0,1));
-  REQUIRE_CALL(mock, cf3(0,1,2));
-  REQUIRE_CALL(mock, cf4(0,1,2,3));
-  REQUIRE_CALL(mock, cf5(0,1,2,3,4));
-  REQUIRE_CALL(mock, cf6(0,1,2,3,4,5));
-  REQUIRE_CALL(mock, cf7(0,1,2,3,4,5,6));
-  REQUIRE_CALL(mock, cf8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL(mock, cf9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL(mock, cf10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_0(mock, f0());
+  REQUIRE_CALL_0(mock, f1(0));
+  REQUIRE_CALL_0(mock, f2(0,1));
+  REQUIRE_CALL_0(mock, f3(0,1,2));
+  REQUIRE_CALL_0(mock, f4(0,1,2,3));
+  REQUIRE_CALL_0(mock, f5(0,1,2,3,4));
+  REQUIRE_CALL_0(mock, f6(0,1,2,3,4,5));
+  REQUIRE_CALL_0(mock, f7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_0(mock, f8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_0(mock, f9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_0(mock, f10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_0(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_0(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_0(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_0(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_0(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_0(mock, cf0());
+  REQUIRE_CALL_0(mock, cf1(0));
+  REQUIRE_CALL_0(mock, cf2(0,1));
+  REQUIRE_CALL_0(mock, cf3(0,1,2));
+  REQUIRE_CALL_0(mock, cf4(0,1,2,3));
+  REQUIRE_CALL_0(mock, cf5(0,1,2,3,4));
+  REQUIRE_CALL_0(mock, cf6(0,1,2,3,4,5));
+  REQUIRE_CALL_0(mock, cf7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_0(mock, cf8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_0(mock, cf9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_0(mock, cf10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_0(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_0(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_0(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_0(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_0(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
 
   mock.f0();
   mock.f1(0);
@@ -5603,7 +5396,7 @@ TEST_CASE(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: a member function of a mock object can call a mocked function",
+  "C++11v3: a member function of a mock object can call a mocked function",
   "[C++11][C++14]")
 {
   {
@@ -5616,23 +5409,19 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: expectation on a mock function can call the same mock func recursively as side effect",
+  "C++11v3: expectation on a mock function can call the same mock func recursively as side effect",
   "[C++11][C++14]")
 {
   {
     self_ref_mock m;
     unsigned mask = 0U;
 
-    MAKE_EXPECTATION(m, mfunc(),
-    REQUIRE_CALL(m, mfunc())
-      .LR_SIDE_EFFECT(mask |= 2U)
-    );
+    REQUIRE_CALL_V(m, mfunc(),
+      .LR_SIDE_EFFECT(mask |= 2U));
 
-    MAKE_EXPECTATION(m, mfunc(),
-    REQUIRE_CALL(m, mfunc())
+    REQUIRE_CALL_V(m, mfunc(),
       .LR_SIDE_EFFECT(mask |= 1U)
-      .LR_SIDE_EFFECT(m.mfunc())
-    );
+      .LR_SIDE_EFFECT(m.mfunc()));
 
     m.mfunc();
     REQUIRE(mask == 3U);
@@ -5642,7 +5431,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v2: A macro may instantiate many expectations",
+  "C++11v3: A macro may instantiate many expectations",
   "[C++11][C++14]")
 {
   all_mock m;
@@ -5652,4 +5441,3 @@ TEST_CASE_METHOD(
   m.f2(0,1);
 }
 
-#endif /* (TROMPELOEIL_CLANG == 0) */

@@ -33,7 +33,7 @@ int main()
     .THROW_TYPE(m_t, 3)
     .THROW_TYPE(m_t, 'a');
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(),
   REQUIRE_CALL(obj, f())
@@ -41,7 +41,13 @@ int main()
     .THROW('a')
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  REQUIRE_CALL_V(obj, f(),
+    .THROW(3)
+    .THROW('a'));
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

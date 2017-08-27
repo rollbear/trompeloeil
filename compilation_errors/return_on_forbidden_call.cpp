@@ -32,14 +32,19 @@ int main()
   FORBID_CALL(obj, f())
     .RETURN_TYPE(m_t, 0);
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(),
   FORBID_CALL(obj, f())
     .RETURN(0)
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  FORBID_CALL_V(obj, f(),
+    .RETURN(0));
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 

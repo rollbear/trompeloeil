@@ -35,7 +35,7 @@ int main()
     .RETURN_TYPE(m_t, 1)
     .LR_SIDE_EFFECT_TYPE(m_t, n = 0);
 
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 1) */
+#elif (TROMPELOEIL_CXX11_API_VERSION == 2)
 
   MAKE_EXPECTATION(obj, f(),
   REQUIRE_CALL(obj, f())
@@ -43,7 +43,13 @@ int main()
     .LR_SIDE_EFFECT(n = 0)
   );
 
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 1) */
+#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
+
+  REQUIRE_CALL_V(obj, f(),
+    .RETURN(1)
+    .LR_SIDE_EFFECT(n = 0));
+
+#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

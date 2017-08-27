@@ -214,19 +214,6 @@ public:
 
 int intfunc(int i);
 
-using trompeloeil::_;
-
-template <typename T>
-class tmock
-{
-public:
-  MAKE_MOCK1(func, void(int));
-  MAKE_MOCK1(tfunc, void(T));
-  tmock() : m(NAMED_FORBID_CALL(*this, func(_))) {}
-private:
-  std::unique_ptr<trompeloeil::expectation> m;
-};
-
 extern int global_n;
 
 struct mstr
@@ -267,14 +254,6 @@ public:
   MAKE_MOCK1(func_ustrv, void(uncomparable_string));
   MAKE_MOCK1(func_f, void(std::function<void()>));
   int m;
-};
-
-// multiple inheritance
-
-struct combined
-  : mock_c
-  , tmock<int>
-{
 };
 
 struct C_foo1
@@ -604,21 +583,5 @@ struct all_mock
     I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>));
 
 };
-
-class self_ref_mock
-{
-public:
-  void expect_self()
-  {
-    exp = NAMED_REQUIRE_CALL(*this, mfunc());
-  }
-  MAKE_MOCK0(mfunc, void());
-  std::unique_ptr<trompeloeil::expectation> exp;
-};
-
-#define MANY_REQS(obj) \
-               REQUIRE_CALL(obj, f0());         \
-               REQUIRE_CALL(obj, f1(0));        \
-               REQUIRE_CALL(obj, f2(0,1))
 
 #endif /* !COMPILING_TESTS_HPP_ */
