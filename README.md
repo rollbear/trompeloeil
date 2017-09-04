@@ -2,7 +2,9 @@
 
 ![trompeloeil logo](trompeloeil-logo.png)
 
-[![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil) [![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
+CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil) [![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
+
+[conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v28%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v28%3Astable/link)
 
 
 > *trompe l'oeil* noun    (Concise Encyclopedia)  
