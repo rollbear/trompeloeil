@@ -68,14 +68,27 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
     )
 
-  if (CMAKE_COMPILER_IS_GNUCXX)
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      set(WARN_FLAGS "-Weverything -Wno-c++98-compat-pedantic -Wno-padded -Wno-weak-vtables -Wno-exit-time-destructors")
-    else()
-      set(WARN_FLAGS "-Wall -Wextra -pedantic -Wshadow")
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      string(CONCAT
+             WARN_FLAGS
+             "-Weverything"
+             " -Wno-c++98-compat-pedantic"
+             " -Wno-padded"
+             " -Wno-weak-vtables"
+             " -Wno-exit-time-destructors"
+             " -Wno-global-constructors")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+      string(CONCAT
+             WARN_FLAGS
+             "-Wall"
+             " -Wextra"
+             " -pedantic"
+             " -Wshadow")
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS} -Werror")
+    set(WARN_FLAGS "${WARN_FLAGS} -Werror")
   endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
   set(TSAN "-fsanitize=undefined,thread")
   set(SSAN "-fsanitize=address,undefined")
