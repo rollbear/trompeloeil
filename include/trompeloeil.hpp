@@ -507,7 +507,7 @@ namespace trompeloeil
     template<class T, T N>
     using make_integer_sequence = typename impl::make_integer_sequence_impl<T, N>::type;
 
-	  template <size_t N>
+    template <size_t N>
     using make_index_sequence = make_integer_sequence<size_t, N>;
 
     template <typename... T>
@@ -2072,7 +2072,7 @@ namespace trompeloeil
       regex_check(
         std::regex&& re_,
         std::regex_constants::match_flag_type match_type_)
-        : re(std::forward<std::regex>(re_)),
+        : re(std::move(re_)),
           match_type(match_type_)
       {}
 
@@ -2600,8 +2600,8 @@ namespace trompeloeil
   }
 
   template <typename T,
-	    typename U,
-	    typename = detail::enable_if_t<is_equal_comparable<T, U>::value>>
+            typename U,
+            typename = detail::enable_if_t<is_equal_comparable<T, U>::value>>
   inline
   U&
   identity(
@@ -2612,8 +2612,8 @@ namespace trompeloeil
   }
 
   template <typename T,
-	    typename U,
-	    typename = detail::enable_if_t<!is_equal_comparable<T, U>::value>>
+            typename U,
+            typename = detail::enable_if_t<!is_equal_comparable<T, U>::value>>
   inline
   T
   identity(
