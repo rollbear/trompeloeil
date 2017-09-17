@@ -1,4 +1,5 @@
 	* Fix Issue #48: Move "re" in lambda capture list in "regex_check".
+	* Fix Issue #55: Restore warnings for Clang builds.
 
 v28 2017-07-24
 
