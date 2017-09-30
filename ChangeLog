@@ -2,6 +2,7 @@
 	* Fix Issue #55: Restore warnings for Clang builds.
 	* Correct spelling of SANITIZE for clang Xcode builds.
 	* Fix Issue #57: Avoid uneeded-member-function warning from Clang.
+	* Allow only standard C++ dialects in Trompeloeil test programs.
 
 v28 2017-07-24
 
