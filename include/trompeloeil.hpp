@@ -3836,6 +3836,7 @@ namespace trompeloeil
       R (T::*)(P...) const,
       R (T::*)(P...)>;
   };
+
 }
 
 #define TROMPELOEIL_LINE_ID(name)                                        \
