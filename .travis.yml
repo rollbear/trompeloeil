@@ -145,13 +145,13 @@ matrix:
       osx_image: xcode8
       compiler: clang
       env:
-        - COMPILER="clang++" SANIZITE=false
+        - COMPILER="clang++" SANITIZE=false
 
     - os: osx
       osx_image: xcode7.3
       compiler: clang
       env:
-        - COMPILER="clang++" SANIZITE=false
+        - COMPILER="clang++" SANITIZE=false
 
 install:
   - |
