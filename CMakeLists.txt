@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 project(trompeloeil)
 
 include(GNUInstallDirs)
@@ -82,7 +82,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -Wno-weak-vtables"
              " -Wno-exit-time-destructors"
              " -Wno-global-constructors")
-      if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "5.0")
+      if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "5.0" )
+      else()
         string(CONCAT
                WARN_FLAGS
                " -Wno-inconsistent-missing-destructor-override")
