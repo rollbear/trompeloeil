@@ -82,6 +82,11 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -Wno-weak-vtables"
              " -Wno-exit-time-destructors"
              " -Wno-global-constructors")
+      if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "5.0")
+        string(CONCAT
+               WARN_FLAGS
+               " -Wno-inconsistent-missing-destructor-override")
+      endif()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
       string(CONCAT
              WARN_FLAGS
