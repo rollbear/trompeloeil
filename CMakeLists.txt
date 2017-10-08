@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 project(trompeloeil)
 
 include(GNUInstallDirs)
 include(ExternalProject)
 include(CMakePackageConfigHelpers)
+include(CheckCXXCompilerFlag)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
@@ -88,6 +89,13 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -Wno-weak-vtables"
              " -Wno-exit-time-destructors"
              " -Wno-global-constructors")
+      CHECK_CXX_COMPILER_FLAG("-Wno-inconsistent-missing-destructor-override"
+                              W_MISSING_DTOR_OVERRIDE)
+      if (W_MISSING_DTOR_OVERRIDE)
+        string(CONCAT
+               WARN_FLAGS
+               " -Wno-inconsistent-missing-destructor-override")
+      endif()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
       string(CONCAT
              WARN_FLAGS
