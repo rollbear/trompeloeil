@@ -3179,6 +3179,12 @@ namespace trompeloeil
       return {matcher};
     }
 
+    call_modifier&&
+    null_modifier()
+    {
+      return std::move(*this);
+    }
+
   private:
     template <
       typename Sig,
@@ -4078,33 +4084,27 @@ namespace trompeloeil
 #if (TROMPELOEIL_CPLUSPLUS > 201103L) || \
     (TROMPELOEIL_CPLUSPLUS == 201103L) && (TROMPELOEIL_CXX11_API_VERSION == 3)
 
-#define TROMPELOEIL_REQUIRE_CALL_0(obj, func)                                  \
-  TROMPELOEIL_REQUIRE_CALL_0_(obj, func, #obj, #func)
+#define TROMPELOEIL_ADD_NULL_MODIFIER(...)                                     \
+  TROMPELOEIL_ADD_NULL_MODIFIER_IMPL(__VA_ARGS__ .null_modifier())
 
-#define TROMPELOEIL_REQUIRE_CALL_0_(obj, func, obj_s, func_s)                  \
-  auto TROMPELOEIL_COUNT_ID(call_obj) =                                        \
-    TROMPELOEIL_REQUIRE_CALL_0_LAMBDA(obj, func, obj_s, func_s)
+#define TROMPELOEIL_ADD_NULL_MODIFIER_IMPL(...) __VA_ARGS__
 
 
+// Optional.  For backward compatibility with earlier version three API.
+#define TROMPELOEIL_REQUIRE_CALL_0(obj, func) \
+  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, # obj, # func, .null_modifier())
+
+// Optional.  For backward compatibility with earlier version three API.
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_0(obj, func)                            \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_0_(obj, func, #obj, #func)
-
-#define TROMPELOEIL_NAMED_REQUIRE_CALL_0_(obj, func, obj_s, func_s)            \
-  TROMPELOEIL_REQUIRE_CALL_0_LAMBDA(obj, func, obj_s, func_s)
-
-
-#define TROMPELOEIL_REQUIRE_CALL_0_LAMBDA(obj, func, obj_s, func_s)            \
-  [&]                                                                          \
-  {                                                                            \
-    using s_t = decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_self_, func));   \
-    using e_t = decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_,func));     \
-                                                                               \
-    return TROMPELOEIL_REQUIRE_CALL_LAMBDA_OBJ(obj, func, obj_s, func_s);      \
-  }()
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, # obj, # func, .null_modifier())
 
 
 #define TROMPELOEIL_REQUIRE_CALL_V(obj, func, ...)                             \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
+  TROMPELOEIL_REQUIRE_CALL_V_(obj,                                             \
+                              func,                                            \
+                              # obj,                                           \
+                              # func,                                          \
+                              TROMPELOEIL_ADD_NULL_MODIFIER(__VA_ARGS__))
 
 #define TROMPELOEIL_REQUIRE_CALL_V_(obj, func, obj_s, func_s, ...)             \
   auto TROMPELOEIL_COUNT_ID(call_obj) =                                        \
@@ -4112,7 +4112,11 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_V(obj, func, ...)                       \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj,                                       \
+                                    func,                                      \
+                                    # obj,                                     \
+                                    # func,                                    \
+                                    TROMPELOEIL_ADD_NULL_MODIFIER(__VA_ARGS__))
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, obj_s, func_s, ...)       \
   TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, obj_s, func_s, __VA_ARGS__)
@@ -4138,68 +4142,60 @@ namespace trompeloeil
     {__FILE__, static_cast<unsigned long>(__LINE__), obj_s "." func_s}.func
 
 
+// Optional.  For backward compatibility with earlier version three API.
 #define TROMPELOEIL_ALLOW_CALL_0(obj, func)                                    \
-  TROMPELOEIL_ALLOW_CALL_0_(obj, func, #obj, #func)
-
-#define TROMPELOEIL_ALLOW_CALL_0_(obj, func, obj_s, func_s)                    \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                        \
+  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, # obj, # func,                        \
     .TROMPELOEIL_TIMES(0, ~0ULL))
 
 #define TROMPELOEIL_ALLOW_CALL_V(obj, func, ...)                               \
-  TROMPELOEIL_ALLOW_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
+  TROMPELOEIL_REQUIRE_CALL_V_(obj,                                             \
+                              func,                                            \
+                              # obj,                                           \
+                              # func,                                          \
+                              .TROMPELOEIL_TIMES(0, ~0ULL)                     \
+                              TROMPELOEIL_ADD_NULL_MODIFIER(__VA_ARGS__))
 
-#define TROMPELOEIL_ALLOW_CALL_V_(obj, func, obj_s, func_s, ...)               \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                        \
-    .TROMPELOEIL_TIMES(0, ~0ULL)                                               \
-    __VA_ARGS__)
 
-
+// Optional.  For backward compatibility with earlier version three API.
 #define TROMPELOEIL_NAMED_ALLOW_CALL_0(obj, func)                              \
-  TROMPELOEIL_NAMED_ALLOW_CALL_0_(obj, func, #obj, #func)
-
-#define TROMPELOEIL_NAMED_ALLOW_CALL_0_(obj, func, obj_s, func_s)              \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                  \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, # obj, # func,                  \
     .TROMPELOEIL_TIMES(0, ~0ULL))
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_V(obj, func, ...)                         \
-  TROMPELOEIL_NAMED_ALLOW_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj,                                       \
+                                    func,                                      \
+                                    # obj,                                     \
+                                    # func,                                    \
+                                    .TROMPELOEIL_TIMES(0, ~0ULL)               \
+                                    TROMPELOEIL_ADD_NULL_MODIFIER(__VA_ARGS__))
 
-#define TROMPELOEIL_NAMED_ALLOW_CALL_V_(obj, func, obj_s, func_s, ...)         \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                  \
-    .TROMPELOEIL_TIMES(0, ~0ULL)                                               \
-    __VA_ARGS__)
 
-
+// Optional.  For backward compatibility with earlier version three API.
 #define TROMPELOEIL_FORBID_CALL_0(obj, func)                                   \
-  TROMPELOEIL_FORBID_CALL_0_(obj, func, #obj, #func)
-
-#define TROMPELOEIL_FORBID_CALL_0_(obj, func, obj_s, func_s)                   \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                        \
+  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, # obj, # func,                        \
     .TROMPELOEIL_TIMES(0))
 
 #define TROMPELOEIL_FORBID_CALL_V(obj, func, ...)                              \
-  TROMPELOEIL_FORBID_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
+  TROMPELOEIL_REQUIRE_CALL_V_(obj,                                             \
+                              func,                                            \
+                              # obj,                                           \
+                              # func,                                          \
+                              .TROMPELOEIL_TIMES(0)                            \
+                              TROMPELOEIL_ADD_NULL_MODIFIER(__VA_ARGS__))
 
-#define TROMPELOEIL_FORBID_CALL_V_(obj, func, obj_s, func_s, ...)              \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                        \
-    .TROMPELOEIL_TIMES(0)                                                      \
-    __VA_ARGS__)
 
-
+// Optional.  For backward compatibility with earlier version three API.
 #define TROMPELOEIL_NAMED_FORBID_CALL_0(obj, func)                             \
-  TROMPELOEIL_NAMED_FORBID_CALL_0_(obj, func, #obj, #func)
-
-#define TROMPELOEIL_NAMED_FORBID_CALL_0_(obj, func, obj_s, func_s)             \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                  \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, # obj, # func,                  \
     .TROMPELOEIL_TIMES(0))
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_V(obj, func, ...)                        \
-  TROMPELOEIL_NAMED_FORBID_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
-
-#define TROMPELOEIL_NAMED_FORBID_CALL_V_(obj, func, obj_s, func_s, ...)        \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, obj_s, func_s,                  \
-    .TROMPELOEIL_TIMES(0)                                                      \
-    __VA_ARGS__)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj,                                       \
+                                    func,                                      \
+                                    # obj,                                     \
+                                    # func,                                    \
+                                    .TROMPELOEIL_TIMES(0)                      \
+                                    TROMPELOEIL_ADD_NULL_MODIFIER(__VA_ARGS__))
 
 #endif /* (TROMPELOEIL_CPLUSPLUS > 201103L) ||
         * (TROMPELOEIL_CPLUSPLUS == 201103L) && (TROMPELOEIL_CXX11_API_VERSION == 3)
