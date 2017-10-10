@@ -49,8 +49,8 @@
   - [`trompeloeil::sequence`](#sequence_type)
   - [`trompeloeil::severity`](#severity_type)
   - [`trompeloeil::stream_tracer`](#stream_tracer)
-  - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
   - [`tropmeloeil::tracer`](#tracer_type)
+  - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
 - [Functions and Function Templates](#functions)
   - [`trompeloeil::expectation::is_satisfied()`](#is_satisfied)
   - [`trompeloeil::expectation::is_saturated()`](#is_saturated)
@@ -66,7 +66,7 @@
 
 ### <A name="mock_function"/>Mock function
 
-A member function that is mocked with
+A *mock function* is a member function that is mocked with
 [**`MAKE_MOCKn(name, signature)`**](#MAKE_MOCKn) or
 [**`MAKE_CONST_MOCKn(name, signature)`**](#MAKE_CONST_MOCKn).
 
@@ -88,7 +88,7 @@ on the functions `func(...)` and `cfunc(...)`.
 
 ### <A name="mock_object"/>Mock object
 
-A mock object is an object of a type that has [mock functions](#mock_function).
+A *mock object* is an object of a type that has [mock functions](#mock_function).
 
 Example:
 ```Cpp
@@ -101,7 +101,7 @@ public:
 C obj;
 ```
 
-Above `obj` is a mock object. It is possible to place
+Above, `obj` is a mock object. It is possible to place
 [expectations](#expectation) on [mock functions](#mock_function) for the object
 `obj`.
 
@@ -143,7 +143,7 @@ The ways to set expectations are:
 - [**`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_ALLOW_CALL)
 - [**`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_FORBID_CALL)
 
-The **NAMED** variants returns expectations as
+Each **NAMED** variant returns an expectation as
 [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type) which can be
 saved in variables for storage in test fixtures or other programmatic lifetime
 control.
@@ -154,9 +154,9 @@ destroyed) a violation is reported.
 
 By default there is no order imposed on expectations. One way to impose order is
 through their lifetimes. Another is by using
-[**`IN_SEQUENCE(...)`**](#IN_SEQUENCE)
+[**`IN_SEQUENCE(...)`**](#IN_SEQUENCE).
 
-If there are several expectations that matches the same call, they are tried in
+If there are several expectations that match the same call, they are tried in
 the reverse order of creation, and the first found match is accepted. In other
 words, the last created matching expectation is the one used.
 
@@ -212,7 +212,7 @@ You can also provide [your own matchers](CookBook.md/#custom_matchers).
 
 #### <A name="wildcard"/>**`_`**
 
-Used in the parameter list of an [expectation](#expectation) `trompeloeil::_`
+Used in the parameter list of an [expectation](#expectation), `trompeloeil::_`
 matches any value of any type.
 
 Example:
@@ -238,7 +238,7 @@ TEST(atest)
 Above, `mock_obj.func()` is allowed to be called with any value, and it will
 return 1 + the value provided.
 
-If type is needed, for example to disambiguate overloads, use
+If type information is needed, for example to disambiguate overloads, use
 [**`ANY(`** *type* **`)`**](#ANY).
 
 #### <A name="ANY"/>**`ANY(`** *type* **`)`**
@@ -287,7 +287,7 @@ public:
   MAKE_MOCK1(func, void(const std::string&));
 };
 
-using trompeloeil::ne;
+using trompeloeil::eq;
 
 TEST(atest)
 {
@@ -303,11 +303,11 @@ TEST(atest)
 
 Above, the first [expectation](#expectation) matches only calls to
 `mock_obj.func(int*)` with a non-null pointer pointing to the value `3`. Any
-call with a `nullptr` or a pointer pointing to another value than `3` renders
+call with a `nullptr` or a pointer pointing to a value other than `3` renders
 a violation report since no [expectation](#expectation) matches.
 
 The second [expectation](#expectation) matches only calls to
-`mock_obj.func(const char*)`, with a c-string `"foo"`.
+`mock_obj.func(const char*)`, with a C-string `"foo"`.
 
 #### <A name="ne"/>**`ne(`** *value* **`)`**
 
@@ -472,7 +472,7 @@ It is also possible to use `*lt(val)` to match a pointer to a less-than value.
 
 Used in the parameter list of an [expectation](#expectation) to match a
 value less than or equal to the one provided. By default it matches any
-parameter type taht supports `operator<=()` with the value, but an explicit type
+parameter type that supports `operator<=()` with the value, but an explicit type
 can be specified if needed for disambiguation.
 
 Example:
@@ -525,9 +525,9 @@ For both versions, the string can be either `std::string` or a C-string.
 
 *flags...* can be
 * empty
-* std::regex_constants::syntax_option_type
-* std::regex_constants::match_flag_type
-* std::regex_constants::syntax_option_type, std::regex_constants::match_flag_type
+* `std::regex_constants::syntax_option_type`
+* `std::regex_constants::match_flag_type`
+* `std::regex_constants::syntax_option_type, std::regex_constants::match_flag_type`
 
 Regular expression matching is made with
 [`std::regex_search()`](http://en.cppreference.com/w/cpp/regex/regex_search)
@@ -560,7 +560,7 @@ the regular expression `/end/`.
 
 It is also possible to use `*re(string)` to match a pointer to a string with
 a regular expression, or `!re(string)` to allow only strings that do not match
-a regular expression..
+a regular expression.
 
 #### <A name="deref_matcher"/>**`*`** *matcher*
 
@@ -570,7 +570,6 @@ matcher, to match a value pointed to by a pointer. A
 matcher.
 
 Example:
-
 ```Cpp
 struct C {
   MAKE_MOCK1(func, void(int*));
@@ -656,7 +655,7 @@ Above **`ALLOW_CALL(mock_obj, func(_))`** places an expectation that
 `mock_obj.func()` may be called any number of times with any parameter value
 and will always return the parameter value + 1. `test_function(...)`
 is allowed to call `mock_obj.func()` any number of times (including no call at
-all.) 
+all).
 
 The expectation is valid until the end of the scope, which in the example above
 is until after the return from `test_function(...)`.
@@ -676,13 +675,13 @@ the exact value is unimportant. See the matcher [**`ANY(`** *type* **`)`**](#ANY
 
 <A name="AT_LEAST"/>
 
-### **`AT_LEAST(`** *number* **`)`**  
+### **`AT_LEAST(`** *number* **`)`**
+
 Used in [**`TIMES(...)`**](#TIMES) to set the range *number*..infinity.
 *number* must be
 [`constexpr`](http://en.cppreference.com/w/cpp/language/constexpr).
 
 Example:
-
 ```Cpp
 class C
 {
@@ -710,12 +709,13 @@ _In reality the upper limit is ~0ULL, but that is for all practical purposes
 
 <A name="AT_MOST"/>
 
-### **`AT_MOST(`** *number* **`)`**  
+### **`AT_MOST(`** *number* **`)`**
+
 Used in [**`TIMES(...)`**](#TIMES) to set the range 0..*number*.
 *number* must be
 [`constexpr`](http://en.cppreference.com/w/cpp/language/constexpr).
-Example:
 
+Example:
 ```Cpp
 class C
 {
@@ -736,17 +736,17 @@ TEST(atest)
 
 Above, the line [**`TIMES(`**](#TIMES)**`AT_MOST(3))`** modifies the
 [expectation](#expectation) such that *mock_obj.func()* must be called 3 times
-or less (including no call at all,) before the end of the scope, or a violation
+or less (including no call at all) before the end of the scope, or a violation
 is reported.
 
 
 <A name="FORBID_CALL"/>
 
-### **`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
+### **`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**
+
 Make an expectation that *mock_object*.*func_name*(*parameter_list*) must not
 be called until the end of the scope. *parameter_list* may contain exact values
 or [matchers](#matcher) that describes matching calls.
-
 
 This is the same as
 [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL).[**`TIMES(`**](#TIMES) 0 **`)`**,
@@ -790,11 +790,12 @@ where *mock_obj.func(2)* would lead to a violation being reported. At
 See also [**`NAMED_FORBID_CALL(...)`**](#NAMED_FORBID_CALL) which creates an
 expectation as a
 [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type) which can be
-stored in test fixtures.
+stored in test fixtures or otherwise have its lifetime programmatically controlled.
 
 <A name="IN_SEQUENCE"/>
 
-### **`IN_SEQUENCE(`** *seq...* **`)`**  
+### **`IN_SEQUENCE(`** *seq...* **`)`**
+
 Where *seq...* is one or more instances of `trompeloeil::sequence`. Impose an
 order in which [expectations](#expectation) and destruction of
 [**`deathwatched_type`**](#deathwatched_type) objects must match.
@@ -816,6 +817,7 @@ class ephemeral
 public:
   virtual ~ephemeral() {};
 };
+
 TEST(atest)
 {
   Mock m[2];
@@ -861,7 +863,8 @@ Any other sequence of calls renders a violation report.
 
 <A name="LR_RETURN"/>
 
-### **`LR_RETURN(`** *expr* **`)`**  
+### **`LR_RETURN(`** *expr* **`)`**
+
 Used in [expectations](#expectation) to set the return value after having
 evaluated every [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT).
@@ -913,7 +916,8 @@ See also [**`RETURN(...)`**](#RETURN) which accesses copies of local variables.
 
 <A name="LR_SIDE_EFFECT"/>
 
-### **`LR_SIDE_EFFECT(`** *expr* **`)`**  
+### **`LR_SIDE_EFFECT(`** *expr* **`)`**
+
 Used in [expectations](#expectation) to cause side effects for matching calls.
 *expr* is only evaluated when all [**`WITH(...)`**](#WITH) and
 [**`LR_WITH(...)`**](#LR_WITH) clauses are matched. *expr* may refer to
@@ -955,7 +959,8 @@ objects.
 
 <A name="LR_THROW"/>
 
-### **`LR_THROW(`** *expr* **`)`**  
+### **`LR_THROW(`** *expr* **`)`**
+
 Used in [expectations](#expectation) to throw after having evaluated every
 [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) for a matching call.
@@ -986,7 +991,7 @@ TEST(atest)
 }
 ```
 
-Above, **`LR_THROW(std::invalid_argument(what))`** will refer to the c-string
+Above, **`LR_THROW(std::invalid_argument(what))`** will refer to the C-string
 `what` with the value it has at the time of a call to `mock_obj.func(3)`, i.e.
 `"nonsense"` if `tested_func()` does the call.
 
@@ -995,6 +1000,7 @@ See also [**`THROW(...)`**](#THROW) which accesses copies of local objects.
 <A name="LR_WITH"/>
 
 ### **`LR_WITH(`** *expr* **`)`**
+
 Used with [expectations](#expectation) to add further conditions for a
 matching call. Typically used when [matchers](#matcher) are used for the
 parameters, and often when the condition requires several parameter values
@@ -1005,8 +1011,6 @@ references, they are immutable in this context. Several **`LR_WITH(...)`**
 and [**`WITH(...)`**](#WITH) clauses can be added to a single expectation and
 they are tried in the order they are added until one has failed, or they all
 have passed.
-
-first has failed.
 
 Named local objects are accessed by reference so lifetime management is
 important.
@@ -1046,7 +1050,8 @@ See also [**`WITH(...)`**](#WITH) which accesses copies of local objects.
 
 <A name="MAKE_CONST_MOCKn"/>
 
-### **`MAKE_CONST_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**  
+### **`MAKE_CONST_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**
+
 Make a `const` [mock function](#mock_function) named *func_name*. It is a good
 idea for this to implement a pure virtual function from an interface, but
 it is not a requirement. `n` is the number of parameters in *signature*.
@@ -1061,6 +1066,7 @@ public:
   virtual ~I() = default;
   virtual int func1(int, const std::vector<int>&)) const = 0;
 };
+
 class C
 {
 public:
@@ -1087,7 +1093,8 @@ member functions.
 
 <A name="MAKE_MOCKn"/>
 
-### **`MAKE_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**  
+### **`MAKE_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**
+
 Make a non-const [mock function](#mock_function) named *func_name*. It is a
 good idea for this to implement a pure virtual function from an interface, but
 it is not a requirement. `n` is the number of parameters in *signature*.
@@ -1102,6 +1109,7 @@ public:
   virtual ~I() = default;
   virtual int func1(int, const std::vector<int>&)) = 0;
 };
+
 class C : public I
 {
 public:
@@ -1128,7 +1136,8 @@ member functions.
 
 <A name="NAMED_ALLOW_CALL"/>
 
-### **`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
+### **`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**
+
 Make a [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 allowing *mock_object*.*func_name*(*parameter_list*) to be
 called zero or more times until the expectation object is destroyed.
@@ -1138,8 +1147,8 @@ that describes matching calls.
 This is the same as
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL).[**`TIMES(`**](#TIMES) 0,infinity **`)`**.
 
-Matches any number of times, but is not required to match. (_actually the limit is
-0..~0ULL, but that is for all practical purposes "infinity"_)
+Matches any number of times, but is not required to match. (_Actually the limit is
+0..~0ULL, but that is for all practical purposes "infinity"_.)
 
 **NOTE!** Any named objects referenced in attached
 [**`LR_WITH(...)`**](#LR_WITH), [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT),
@@ -1178,7 +1187,7 @@ TEST(atest)
 
 Above each **`NAMED_ALLOW_CALL(mock_obj, func(...))`** creates an expectation
 that *mock_obj.func()* may be called any number of times. Each expectation is
-valid for as long at the expectation object is alive. In the example above,
+valid for the lifetime of the expectation object. In the example above,
 this means that `x1` is valid for the first two calls to `test_function(...)`,
 while `x2` is valid for the last two calls to `test_function(...)`.
 
@@ -1188,12 +1197,12 @@ that is valid until the end of the surrounding scope.
 
 <A name="NAMED_FORBID_CALL"/>
 
-### **`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
+### **`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**
+
 Make a [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 disallowing calls to *mock_object*.*func_name*(*parameter_list*) until the
 expectation object is destroyed. *parameter_list* may contain exact values or
 [matchers](#matcher) that describes matching calls.
-
 
 This is the same as
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL).[**`TIMES(`**](#TIMES)
@@ -1252,7 +1261,8 @@ See also [**`FORBID_CALL(...)`**](#FORBID_CALL) which creates an
 
 <A name="NAMED_REQUIRE_CALL"/>
 
-### **`NAMED_REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
+### **`NAMED_REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**
+
 Make a [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 requiring that *mock_obj*.*func_name*(*parameter_list*) is called exactly once
 before the expectation object is destroyed. *parameter_list* may contain exact
@@ -1308,6 +1318,7 @@ See also [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL) which creates an
 <A name="NAMED_REQUIRE_DESTRUCTION"/>
 
 ### **`NAMED_REQUIRE_DESTRUCTION(`** *mock_object* **`)`**
+
 Create a
 [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type)
 object which reports a violation if the
@@ -1358,7 +1369,8 @@ a requirement that the [`deathwatched`](#deathwatched_type)
 
 <A name="REQUIRE_CALL"/>
 
-### **`REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**  
+### **`REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**
+
 Make an [expectation](#expectation) requiring that
 *mock_obj*.*func_name*(*parameter_list*) is called exactly once before
 the end of the scope. *parameter_list* may contain exact values
@@ -1410,7 +1422,8 @@ fixtures.
 
 <A name="REQUIRE_DESTRUCTION"/>
 
-### **`REQUIRE_DESTRUCTION(`** *mock_object* **`)`**  
+### **`REQUIRE_DESTRUCTION(`** *mock_object* **`)`**
+
 Create an anonymous [`lifetime_monitor`](#lifetime_monitor_type) which reports
 a violation if the [**`deathwatched`**](#deathwatched_type)
 [mock object](#mock_object) is not destroyed by the end of the scope.
@@ -1450,7 +1463,7 @@ destroyed without having a destruction requirement.
 
 It is thus a violation if the first call to `test_function(...)` destroys
 `*p`, and another violation if the second call to `test_function(...)`
-does not destroy `*p`
+does not destroy `*p`.
 
 See also [**`NAMED_REQUIRE_DESTRUCTION(...)`**](#NAMED_REQUIRE_DESTRUCTION)
 which creates the requirement that the [`deathwatched`](#deathwatched_type)
@@ -1460,7 +1473,8 @@ which can be stored in test fixtures.
 
 <A name="RETURN"/>
 
-### **`RETURN(`** *expr* **`)`**  
+### **`RETURN(`** *expr* **`)`**
+
 Used in [expectations](#expectation) to set the return value after having
 evaluated every [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT).
@@ -1513,6 +1527,7 @@ by reference.
 <A name="SIDE_EFFECT"/>
 
 ### **`SIDE_EFFECT(`** *expr* **`)`**
+
 Used in [expectations](#expectation) to cause side effects for matching calls.
 *expr* is only evaluated when all [**`WITH(...)`**](#WITH) and
 [**`LR_WITH(...)`**](#LR_WITH) clauses are matched. *expr* may refer to
@@ -1561,7 +1576,8 @@ objects by reference.
 
 <A name="THROW"/>
 
-### **`THROW(`** *expr* **`)`**  
+### **`THROW(`** *expr* **`)`**
+
 Used in [expectations](#expectation) to throw after having evaluated every
 [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) for a matching call.
@@ -1601,7 +1617,8 @@ See also [**`LR_THROW(...)`**](#LR_THROW) which accesses copies of local objects
 
 <A name="TIMES"/>
 
-### **`TIMES(`** *limits* **`)`**  
+### **`TIMES(`** *limits* **`)`**
+
 Used in [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL) and
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL) to set the limits on
 the number of matching calls required.
@@ -1652,7 +1669,8 @@ See also the helpers [**`AT_LEAST(...)`**](#AT_LEAST) and
 
 <A name="WITH"/>
 
-### **`WITH(`** *expr* **`)`**  
+### **`WITH(`** *expr* **`)`**
+
 Used with [expectations](#expectation) to add further conditions for a
 matching call. Typically used when [matchers](#matcher) are used for the
 parameters, and often when the condition requires several parameter values
@@ -1689,6 +1707,7 @@ TEST(atest)
   tested_func(buff, &mock_obj);
 }
 ```
+
 Above, **`WITH(std::string(_1, _2) == str)`** checks the condition that the
 string constructed from the parameters is equal to a copy of the local variable
 `str`. To pass the test, `tested_func(...)` must in other words call
@@ -1772,7 +1791,6 @@ public:
 
 The `what()` string contains the violation report message.
 
-
 ### <A name="lifetime_monitor_type"/>`trompeloeil::lifetime_monitor`
 
 The macro [**`NAMED_REQUIRE_DESTRUCTION(...)`**](#NAMED_REQUIRE_DESTRUCTION)
@@ -1817,11 +1835,11 @@ not do anything and is solely used in internal
 and [tag dispatch](http://www.generic-programming.org/languages/cpp/techniques.php#tag_dispatching)
 
 Use it, or [`trompeloeil::typed_matcher<T>`](#typed_matcher), as the base class
-when writing custom [matchers](CookBook.md/#custom_matchers)
+when writing custom [matchers](CookBook.md/#custom_matchers).
 
 ### <A name="sequence_type"/>`trompeloeil::sequence`
 
-Type of object used for fine tuned control of sequencing of matched
+Type of object used for fine-tuned control of sequencing of matched
 [expectations](#expectation).
 
 Example:
@@ -1865,11 +1883,10 @@ void test()
 }
 ```
 
-Sequence objects are moveable but not copyable.
+Sequence objects are movable but not copyable.
 
 **NOTE!** The [**`.IN_SEQUENCE(...)`**](#IN_SEQUENCE) macro accepts many
 sequence objects.
-
 
 ### <A name="severity_type"/> `trompeloeil::severity`
 
@@ -1912,14 +1929,6 @@ public:
 See "[Using `trompeloeil::stream_tracer`](CookBook.md/#stream_tracer)" in the
 [Cook Book](CookBook.md).
 
-### <A name="typed_matcher"/>`trompeloeil::typed_matcher<T>`
-
-Convenience class available when writing custom matchers for a specific
-type. It inherits from [`trompeloeil::matcher`](#matcher_type).
-
-See "[Writing custom matchers](CookBook.md/#custom_matchers)" in the
-[Cook Book](CookBook.md) for examples.
-
 ### <A name="tracer_type"/>`tropmeloeil::tracer`
 
 Base class for tracers. Inherit from it when writing custom tracers.
@@ -1940,6 +1949,14 @@ protected:
 ```
 See "[Writing custom tracers](CookBook.md/#custom_tracer)" in the
 [Cook Book](CookBook.md) for an example.
+
+### <A name="typed_matcher"/>`trompeloeil::typed_matcher<T>`
+
+Convenience class available when writing custom matchers for a specific
+type. It inherits from [`trompeloeil::matcher`](#matcher_type).
+
+See "[Writing custom matchers](CookBook.md/#custom_matchers)" in the
+[Cook Book](CookBook.md) for examples.
 
 ## <A name="functions"/>Functions
 
@@ -2002,7 +2019,7 @@ occupied by the object.
 
 You can write specializations of
 `trompeloeil::print(std::ostream& os, T const& t)` for your own types
-`T`. See example in the [CookBook](CookBook.md/#custom_formatting).
+`T`. See example in the [Cook Book](CookBook.md/#custom_formatting).
 
 ### <A name="is_null"/>`trompeloeil::is_null(T const&)`
 
@@ -2021,7 +2038,7 @@ auto make_matcher(Predicate predicate /* bool (Type& value, T const& ...) */,
 
 If `Type` is `trompeloeil::wildcard` a
 [duck typed matcher](CookBook.md/#duck_typed_matcher) is created, otherwise
-a matcher for the specifi type `Type` is created.
+a matcher for the specified type `Type` is created.
 
 `T&&...` is any number of values you want stored in the matcher.
 
@@ -2035,9 +2052,8 @@ value to check for, and each of the stored values `T&&...` in order as
 stored values `T&&...` in order as `const&`.
 
 
-Examples are found in the CookBook under
+Examples are found in the Cook Book under
 [Writing custom matchers](CookBook.md/#custom_matchers)
-
 
 ### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
 
