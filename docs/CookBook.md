@@ -173,7 +173,7 @@ Paste the following code snippet in global namespace in one of your
 
 If you have several
 [translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declatation in the others:
+add the following extern declaration in the others:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -367,7 +367,7 @@ Paste the following code snippet in global namespace in one of your
 
 If you have several
 [translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declatation in the others:
+add the following extern declaration in the others:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -445,7 +445,7 @@ Paste the following code snippet in global namespace in one of the
 
 In all other
 [translation units](http://stackoverflow.com/questions/8342185/ddg#8342233)
-add the followin extern declaration:
+add the following extern declaration:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -533,7 +533,7 @@ Paste the following code snippet in global namespace in one of your
 
 In all other
 [translation units](http://stackoverflow.com/questions/8342185/ddg#8342233)
-add the followin extern declaration:
+add the following extern declaration:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -790,7 +790,7 @@ extern "C" {
 ```
 
 A test program can place [expectations](reference.md/#expectation) on the
-mock object, and the tested functionality calls the C-api functions which
+mock object, and the tested functionality calls the C-API functions which
 dispatch to the mock object.
 
 ```Cpp
@@ -846,7 +846,7 @@ versions of the expectations.
  - [**`NAMED_REQUIRE_CALL(...)`**](reference.md/#NAMED_REQUIRE_CALL)
  - [**`NAMED_FORBID_CALL(...)`**](reference.md/#NAMED_FORBID_CALL)
   
-These do the same, but they creata a
+These do the same, but they create a
 `std::unique_ptr<trompeloeil::expectation>`, which you can bind to variables
 that you control the life time of.
 
@@ -885,7 +885,7 @@ provides a set of [matchers](reference.md/#matcher). Simple value matchers are:
 - [**`eq(`** *value* **`)`**](reference.md/#eq) matches value equal (using `operator==()`)
 - [**`ne(`** *value* **`)`**](reference.md/#ne) matches value not equal (using `operator!=()`)
 - [**`gt(`** *value* **`)`**](reference.md/#gt) matches value greater than (using `operator>()`)
-- [**`ge(`** *value* **`)`**](reference.md/#ge) matches value greater than or eqeal (using `operator>=()`)
+- [**`ge(`** *value* **`)`**](reference.md/#ge) matches value greater than or equal (using `operator>=()`)
 - [**`lt(`** *value* **`)`**](reference.md/#lt) matches value less than (using `operator<()`)
 - [**`le(`** *value* **`)`**](reference.md/#le) matches value less than or equal (using `operator<=()`)
 
@@ -939,7 +939,7 @@ void test()
 }
 ```
 
-**tip** Using `C++` [raw string literals](http://www.stroustrup.com/C++11FAQ.html#raw-strings)
+**TIP!** Using `C++` [raw string literals](http://www.stroustrup.com/C++11FAQ.html#raw-strings)
 can massively help getting regular expression escapes right.
 
 ### <A name="matching_pointers"/> Matching pointers to values
@@ -998,7 +998,7 @@ TEST(atest)
 ### <A name="matching_multiconditions"/> Matching calls with conditions depending on several parameters
 
 Some times a matching call cannot be judged for individual parameter values
-alone, but together they work. Assume for example a c-string API where you have
+alone, but together they work. Assume for example a C-string API where you have
 a `const char*` and a length.
 
 Example:
@@ -1121,7 +1121,7 @@ any pointer value at all, and the `char*` version with a non-null value.
 
 A side effect, in *Trompeloeil* parlance, is something that is done after
 a match has been made for an [expectation](reference.md/#expectation), and
-before returning (or throwing.)
+before returning (or throwing).
 
 Typical side effects are:
 
@@ -1188,6 +1188,7 @@ public:
 
 using trompeloeil::ge; // greater than or equal
 using trompeloeil::lt; // less than
+
 void test()
 {
   Dictionary d;
@@ -1203,7 +1204,7 @@ void test()
 
 Above, the [matchers](reference.md/#matcher) [**`lt(...)`**](reference.md/#lt)
 and [**`ge(...)`**](reference.md/#ge) are used to ensure that the indexing
-in the  local variable `dict` can be made safely. Note that the first
+in the local variable `dict` can be made safely. Note that the first
 [expectation](reference.md/#expectation) does not match the return type
 exactly, but is something that can be implicitly converted.
 
@@ -1260,7 +1261,7 @@ extra parenthesis, or
 [`std::ref()`](http://en.cppreference.com/w/cpp/utility/functional/ref).
 
 Returning a reference obtained from a function call, however, does not
-require any extra decoration, as the 3rd
+require any extra decoration, as the third
 [expectation](reference.md/#expectation) above, which looks up values in
 `dict` shows.
 
@@ -1284,6 +1285,7 @@ public:
 };
 
 using trompeloeil::_; // matches anything
+
 void test()
 {
   Dictionary d;
@@ -1302,15 +1304,15 @@ void test()
 ```
 
 Above, any call to `d.lookup(...)` with an index within the size of the
-vector, will return the string reference, while any call with an index
+vector will return the string reference, while any call with an index
 outside the size of the vector will throw a `std::out_of_range` exception.
 
 ### <A name="allowing_any"/> Allowing any call
 
 By default it is illegal to call any
 [mock function](reference.md/#mock_function) and you provide narrow specific
-expectations according to the needs of your test. However, some times it makes
-sense to have a wide open default. That is done with the
+expectations according to the needs of your test. However, sometimes it makes
+sense to have a wide-open default. That is done with the
 [exceptations](reference.md/#expectation)
 [**`ALLOW_CALL(...)`**](reference.md/#ALLOW_CALL) and
 [**`NAMED_ALLOW_CALL(...)`**](reference.md/#NAMED_ALLOW_CALL). The difference
@@ -1358,7 +1360,6 @@ it is sometimes desirable to temporarily ban calls.
 Example:
 
 ```Cpp
-
 #include "hairy_job.h"
 
 template <typename T>
@@ -1368,7 +1369,6 @@ public:
   MAKE_MOCK1(allocate, T*(size_t));
   MAKE_MOCK1(deallocate, void(T*));
 };
-
 
 using trompeloeil::_;
 
@@ -1398,13 +1398,13 @@ Above we see a simplistic Allocator that by default allocates and deallocates
 arrays.
 
 The `hairy_job` uses the Allocator for its setup, and is expected to allocate
-all memory it needs for the churn in its constructor.
+all memory it needs for `churn()` in its constructor.
 
-That the `churn` doesn't use the allocator in ensured by the local scope, in
+That `churn()` doesn't use the allocator is ensured by the local scope, in
 which all calls to `allocate(...)` are forbidden.
 
 This pattern is quite common when writing tests with *Trompeloeil*. Use
-wide defaults in the scope of the test case (or in a fixture,) and use
+wide defaults in the scope of the test case (or in a fixture), and use
 local scopes with specifics, be they forbidden or exact requirements.
 
 ### <A name="sequences"/> Expecting several matching calls in some sequences
@@ -1418,9 +1418,9 @@ for matching the same call have no ordering relationship at all, they are
 logically parallel.
 
 Often this is exactly what you want. When you poke an object, you want this and
-that thing to happen and the order between them is irrelevant (for example,
-if calling callbacs stored in a hash table, you don't want to impose an
-order of those calls.)
+that thing to happen and the order between them is irrelevant. For example,
+if calling callbacks stored in a hash table, you don't want to impose an
+order of those calls.
 
 There are two very different reasons for using sequence control with
 *Trompeloeil*.
@@ -1537,7 +1537,7 @@ control with the Trompeloeil C++14 Mocking Framework](http://playfulprogramming.
 
 By default [**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL) needs exactly
 one matching call, otherwise a violation is reported. Sometimes the need is
-for somethig else. A modifier [**`TIMES(...)`**](reference.md/#TIMES) is used
+for something else. A modifier [**`TIMES(...)`**](reference.md/#TIMES) is used
 to change that. You can either specify an exact number of times matching calls
 must be made, or a range of numbers.
 
@@ -1570,16 +1570,15 @@ void some_test()
 }
 ```
 
-Above, `m.func(0)` must be called exactly twice. `m.func(1)` must be called 3, 4
-or 5 times. The call `m.func(2)` must be made 3 or more times. Finally
-`m.func(4)` must not be called more than 4 times.
-
+Above, `m.func(0)` must be called exactly twice. `m.func(1)` must be called three,
+four or five times. The call `m.func(2)` must be made three or more times. Finally
+`m.func(4)` must not be called more than four times.
 
 ## <A name="lifetime"/> Controlling lifetime of mock objects
 
 If you test a case where you hand over ownership of a
 [mock object](reference.md/#mock_object), you may want to test that the mock
-object is destroyed when intended. For this there are is a modifier class
+object is destroyed when intended. For this there is a modifier class
 template `trompeloeil::deathwatched<T>` and the macros
 [**`REQUIRE_DESTRUCTION(...)`**](reference.md/#REQUIRE_DESTRUCTION) and
 [**`NAMED_REQUIRE_DESTRUCTION(...)`**](reference.md/#NAMED_REQUIRE_DESTRUCTION).
@@ -1641,7 +1640,7 @@ since destroying any mock object that still has
 [expectations](reference.md/#expectation) is reported as a violation. It is also
 possible to be explicit with the sequencing by using
 [**`IN_SEQUENCE(...)`**](reference.md/#IN_SEQUENCE) on both
-[**`REQUIRE_call(...)`**](reference.md/#REQUIRE_CALL) and
+[**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL) and
 [**`REQUIRE_DESTRUCTION(...)`**](reference.md/#REQUIRE_DESTRUCTION), as below:
 
 ```Cpp
@@ -1656,14 +1655,13 @@ possible to be explicit with the sequencing by using
   }
 ```
 
-
 ## <A name="custom_formatting"/> Customize output format of values
  
 When [tracing](#tracing) or printing parameter values in violation reports,
 the values are printed using their
 [stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt),
 if available, or hexadecimal dumps otherwise. If this is not what you want, you
-can provide your own output formatting used solely for testing:
+can provide your own output formatting used solely for testing.
 
 The simple way to do this is to specialize a function template
 [`print(std::ostream&, const T&)`](reference.md/#print) in namespace
@@ -1672,7 +1670,7 @@ The simple way to do this is to specialize a function template
 Example:
 
 ```Cpp
-class char_buff : public std::vector<char> v;
+class char_buff : public std::vector<char>
 {
   ...
 };
@@ -1786,6 +1784,7 @@ public:
                      unsigned long line,
                      const std::string& call) = 0;
 };
+
 }
 ```
 
@@ -1877,7 +1876,7 @@ void test()
   Mock m;
   REQUIRE_CALL(m, func(any_of({1, 2, 4, 8})));
 
-  func(&m);
+  m.func(7);
 }
 ```
 
@@ -2013,9 +2012,9 @@ use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
 [**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
 
 **TIP!** The expectation on `func()` in the example above is not
-ambigous, as explained, but what if `func2` had been yet an overload of
+ambiguous, as explained, but what if `func2` had been yet an overload of
 `func()` instead? You can easily make your matchers typed or duck-typed
-at the users discretion. Alter the `not_empty()` to be a function template,
+at the user's discretion. Alter the `not_empty()` to be a function template,
 with `trompeloeil::wildcard` as the default.
 
 ```Cpp
@@ -2224,7 +2223,7 @@ void test()
   Mock m;
   REQUIRE_CALL(m, func(any_of({1, 2, 4, 8}));
 
-  func(&m);
+  m.func(7);
 }
 ```
 

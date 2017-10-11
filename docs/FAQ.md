@@ -51,13 +51,13 @@ namespace chimera = trompeloeil;
 ```
 
 Your tests can now `#include <chimera.hpp>` and use (for example)
-`chimera::expectation` and `chimera::deathwatched<T>`
+`chimera::expectation` and `chimera::deathwatched<T>`.
 
 ## <A name="compilers"/>Q. Which compilers supports *Trompeloeil*?
 
 **A.** *Trompeloeil* is known to work well with:
 - [g++](http://gcc.gnu.org) 4.9 and later.
-- [clang++](http://clang.llvm.org) 3.6 and later
+- [clang++](http://clang.llvm.org) 3.5 and later
 - [VisualStudio](http://visualstudio.com) 2015 and later.
 
 ## <A name="unit_test_adaptation"/>Q. How do I use *Trompeloeil* with XXX unit test framework?
@@ -71,7 +71,7 @@ or may not, suffice.
 
 *Trompeloeil* offers support for adaptation to any test frame work. Adaptation
 examples for some popular unit test frame works are listed in the
-[cook book](CookBook.md/#unit_test_frameworks)
+[Cook Book](CookBook.md/#unit_test_frameworks).
 
 ## <A name="thread_safety"/>Q. Is *Trompeloeil* thread-safe?
 
@@ -282,7 +282,7 @@ functionality needed for *Trompeloeil* isn't there.
 are absolutely necessary.
 
 The only thing "needed" that *`C++11`* doesn't provide is
-[generic lambdas](https://en.wikipedia.org/wiki/C%2B%2B14#Generic_lambdas)
+[generic lambdas](https://en.wikipedia.org/wiki/C%2B%2B14#Generic_lambdas).
 It is perhaps possible that "needed" is too strong a word, that it is
 in fact possible without them, in which case a back port to *`C++11`* could be
 made.
@@ -302,8 +302,10 @@ for it.
 
 **A.** *Trompeloeil* can mock member functions only. However, there are
 tricks you can use to mock a function API, provided that it is OK
-to use a link seam and link your test program with a special test
-implementation of the API that calls mocks. Heres's an example:
+to use a
+[link seam](http://www.informit.com/articles/article.aspx?p=359417&seqNum=3)
+and link your test program with a special test
+implementation of the API that calls mocks. Here's an example:
 
 ```Cpp
 /* c_api.h */
@@ -390,9 +392,9 @@ TEST("my obj calls func1 with empty string when poked")
 **A.** You can always match with [**`_`**](reference.md/#wildcard)
 and use [**`LR_WITH()`**](reference.md/#LR_WITH) or
 [**`WITH()`**](reference.md/#WITH) using whatever logic you
-like. But using [matchers](CookBook.md/#matching_conditions)
+like. But by using [matchers](CookBook.md/#matching_conditions)
 you can match the value pointed to using unary operator
-[**`*`**](reference.md/#deref_matcher) on the *matcher*
+[**`*`**](reference.md/#deref_matcher) on the *matcher*.
 
 See [Matching pointers to values](CookBook.md/#matching_pointers)
 in the [Cook Book](CookBook.md).
@@ -402,10 +404,10 @@ in the [Cook Book](CookBook.md).
 **A.** You can always match with [**`_`**](reference.md/#wildcard)
 and use [**`LR_WITH()`**](reference.md/#LR_WITH) or
 [**`WITH()`**](reference.md/#WITH) using whatever logic you
-like. But using [matchers](CookBook.md/#matching_conditions)
+like. But by using [matchers](CookBook.md/#matching_conditions)
 you can negate the effect of the matcher, allowing what the
-match er disallows and vice versa, using operator
-[**`!`**](reference.md/#negate_matcher) on the *matcher*
+matcher disallows and vice versa, using operator
+[**`!`**](reference.md/#negate_matcher) on the *matcher*.
 
 See [Matching the opposite of a matcher](CookBook.md/#negating_matchers)
 in the [Cook Book](CookBook.md).
