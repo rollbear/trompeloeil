@@ -26,15 +26,7 @@ int main()
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
-#if (TROMPELOEIL_CXX11_API_VERSION == 3)
-
   REQUIRE_CALL_0(obj, f());
-
-#else /* (TROMPELOEIL_CXX11_API_VERSION == 3) */
-
-  REQUIRE_CALL(obj, f());
-
-#endif /* !(TROMPELOEIL_CXX11_API_VERSION == 3) */
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

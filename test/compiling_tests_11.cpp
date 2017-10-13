@@ -12,7 +12,6 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-#define TROMPELOEIL_CXX11_API_VERSION 3
 #define TROMPELOEIL_SANITY_CHECKS
 #include <trompeloeil.hpp>
 #include <catch.hpp>
@@ -83,7 +82,7 @@ namespace
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: follow single sequence gives no reports",
+  "C++11: follow single sequence gives no reports",
   "[C++11][C++14][sequences]")
 {
   { // Compile-time tests
@@ -120,7 +119,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: correct sequence on moved seq object is not reported",
+  "C++11: correct sequence on moved seq object is not reported",
   "[C++11][C++14][sequences]")
 {
   {
@@ -149,7 +148,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: incorrect sequence on moved seq object is reported",
+  "C++11: incorrect sequence on moved seq object is reported",
   "[C++11][C++14][sequences]")
 {
   try
@@ -183,7 +182,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: join two sequences gives no report",
+  "C++11: join two sequences gives no report",
   "[C++11][C++14][sequences]")
 {
   {
@@ -216,7 +215,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: violating single sequence reports first violation as fatal",
+  "C++11: violating single sequence reports first violation as fatal",
   "[C++11][C++14][sequences]")
 {
   try {
@@ -257,7 +256,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: violating parallel sequences reports first violation as fatal",
+  "C++11: violating parallel sequences reports first violation as fatal",
   "[C++11][C++14][sequences]")
 {
   try {
@@ -298,7 +297,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a sequence retires after min calls",
+  "C++11: a sequence retires after min calls",
   "[C++11][C++14][sequences]")
 {
   {
@@ -326,7 +325,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: calling a sequenced match after seq retires is allowed",
+  "C++11: calling a sequenced match after seq retires is allowed",
   "[C++11][C++14][sequences]")
 {
   {
@@ -360,7 +359,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: breaking a sequence before retirement is illegal",
+  "C++11: breaking a sequence before retirement is illegal",
   "[C++11][C++14][sequences]")
 {
   int count = 0;
@@ -399,7 +398,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: sequences impose order between multiple matching expectations",
+  "C++11: sequences impose order between multiple matching expectations",
   "[C++11][C++14][sequences]")
 {
   mock_c obj;
@@ -429,7 +428,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: Sequence object destruction with live expectations is reported",
+  "C++11: Sequence object destruction with live expectations is reported",
   "[C++11][C++14][sequences]")
 {
   mock_c obj;
@@ -460,7 +459,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a sequence is completed when no expectations remain on it",
+  "C++11: a sequence is completed when no expectations remain on it",
   "[C++11][C++14][sequences]")
 {
   mock_c obj;
@@ -493,7 +492,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: side effect access copy of local object",
+  "C++11: side effect access copy of local object",
   "[C++11][C++14][side effects]")
 {
   {
@@ -510,7 +509,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: lr side effect access reference of local object",
+  "C++11: lr side effect access reference of local object",
   "[C++11][C++14][side effects]")
 {
   {
@@ -528,7 +527,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: multiple side effects are executed in the order declared",
+  "C++11: multiple side effects are executed in the order declared",
   "[C++11][C++14][side effects]")
 {
   std::string s;
@@ -552,7 +551,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN access copy of local object",
+  "C++11: RETURN access copy of local object",
   "[C++11][C++14][return values]")
 {
   {
@@ -571,7 +570,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: LR_RETURN access the actual local object",
+  "C++11: LR_RETURN access the actual local object",
   "[C++11][C++14][return values]")
 {
   {
@@ -590,7 +589,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN a ref to local obj, std::ref(obj) returns object given",
+  "C++11: RETURN a ref to local obj, std::ref(obj) returns object given",
   "[C++11][C++14][return values]")
 {
   {
@@ -606,7 +605,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN a ref to local obj, (obj) returns object given",
+  "C++11: RETURN a ref to local obj, (obj) returns object given",
   "[C++11][C++14][return values]")
 {
   {
@@ -623,7 +622,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const char* from const char*",
+  "C++11: RETURN const char* from const char*",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -637,7 +636,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const char* from string literal",
+  "C++11: RETURN const char* from string literal",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -650,7 +649,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const char* from static char array",
+  "C++11: RETURN const char* from static char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -663,7 +662,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const char* from static const char array",
+  "C++11: RETURN const char* from static const char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -676,7 +675,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN char* from char*",
+  "C++11: RETURN char* from char*",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -690,7 +689,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN char* from char array",
+  "C++11: RETURN char* from char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -703,7 +702,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN string from string literal",
+  "C++11: RETURN string from string literal",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -716,7 +715,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN string from static char array",
+  "C++11: RETURN string from static char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -729,7 +728,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN string from static const char array",
+  "C++11: RETURN string from static const char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -742,7 +741,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const string from string literal",
+  "C++11: RETURN const string from string literal",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -755,7 +754,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const string from static char array",
+  "C++11: RETURN const string from static char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -768,7 +767,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN const string from static const char array",
+  "C++11: RETURN const string from static const char array",
   "[C++11][C++14][return]")
 {
   mstr m;
@@ -781,7 +780,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: RETURN ref param returns object given",
+  "C++11: RETURN ref param returns object given",
   "[C++11][C++14][return values]")
 {
   {
@@ -800,7 +799,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: THROW access copy of local object",
+  "C++11: THROW access copy of local object",
   "[C++11][C++14][return values]")
 {
   int n = 1;
@@ -822,7 +821,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: LR_THROW access actual local object",
+  "C++11: LR_THROW access actual local object",
   "[C++11][C++14][return values]")
 {
   int n = 1;
@@ -844,7 +843,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: THROW throws after side effect when replacing return for non void functions",
+  "C++11: THROW throws after side effect when replacing return for non void functions",
   "[C++11][C++14][return values]")
 {
   int thrown = 0;
@@ -869,7 +868,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: THROW throws after side effect in void functions",
+  "C++11: THROW throws after side effect in void functions",
   "[C++11][C++14][return values]")
 {
   int thrown = 0;
@@ -896,7 +895,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: WITH matches copy of local object",
+  "C++11: WITH matches copy of local object",
   "[C++11][C++14][matching]")
 {
   {
@@ -918,7 +917,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: LR_WITH access actual local object",
+  "C++11: LR_WITH access actual local object",
   "[C++11][C++14][matching]")
 {
   {
@@ -937,7 +936,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: rvalue reference parameter can be compared with nullptr in WITH",
+  "C++11: rvalue reference parameter can be compared with nullptr in WITH",
   "[C++11][C++14][matching]")
 {
   {
@@ -956,7 +955,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: rvalue reference parameter can be compared with external value on WITH",
+  "C++11: rvalue reference parameter can be compared with external value on WITH",
   "[C++11][C++14][matching]")
 {
   {
@@ -976,7 +975,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: mocks can be inherited",
+  "C++11: mocks can be inherited",
   "[C++11][C++14][matching]")
 {
   combined obj;
@@ -992,7 +991,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: An uncomparable but constructible type by reference matches a call",
+  "C++11: An uncomparable but constructible type by reference matches a call",
   "[C++11][C++14][matching]")
 {
   {
@@ -1005,7 +1004,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: An uncomparable but constructible type by value matches a call",
+  "C++11: An uncomparable but constructible type by value matches a call",
   "[C++11][C++14][matching]")
 {
   {
@@ -1020,7 +1019,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: An uncomparable but constructible type by reference mmismatch is reported",
+  "C++11: An uncomparable but constructible type by reference mmismatch is reported",
   "[C++11][C++14][matching]")
 {
   try
@@ -1049,7 +1048,7 @@ Tried u\.func_ustr\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: An uncomparable but constructible type by value mismatch is reported",
+  "C++11: An uncomparable but constructible type by value mismatch is reported",
   "[C++11][C++14][matching]")
 {
   try
@@ -1076,7 +1075,7 @@ Tried u\.func_ustrv\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to function matches wildcard",
+  "C++11: pointer to function matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
@@ -1089,7 +1088,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to member function matches wildcard",
+  "C++11: pointer to member function matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
@@ -1102,7 +1101,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to member data matches wildcard",
+  "C++11: pointer to member data matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
@@ -1115,7 +1114,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ostream& matches wildcard",
+  "C++11: ostream& matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
@@ -1128,7 +1127,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: uncomparable parameter matches wildcard",
+  "C++11: uncomparable parameter matches wildcard",
   "[C++11][C++14][matching]")
 {
   {
@@ -1141,7 +1140,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: uncomparable parameter matches typed wildcard",
+  "C++11: uncomparable parameter matches typed wildcard",
   "[C++11][C++14][matching]")
 {
   {
@@ -1154,7 +1153,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches parameter value type",
+  "C++11: wildcard matches parameter value type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1167,7 +1166,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches parameter const value type",
+  "C++11: wildcard matches parameter const value type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1180,7 +1179,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches unique_ptr<> value type",
+  "C++11: wildcard matches unique_ptr<> value type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1193,7 +1192,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches shared_ptr<> value type",
+  "C++11: wildcard matches shared_ptr<> value type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1206,7 +1205,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches parameter lvalue reference type",
+  "C++11: wildcard matches parameter lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1220,7 +1219,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches parameter const lvalue reference type",
+  "C++11: wildcard matches parameter const lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1234,7 +1233,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches parameter rvalue reference type",
+  "C++11: wildcard matches parameter rvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1247,7 +1246,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcard matches parameter const rvalue reference type",
+  "C++11: wildcard matches parameter const rvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1260,7 +1259,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ANY can match unique_ptr<> by value",
+  "C++11: ANY can match unique_ptr<> by value",
   "[C++11][C++14][matching]")
 {
   {
@@ -1273,7 +1272,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ANY can match shared_ptr<> by value",
+  "C++11: ANY can match shared_ptr<> by value",
   "[C++11][C++14][matching]")
 {
   {
@@ -1286,7 +1285,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ANY can select overload on lvalue reference type",
+  "C++11: ANY can select overload on lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1305,7 +1304,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ANY can select overload on const lvalue reference type",
+  "C++11: ANY can select overload on const lvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1321,7 +1320,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ANY can select overload on rvalue reference type",
+  "C++11: ANY can select overload on rvalue reference type",
   "[C++11][C++14][matching]")
 {
   {
@@ -1334,7 +1333,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: Expectation matches a mocked function with param from template",
+  "C++11: Expectation matches a mocked function with param from template",
   "[C++11][C++14][matching][templates]")
 {
   {
@@ -1349,7 +1348,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: wildcards matches overload on type and parameter count",
+  "C++11: wildcards matches overload on type and parameter count",
   "[C++11][C++14][matching][overloads]")
 {
   {
@@ -1379,7 +1378,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: long value matches equal int for duck typed eq",
+  "C++11: long value matches equal int for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -1394,7 +1393,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: long value with mismatches int is reported for duck typed eq",
+  "C++11: long value with mismatches int is reported for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try {
@@ -1421,7 +1420,7 @@ Tried obj\.func_v\(trompeloeil::eq\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: std::string value matches equal const char* for duck typed eq",
+  "C++11: std::string value matches equal const char* for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -1436,7 +1435,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: std::string value mismatching const char* is reported for duck typed eq",
+  "C++11: std::string value mismatching const char* is reported for duck typed eq",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try {
@@ -1465,7 +1464,7 @@ Tried obj\.func_cstr\(trompeloeil::eq\(std::string\(\"foo\"\)\)\) at [A-Za-z0-9_
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: disambiguated eq<int&> matches equal value",
+  "C++11: disambiguated eq<int&> matches equal value",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -1481,7 +1480,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: disambiguated eq<int&> reports mismatching value",
+  "C++11: disambiguated eq<int&> reports mismatching value",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try {
@@ -1511,7 +1510,7 @@ Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: nullptr mismatching equal function for duck typed ne",
+  "C++11: nullptr mismatching equal function for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1524,7 +1523,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: long value mismatching equal int for duck typed ne",
+  "C++11: long value mismatching equal int for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1539,7 +1538,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: long value with matching int is reported for duck typed ne",
+  "C++11: long value with matching int is reported for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1566,7 +1565,7 @@ Tried obj\.func_v\(trompeloeil::ne\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: std::string value mismatches inequal const char* for duck typed ne",
+  "C++11: std::string value mismatches inequal const char* for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1581,7 +1580,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: std::string value matching const char* is reported for duck typed ne",
+  "C++11: std::string value matching const char* is reported for duck typed ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1610,7 +1609,7 @@ Tried obj\.func_cstr\(trompeloeil::ne\(std::string\(\"foo\"\)\)\) at [A-Za-z0-9_
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a non equal value matches ne",
+  "C++11: a non equal value matches ne",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1625,7 +1624,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value fails ne with report",
+  "C++11: an equal value fails ne with report",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1651,7 +1650,7 @@ Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: non-nullptr call matches ne(nullptr)",
+  "C++11: non-nullptr call matches ne(nullptr)",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1667,7 +1666,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: nullptr call with ne(nullptr) is reported",
+  "C++11: nullptr call with ne(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1694,7 +1693,7 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: overloaded non-nullptr call disambiguated with ne<type>(nullptr) is matched",
+  "C++11: overloaded non-nullptr call disambiguated with ne<type>(nullptr) is matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1710,7 +1709,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: overloaded nullptr call disambiguated with ne<type>(nullptr) is reported",
+  "C++11: overloaded nullptr call disambiguated with ne<type>(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1740,7 +1739,7 @@ Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: overloaded nullptr call disambiguated with eq<type>(nullptr) is matched",
+  "C++11: overloaded nullptr call disambiguated with eq<type>(nullptr) is matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1756,7 +1755,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: overloaded non-nullptr call disambiguated with eq<type>(nullptr) is reported",
+  "C++11: overloaded non-nullptr call disambiguated with eq<type>(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1784,7 +1783,7 @@ Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to member call with ne(nullptr) matched",
+  "C++11: pointer to member call with ne(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1799,7 +1798,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to member ptr call with ne(nullptr) is reported",
+  "C++11: pointer to member ptr call with ne(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1828,7 +1827,7 @@ Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to member ptr call with eq(nullptr) matched",
+  "C++11: pointer to member ptr call with eq(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1843,7 +1842,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to member ptr call with eq(nullptr) is reported",
+  "C++11: pointer to member ptr call with eq(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1870,7 +1869,7 @@ Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to function call with ne(nullptr) matched",
+  "C++11: pointer to function call with ne(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1885,7 +1884,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to function call with ne(nullptr) is reported",
+  "C++11: pointer to function call with ne(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1914,7 +1913,7 @@ Tried obj\.bar\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to function call with eq(nullptr) matched",
+  "C++11: pointer to function call with eq(nullptr) matched",
   "[C++11][C++14][matching][matchers][ne]")
 {
   {
@@ -1929,7 +1928,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: pointer to function call with eq(nullptr) is reported",
+  "C++11: pointer to function call with eq(nullptr) is reported",
   "[C++11][C++14][matching][matchers][ne]")
 {
   try {
@@ -1959,7 +1958,7 @@ Tried obj\.bar\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value matches ge",
+  "C++11: an equal value matches ge",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
@@ -1975,7 +1974,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value matches ge",
+  "C++11: a greater value matches ge",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
@@ -1993,7 +1992,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value is reported by ge",
+  "C++11: a lesser value is reported by ge",
   "[C++11][C++14][matching][matchers][ge]")
 {
   try {
@@ -2023,7 +2022,7 @@ Tried obj\.getter\(trompeloeil::ge\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value matches disambiguated ge<int&>",
+  "C++11: an equal value matches disambiguated ge<int&>",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
@@ -2037,7 +2036,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value matches disambiguated ge<int&>",
+  "C++11: a greater value matches disambiguated ge<int&>",
   "[C++11][C++14][matching][matchers][ge]")
 {
   {
@@ -2053,7 +2052,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value is reported by disambiguated ge<int&>",
+  "C++11: a lesser value is reported by disambiguated ge<int&>",
   "[C++11][C++14][matching][matchers][ge]")
 {
   try {
@@ -2083,7 +2082,7 @@ Tried obj\.func\(trompeloeil::ge<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value is reported by gt",
+  "C++11: an equal value is reported by gt",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
@@ -2111,7 +2110,7 @@ Tried obj\.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value matches gt",
+  "C++11: a greater value matches gt",
   "[C++11][C++14][matching][matchers][gt]")
 {
   {
@@ -2129,7 +2128,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value is reported by gt",
+  "C++11: a lesser value is reported by gt",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
@@ -2161,7 +2160,7 @@ Tried obj.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value is reported by disambiguated gt<int&>",
+  "C++11: an equal value is reported by disambiguated gt<int&>",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
@@ -2187,7 +2186,7 @@ Tried obj\.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value matches disambiguated gt<int&>",
+  "C++11: a greater value matches disambiguated gt<int&>",
   "[C++11][C++14][matching][matchers][gt]")
 {
   {
@@ -2203,7 +2202,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value is reported by disambiguated gt<int&>",
+  "C++11: a lesser value is reported by disambiguated gt<int&>",
   "[C++11][C++14][matching][matchers][gt]")
 {
   try {
@@ -2233,7 +2232,7 @@ Tried obj.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value is reported by lt",
+  "C++11: an equal value is reported by lt",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
@@ -2263,7 +2262,7 @@ Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value is reported by lt",
+  "C++11: a greater value is reported by lt",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
@@ -2291,7 +2290,7 @@ Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value matches lt",
+  "C++11: a lesser value matches lt",
   "[C++11][C++14][matching][matchers][lt]")
 {
   {
@@ -2311,7 +2310,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value is reported by disambiguated lt<int&>",
+  "C++11: an equal value is reported by disambiguated lt<int&>",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
@@ -2339,7 +2338,7 @@ Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value is reported by disambiguated lt<int&>",
+  "C++11: a greater value is reported by disambiguated lt<int&>",
   "[C++11][C++14][matching][matchers][lt]")
 {
   try {
@@ -2365,7 +2364,7 @@ Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value matches disambiguated lt<int&>",
+  "C++11: a lesser value matches disambiguated lt<int&>",
   "[C++11][C++14][matching][matchers][lt]")
 {
   {
@@ -2381,7 +2380,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value matches le",
+  "C++11: an equal value matches le",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
@@ -2399,7 +2398,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value is reported by le",
+  "C++11: a greater value is reported by le",
   "[C++11][C++14][matching][matchers][le]")
 {
   try {
@@ -2427,7 +2426,7 @@ Tried obj\.getter\(trompeloeil::le\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value matches le",
+  "C++11: a lesser value matches le",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
@@ -2445,7 +2444,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an equal value matches disambiguated le<int&>",
+  "C++11: an equal value matches disambiguated le<int&>",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
@@ -2461,7 +2460,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a greater value is reported by disambiguated le<int&>",
+  "C++11: a greater value is reported by disambiguated le<int&>",
   "[C++11][C++14][matching][matchers][le]")
 {
   try {
@@ -2487,7 +2486,7 @@ Tried obj\.func\(trompeloeil::le<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a lesser value matches disambiguated le<int&>",
+  "C++11: a lesser value matches disambiguated le<int&>",
   "[C++11][C++14][matching][matchers][le]")
 {
   {
@@ -2505,7 +2504,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to const c-string function matching regex is not reported",
+  "C++11: call to const c-string function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2523,7 +2522,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to const c-string function with nullptr to regex is reported",
+  "C++11: call to const c-string function with nullptr to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2553,7 +2552,7 @@ Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++11v3: call to const c-string function with non-matching string to regex is reported",
+    "C++11: call to const c-string function with non-matching string to regex is reported",
     "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2586,7 +2585,7 @@ Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const c-string function matching regex is not reported",
+  "C++11: call to non-const c-string function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2604,7 +2603,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const c-string function with nullptr to regex is reported",
+  "C++11: call to non-const c-string function with nullptr to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2634,7 +2633,7 @@ Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const c-string function with non-matching string to regex is reported",
+  "C++11: call to non-const c-string function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2667,7 +2666,7 @@ Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to const strref function matching regex is not reported",
+  "C++11: call to const strref function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2684,7 +2683,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to const strref function with non-matching string to regex is reported",
+  "C++11: call to const strref function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2716,7 +2715,7 @@ Tried obj\.strcref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const strref function matching regex is not reported",
+  "C++11: call to non-const strref function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2734,7 +2733,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const strref function with non-matching string to regex is reported",
+  "C++11: call to non-const strref function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2767,7 +2766,7 @@ Tried obj.strref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const strrref function matching regex is not reported",
+  "C++11: call to non-const strrref function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2785,7 +2784,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to non-const strrref function with non-matching string to regex is reported",
+  "C++11: call to non-const strrref function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2818,7 +2817,7 @@ Tried obj.strrref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to str val function matching regex is not reported",
+  "C++11: call to str val function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2836,7 +2835,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to str val function with non-matching string to regex is reported",
+  "C++11: call to str val function with non-matching string to regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2867,7 +2866,7 @@ Tried obj.str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to mismatching regex of typed overload is reported",
+  "C++11: call to mismatching regex of typed overload is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
@@ -2897,7 +2896,7 @@ Tried obj.overload\(trompeloeil::re<char const\*>\("mid"\)\) at [A-Za-z0-9_ ./:\
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to matching regex of typed overload is not reported",
+  "C++11: call to matching regex of typed overload is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2917,7 +2916,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: case insensitive regex matches case mismatch without explicit type",
+  "C++11: case insensitive regex matches case mismatch without explicit type",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2935,7 +2934,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: case insensitive regex matches case mismatch overload",
+  "C++11: case insensitive regex matches case mismatch overload",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -2953,7 +2952,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: not_eol regex mismatching $ without explicit type is reported",
+  "C++11: not_eol regex mismatching $ without explicit type is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   try {
@@ -2982,7 +2981,7 @@ Tried obj.str\(trompeloeil::re\("end\$", std::regex_constants::match_not_eol\)\)
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: not_eol regex mismatching $ overload is reported",
+  "C++11: not_eol regex mismatching $ overload is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   try {
@@ -3014,7 +3013,7 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ! to duck typed equal matches inequal string",
+  "C++11: ! to duck typed equal matches inequal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   {
@@ -3031,7 +3030,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ! to duck typed equal reports equal string",
+  "C++11: ! to duck typed equal reports equal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   try {
@@ -3058,7 +3057,7 @@ Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ! to disambiguated equal matches inequal string",
+  "C++11: ! to disambiguated equal matches inequal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   {
@@ -3073,7 +3072,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ! to disambiguated equal reports equal string",
+  "C++11: ! to disambiguated equal reports equal string",
   "[C++11][C++14][matching][matchers][eq][neg]")
 {
   try {
@@ -3107,7 +3106,7 @@ Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to disambiguated equal const value matches deref",
+  "C++11: ptr to disambiguated equal const value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3123,7 +3122,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to equal value matches deref",
+  "C++11: ptr to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3137,12 +3136,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to equal nullptr matrches deref",
+  "C++11: ptr to equal nullptr matrches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
     C_ptr obj;
-    REQUIRE_CALL(obj, pp(*trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_0(obj, pp(*trompeloeil::eq(nullptr)));
     int* p = nullptr;
     obj.pp(&p);
   }
@@ -3153,7 +3152,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to overloaded ptr matches equal deref",
+  "C++11: ptr to overloaded ptr matches equal deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3169,7 +3168,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to overloaded string matches equal deref to string literal",
+  "C++11: ptr to overloaded string matches equal deref to string literal",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3185,7 +3184,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: nullptr when equal ptr deref expected is reported",
+  "C++11: nullptr when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3215,7 +3214,7 @@ Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: non-nullptr when equal nullptr ptr deref expected is reported",
+  "C++11: non-nullptr when equal nullptr ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3247,7 +3246,7 @@ Tried obj\.pp\(\*trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to different value when equal ptr deref expected is reported",
+  "C++11: ptr to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3275,7 +3274,7 @@ Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ptr to equal value of different size matches deref",
+  "C++11: ptr to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3290,7 +3289,7 @@ TEST_CASE_METHOD(
 ////
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique_ptr value to equal value matches deref",
+  "C++11: unique_ptr value to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3305,7 +3304,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique_ptr<>() value when equal ptr deref expected is reported",
+  "C++11: unique_ptr<>() value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3334,7 +3333,7 @@ Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique ptr value to different value when equal ptr deref expected is reported",
+  "C++11: unique ptr value to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3360,7 +3359,7 @@ Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique value ptr to equal value of different size matches deref",
+  "C++11: unique value ptr to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3374,7 +3373,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique_ptr rvalue ref to equal value matches deref",
+  "C++11: unique_ptr rvalue ref to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3389,7 +3388,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique_ptr<>() rvalue ref when equal ptr deref expected is reported",
+  "C++11: unique_ptr<>() rvalue ref when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3417,7 +3416,7 @@ Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique ptr rvalue ref to different value when equal ptr deref expected is reported",
+  "C++11: unique ptr rvalue ref to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3443,7 +3442,7 @@ Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique ptr rvalue ref to equal value of different size matches deref",
+  "C++11: unique ptr rvalue ref to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3458,7 +3457,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique_ptr const lvalue ref to equal value matches deref",
+  "C++11: unique_ptr const lvalue ref to equal value matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3473,7 +3472,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique_ptr<>() const lvalue ref when equal ptr deref expected is reported",
+  "C++11: unique_ptr<>() const lvalue ref when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3502,7 +3501,7 @@ Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique ptr const lvalue ref to different value when equal ptr deref expected is reported",
+  "C++11: unique ptr const lvalue ref to different value when equal ptr deref expected is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   try
@@ -3530,7 +3529,7 @@ Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique ptr const lvalue ref to equal value of different size matches deref",
+  "C++11: unique ptr const lvalue ref to equal value of different size matches deref",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3545,7 +3544,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: missing call to unique ptr const lvalue ref to equal value is reported",
+  "C++11: missing call to unique ptr const lvalue ref to equal value is reported",
   "[C++11][C++14][matching][matchers][eq]")
 {
   {
@@ -3569,7 +3568,7 @@ Expected obj\.uptrcr\(\*trompeloeil::eq\(3\)\) to be called once, actually never
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to string* function matching regex is not reported",
+  "C++11: call to string* function matching regex is not reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   {
@@ -3587,7 +3586,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call to string* function not matching regex is reported",
+  "C++11: call to string* function not matching regex is reported",
   "[C++11][C++14][matching][matchers][re]")
 {
   try {
@@ -3615,7 +3614,7 @@ Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: custom matcher of first element is not reported",
+  "C++11: custom matcher of first element is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
@@ -3631,7 +3630,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: custom matcher of last element is not reported",
+  "C++11: custom matcher of last element is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
@@ -3647,7 +3646,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: custom matcher of mid element is not reported",
+  "C++11: custom matcher of mid element is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
@@ -3665,7 +3664,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: custom matcher of unlisted element is reported",
+  "C++11: custom matcher of unlisted element is reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   try {
@@ -3694,7 +3693,7 @@ Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: custom matcher can math pointer via *deref",
+  "C++11: custom matcher can math pointer via *deref",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
@@ -3710,7 +3709,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a non empty string gives no report",
+  "C++11: a non empty string gives no report",
   "[C++11][C++14][matching][matchers][custom]")
 {
   {
@@ -3725,7 +3724,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an empty string is reported",
+  "C++11: an empty string is reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   try {
@@ -3792,7 +3791,7 @@ trompeloeil::make_matcher<kind>(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a custom duck typed make_matcher-matcher that fails is reported",
+  "C++11: a custom duck typed make_matcher-matcher that fails is reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   try {
@@ -3819,7 +3818,7 @@ Tried obj\.foo\(cxx11_is_clamped\("b", "d"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a custom duck typed make_matcher-matcher that succeeds is not reported",
+  "C++11: a custom duck typed make_matcher-matcher that succeeds is not reported",
   "[C++11][C++14][matching][matchers][custom]")
 {
   mock_c obj;
@@ -3831,7 +3830,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unknown type is printed as hex dump",
+  "C++11: unknown type is printed as hex dump",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3841,7 +3840,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: print after unknown has flags back to default",
+  "C++11: print after unknown has flags back to default",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3853,7 +3852,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: previous formatting is ignored before hexdump and then reset",
+  "C++11: previous formatting is ignored before hexdump and then reset",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3865,7 +3864,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: call predefined ostream operator with defaulted flags and then reset",
+  "C++11: call predefined ostream operator with defaulted flags and then reset",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3877,7 +3876,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: large unknown is multi row hex dump",
+  "C++11: large unknown is multi row hex dump",
   "[C++11][C++14][streaming]")
 {
   struct big {
@@ -3904,7 +3903,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unknown object is one line if 8 bytes",
+  "C++11: unknown object is one line if 8 bytes",
   "[C++11][C++14][streaming]")
 {
   struct big {
@@ -3918,7 +3917,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: A std::pair<> is printed as { val1, val2 }",
+  "C++11: A std::pair<> is printed as { val1, val2 }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3928,7 +3927,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: A std::tuple<> is printed as { val1, val2, val3, }",
+  "C++11: A std::tuple<> is printed as { val1, val2, val3, }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3938,7 +3937,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: A C-array is printed as { val1, val2, val3 }",
+  "C++11: A C-array is printed as { val1, val2, val3 }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3955,7 +3954,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: A std::map<> is printed as { { key1, val1 }, { key2, val2 } }",
+  "C++11: A std::map<> is printed as { { key1, val1 }, { key2, val2 } }",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3966,7 +3965,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: A tuple with pairs and maps is printed element wise",
+  "C++11: A tuple with pairs and maps is printed element wise",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3980,7 +3979,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: failure on parameter of user type is printed with custom print func",
+  "C++11: failure on parameter of user type is printed with custom print func",
   "[C++11][C++14][streaming]")
 {
   TestOutputMock m;
@@ -4004,7 +4003,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require calls are matched in reversed order of creation",
+  "C++11: require calls are matched in reversed order of creation",
   "[C++11][C++14][scoping]")
 {
   {
@@ -4043,7 +4042,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require calls are removed when they go out of scope",
+  "C++11: require calls are removed when they go out of scope",
   "[C++11][C++14][scoping]")
 {
   {
@@ -4082,7 +4081,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a pending unsatisfied require call is reported at end of scope",
+  "C++11: a pending unsatisfied require call is reported at end of scope",
   "[C++11][C++14][scoping]")
 {
   mock_c obj;
@@ -4104,7 +4103,7 @@ Expected obj\.foo\("bar"\) to be called once, actually never called
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: Unfulfilled expectation with ANY is reported with expected values all parameters",
+  "C++11: Unfulfilled expectation with ANY is reported with expected values all parameters",
   "[C++11][C++14][scoping][wildcard]")
 {
  {
@@ -4129,7 +4128,7 @@ Expected obj\.func\(3, ANY\(std::string&\)\) to be called once, actually never c
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: Unfulfilled expectation with _ is reported with expected values all parameters",
+  "C++11: Unfulfilled expectation with _ is reported with expected values all parameters",
   "[C++11][C++14][scoping][wildcard]")
 {
  {
@@ -4154,7 +4153,7 @@ Expected obj\.func\(3, _\) to be called once, actually never called
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: FORBID_CALL is always both satisfied and saturated",
+  "C++11: FORBID_CALL is always both satisfied and saturated",
   "[C++11][C++14][multiplicity]")
 {
   {
@@ -4168,7 +4167,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: ALLOW_ALL is always satisfied and never saturated",
+  "C++11: ALLOW_ALL is always satisfied and never saturated",
   "[C++11][C++14][multiplicity]")
 {
   {
@@ -4191,7 +4190,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: .TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
+  "C++11: .TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
   "[C++11][C++14][multiplicity]")
 {
   {
@@ -4220,7 +4219,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unsatisfied expectation when mock dies is reported",
+  "C++11: unsatisfied expectation when mock dies is reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
   auto m = detail::make_unique<mock_c>();
@@ -4242,7 +4241,7 @@ Expected .*count\(\) to be called once, actually never called):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: multiple unsatisfied expectation when mock dies are reported in mock definition order",
+  "C++11: multiple unsatisfied expectation when mock dies are reported in mock definition order",
   "[C++11][C++14][scoping][multiplicity]")
 {
   auto m = detail::make_unique<mock_c>();
@@ -4269,7 +4268,7 @@ Expected .*getter\(1\) to be called once, actually never called):";
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: active allow call when mock dies is not reported",
+  "C++11: active allow call when mock dies is not reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
   {
@@ -4285,12 +4284,12 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: active forbid call when mock dies is not reported",
+  "C++11: active forbid call when mock dies is not reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
   {
     auto m = detail::make_unique<mock_c>();
-    FORBID_CALL(*m, count());
+    FORBID_CALL_0(*m, count());
     m.reset();
   }
   REQUIRE(reports.empty());
@@ -4298,7 +4297,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: saturated expectation when mock dies is not reported",
+  "C++11: saturated expectation when mock dies is not reported",
   "[C++11][C++14][scoping]")
 {
   {
@@ -4317,7 +4316,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: no calls reported as never called",
+  "C++11: no calls reported as never called",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
@@ -4335,7 +4334,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: undersatisfied with one call reported as once",
+  "C++11: undersatisfied with one call reported as once",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
@@ -4356,7 +4355,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: undersatisfied with two call reported as count",
+  "C++11: undersatisfied with two call reported as count",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
@@ -4378,7 +4377,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: no calls when one required reported as expected once",
+  "C++11: no calls when one required reported as expected once",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
@@ -4396,7 +4395,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: no calls when two required reported as expected 2 times",
+  "C++11: no calls when two required reported as expected 2 times",
   "[C++11][C++14][scoping][multiplicity]")
 {
   mock_c obj;
@@ -4415,7 +4414,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: TIMES works for templated mock classes",
+  "C++11: TIMES works for templated mock classes",
   "[C++11][C++14][multiplicity][templates]")
 {
   try
@@ -4442,7 +4441,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an unexpected destruction of monitored object is reported",
+  "C++11: an unexpected destruction of monitored object is reported",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4456,7 +4455,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: an expected destruction of monitored object is not reported",
+  "C++11: an expected destruction of monitored object is not reported",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4471,7 +4470,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a copy of a deathwatched object with expectation is not expected to die",
+  "C++11: a copy of a deathwatched object with expectation is not expected to die",
   "[C++11][C++14][deathwatched]")
 {
   auto orig = new trompeloeil::deathwatched<none>;
@@ -4492,7 +4491,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a deathwatched object move constructed from original with expectation is not expected to die and the original still is",
+  "C++11: a deathwatched object move constructed from original with expectation is not expected to die and the original still is",
   "[C++11][C++14][deathwatched]")
 {
   auto orig = new trompeloeil::deathwatched<none>;
@@ -4513,7 +4512,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: object alive when destruction expectation goes out of scope is reported",
+  "C++11: object alive when destruction expectation goes out of scope is reported",
   "[C++11][C++14][deathwatched]")
 {
   trompeloeil::deathwatched<mock_c> obj;
@@ -4528,7 +4527,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require destruction is neither satisfied nor saturated while object is alive",
+  "C++11: require destruction is neither satisfied nor saturated while object is alive",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4545,7 +4544,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require destruction is both satisfied and saturated when object is destroyed",
+  "C++11: require destruction is both satisfied and saturated when object is destroyed",
   "[C++11][C++14][deathwatched]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>();
@@ -4557,7 +4556,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require destruction succeeds also without deathwatch",
+  "C++11: require destruction succeeds also without deathwatch",
   "[C++11][C++14][deathwatched]")
 {
   {
@@ -4570,7 +4569,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a deathwatched object's constructor passes params to mock",
+  "C++11: a deathwatched object's constructor passes params to mock",
   "[C++11][C++14][deathwatched]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>{ "apa" };
@@ -4581,7 +4580,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require destruction fulfilled in sequence is not reported",
+  "C++11: require destruction fulfilled in sequence is not reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
@@ -4597,7 +4596,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: named require destruction fulfilled in sequence is not reported",
+  "C++11: named require destruction fulfilled in sequence is not reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
@@ -4615,7 +4614,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: require destruction fulfilled out of sequence is reported",
+  "C++11: require destruction fulfilled out of sequence is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
@@ -4638,7 +4637,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: sequence mismatch with require destruction first is reported",
+  "C++11: sequence mismatch with require destruction first is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   std::unique_ptr<trompeloeil::deathwatched<mock_c>> obj;
@@ -4668,7 +4667,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: named require destruction fulfilled out of sequence is reported",
+  "C++11: named require destruction fulfilled out of sequence is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   auto obj = new trompeloeil::deathwatched<mock_c>;
@@ -4691,7 +4690,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: sequence mismatch with named require destruction first is reported",
+  "C++11: sequence mismatch with named require destruction first is reported",
   "[C++11][C++14][deathwatched][sequences]")
 {
   std::unique_ptr<trompeloeil::deathwatched<mock_c>> obj;
@@ -4723,7 +4722,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unmatched call is reported",
+  "C++11: unmatched call is reported",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -4746,7 +4745,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: match of saturated call is reported",
+  "C++11: match of saturated call is reported",
   "[C++11][C++14][mismatches]")
 {
   int count = 0;
@@ -4793,7 +4792,7 @@ Matches saturated call requirement
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a matching call that throws is saturated",
+  "C++11: a matching call that throws is saturated",
   "[C++11][C++14][mismatches]")
 {
   int count = 0;
@@ -4853,7 +4852,7 @@ Matches saturated call requirement
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unmatched call with mismatching requirements is reported",
+  "C++11: unmatched call with mismatching requirements is reported",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -4889,7 +4888,7 @@ Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unmatched with wildcard reports failed WITH clauses",
+  "C++11: unmatched with wildcard reports failed WITH clauses",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -4922,7 +4921,7 @@ Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unmatched with wildcard reports only failed WITH clauses",
+  "C++11: unmatched with wildcard reports only failed WITH clauses",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -4954,7 +4953,7 @@ Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: match of forbidden call is reported",
+  "C++11: match of forbidden call is reported",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -4986,7 +4985,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: Mismatched call to a mocked function with param from template is reported",
+  "C++11: Mismatched call to a mocked function with param from template is reported",
   "[C++11][C++14][mismatches][templates]")
 {
   try {
@@ -5014,7 +5013,7 @@ Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: parameters are passed in correct order when matching",
+  "C++11: parameters are passed in correct order when matching",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5028,7 +5027,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: parameters are passed in correct order to WITH",
+  "C++11: parameters are passed in correct order to WITH",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5046,7 +5045,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: parameters are passed in correct order to LR_SIDE_EFFECT",
+  "C++11: parameters are passed in correct order to LR_SIDE_EFFECT",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5062,7 +5061,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: parameters are passed in correct order to RETURN",
+  "C++11: parameters are passed in correct order to RETURN",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5090,7 +5089,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: parameters are passed in correct order to THROW",
+  "C++11: parameters are passed in correct order to THROW",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5110,7 +5109,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: shared ptr by value in expectation is copied",
+  "C++11: shared ptr by value in expectation is copied",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5126,7 +5125,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: shared ptr by std ref in expectation is not copied",
+  "C++11: shared ptr by std ref in expectation is not copied",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5142,7 +5141,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: unique ptr by value is matched with raw ptr in WITH",
+  "C++11: unique ptr by value is matched with raw ptr in WITH",
   "[C++11][C++14][parameters]")
 {
   T obj;
@@ -5165,7 +5164,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: matching calls are traced",
+  "C++11: matching calls are traced",
   "[C++11][C++14][tracing]")
 {
   std::ostringstream os;
@@ -5225,7 +5224,7 @@ threw unknown exception
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: tracing is only active when tracer obj is alive",
+  "C++11: tracing is only active when tracer obj is alive",
   "[C++11][C++14][tracing]")
 {
   std::ostringstream os;
@@ -5251,7 +5250,7 @@ obj2\.foo\("bar"\) with\.
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE(
-  "C++11v3: all overridden short mocks can be expected and called",
+  "C++11: all overridden short mocks can be expected and called",
   "[C++11][C++14][signatures][override]")
 {
   all_mock_if mock;
@@ -5323,7 +5322,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "C++11v3: all non-overridden short mocks can be expected and called",
+  "C++11: all non-overridden short mocks can be expected and called",
   "[C++11][C++14][signatures]")
 {
   all_mock mock;
@@ -5396,7 +5395,7 @@ TEST_CASE(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: a member function of a mock object can call a mocked function",
+  "C++11: a member function of a mock object can call a mocked function",
   "[C++11][C++14]")
 {
   {
@@ -5409,7 +5408,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: expectation on a mock function can call the same mock func recursively as side effect",
+  "C++11: expectation on a mock function can call the same mock func recursively as side effect",
   "[C++11][C++14]")
 {
   {
@@ -5431,7 +5430,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11v3: A macro may instantiate many expectations",
+  "C++11: A macro may instantiate many expectations",
   "[C++11][C++14]")
 {
   all_mock m;
