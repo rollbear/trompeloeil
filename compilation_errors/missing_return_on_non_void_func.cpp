@@ -26,7 +26,7 @@ int main()
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
-  REQUIRE_CALL_0(obj, f());
+  REQUIRE_CALL_V(obj, f());
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 

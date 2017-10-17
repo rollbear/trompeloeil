@@ -46,7 +46,7 @@ namespace
     MAKE_MOCK1(func, void(int));
     MAKE_MOCK1(tfunc, void(T));
 
-    tmock() : m(NAMED_FORBID_CALL_0(*this, func(_))) {}
+    tmock() : m(NAMED_FORBID_CALL_V(*this, func(_))) {}
 
   private:
     std::unique_ptr<trompeloeil::expectation> m;
@@ -65,16 +65,39 @@ namespace
   public:
     void expect_self()
     {
-      exp = NAMED_REQUIRE_CALL_0(*this, mfunc());
+      exp = NAMED_REQUIRE_CALL_V(*this, mfunc());
     }
     MAKE_MOCK0(mfunc, void());
     std::unique_ptr<trompeloeil::expectation> exp;
   };
 
 #define MANY_REQS(obj)                            \
-               REQUIRE_CALL_0(obj, f0());         \
-               REQUIRE_CALL_0(obj, f1(0));        \
-               REQUIRE_CALL_0(obj, f2(0,1))
+               REQUIRE_CALL_V(obj, f0());         \
+               REQUIRE_CALL_V(obj, f1(0));        \
+               REQUIRE_CALL_V(obj, f2(0,1))
+
+#if TROMPELOEIL_TEST_REGEX_FAILURES
+
+  std::string escape_parens(const std::string& s)
+  {
+    constexpr auto backslash = '\\';
+
+    std::string tmp;
+
+    for (auto& c : s)
+    {
+      if (c == '(' || c == ')')
+      {
+        tmp += backslash;
+      }
+
+      tmp += c;
+    }
+
+    return tmp;
+  }
+
+#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 } /* unnamed namespace */
 
@@ -449,7 +472,9 @@ TEST_CASE_METHOD(
   auto& msg = reports.front().msg;
   INFO("report=" << msg);
   auto re = R":(Sequence expectations not met at destruction of sequence object "s":
-  missing obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  missing obj\.getter\():" +
+  escape_parens(CXX11_AS_STRING(ANY(int))) +
+  R":(\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   missing obj\.foo\(_\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 ):";
   REQUIRE(std::regex_search(msg, std::regex(re)));
@@ -996,7 +1021,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_ustr("str"));
+    REQUIRE_CALL_V(u, func_ustr("str"));
     u.func_ustr("str");
   }
   REQUIRE(reports.empty());
@@ -1009,7 +1034,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_ustrv("str"));
+    REQUIRE_CALL_V(u, func_ustrv("str"));
     u.func_ustrv("str");
   }
   REQUIRE(reports.empty());
@@ -1025,7 +1050,7 @@ TEST_CASE_METHOD(
   try
   {
     U u;
-    REQUIRE_CALL_0(u, func_ustr("str"));
+    REQUIRE_CALL_V(u, func_ustr("str"));
     u.func_ustr("strr");
     FAIL("didn't report");
   }
@@ -1054,7 +1079,7 @@ TEST_CASE_METHOD(
   try
   {
     U u;
-    REQUIRE_CALL_0(u, func_ustrv("str"));
+    REQUIRE_CALL_V(u, func_ustrv("str"));
     u.func_ustrv("strr");
     FAIL("didn't report");
   }
@@ -1080,7 +1105,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_ptr_f(_));
+    REQUIRE_CALL_V(u, func_ptr_f(_));
     u.func_ptr_f(intfunc);
   }
   REQUIRE(reports.empty());
@@ -1093,7 +1118,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_mptr_f(_));
+    REQUIRE_CALL_V(u, func_mptr_f(_));
     u.func_mptr_f(&U::func_cstr);
   }
   REQUIRE(reports.empty());
@@ -1106,7 +1131,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_mptr_d(_));
+    REQUIRE_CALL_V(u, func_mptr_d(_));
     u.func_mptr_d(&U::m);
   }
   REQUIRE(reports.empty());
@@ -1119,7 +1144,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_streamref(_));
+    REQUIRE_CALL_V(u, func_streamref(_));
     u.func_streamref(std::cout);
   }
   REQUIRE(reports.empty());
@@ -1132,7 +1157,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_u(_));
+    REQUIRE_CALL_V(u, func_u(_));
     u.func_u(uncomparable{});
   }
   REQUIRE(reports.empty());
@@ -1145,7 +1170,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_u(ANY(uncomparable)));
+    REQUIRE_CALL_V(u, func_u(ANY(uncomparable)));
     u.func_u(uncomparable{});
   }
   REQUIRE(reports.empty());
@@ -1158,7 +1183,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_v(_));
+    REQUIRE_CALL_V(u, func_v(_));
     u.func_v(1);
   }
   REQUIRE(reports.empty());
@@ -1171,7 +1196,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_cv(_));
+    REQUIRE_CALL_V(u, func_cv(_));
     u.func_cv(1);
   }
   REQUIRE(reports.empty());
@@ -1184,7 +1209,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_uniqv(_));
+    REQUIRE_CALL_V(u, func_uniqv(_));
     u.func_uniqv(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1197,7 +1222,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_sharedv(_));
+    REQUIRE_CALL_V(u, func_sharedv(_));
     u.func_sharedv(std::make_shared<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1210,7 +1235,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_lr(_));
+    REQUIRE_CALL_V(u, func_lr(_));
     int v = 1;
     u.func_lr(v);
   }
@@ -1224,7 +1249,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_clr(_));
+    REQUIRE_CALL_V(u, func_clr(_));
     int v = 1;
     u.func_clr(v);
   }
@@ -1238,7 +1263,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_rr(_));
+    REQUIRE_CALL_V(u, func_rr(_));
     u.func_rr(1);
   }
   REQUIRE(reports.empty());
@@ -1251,7 +1276,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_crr(_));
+    REQUIRE_CALL_V(u, func_crr(_));
     u.func_crr(1);
   }
   REQUIRE(reports.empty());
@@ -1264,7 +1289,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_uniqv(ANY(std::unique_ptr<int>)));
+    REQUIRE_CALL_V(u, func_uniqv(ANY(std::unique_ptr<int>)));
     u.func_uniqv(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1277,7 +1302,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func_sharedv(ANY(std::shared_ptr<int>)));
+    REQUIRE_CALL_V(u, func_sharedv(ANY(std::shared_ptr<int>)));
     u.func_sharedv(std::make_shared<int>(3));
   }
   REQUIRE(reports.empty());
@@ -1290,7 +1315,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func(ANY(int&)));
+    REQUIRE_CALL_V(u, func(ANY(int&)));
     int i = 1;
     u.func(i);
   }
@@ -1309,7 +1334,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func(ANY(const int&)));
+    REQUIRE_CALL_V(u, func(ANY(const int&)));
     const int i = 1;
     u.func(i);
   }
@@ -1325,7 +1350,7 @@ TEST_CASE_METHOD(
 {
   {
     U u;
-    REQUIRE_CALL_0(u, func(ANY(int&&)));
+    REQUIRE_CALL_V(u, func(ANY(int&&)));
     u.func(1);
   }
   REQUIRE(reports.empty());
@@ -1338,7 +1363,7 @@ TEST_CASE_METHOD(
 {
   {
     tmock<int> m;
-    REQUIRE_CALL_0(m, tfunc(_));
+    REQUIRE_CALL_V(m, tfunc(_));
     m.tfunc(3);
   }
   REQUIRE(reports.empty());
@@ -1357,7 +1382,7 @@ TEST_CASE_METHOD(
     REQUIRE_CALL_V(obj, getter(ANY(unmovable&)),
       .RETURN(_1));
 
-    FORBID_CALL_0(obj, getter(ANY(int)));
+    FORBID_CALL_V(obj, getter(ANY(int)));
 
     REQUIRE_CALL_V(obj, getter(_, _),
       .SIDE_EFFECT(_2 = std::to_string(_1)));
@@ -1383,7 +1408,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func_v(trompeloeil::eq(3L)));
+    REQUIRE_CALL_V(obj, func_v(trompeloeil::eq(3L)));
     obj.func_v(3);
   }
   REQUIRE(reports.empty());
@@ -1398,7 +1423,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func_v(trompeloeil::eq(3L)));
+    REQUIRE_CALL_V(obj, func_v(trompeloeil::eq(3L)));
     obj.func_v(0);
     FAIL("didn't report");
   }
@@ -1425,7 +1450,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
+    REQUIRE_CALL_V(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
     obj.func_cstr("foo");
   }
   REQUIRE(reports.empty());
@@ -1440,7 +1465,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
+    REQUIRE_CALL_V(obj, func_cstr(trompeloeil::eq(std::string("foo"))));
     obj.func_cstr("bar");
     FAIL("didn't report");
   }
@@ -1469,7 +1494,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::eq<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::eq<int&>(3)));
     int i = 3;
     obj.func(i);
   }
@@ -1485,7 +1510,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::eq<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::eq<int&>(3)));
     int i = 0;
     obj.func(i);
     FAIL("didn't report");
@@ -1515,7 +1540,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func_f(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, func_f(trompeloeil::ne(nullptr)));
     obj.func_f([](){});
   }
   REQUIRE(reports.empty());
@@ -1528,7 +1553,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func_v(trompeloeil::ne(3L)));
+    REQUIRE_CALL_V(obj, func_v(trompeloeil::ne(3L)));
     obj.func_v(0);
   }
   REQUIRE(reports.empty());
@@ -1543,7 +1568,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func_v(trompeloeil::ne(3L)));
+    REQUIRE_CALL_V(obj, func_v(trompeloeil::ne(3L)));
     obj.func_v(3);
     FAIL("didn't report");
   }
@@ -1570,7 +1595,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
+    REQUIRE_CALL_V(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
     obj.func_cstr("bar");
   }
   REQUIRE(reports.empty());
@@ -1585,7 +1610,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
+    REQUIRE_CALL_V(obj, func_cstr(trompeloeil::ne(std::string("foo"))));
     obj.func_cstr("foo");
     FAIL("didn't report");
   }
@@ -1614,7 +1639,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_c obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<std::string>("bar")));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne<std::string>("bar")));
     obj.foo("baz");
   }
   REQUIRE(reports.empty());
@@ -1629,7 +1654,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_c obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<std::string>("bar")));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne<std::string>("bar")));
     obj.foo("bar");
     FAIL("didn't report");
   }
@@ -1655,7 +1680,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo1 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne(nullptr)));
     int n;
     obj.foo(&n);
   }
@@ -1671,7 +1696,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo1 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne(nullptr)));
     obj.foo(nullptr);
     FAIL("didn't report");
   }
@@ -1698,7 +1723,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo2 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<int*>(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne<int*>(nullptr)));
     int i;
     obj.foo(&i);
   }
@@ -1714,7 +1739,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo2 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne<int*>(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne<int*>(nullptr)));
     int* i_null = nullptr;
     obj.foo(i_null);
     FAIL("didn't report");
@@ -1744,7 +1769,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo2 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::eq<int*>(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::eq<int*>(nullptr)));
     int *i_null = nullptr;
     obj.foo(i_null);
   }
@@ -1760,7 +1785,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo2 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::eq<int*>(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::eq<int*>(nullptr)));
     int i;
     obj.foo(&i);
     FAIL("didn't report");
@@ -1788,7 +1813,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne(nullptr)));
     obj.foo(&C_foo3::m);
   }
   REQUIRE(reports.empty());
@@ -1803,7 +1828,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::ne(nullptr)));
     obj.foo(nullptr);
     FAIL("didn't report");
   }
@@ -1832,7 +1857,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::eq(nullptr)));
     obj.foo(nullptr);
   }
   REQUIRE(reports.empty());
@@ -1847,7 +1872,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, foo(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, foo(trompeloeil::eq(nullptr)));
     obj.foo(&C_foo3::m);
     FAIL("didn't report");
   }
@@ -1874,7 +1899,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, bar(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, bar(trompeloeil::ne(nullptr)));
     obj.bar(intfunc);
   }
   REQUIRE(reports.empty());
@@ -1889,7 +1914,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, bar(trompeloeil::ne(nullptr)));
+    REQUIRE_CALL_V(obj, bar(trompeloeil::ne(nullptr)));
     obj.bar(nullptr);
     FAIL("didn't report");
   }
@@ -1918,7 +1943,7 @@ TEST_CASE_METHOD(
 {
   {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, bar(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, bar(trompeloeil::eq(nullptr)));
     obj.bar(nullptr);
   }
   REQUIRE(reports.empty());
@@ -1933,7 +1958,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_foo3 obj;
-    REQUIRE_CALL_0(obj, bar(trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, bar(trompeloeil::eq(nullptr)));
     obj.bar(intfunc);
     FAIL("didn't report");
   }
@@ -2027,7 +2052,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::ge<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::ge<int&>(3)));
     int i = 3;
     obj.func(i);
   }
@@ -2041,7 +2066,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::ge<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::ge<int&>(3)));
     int i = 4;
     obj.func(i);
   }
@@ -2057,7 +2082,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::ge<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::ge<int&>(3)));
     int i = 2;
     obj.func(i);
     FAIL("didn't report");
@@ -2165,7 +2190,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::gt<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::gt<int&>(3)));
     int i = 3;
     obj.func(i);
     FAIL("didn't report");
@@ -2191,7 +2216,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::gt<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::gt<int&>(3)));
     int i = 4;
     obj.func(i);
   }
@@ -2207,7 +2232,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::gt<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::gt<int&>(3)));
     int i = 2;
     obj.func(i);
     FAIL("didn't report");
@@ -2315,7 +2340,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::lt<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::lt<int&>(3)));
     int i = 3;
     obj.func(i);
     FAIL("didn't report");
@@ -2343,7 +2368,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::lt<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::lt<int&>(3)));
     int i = 4;
     obj.func(i);
     FAIL("didn't report");
@@ -2369,7 +2394,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::lt<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::lt<int&>(3)));
     int i = 2;
     obj.func(i);
   }
@@ -2449,7 +2474,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::le<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::le<int&>(3)));
     int i = 3;
     obj.func(i);
   }
@@ -2465,7 +2490,7 @@ TEST_CASE_METHOD(
 {
   try {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::le<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::le<int&>(3)));
     int i = 4;
     obj.func(i);
     FAIL("didn't report");
@@ -2491,7 +2516,7 @@ TEST_CASE_METHOD(
 {
   {
     U obj;
-    REQUIRE_CALL_0(obj, func(trompeloeil::le<int&>(3)));
+    REQUIRE_CALL_V(obj, func(trompeloeil::le<int&>(3)));
     int i = 2;
     obj.func(i);
   }
@@ -2509,7 +2534,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, c_c_str(trompeloeil::re("mid")));
+    REQUIRE_CALL_V(obj, c_c_str(trompeloeil::re("mid")));
     char str[] = "pre mid post";
     obj.c_c_str(str);
   }
@@ -2526,7 +2551,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, c_c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, c_c_str(trompeloeil::re("mid")));
   try
   {
     obj.c_c_str(nullptr);
@@ -2556,7 +2581,7 @@ TEST_CASE_METHOD(
     "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, c_c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, c_c_str(trompeloeil::re("mid")));
   try
   {
     char str[] = "abcde";
@@ -2590,7 +2615,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, c_str(trompeloeil::re("mid")));
+    REQUIRE_CALL_V(obj, c_str(trompeloeil::re("mid")));
     char str[] = "pre mid post";
     obj.c_str(str);
   }
@@ -2607,7 +2632,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, c_str(trompeloeil::re("mid")));
   try
   {
     obj.c_str(nullptr);
@@ -2637,7 +2662,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, c_str(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, c_str(trompeloeil::re("mid")));
   try
   {
     char str[] = "abcde";
@@ -2671,7 +2696,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, strcref(trompeloeil::re("mid")));
+    REQUIRE_CALL_V(obj, strcref(trompeloeil::re("mid")));
     obj.strcref(std::string("pre mid post"));
   }
   REQUIRE(reports.empty());
@@ -2687,7 +2712,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, strcref(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, strcref(trompeloeil::re("mid")));
   try
   {
     obj.strcref(std::string("abcde"));
@@ -2720,7 +2745,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, strref(trompeloeil::re("mid")));
+    REQUIRE_CALL_V(obj, strref(trompeloeil::re("mid")));
     std::string str = "pre mid post";
     obj.strref(str);
   }
@@ -2737,7 +2762,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, strref(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, strref(trompeloeil::re("mid")));
   try
   {
     std::string str = "abcde";
@@ -2771,7 +2796,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, strrref(trompeloeil::re("mid")));
+    REQUIRE_CALL_V(obj, strrref(trompeloeil::re("mid")));
     std::string str = "pre mid post";
     obj.strrref(std::move(str));
   }
@@ -2788,7 +2813,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, strrref(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, strrref(trompeloeil::re("mid")));
   try
   {
     std::string str = "abcde";
@@ -2822,7 +2847,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, str(trompeloeil::re("mid")));
+    REQUIRE_CALL_V(obj, str(trompeloeil::re("mid")));
     std::string str = "pre mid post";
     obj.str(std::move(str));
   }
@@ -2839,7 +2864,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, str(trompeloeil::re("mid")));
+  REQUIRE_CALL_V(obj, str(trompeloeil::re("mid")));
   try
   {
     std::string str = "abcde";
@@ -2870,7 +2895,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][re]")
 {
   mock_str obj;
-  REQUIRE_CALL_0(obj, overload(trompeloeil::re<char const*>("mid")));
+  REQUIRE_CALL_V(obj, overload(trompeloeil::re<char const*>("mid")));
   try
   {
     obj.overload("abcde");
@@ -2901,7 +2926,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, overload(trompeloeil::re<std::string const&>("mid")));
+    REQUIRE_CALL_V(obj, overload(trompeloeil::re<std::string const&>("mid")));
     std::string str = "pre mid post";
     obj.overload(str);
   }
@@ -2921,7 +2946,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, str(trompeloeil::re("MiXeD", std::regex_constants::icase)));
+    REQUIRE_CALL_V(obj, str(trompeloeil::re("MiXeD", std::regex_constants::icase)));
     std::string str = "mIXEd";
     obj.str(str);
   }
@@ -2939,7 +2964,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, overload(trompeloeil::re<std::string const&>("MiXeD", std::regex_constants::icase)));
+    REQUIRE_CALL_V(obj, overload(trompeloeil::re<std::string const&>("MiXeD", std::regex_constants::icase)));
     std::string str = "mIXEd";
     obj.overload(str);
   }
@@ -2957,7 +2982,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_str obj;
-    REQUIRE_CALL_0(obj, str(trompeloeil::re("end$", std::regex_constants::match_not_eol)));
+    REQUIRE_CALL_V(obj, str(trompeloeil::re("end$", std::regex_constants::match_not_eol)));
     std::string str = "begin end";
     obj.str(str);
   }
@@ -2986,7 +3011,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_str obj;
-    REQUIRE_CALL_0(obj, overload(trompeloeil::re<std::string const&>("end$", std::regex_constants::match_not_eol)));
+    REQUIRE_CALL_V(obj, overload(trompeloeil::re<std::string const&>("end$", std::regex_constants::match_not_eol)));
     std::string str = "begin end";
     obj.overload(str);
     FAIL("did not throw");
@@ -3018,7 +3043,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, str(!trompeloeil::eq("foo")));
+    REQUIRE_CALL_V(obj, str(!trompeloeil::eq("foo")));
     obj.str("bar");
   }
   REQUIRE(reports.empty());
@@ -3035,7 +3060,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_str obj;
-    REQUIRE_CALL_0(obj, str(!trompeloeil::eq("foo")));
+    REQUIRE_CALL_V(obj, str(!trompeloeil::eq("foo")));
     obj.str("foo");
     FAIL("did not throw");
   }
@@ -3062,7 +3087,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_str obj;
-    REQUIRE_CALL_0(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    REQUIRE_CALL_V(obj, overload(!trompeloeil::eq<std::string>("foo")));
     obj.overload(std::string("bar"));
   }
   REQUIRE(reports.empty());
@@ -3077,7 +3102,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_str obj;
-    REQUIRE_CALL_0(obj, overload(!trompeloeil::eq<std::string>("foo")));
+    REQUIRE_CALL_V(obj, overload(!trompeloeil::eq<std::string>("foo")));
     obj.overload(std::string("foo"));
     FAIL("did not throw");
   }
@@ -3111,7 +3136,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, coverload(*trompeloeil::eq<const int&>(3)));
+    REQUIRE_CALL_V(obj, coverload(*trompeloeil::eq<const int&>(3)));
     const int n = 3;
     obj.coverload(&n);
   }
@@ -3127,7 +3152,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, ptr(*trompeloeil::eq(3)));
     int n = 3;
     obj.ptr(&n);
   }
@@ -3141,7 +3166,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, pp(*trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, pp(*trompeloeil::eq(nullptr)));
     int* p = nullptr;
     obj.pp(&p);
   }
@@ -3157,7 +3182,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, overloaded(*trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, overloaded(*trompeloeil::eq(nullptr)));
     int* p = nullptr;
     obj.overloaded(&p);
   }
@@ -3173,7 +3198,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, overloaded(*trompeloeil::eq<std::string&>(std::string("apa"))));
+    REQUIRE_CALL_V(obj, overloaded(*trompeloeil::eq<std::string&>(std::string("apa"))));
     std::string s{"apa"};
     obj.overloaded(&s);
   }
@@ -3190,7 +3215,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, ptr(*trompeloeil::eq(3)));
     obj.ptr(nullptr);
     FAIL("didn't throw");
   }
@@ -3220,7 +3245,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, pp(*trompeloeil::eq(nullptr)));
+    REQUIRE_CALL_V(obj, pp(*trompeloeil::eq(nullptr)));
     int i = 3;
     auto pi = &i;
     obj.pp(&pi);
@@ -3252,7 +3277,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, ptr(*trompeloeil::eq(3)));
     int n = 2;
     obj.ptr(&n);
     FAIL("didn't throw");
@@ -3279,7 +3304,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, ptr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_V(obj, ptr(*trompeloeil::eq(3L)));
     int n = 3;
     obj.ptr(&n);
   }
@@ -3294,7 +3319,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptr(*trompeloeil::eq(3)));
     obj.uptr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3310,7 +3335,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptr(*trompeloeil::eq(3)));
     obj.uptr(nullptr);
     FAIL("didn't throw");
   }
@@ -3339,7 +3364,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptr(*trompeloeil::eq(3)));
     obj.uptr(detail::make_unique<int>(2));
     FAIL("didn't throw");
   }
@@ -3364,7 +3389,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_V(obj, uptr(*trompeloeil::eq(3L)));
     obj.uptr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3378,7 +3403,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrrr(*trompeloeil::eq(3)));
     obj.uptrrr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3394,7 +3419,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrrr(*trompeloeil::eq(3)));
     obj.uptrrr(nullptr);
     FAIL("didn't throw");
   }
@@ -3422,7 +3447,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrrr(*trompeloeil::eq(3)));
     obj.uptrrr(detail::make_unique<int>(2));
     FAIL("didn't throw");
   }
@@ -3447,7 +3472,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrrr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_V(obj, uptrrr(*trompeloeil::eq(3L)));
     obj.uptrrr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3462,7 +3487,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrcr(*trompeloeil::eq(3)));
     obj.uptrcr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3478,7 +3503,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrcr(*trompeloeil::eq(3)));
     obj.uptrcr(nullptr);
     FAIL("didn't throw");
   }
@@ -3507,7 +3532,7 @@ TEST_CASE_METHOD(
   try
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrcr(*trompeloeil::eq(3)));
     obj.uptrcr(detail::make_unique<int>(2));
     FAIL("didn't throw");
   }
@@ -3534,7 +3559,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3L)));
+    REQUIRE_CALL_V(obj, uptrcr(*trompeloeil::eq(3L)));
     obj.uptrcr(detail::make_unique<int>(3));
   }
   REQUIRE(reports.empty());
@@ -3549,7 +3574,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, uptrcr(*trompeloeil::eq(3)));
+    REQUIRE_CALL_V(obj, uptrcr(*trompeloeil::eq(3)));
   }
   REQUIRE(!reports.empty());
   auto re = R":(Unfulfilled expectation:
@@ -3573,7 +3598,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, strptr(*trompeloeil::re("end$")));
+    REQUIRE_CALL_V(obj, strptr(*trompeloeil::re("end$")));
     std::string s = "begin end";
     obj.strptr(&s);
   }
@@ -3591,7 +3616,7 @@ TEST_CASE_METHOD(
 {
   try {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, strptr(*trompeloeil::re("end$")));
+    REQUIRE_CALL_V(obj, strptr(*trompeloeil::re("end$")));
     std::string s = "begin end;";
     obj.strptr(&s);
   }
@@ -3698,7 +3723,7 @@ TEST_CASE_METHOD(
 {
   {
     C_ptr obj;
-    REQUIRE_CALL_0(obj, ptr(*any_of({1,5,7})));
+    REQUIRE_CALL_V(obj, ptr(*any_of({1,5,7})));
     int n = 5;
     obj.ptr(&n);
   }
@@ -3714,7 +3739,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_c obj;
-    REQUIRE_CALL_0(obj, foo(not_empty{}));
+    REQUIRE_CALL_V(obj, foo(not_empty{}));
     obj.foo("bar");
   }
   REQUIRE(reports.empty());
@@ -3729,7 +3754,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_c obj;
-    REQUIRE_CALL_0(obj, foo(not_empty{}));
+    REQUIRE_CALL_V(obj, foo(not_empty{}));
     obj.foo("");
     FAIL("didn't report");
   }
@@ -3796,7 +3821,7 @@ TEST_CASE_METHOD(
 {
   try {
     mock_c obj;
-    REQUIRE_CALL_0(obj, foo(cxx11_is_clamped("b", "d")));
+    REQUIRE_CALL_V(obj, foo(cxx11_is_clamped("b", "d")));
     obj.foo(std::string("a"));
     FAIL("din't report");
   }
@@ -3822,7 +3847,7 @@ TEST_CASE_METHOD(
   "[C++11][C++14][matching][matchers][custom]")
 {
   mock_c obj;
-  REQUIRE_CALL_0(obj, foo(cxx11_is_clamped("b", "d")));
+  REQUIRE_CALL_V(obj, foo(cxx11_is_clamped("b", "d")));
   obj.foo(std::string("c"));
 }
 
@@ -4086,7 +4111,7 @@ TEST_CASE_METHOD(
 {
   mock_c obj;
   {
-    REQUIRE_CALL_0(obj, foo("bar"));
+    REQUIRE_CALL_V(obj, foo("bar"));
   }
   REQUIRE(reports.size() == 1U);
 
@@ -4108,17 +4133,20 @@ TEST_CASE_METHOD(
 {
  {
     mock_c obj;
-    REQUIRE_CALL_0(obj, func(3, ANY(std::string&)));
+    REQUIRE_CALL_V(obj, func(3, ANY(std::string&)));
     std::string s = "foo";
   }
 
   REQUIRE(reports.size() == 1U);
-  auto re = R":(Unfulfilled expectation:
-Expected obj\.func\(3, ANY\(std::string&\)\) to be called once, actually never called
+  auto re = std::string(R":(Unfulfilled expectation:
+Expected obj\.func\(3, ):") +
+  escape_parens(CXX11_AS_STRING(ANY(std::string&))) +
+  std::string(R":(\) to be called once, actually never called
   param  _1 == 3
-  param  _2 matching ANY\(std::string&\)):";
+  param  _2 matching ANY\(std::string&\)):");
   auto& msg = reports.front().msg;
   INFO("msg=" << msg);
+  INFO("re=" << re);
   REQUIRE(std::regex_search(msg, std::regex(re)));
 }
 
@@ -4133,7 +4161,7 @@ TEST_CASE_METHOD(
 {
  {
     mock_c obj;
-    REQUIRE_CALL_0(obj, func(3, _));
+    REQUIRE_CALL_V(obj, func(3, _));
     std::string s = "foo";
   }
 
@@ -4158,7 +4186,7 @@ TEST_CASE_METHOD(
 {
   {
     mock_c obj;
-    auto e = NAMED_FORBID_CALL_0(obj, count());
+    auto e = NAMED_FORBID_CALL_V(obj, count());
     REQUIRE(e->is_satisfied());
     REQUIRE(e->is_saturated());
   }
@@ -4289,7 +4317,7 @@ TEST_CASE_METHOD(
 {
   {
     auto m = detail::make_unique<mock_c>();
-    FORBID_CALL_0(*m, count());
+    FORBID_CALL_V(*m, count());
     m.reset();
   }
   REQUIRE(reports.empty());
@@ -4908,9 +4936,14 @@ TEST_CASE_METHOD(
            R":(No match for call of getter with signature int\(int\) with\.
   param  _1 == 4
 
-Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+Tried obj\.getter\():" +
+  escape_parens(CXX11_AS_STRING(ANY(int))) +
+  R":(\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Failed WITH\(_1 < 3\)
   Failed WITH\(_1 > 5\)):";
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    INFO("re=" << re);
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
@@ -4941,9 +4974,14 @@ TEST_CASE_METHOD(
            R":(No match for call of getter with signature int\(int\) with\.
   param  _1 == 4
 
-Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+Tried obj\.getter\():" +
+  escape_parens(CXX11_AS_STRING(ANY(int))) +
+  R":(\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Failed WITH\(_1 < 3\)):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    INFO("re=" << re);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
   }
 }
 
@@ -4962,7 +5000,7 @@ TEST_CASE_METHOD(
     ALLOW_CALL_V(obj, getter(ANY(int)),
       .RETURN(0));
 
-    FORBID_CALL_0(obj, getter(3));
+    FORBID_CALL_V(obj, getter(3));
 
     obj.getter(4);
     obj.getter(2);
@@ -4990,7 +5028,7 @@ TEST_CASE_METHOD(
 {
   try {
     tmock<int> obj;
-    REQUIRE_CALL_0(obj, tfunc(3));
+    REQUIRE_CALL_V(obj, tfunc(3));
     obj.tfunc(2);
     FAIL("didn't report");
   }
@@ -5115,7 +5153,7 @@ TEST_CASE_METHOD(
   T obj;
   auto s = std::make_shared<int>(3);
   {
-    REQUIRE_CALL_0(obj, ptr(s));
+    REQUIRE_CALL_V(obj, ptr(s));
     REQUIRE(s.use_count() == 2U);
     obj.ptr(s);
   }
@@ -5131,7 +5169,7 @@ TEST_CASE_METHOD(
   T obj;
   auto s = std::make_shared<int>(3);
   {
-    REQUIRE_CALL_0(obj, ptr(std::ref(s)));
+    REQUIRE_CALL_V(obj, ptr(std::ref(s)));
     REQUIRE(s.use_count() == 1U);
     obj.ptr(s);
   }
@@ -5171,7 +5209,7 @@ TEST_CASE_METHOD(
   trompeloeil::stream_tracer logger(os);
   mock_c obj1;
   mock_c obj2;
-  REQUIRE_CALL_0(obj1, getter(_, _));
+  REQUIRE_CALL_V(obj1, getter(_, _));
 
   REQUIRE_CALL_V(obj2, foo("bar"),
     .THROW(std::logic_error("nonono")));
@@ -5205,7 +5243,9 @@ obj2\.foo\("bar"\) with\.
 threw exception: what\(\) = nonono
 
 [A-Za-z0-9_ ./:\]*:[0-9]*.*
-obj1\.getter\(ANY\(int\)\) with\.
+obj1\.getter\():" +
+  escape_parens(CXX11_AS_STRING(ANY(int))) +
+  R":(\) with\.
   param  _1 == 4
  -> 5
 
@@ -5215,6 +5255,7 @@ obj2\.foo\("baz"\) with\.
 threw unknown exception
 ):";
   INFO(os.str());
+  INFO("re=" << re);
   REQUIRE(std::regex_search(os.str(), std::regex(re)));
 }
 
@@ -5230,8 +5271,8 @@ TEST_CASE_METHOD(
   std::ostringstream os;
   mock_c obj1;
   mock_c obj2;
-  ALLOW_CALL_0(obj1, getter(_, _));
-  REQUIRE_CALL_0(obj2, foo("bar"));
+  ALLOW_CALL_V(obj1, getter(_, _));
+  REQUIRE_CALL_V(obj2, foo("bar"));
   std::string s = "foo";
   obj1.getter(3, s);
   {
@@ -5254,38 +5295,38 @@ TEST_CASE(
   "[C++11][C++14][signatures][override]")
 {
   all_mock_if mock;
-  REQUIRE_CALL_0(mock, f0());
-  REQUIRE_CALL_0(mock, f1(0));
-  REQUIRE_CALL_0(mock, f2(0,1));
-  REQUIRE_CALL_0(mock, f3(0,1,2));
-  REQUIRE_CALL_0(mock, f4(0,1,2,3));
-  REQUIRE_CALL_0(mock, f5(0,1,2,3,4));
-  REQUIRE_CALL_0(mock, f6(0,1,2,3,4,5));
-  REQUIRE_CALL_0(mock, f7(0,1,2,3,4,5,6));
-  REQUIRE_CALL_0(mock, f8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL_0(mock, f9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL_0(mock, f10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL_0(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL_0(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL_0(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL_0(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL_0(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
-  REQUIRE_CALL_0(mock, cf0());
-  REQUIRE_CALL_0(mock, cf1(0));
-  REQUIRE_CALL_0(mock, cf2(0,1));
-  REQUIRE_CALL_0(mock, cf3(0,1,2));
-  REQUIRE_CALL_0(mock, cf4(0,1,2,3));
-  REQUIRE_CALL_0(mock, cf5(0,1,2,3,4));
-  REQUIRE_CALL_0(mock, cf6(0,1,2,3,4,5));
-  REQUIRE_CALL_0(mock, cf7(0,1,2,3,4,5,6));
-  REQUIRE_CALL_0(mock, cf8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL_0(mock, cf9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL_0(mock, cf10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL_0(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL_0(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL_0(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL_0(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL_0(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_V(mock, f0());
+  REQUIRE_CALL_V(mock, f1(0));
+  REQUIRE_CALL_V(mock, f2(0,1));
+  REQUIRE_CALL_V(mock, f3(0,1,2));
+  REQUIRE_CALL_V(mock, f4(0,1,2,3));
+  REQUIRE_CALL_V(mock, f5(0,1,2,3,4));
+  REQUIRE_CALL_V(mock, f6(0,1,2,3,4,5));
+  REQUIRE_CALL_V(mock, f7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_V(mock, f8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_V(mock, f9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_V(mock, f10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_V(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_V(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_V(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_V(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_V(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_V(mock, cf0());
+  REQUIRE_CALL_V(mock, cf1(0));
+  REQUIRE_CALL_V(mock, cf2(0,1));
+  REQUIRE_CALL_V(mock, cf3(0,1,2));
+  REQUIRE_CALL_V(mock, cf4(0,1,2,3));
+  REQUIRE_CALL_V(mock, cf5(0,1,2,3,4));
+  REQUIRE_CALL_V(mock, cf6(0,1,2,3,4,5));
+  REQUIRE_CALL_V(mock, cf7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_V(mock, cf8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_V(mock, cf9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_V(mock, cf10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_V(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_V(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_V(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_V(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_V(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
 
   mock.f0();
   mock.f1(0);
@@ -5326,38 +5367,38 @@ TEST_CASE(
   "[C++11][C++14][signatures]")
 {
   all_mock mock;
-  REQUIRE_CALL_0(mock, f0());
-  REQUIRE_CALL_0(mock, f1(0));
-  REQUIRE_CALL_0(mock, f2(0,1));
-  REQUIRE_CALL_0(mock, f3(0,1,2));
-  REQUIRE_CALL_0(mock, f4(0,1,2,3));
-  REQUIRE_CALL_0(mock, f5(0,1,2,3,4));
-  REQUIRE_CALL_0(mock, f6(0,1,2,3,4,5));
-  REQUIRE_CALL_0(mock, f7(0,1,2,3,4,5,6));
-  REQUIRE_CALL_0(mock, f8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL_0(mock, f9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL_0(mock, f10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL_0(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL_0(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL_0(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL_0(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL_0(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
-  REQUIRE_CALL_0(mock, cf0());
-  REQUIRE_CALL_0(mock, cf1(0));
-  REQUIRE_CALL_0(mock, cf2(0,1));
-  REQUIRE_CALL_0(mock, cf3(0,1,2));
-  REQUIRE_CALL_0(mock, cf4(0,1,2,3));
-  REQUIRE_CALL_0(mock, cf5(0,1,2,3,4));
-  REQUIRE_CALL_0(mock, cf6(0,1,2,3,4,5));
-  REQUIRE_CALL_0(mock, cf7(0,1,2,3,4,5,6));
-  REQUIRE_CALL_0(mock, cf8(0,1,2,3,4,5,6,7));
-  REQUIRE_CALL_0(mock, cf9(0,1,2,3,4,5,6,7,8));
-  REQUIRE_CALL_0(mock, cf10(0,1,2,3,4,5,6,7,8,9));
-  REQUIRE_CALL_0(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
-  REQUIRE_CALL_0(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
-  REQUIRE_CALL_0(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
-  REQUIRE_CALL_0(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
-  REQUIRE_CALL_0(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_V(mock, f0());
+  REQUIRE_CALL_V(mock, f1(0));
+  REQUIRE_CALL_V(mock, f2(0,1));
+  REQUIRE_CALL_V(mock, f3(0,1,2));
+  REQUIRE_CALL_V(mock, f4(0,1,2,3));
+  REQUIRE_CALL_V(mock, f5(0,1,2,3,4));
+  REQUIRE_CALL_V(mock, f6(0,1,2,3,4,5));
+  REQUIRE_CALL_V(mock, f7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_V(mock, f8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_V(mock, f9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_V(mock, f10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_V(mock, f11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_V(mock, f12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_V(mock, f13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_V(mock, f14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_V(mock, f15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
+  REQUIRE_CALL_V(mock, cf0());
+  REQUIRE_CALL_V(mock, cf1(0));
+  REQUIRE_CALL_V(mock, cf2(0,1));
+  REQUIRE_CALL_V(mock, cf3(0,1,2));
+  REQUIRE_CALL_V(mock, cf4(0,1,2,3));
+  REQUIRE_CALL_V(mock, cf5(0,1,2,3,4));
+  REQUIRE_CALL_V(mock, cf6(0,1,2,3,4,5));
+  REQUIRE_CALL_V(mock, cf7(0,1,2,3,4,5,6));
+  REQUIRE_CALL_V(mock, cf8(0,1,2,3,4,5,6,7));
+  REQUIRE_CALL_V(mock, cf9(0,1,2,3,4,5,6,7,8));
+  REQUIRE_CALL_V(mock, cf10(0,1,2,3,4,5,6,7,8,9));
+  REQUIRE_CALL_V(mock, cf11(0,1,2,3,4,5,6,7,8,9,10));
+  REQUIRE_CALL_V(mock, cf12(0,1,2,3,4,5,6,7,8,9,10,11));
+  REQUIRE_CALL_V(mock, cf13(0,1,2,3,4,5,6,7,8,9,10,11,12));
+  REQUIRE_CALL_V(mock, cf14(0,1,2,3,4,5,6,7,8,9,10,11,12,13));
+  REQUIRE_CALL_V(mock, cf15(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14));
 
   mock.f0();
   mock.f1(0);
