@@ -4057,22 +4057,26 @@ namespace trompeloeil
 #define TROMPELOEIL_CXX11_AS_STRING(x) TROMPELOEIL_CXX11_AS_STRING_IMPL(x)
 
 #define TROMPELOEIL_CXX14_AS_STRING(x) #x
-
+#define TROMPELOEIL_LPAREN (
 
 #define TROMPELOEIL_MORE_THAN_TWO_ARGS(...)                                    \
-  TROMPELOEIL_ARG16(__VA_ARGS__, T, T, T, T, T, T, T, T, T, T, T, T, T, F, F, F)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_ARG16(__VA_ARGS__,                                             \
+                      T, T, T, T, T, T, T, T, T, T, T, T, T, F, F, F))
 
 
 #define TROMPELOEIL_REQUIRE_CALL_V(...)                                        \
-  TROMPELOEIL_REQUIRE_CALL_V3(                                                 \
-    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_REQUIRE_CALL_V3 TROMPELOEIL_LPAREN          \
+      TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
 
 #define TROMPELOEIL_REQUIRE_CALL_V3(N, ...)                                    \
-  TROMPELOEIL_REQUIRE_CALL_IMPL(N, __VA_ARGS__)
+    TROMPELOEIL_IDENTITY(                                                      \
+      TROMPELOEIL_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_REQUIRE_CALL_IMPL(N, ...)                                  \
-  TROMPELOEIL_REQUIRE_CALL_ ## N (__VA_ARGS__)
+    TROMPELOEIL_IDENTITY(                                                      \
+      TROMPELOEIL_REQUIRE_CALL_ ## N TROMPELOEIL_LPAREN __VA_ARGS__))
 
 // Accept only two arguments
 #define TROMPELOEIL_REQUIRE_CALL_F(obj, func)                                  \
@@ -4124,15 +4128,17 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_V(...)                                  \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V3(                                           \
-    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_REQUIRE_CALL_V3 TROMPELOEIL_LPAREN    \
+    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_V3(N, ...)                              \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL(N, __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL(N, ...)                            \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_ ## N (__VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_NAMED_REQUIRE_CALL_ ## N TROMPELOEIL_LPAREN __VA_ARGS__))
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_F(obj, func)                            \
@@ -4146,19 +4152,21 @@ namespace trompeloeil
   TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, obj_s, func_s, __VA_ARGS__)
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_0(obj, func)                            \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, # obj, # func, .null_modifier())
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func, .null_modifier())
 
 
 #define TROMPELOEIL_ALLOW_CALL_V(...)                                          \
-  TROMPELOEIL_ALLOW_CALL_V3(                                                   \
-    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_ALLOW_CALL_V3 TROMPELOEIL_LPAREN            \
+    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
 
 #define TROMPELOEIL_ALLOW_CALL_V3(N, ...)                                      \
-  TROMPELOEIL_ALLOW_CALL_IMPL(N, __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_ALLOW_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_ALLOW_CALL_IMPL(N, ...)                                    \
-  TROMPELOEIL_ALLOW_CALL_ ## N (__VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_ALLOW_CALL_ ## N TROMPELOEIL_LPAREN __VA_ARGS__))
 
 // Accept only two arguments
 #define TROMPELOEIL_ALLOW_CALL_F(obj, func)                                    \
@@ -4173,20 +4181,22 @@ namespace trompeloeil
                               .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
 
 #define TROMPELOEIL_ALLOW_CALL_0(obj, func)                                    \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, # obj, # func,                        \
+  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, #obj, #func,                          \
     .TROMPELOEIL_TIMES(0, ~0ULL))
 
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_V(...)                                    \
-  TROMPELOEIL_NAMED_ALLOW_CALL_V3(                                             \
-    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_ALLOW_CALL_V3 TROMPELOEIL_LPAREN      \
+    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_V3(N, ...)                                \
-  TROMPELOEIL_NAMED_ALLOW_CALL_IMPL(N, __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_NAMED_ALLOW_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_NAMED_ALLOW_CALL_IMPL(N, ...)                              \
-  TROMPELOEIL_NAMED_ALLOW_CALL_ ## N (__VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_NAMED_ALLOW_CALL_ ## N TROMPELOEIL_LPAREN __VA_ARGS__))
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_ALLOW_CALL_F(obj, func)                              \
@@ -4201,20 +4211,22 @@ namespace trompeloeil
                                     .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_0(obj, func)                              \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, # obj, # func,                  \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func,                    \
     .TROMPELOEIL_TIMES(0, ~0ULL))
 
 
 #define TROMPELOEIL_FORBID_CALL_V(...)                                         \
-  TROMPELOEIL_FORBID_CALL_V3(                                                  \
-    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_FORBID_CALL_V3 TROMPELOEIL_LPAREN           \
+    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
 
 #define TROMPELOEIL_FORBID_CALL_V3(N, ...)                                     \
-  TROMPELOEIL_FORBID_CALL_IMPL(N, __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_FORBID_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_FORBID_CALL_IMPL(N, ...)                                   \
-  TROMPELOEIL_FORBID_CALL_ ## N (__VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_FORBID_CALL_ ## N TROMPELOEIL_LPAREN __VA_ARGS__))
 
 // Accept only two arguments
 #define TROMPELOEIL_FORBID_CALL_F(obj, func)                                   \
@@ -4234,15 +4246,17 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_V(...)                                   \
-  TROMPELOEIL_NAMED_FORBID_CALL_V3(                                            \
-    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_FORBID_CALL_V3 TROMPELOEIL_LPAREN     \
+    TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_V3(N, ...)                               \
-  TROMPELOEIL_NAMED_FORBID_CALL_IMPL(N, __VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_NAMED_FORBID_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_NAMED_FORBID_CALL_IMPL(N, ...)                             \
-  TROMPELOEIL_NAMED_FORBID_CALL_ ## N (__VA_ARGS__)
+  TROMPELOEIL_IDENTITY(                                                        \
+    TROMPELOEIL_NAMED_FORBID_CALL_ ## N TROMPELOEIL_LPAREN __VA_ARGS__))
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_FORBID_CALL_F(obj, func)                             \
@@ -4257,7 +4271,7 @@ namespace trompeloeil
                                     .TROMPELOEIL_TIMES(0) __VA_ARGS__)
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_0(obj, func)                             \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, # obj, # func,                  \
+  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func,                    \
     .TROMPELOEIL_TIMES(0))
 
 
