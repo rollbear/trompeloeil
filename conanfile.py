@@ -17,7 +17,7 @@ import os
 
 class TrompeloelConan(ConanFile):
     name = "trompeloeil"
-    version = "v28"
+    version = "v29"
     license = "Boost Software License - Version 1.0 - August 17th, 2003"
     url = "https://github.com/rollbear/trompeloeil.git"
     description = "Header only C++14 mocking framework"

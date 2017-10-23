@@ -1,3 +1,6 @@
+v29 2017-10-23
+
+	* Fix Issue #54: Exception thrown exit - fixed static dtor fiasco
 	* Fix Issue #48: Move "re" in lambda capture list in "regex_check".
 	* Fix Issue #55: Restore warnings for Clang builds.
 	* Correct spelling of SANITIZE for clang Xcode builds.
