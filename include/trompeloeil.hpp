@@ -207,12 +207,25 @@ namespace trompeloeil
 {
   class specialized;
 
+  namespace {
+    inline
+    const std::shared_ptr<std::recursive_mutex>&
+    get_mutex_obj()
+    {
+      static auto obj = std::make_shared<std::recursive_mutex>();
+      return obj;
+    }
+
+    auto mutex_holder = get_mutex_obj();
+
+  }
+
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
-    static std::recursive_mutex lock;
-    return std::unique_lock<std::recursive_mutex>{ lock };
+    return std::unique_lock<std::recursive_mutex>{ *get_mutex_obj() };
   }
+
   template <size_t N, typename T>
   using conditional_tuple_element
     = std::conditional_t<(N < std::tuple_size<T>::value),
@@ -1620,7 +1633,7 @@ namespace trompeloeil
         char const* str;
       };
 
-      return [re, match_type](string_helper str, auto const&)
+      return [re = std::move(re), match_type](string_helper str, auto const&)
         -> decltype(std::regex_search(str.c_str(), re, match_type))
         {
           return !::trompeloeil::is_null(str.c_str())
@@ -3303,6 +3316,25 @@ namespace trompeloeil
     return ::trompeloeil::neg_matcher<std::decay_t<M>>{std::forward<M>(m)};
   }
 
+  /*
+   * Convert the signature S of a mock function to the signature of
+   * a member function of class T that takes the same parameters P
+   * but returns R.
+   *
+   * The member function has the same constness as the mock function.
+   */
+  template <typename T, typename R, typename S>
+  struct signature_to_member_function;
+
+  template <typename T, typename R, typename R_of_S, typename... P>
+  struct signature_to_member_function<T, R, R_of_S(P...)>
+  {
+    using type = std::conditional_t<
+      std::is_const<T>::value,
+      R (T::*)(P...) const,
+      R (T::*)(P...)>;
+  };
+
 }
 
 #define TROMPELOEIL_LINE_ID(name)                                        \
@@ -3456,7 +3488,6 @@ namespace trompeloeil
                 "Function signature does not have " #num " parameters");       \
   using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
   using TROMPELOEIL_LINE_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
-  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations);\
   struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
     const char* trompeloeil_expectation_file;                                  \
@@ -3492,12 +3523,27 @@ namespace trompeloeil
   {                                                                            \
     return TROMPELOEIL_LINE_ID(expectations).active;                           \
   }                                                                            \
+                                                                               \
   ::trompeloeil::return_of_t<sig>                                              \
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
   spec                                                                         \
   {                                                                            \
+    /* Use the auxiliary functions to avoid unneeded-member-function warning */\
+    using T_ ## name = typename std::remove_reference<decltype(*this)>::type;  \
+                                                                               \
+    using pmf_s_t = typename ::trompeloeil::signature_to_member_function<      \
+      T_ ## name, decltype(*this), sig>::type;                                 \
+                                                                               \
+    using pmf_e_t = typename ::trompeloeil::signature_to_member_function<      \
+      T_ ## name, TROMPELOEIL_LINE_ID(tag_type_trompeloeil), sig>::type;       \
+                                                                               \
+    auto s_ptr = static_cast<pmf_s_t>(&T_ ## name::trompeloeil_self_ ## name); \
+    auto e_ptr = static_cast<pmf_e_t>(&T_ ## name::trompeloeil_tag_ ## name);  \
+                                                                               \
+    ::trompeloeil::ignore(s_ptr, e_ptr);                                       \
+                                                                               \
     return ::trompeloeil::mock_func<sig>(TROMPELOEIL_LINE_ID(cardinality_match){},  \
                                          TROMPELOEIL_LINE_ID(expectations),    \
                                          #name,                                \
@@ -3507,12 +3553,20 @@ namespace trompeloeil
                                                                                \
   auto                                                                         \
   trompeloeil_self_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness        \
-    -> decltype(*this);                                                        \
+    -> decltype(*this)                                                         \
+  {                                                                            \
+    ::trompeloeil::ignore(#name TROMPELOEIL_PARAMS(num));                      \
+    return *this;                                                              \
+  }                                                                            \
                                                                                \
   TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                                    \
-  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness
-
-
+  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness         \
+  {                                                                            \
+    ::trompeloeil::ignore(#name TROMPELOEIL_PARAMS(num));                      \
+    return {nullptr, 0ul, nullptr};                                            \
+  }                                                                            \
+                                                                               \
+  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations)
 
 
 #define TROMPELOEIL_REQUIRE_CALL(obj, func)                                    \

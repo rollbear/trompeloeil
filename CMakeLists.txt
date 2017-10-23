@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 project(trompeloeil)
 
 include(GNUInstallDirs)
 include(ExternalProject)
 include(CMakePackageConfigHelpers)
+include(CheckCXXCompilerFlag)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
@@ -34,6 +35,10 @@ if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
 endif()
 
 if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
+
+  set(CMAKE_CXX_STANDARD_REQUIRED YES)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+
   set(CATCH_DIR ${CMAKE_CURRENT_BINARY_DIR}/catch)
   if(NOT EXISTS ${CATCH_DIR}/catch.hpp)
     if (NOT EXISTS ${CATCH_DIR})
@@ -68,14 +73,34 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
     )
 
-  if (CMAKE_COMPILER_IS_GNUCXX)
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      set(WARN_FLAGS "-Weverything -Wno-c++98-compat-pedantic -Wno-padded -Wno-weak-vtables -Wno-exit-time-destructors")
-    else()
-      set(WARN_FLAGS "-Wall -Wextra -pedantic -Wshadow")
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      string(CONCAT
+             WARN_FLAGS
+             "-Weverything"
+             " -Wno-c++98-compat-pedantic"
+             " -Wno-padded"
+             " -Wno-weak-vtables"
+             " -Wno-exit-time-destructors"
+             " -Wno-global-constructors")
+      CHECK_CXX_COMPILER_FLAG("-Wno-inconsistent-missing-destructor-override"
+                              W_MISSING_DTOR_OVERRIDE)
+      if (W_MISSING_DTOR_OVERRIDE)
+        string(CONCAT
+               WARN_FLAGS
+               " -Wno-inconsistent-missing-destructor-override")
+      endif()
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+      string(CONCAT
+             WARN_FLAGS
+             "-Wall"
+             " -Wextra"
+             " -pedantic"
+             " -Wshadow")
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS} -Werror")
+    set(WARN_FLAGS "${WARN_FLAGS} -Werror")
   endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
   set(TSAN "-fsanitize=undefined,thread")
   set(SSAN "-fsanitize=address,undefined")
