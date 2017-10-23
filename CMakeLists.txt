@@ -11,8 +11,6 @@ write_basic_package_version_file(
   VERSION 28
   COMPATIBILITY AnyNewerVersion)
 
-set(CMAKE_CXX_STANDARD 14)
-
 add_library(trompeloeil INTERFACE)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -36,6 +34,7 @@ endif()
 
 if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
+  set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED YES)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
