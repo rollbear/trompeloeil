@@ -291,7 +291,8 @@ namespace trompeloeil
                                            std::string const &msg)>;
 
   inline
-  void default_reporter(
+  void
+  default_reporter(
     severity,
     char const *file,
     unsigned long line,
@@ -314,7 +315,8 @@ namespace trompeloeil
   }
 
   inline
-  reporter_func set_reporter(
+  reporter_func
+  set_reporter(
     reporter_func f)
   {
     return std::exchange(reporter_obj(), std::move(f));
@@ -325,7 +327,7 @@ namespace trompeloeil
   inline
   tracer*&
   tracer_obj()
-    noexcept
+  noexcept
   {
     static tracer* ptr = nullptr;
     return ptr;
@@ -500,7 +502,7 @@ namespace trompeloeil
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
 
   template <typename T>
-  using is_matcher = typename is_detected<matcher_access, T>::type; 
+  using is_matcher = typename is_detected<matcher_access, T>::type;
 
   template <typename T>
   struct typed_matcher : matcher
@@ -719,7 +721,7 @@ namespace trompeloeil
       stream_sentry s(os);
       static const char *linebreak = "\n";
       os << sizeof(T) << "-byte object={";
-      os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warining
+      os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warning
       os << std::setfill('0') << std::hex;
       auto p = reinterpret_cast<uint8_t const*>(&t);
       for (size_t i = 0; i < sizeof(T); ++i)
@@ -1091,7 +1093,7 @@ namespace trompeloeil
 
     bool
     is_completed()
-      const
+    const
     noexcept;
 
     bool
@@ -1193,7 +1195,7 @@ namespace trompeloeil
   inline
   bool
   sequence_type::is_completed()
-    const
+  const
   noexcept
   {
     return matchers.empty();
@@ -1277,13 +1279,13 @@ namespace trompeloeil
     noexcept
     {}
 
-    template<typename T,
-             typename = std::enable_if_t<!std::is_lvalue_reference<T>::value>>
+    template <typename T,
+              typename = std::enable_if_t<!std::is_lvalue_reference<T>::value>>
     operator T&&()
     const;
 
-    template<typename T,
-             typename = std::enable_if_t<std::is_copy_constructible<T>::value
+    template <typename T,
+              typename = std::enable_if_t<std::is_copy_constructible<T>::value
                                          || !std::is_move_constructible<T>::value>>
     operator T&()
     const;
@@ -1485,7 +1487,7 @@ namespace trompeloeil
       {                                                                 \
         ::trompeloeil::ignore(x,y);                                     \
         return x op y;                                                  \
-        }                                                               \
+      }                                                                 \
     }
     TROMPELOEIL_MK_PRED_BINOP(equal, ==);
     TROMPELOEIL_MK_PRED_BINOP(not_equal, !=);
@@ -1989,28 +1991,28 @@ namespace trompeloeil
                              os.str());
   }
 
-  template<typename T>
+  template <typename T>
   struct return_of;
 
-  template<typename R, typename ... A>
+  template <typename R, typename ... A>
   struct return_of<R(A...)>
   {
     using type = R;
   };
 
-  template<typename T>
+  template <typename T>
   using return_of_t = typename return_of<T>::type;
 
-  template<typename T>
+  template <typename T>
   struct call_params_type;
 
-  template<typename R, typename ... T>
+  template <typename R, typename ... T>
   struct call_params_type<R(T...)>
   {
     using type = std::tuple<typename std::add_lvalue_reference<T>::type...>;
   };
 
-  template<typename T>
+  template <typename T>
   using call_params_type_t = typename call_params_type<T>::type;
 
   template <typename R>
@@ -2037,7 +2039,7 @@ namespace trompeloeil
   {
   }
 
-  template<typename Sig>
+  template <typename Sig>
   struct call_matcher_base;
 
   template <typename Sig>
@@ -2058,8 +2060,8 @@ namespace trompeloeil
     }
   };
 
-  template<typename Sig>
-  struct call_matcher_base : public list_elem<call_matcher_base<Sig> >
+  template <typename Sig>
+  struct call_matcher_base : public list_elem<call_matcher_base<Sig>>
   {
     call_matcher_base(
       location loc_,
@@ -2486,8 +2488,8 @@ namespace trompeloeil
     T func;
   };
 
-  template<typename Sig>
-  class condition_base : public list_elem<condition_base<Sig> >
+  template <typename Sig>
+  class condition_base : public list_elem<condition_base<Sig>>
   {
   public:
     condition_base(
@@ -2518,9 +2520,9 @@ namespace trompeloeil
   };
 
   template <typename Sig>
-  using condition_list = list<condition_base<Sig>, delete_disposer >;
+  using condition_list = list<condition_base<Sig>, delete_disposer>;
 
-  template<typename Sig, typename Cond>
+  template <typename Sig, typename Cond>
   struct condition : public condition_base<Sig>
   {
     condition(
@@ -2542,8 +2544,8 @@ namespace trompeloeil
     Cond c;
   };
 
-  template<typename Sig>
-  struct side_effect_base : public list_elem<side_effect_base<Sig> >
+  template <typename Sig>
+  struct side_effect_base : public list_elem<side_effect_base<Sig>>
   {
     virtual
     ~side_effect_base() = default;
@@ -2555,10 +2557,10 @@ namespace trompeloeil
     const = 0;
   };
 
-  template<typename Sig>
+  template <typename Sig>
   using side_effect_list = list<side_effect_base<Sig>, delete_disposer>;
 
-  template<typename Sig, typename Action>
+  template <typename Sig, typename Action>
   struct side_effect : public side_effect_base<Sig>
   {
     template <typename A>
@@ -2582,7 +2584,7 @@ namespace trompeloeil
   template <unsigned long long L, unsigned long long H = L>
   struct multiplicity { };
 
-  template<typename R, typename Parent>
+  template <typename R, typename Parent>
   struct return_injector : Parent
   {
     using return_type = R;
@@ -2713,7 +2715,7 @@ namespace trompeloeil
     }
 
     template <typename H>
-    call_modifier<Matcher, modifier_tag, throw_injector<Parent> >
+    call_modifier<Matcher, modifier_tag, throw_injector<Parent>>
     handle_throw(
       H&& h)
     {
@@ -2738,6 +2740,7 @@ namespace trompeloeil
       matcher->set_return(tag{}, std::move(handler));
       return {matcher};
     }
+
     template <unsigned long long L,
               unsigned long long H,
               bool               times_set = call_limit_set>
@@ -2844,13 +2847,13 @@ namespace trompeloeil
   };
 
 
-  template<typename Sig, typename Value>
+  template <typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
     using call_matcher_base<Sig>::name;
     using call_matcher_base<Sig>::loc;
 
-    template<typename ... U>
+    template <typename ... U>
     call_matcher(
       char const *file,
       unsigned long line,
@@ -3040,6 +3043,7 @@ namespace trompeloeil
         call_count,
         loc);
     }
+
     template <typename C>
     void
     add_condition(
@@ -3101,7 +3105,7 @@ namespace trompeloeil
   };
 
 
-  template<int N, typename T>
+  template <int N, typename T>
   constexpr
   inline
   decltype(auto)
@@ -3590,7 +3594,8 @@ namespace trompeloeil
                        decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_,func))>\
     {__FILE__, static_cast<unsigned long>(__LINE__), obj_s "." func_s}.func
 
-#define TROMPELOEIL_ALLOW_CALL(obj, func)               \
+
+#define TROMPELOEIL_ALLOW_CALL(obj, func)                                      \
   TROMPELOEIL_ALLOW_CALL_(obj, func, #obj, #func)
 
 #define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)                      \
@@ -3689,7 +3694,7 @@ namespace trompeloeil
     auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
     auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    return ::trompeloeil::decay_return_type(__VA_ARGS__);                                                        \
+    return ::trompeloeil::decay_return_type(__VA_ARGS__);                      \
   })
 
 #define TROMPELOEIL_THROW(...)    TROMPELOEIL_THROW_(=, __VA_ARGS__)
