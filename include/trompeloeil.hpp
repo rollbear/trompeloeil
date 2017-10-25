@@ -1607,16 +1607,16 @@ namespace trompeloeil
 #else
 
     // g++ 4.8 gives a conversion is ambiguous error if this operator is defined.
-    template<typename T,
-             typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
+    template <typename T,
+              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
     operator T&&()
     const;
 
 #endif
 
-    template<typename T,
-             typename = detail::enable_if_t<std::is_copy_constructible<T>::value
-                                            || !std::is_move_constructible<T>::value>>
+    template <typename T,
+              typename = detail::enable_if_t<std::is_copy_constructible<T>::value
+                                             || !std::is_move_constructible<T>::value>>
     operator T&()
     const;
 
@@ -2418,28 +2418,28 @@ namespace trompeloeil
                              os.str());
   }
 
-  template<typename T>
+  template <typename T>
   struct return_of;
 
-  template<typename R, typename ... A>
+  template <typename R, typename ... A>
   struct return_of<R(A...)>
   {
     using type = R;
   };
 
-  template<typename T>
+  template <typename T>
   using return_of_t = typename return_of<T>::type;
 
-  template<typename T>
+  template <typename T>
   struct call_params_type;
 
-  template<typename R, typename ... T>
+  template <typename R, typename ... T>
   struct call_params_type<R(T...)>
   {
     using type = std::tuple<typename std::add_lvalue_reference<T>::type...>;
   };
 
-  template<typename T>
+  template <typename T>
   using call_params_type_t = typename call_params_type<T>::type;
 
   template <typename R>
@@ -2949,7 +2949,7 @@ namespace trompeloeil
   template <typename Sig>
   using condition_list = list<condition_base<Sig>, delete_disposer>;
 
-  template<typename Sig, typename Cond>
+  template <typename Sig, typename Cond>
   struct condition : public condition_base<Sig>
   {
     condition(
@@ -2971,8 +2971,8 @@ namespace trompeloeil
     Cond c;
   };
 
-  template<typename Sig>
-  struct side_effect_base : public list_elem<side_effect_base<Sig> >
+  template <typename Sig>
+  struct side_effect_base : public list_elem<side_effect_base<Sig>>
   {
     virtual
     ~side_effect_base() = default;
@@ -2984,10 +2984,10 @@ namespace trompeloeil
     const = 0;
   };
 
-  template<typename Sig>
+  template <typename Sig>
   using side_effect_list = list<side_effect_base<Sig>, delete_disposer>;
 
-  template<typename Sig, typename Action>
+  template <typename Sig, typename Action>
   struct side_effect : public side_effect_base<Sig>
   {
     template <typename A>
@@ -3011,7 +3011,7 @@ namespace trompeloeil
   template <unsigned long long L, unsigned long long H = L>
   struct multiplicity { };
 
-  template<typename R, typename Parent>
+  template <typename R, typename Parent>
   struct return_injector : Parent
   {
     using return_type = R;
@@ -3303,13 +3303,13 @@ namespace trompeloeil
   };
 
 
-  template<typename Sig, typename Value>
+  template <typename Sig, typename Value>
   struct call_matcher : public call_matcher_base<Sig>, expectation
   {
     using call_matcher_base<Sig>::name;
     using call_matcher_base<Sig>::loc;
 
-    template<typename ... U>
+    template <typename ... U>
     call_matcher(
       char const *file,
       unsigned long line,
@@ -3569,7 +3569,6 @@ namespace trompeloeil
     typename = detail::enable_if_t<N <= std::tuple_size<T>::value>,
     typename R = decltype(std::get<N-1>(std::declval<T>()))
   >
-  inline
   constexpr
   TROMPELOEIL_DECLTYPE_AUTO
   arg(
@@ -4495,7 +4494,7 @@ namespace trompeloeil
     auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
     auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
-    return ::trompeloeil::decay_return_type(__VA_ARGS__);                                                        \
+    return ::trompeloeil::decay_return_type(__VA_ARGS__);                      \
   })
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
