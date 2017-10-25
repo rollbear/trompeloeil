@@ -26,5 +26,5 @@ int main()
   trompeloeil::sequence s;
   REQUIRE_CALL(obj, f())
     .TIMES(0)
-      .IN_SEQUENCE(s);
+    .IN_SEQUENCE(s);
 }

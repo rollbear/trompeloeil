@@ -21,7 +21,6 @@ struct MS
 
 int main()
 {
-  trompeloeil::sequence seq;
   MS obj;
   REQUIRE_CALL(obj, f())
     .TIMES(AT_LEAST(1))

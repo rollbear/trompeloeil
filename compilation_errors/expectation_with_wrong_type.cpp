@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//argument.*2
+//(cannot initialize|no known conversion).*trompeloeil::param_list_t<int.*\(int, int, int\), 1.*>
 
 #include <trompeloeil.hpp>
 
