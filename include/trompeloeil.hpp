@@ -276,14 +276,15 @@ namespace trompeloeil
 
     /* Implement C++14 features using only C++11 entities. */
 
-    /* <memory>
+    /* <memory> */
+
+    /* Implementation of make_unique is from
      *
-     * Sample implementation from
-     * Stephan T. Lavavej, "make_unique (Revision 1)," N3656, 18 April 2013.
+     * Stephan T. Lavavej, "make_unique (Revision 1),"
+     * ISO/IEC JTC1 SC22 WG21 N3656, 18 April 2013.
      * Available: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3656.htm
      * Accessed: 14 June 2017
      */
-
     template <class T>
     struct _Unique_if
     {
@@ -321,9 +322,18 @@ namespace trompeloeil
     typename _Unique_if<T>::_Known_bound
     make_unique(Args&&...) = delete;
 
-    /* <type_traits>
+    /* <type_traits> */
+
+    /* The implementation of these is from
      *
-     * Sample implementations from
+     * Walter E. Brown, "TransformationTraits Redux, v2,"
+     * ISO/IEC JTC1 SC22 WG21 N3655, 18 April 2013.
+     * Available: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3655.pdf
+     * Accessed: 2 November 2017
+     *
+     * Minor changes to capitalize template parameter `bool B` has been made.
+     *
+     * See also:
      * http://en.cppreference.com/w/cpp/types/conditional
      * http://en.cppreference.com/w/cpp/types/decay
      * http://en.cppreference.com/w/cpp/types/enable_if
@@ -331,7 +341,6 @@ namespace trompeloeil
      * http://en.cppreference.com/w/cpp/types/remove_reference
      * Accessed: 17 May 2017
      */
-
     template <bool B, typename T, typename F>
     using conditional_t = typename std::conditional<B, T, F>::type;
 
@@ -347,14 +356,19 @@ namespace trompeloeil
     template <typename T>
     using remove_reference_t = typename std::remove_reference<T>::type;
 
-    /* <utility>
+    /* <utility> */
+
+    /* This implementation of exchange is from
      *
-     * Sample implementations from
+     * Jeffrey Yasskin, "exchange() utility function, revision 3,"
+     * ISO/IEC JTC1 SC22 WG21 N3688, 19 April 2013.
+     * Available: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3668.html
+     * Accessed: 2 November 2017
+     *
+     * See also:
      * http://en.cppreference.com/w/cpp/utility/exchange
-     * http://en.cppreference.com/w/cpp/utility/integer_sequence
      * Accessed: 17 May 2017
      */
-
     template<class T, class U = T>
     inline
     T
@@ -367,19 +381,31 @@ namespace trompeloeil
       return old_value;
     }
 
-    template <typename T, T... Ints>
+    /* integer_sequence and index_sequence implemenations are from
+     *
+     * Jonathan Wakely, "Compile-time integer sequences,"
+     * ISO/IEC JTC1 SC22 WG21 N3658, 18 April 2013.
+     * Available: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3658.html
+     * Accessed: 2 November 2017
+     *
+     * See also:
+     * http://en.cppreference.com/w/cpp/utility/integer_sequence
+     * Accessed: 17 May 2017
+     */
+    template <typename T, T... I>
     struct integer_sequence
     {
+      // Replaces a typedef used in the definition found in N3658.
       using value_type = T;
 
       static constexpr size_t size() noexcept
       {
-          return sizeof...(Ints);
+          return sizeof...(I);
       }
     };
 
-    template <size_t... Ints>
-    using index_sequence = integer_sequence<size_t, Ints...>;
+    template <size_t... I>
+    using index_sequence = integer_sequence<size_t, I...>;
 
     /* This implementation of make_integer_sequence is from boost/mp11,
      *
@@ -496,12 +522,6 @@ namespace trompeloeil
     using std::make_index_sequence;
 
 # endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
-
-    template <bool b>
-    using cond = std::conditional<b, std::true_type, std::false_type>;
-
-    template <bool b>
-    using cond_t = typename cond<b>::type;
 
   }
 
@@ -920,9 +940,9 @@ namespace trompeloeil
   {
     // g++-4.9 uses C++11 rules for constexpr function, so can't
     // break this up into smaller bits
-    using tag = detail::cond_t<is_null_comparable<T>::value
-                             && !is_matcher<T>::value
-                             && !std::is_array<T>::value>;
+    using tag = std::integral_constant<bool, is_null_comparable<T>::value
+                                       && !is_matcher<T>::value
+                                       && !std::is_array<T>::value>;
 
     return ::trompeloeil::is_null(t, tag{});
   }
@@ -3594,7 +3614,8 @@ namespace trompeloeil
   template <
     int N,
     typename T,
-    typename R = decltype(arg<N>(std::declval<T*>(), detail::cond_t<(N <= std::tuple_size<T>::value)>{}))
+    typename R = decltype(arg<N>(std::declval<T*>(),
+                                 std::integral_constant<bool, (N <= std::tuple_size<T>::value)>{}))
   >
   TROMPELOEIL_DECLTYPE_AUTO
   mkarg(
@@ -3602,7 +3623,7 @@ namespace trompeloeil
   noexcept
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
-    return arg<N>(&t, detail::cond_t<(N <= std::tuple_size<T>::value)>{});
+    return arg<N>(&t, std::integral_constant<bool, (N <= std::tuple_size<T>::value)>{});
   }
 
   template <typename Mock>
@@ -3643,7 +3664,7 @@ namespace trompeloeil
       constexpr bool forbidden = call::upper_call_limit == 0ULL;
       constexpr bool valid_return_type = call::throws || retmatch || forbidden;
       static_assert(valid_return_type, "RETURN missing for non-void function");
-      auto tag = detail::cond_t<valid_return_type>{};
+      auto tag = std::integral_constant<bool, valid_return_type>{};
       return make_expectation(tag, std::move(t));
     }
     Mock& obj;
@@ -4046,12 +4067,6 @@ namespace trompeloeil
   mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations)
 
 
-#define TROMPELOEIL_ADD_NULL_MODIFIER(...)                                     \
-  TROMPELOEIL_ADD_NULL_MODIFIER_IMPL(__VA_ARGS__ .null_modifier())
-
-#define TROMPELOEIL_ADD_NULL_MODIFIER_IMPL(...) __VA_ARGS__
-
-
 #define TROMPELOEIL_CXX11_AS_STRING_IMPL(x) #x
 #define TROMPELOEIL_CXX11_AS_STRING(x) TROMPELOEIL_CXX11_AS_STRING_IMPL(x)
 
@@ -4065,12 +4080,8 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_REQUIRE_CALL_V(...)                                        \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_REQUIRE_CALL_V3 TROMPELOEIL_LPAREN          \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN        \
       TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
-
-#define TROMPELOEIL_REQUIRE_CALL_V3(N, ...)                                    \
-    TROMPELOEIL_IDENTITY(                                                      \
-      TROMPELOEIL_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_REQUIRE_CALL_IMPL(N, ...)                                  \
@@ -4079,31 +4090,13 @@ namespace trompeloeil
 
 // Accept only two arguments
 #define TROMPELOEIL_REQUIRE_CALL_F(obj, func)                                  \
-  TROMPELOEIL_REQUIRE_CALL_0(obj, func)
+  auto TROMPELOEIL_COUNT_ID(call_obj) =                                        \
+    TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, #obj, #func, .null_modifier())
 
 // Accept three or more arguments.
 #define TROMPELOEIL_REQUIRE_CALL_T(obj, func, ...)                             \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
-
-#define TROMPELOEIL_REQUIRE_CALL_V_(obj, func, obj_s, func_s, ...)             \
   auto TROMPELOEIL_COUNT_ID(call_obj) =                                        \
-    TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, obj_s, func_s, __VA_ARGS__)
-
-#define TROMPELOEIL_REQUIRE_CALL_0(obj, func)                                  \
-  TROMPELOEIL_REQUIRE_CALL_0_(obj, func, #obj, #func)
-
-#define TROMPELOEIL_REQUIRE_CALL_0_(obj, func, obj_s, func_s)                  \
-  auto TROMPELOEIL_COUNT_ID(call_obj) =                                        \
-    TROMPELOEIL_REQUIRE_CALL_0_LAMBDA(obj, func, obj_s, func_s)
-
-#define TROMPELOEIL_REQUIRE_CALL_0_LAMBDA(obj, func, obj_s, func_s)            \
-  [&]                                                                          \
-  {                                                                            \
-    using s_t = decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_self_, func));   \
-    using e_t = decltype((obj).TROMPELOEIL_CONCAT(trompeloeil_tag_,func));     \
-                                                                               \
-    return TROMPELOEIL_REQUIRE_CALL_LAMBDA_OBJ(obj, func, obj_s, func_s);      \
-  }()
+    TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, #obj, #func, __VA_ARGS__)
 
 
 #define TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, obj_s, func_s, ...)       \
@@ -4127,12 +4120,8 @@ namespace trompeloeil
 
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_V(...)                                  \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_REQUIRE_CALL_V3 TROMPELOEIL_LPAREN    \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN  \
     TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
-
-#define TROMPELOEIL_NAMED_REQUIRE_CALL_V3(N, ...)                              \
-  TROMPELOEIL_IDENTITY(                                                        \
-    TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL(N, ...)                            \
@@ -4141,26 +4130,16 @@ namespace trompeloeil
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_F(obj, func)                            \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_0(obj, func)
+  TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, #obj, #func, .null_modifier())
 
 // Accept three or more arguments.
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj, func, ...)                       \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func, __VA_ARGS__)
-
-#define TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, obj_s, func_s, ...)       \
-  TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, obj_s, func_s, __VA_ARGS__)
-
-#define TROMPELOEIL_NAMED_REQUIRE_CALL_0(obj, func)                            \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func, .null_modifier())
+  TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, #obj, #func, __VA_ARGS__)
 
 
 #define TROMPELOEIL_ALLOW_CALL_V(...)                                          \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_ALLOW_CALL_V3 TROMPELOEIL_LPAREN            \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_ALLOW_CALL_IMPL TROMPELOEIL_LPAREN          \
     TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
-
-#define TROMPELOEIL_ALLOW_CALL_V3(N, ...)                                      \
-  TROMPELOEIL_IDENTITY(                                                        \
-    TROMPELOEIL_ALLOW_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_ALLOW_CALL_IMPL(N, ...)                                    \
@@ -4169,28 +4148,18 @@ namespace trompeloeil
 
 // Accept only two arguments
 #define TROMPELOEIL_ALLOW_CALL_F(obj, func)                                    \
-  TROMPELOEIL_ALLOW_CALL_0(obj, func)
+  TROMPELOEIL_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_TIMES(0, ~0ULL))
 
 // Accept three or more arguments.
 #define TROMPELOEIL_ALLOW_CALL_T(obj, func, ...)                               \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj,                                             \
-                              func,                                            \
-                              #obj,                                            \
-                              #func,                                           \
-                              .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
-
-#define TROMPELOEIL_ALLOW_CALL_0(obj, func)                                    \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, #obj, #func,                          \
-    .TROMPELOEIL_TIMES(0, ~0ULL))
+  TROMPELOEIL_REQUIRE_CALL_T(obj,                                              \
+                             func,                                             \
+                             .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
 
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_V(...)                                    \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_ALLOW_CALL_V3 TROMPELOEIL_LPAREN      \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_ALLOW_CALL_IMPL TROMPELOEIL_LPAREN    \
     TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
-
-#define TROMPELOEIL_NAMED_ALLOW_CALL_V3(N, ...)                                \
-  TROMPELOEIL_IDENTITY(                                                        \
-    TROMPELOEIL_NAMED_ALLOW_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_NAMED_ALLOW_CALL_IMPL(N, ...)                              \
@@ -4199,28 +4168,18 @@ namespace trompeloeil
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_ALLOW_CALL_F(obj, func)                              \
-  TROMPELOEIL_NAMED_ALLOW_CALL_0(obj, func)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_TIMES(0, ~0ULL))
 
 // Accept three or more arguments.
 #define TROMPELOEIL_NAMED_ALLOW_CALL_T(obj, func, ...)                         \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj,                                       \
-                                    func,                                      \
-                                    #obj,                                      \
-                                    #func,                                     \
-                                    .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
-
-#define TROMPELOEIL_NAMED_ALLOW_CALL_0(obj, func)                              \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func,                    \
-    .TROMPELOEIL_TIMES(0, ~0ULL))
+  TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj,                                        \
+                                   func,                                       \
+                                   .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
 
 
 #define TROMPELOEIL_FORBID_CALL_V(...)                                         \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_FORBID_CALL_V3 TROMPELOEIL_LPAREN           \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_FORBID_CALL_IMPL TROMPELOEIL_LPAREN         \
     TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
-
-#define TROMPELOEIL_FORBID_CALL_V3(N, ...)                                     \
-  TROMPELOEIL_IDENTITY(                                                        \
-    TROMPELOEIL_FORBID_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_FORBID_CALL_IMPL(N, ...)                                   \
@@ -4229,28 +4188,18 @@ namespace trompeloeil
 
 // Accept only two arguments
 #define TROMPELOEIL_FORBID_CALL_F(obj, func)                                   \
-  TROMPELOEIL_FORBID_CALL_0(obj, func)
+  TROMPELOEIL_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_TIMES(0))
 
 // Accept three or more arguments.
 #define TROMPELOEIL_FORBID_CALL_T(obj, func, ...)                              \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj,                                             \
-                              func,                                            \
-                              #obj,                                            \
-                              #func,                                           \
-                              .TROMPELOEIL_TIMES(0) __VA_ARGS__)
-
-#define TROMPELOEIL_FORBID_CALL_0(obj, func)                                   \
-  TROMPELOEIL_REQUIRE_CALL_V_(obj, func, #obj, #func,                          \
-    .TROMPELOEIL_TIMES(0))
+  TROMPELOEIL_REQUIRE_CALL_T(obj,                                              \
+                             func,                                             \
+                             .TROMPELOEIL_TIMES(0) __VA_ARGS__)
 
 
 #define TROMPELOEIL_NAMED_FORBID_CALL_V(...)                                   \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_FORBID_CALL_V3 TROMPELOEIL_LPAREN     \
+  TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_FORBID_CALL_IMPL TROMPELOEIL_LPAREN   \
     TROMPELOEIL_MORE_THAN_TWO_ARGS(__VA_ARGS__), __VA_ARGS__))
-
-#define TROMPELOEIL_NAMED_FORBID_CALL_V3(N, ...)                               \
-  TROMPELOEIL_IDENTITY(                                                        \
-    TROMPELOEIL_NAMED_FORBID_CALL_IMPL TROMPELOEIL_LPAREN N, __VA_ARGS__))
 
 // Dispatch to _F (0, 1, or 2 arguments) or _T (> 2 arguments) macro
 #define TROMPELOEIL_NAMED_FORBID_CALL_IMPL(N, ...)                             \
@@ -4259,19 +4208,13 @@ namespace trompeloeil
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_FORBID_CALL_F(obj, func)                             \
-  TROMPELOEIL_NAMED_FORBID_CALL_0(obj, func)
+  TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_TIMES(0))
 
 // Accept three or more arguments.
 #define TROMPELOEIL_NAMED_FORBID_CALL_T(obj, func, ...)                        \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj,                                       \
-                                    func,                                      \
-                                    #obj,                                      \
-                                    #func,                                     \
-                                    .TROMPELOEIL_TIMES(0) __VA_ARGS__)
-
-#define TROMPELOEIL_NAMED_FORBID_CALL_0(obj, func)                             \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_V_(obj, func, #obj, #func,                    \
-    .TROMPELOEIL_TIMES(0))
+  TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj,                                        \
+                                   func,                                       \
+                                   .TROMPELOEIL_TIMES(0) __VA_ARGS__)
 
 
 #if (TROMPELOEIL_CPLUSPLUS > 201103L)

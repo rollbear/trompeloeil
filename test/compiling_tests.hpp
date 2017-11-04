@@ -44,13 +44,14 @@
 #endif
 
 /*
- * The implementation of <regex> is not complete for libstdc++.
+ * The implementation of <regex> is not complete for libstdc++ in GCC 4.8.x.
  * For this reason most tests with reporting will be disabled
  * if compiling with libstdc++.
  */
 #if !defined(TROMPELOEIL_TEST_REGEX_FAILURES)
 
-#if TROMPELOEIL_USING_LIBSTDCPP
+#if TROMPELOEIL_USING_LIBSTDCPP && \
+    TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
 #define TROMPELOEIL_TEST_REGEX_FAILURES 0
 #else
 #define TROMPELOEIL_TEST_REGEX_FAILURES 1
