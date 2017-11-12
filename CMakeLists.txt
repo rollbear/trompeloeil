@@ -108,6 +108,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   add_executable(
     self_test
     EXCLUDE_FROM_ALL
+    test/test_main.cpp
     test/compiling_tests.cpp
     )
 

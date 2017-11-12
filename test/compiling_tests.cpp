@@ -13,12 +13,12 @@
 
 #define TROMPELOEIL_SANITY_CHECKS
 #include <trompeloeil.hpp>
-#define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <regex>
+#include<iostream>
 
 using namespace std::string_literals;
 
