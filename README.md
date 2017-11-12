@@ -15,7 +15,7 @@ CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=mast
 What is it?
 -----------
 
-A thread-safe header-only mocking framework for C++14 using the Boost Software License 1.0
+A thread-safe header-only mocking framework for C++11/14 using the Boost Software License 1.0
 
 Documentation
 -------------
@@ -27,6 +27,8 @@ Documentation
 - [Cheat Sheet (2*A4)](docs/trompeloeil_cheat_sheet.pdf)
 - [Cook Book](docs/CookBook.md)
 - [FAQ](docs/FAQ.md)
+- [Backward compatibility with earlier versions of C++](docs/Backward.md)
+- [Platform and library support for Trompeloeil](docs/PlatformsAndLibraries.md)
 - [Reference](docs/reference.md)
 
 Also, follow up with the post on [sequencing](https://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html) for examples on how to restrict or relax allowed sequences of matching calls.  
@@ -100,9 +102,16 @@ Compiler compatibility
 
 Trompeloeil is known to work with:
 
-* GCC 4.9, 5, 6, 7
+* GCC [4.8.4](docs/Backward.md#gxx48x_limitations)+, 4.9.3+, 5, 6, 7
 * Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5
 * Visual Studio 2015, 2017
+
+Latest patch level releases are assumed in the versions listed above.
+
+Further details on C++11 support, platform and library limitations, may
+be found in
+- [Backward compatibility with earlier versions of C++](docs/Backward.md)
+- [Platform and library support for Trompeloeil](docs/PlatformsAndLibraries.md)
 
 <A name="videos"/> Videos
 ------

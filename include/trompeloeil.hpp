@@ -857,7 +857,8 @@ namespace trompeloeil
 
 #else
 
-    // g++ 4.8 gives a conversion is ambiguous error if this operator is defined.
+    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
+    // if this operator is defined.
 
     template <typename V,
               typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
@@ -1626,7 +1627,8 @@ namespace trompeloeil
 
 #else
 
-    // g++ 4.8 gives a conversion is ambiguous error if this operator is defined.
+    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
+    // if this operator is defined.
     template <typename T,
               typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
     operator T&&()

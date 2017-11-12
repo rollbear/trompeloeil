@@ -56,9 +56,14 @@ Your tests can now `#include <chimera.hpp>` and use (for example)
 ## <A name="compilers"/>Q. Which compilers supports *Trompeloeil*?
 
 **A.** *Trompeloeil* is known to work well with:
-- [g++](http://gcc.gnu.org) 4.9 and later.
-- [clang++](http://clang.llvm.org) 3.5 and later
+- [g++](http://gcc.gnu.org) 4.9.3 and later.
+- [clang++](http://clang.llvm.org) 3.5 and later.
 - [VisualStudio](http://visualstudio.com) 2015 and later.
+
+*Trompeloeil* is known to work somewhat with *g++* 4.8.\[4, 5\] and
+somewhat less with *g++* 4.8.3.  *`g++ 4.8.x`* only compiles with a
+C++11 dialect (e.g. *`-std=c++11`*).  For details, see
+["G++ 4.8.x limitations"](Backward.md/#gxx48x_limitations).
 
 ## <A name="unit_test_adaptation"/>Q. How do I use *Trompeloeil* with XXX unit test framework?
 
@@ -286,6 +291,10 @@ The only thing "needed" that *`C++11`* doesn't provide is
 It is perhaps possible that "needed" is too strong a word, that it is
 in fact possible without them, in which case a back port to *`C++11`* could be
 made.
+
+And indeed, since this FAQ question was first answered, a back port of a
+useful subset of Trompeloeil has been completed for use with *`C++11`*.
+For details, see ["Backward compatibility with earlier versions of C++"](Backward.md).
 
 ## <A name="why_hex"/> Q. Why are my parameter values printed as hexadecimal dumps in violation reports?
 
