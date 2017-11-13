@@ -52,7 +52,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
     file(
       DOWNLOAD
-        https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch.hpp  ${CATCH_DIR}/catch.hpp
+        https://raw.githubusercontent.com/catchorg/Catch2/v1.11.0/single_include/catch.hpp  ${CATCH_DIR}/catch.hpp
       STATUS
         status
       LOG
@@ -128,7 +128,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       set(TSAN "-fsanitize=thread")
       set(SSAN "-fsanitize=address")
     elseif (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0"))
-      set(SSAN "-fsanitize=undefined,address -fno-sanitize-address-use-after-scope")
+      set(SSAN "-fsanitize=undefined,address")
     endif()
 
   endif()
@@ -136,7 +136,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   add_executable(
     self_test
     EXCLUDE_FROM_ALL
-    test/test_main.cpp
     test/compiling_tests.cpp
     test/compiling_tests_11.cpp
     test/compiling_tests_14.cpp
