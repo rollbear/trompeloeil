@@ -16,8 +16,6 @@ if (CXX_STANDARD MATCHES "11")
 else()
   set(CMAKE_CXX_STANDARD 14)
 endif()
-set(CMAKE_CXX_STANDARD_REQUIRED YES)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(trompeloeil INTERFACE)
 
@@ -127,8 +125,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
        (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9"))
       set(TSAN "-fsanitize=thread")
       set(SSAN "-fsanitize=address")
-    elseif (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0"))
-      set(SSAN "-fsanitize=undefined,address")
     endif()
 
   endif()

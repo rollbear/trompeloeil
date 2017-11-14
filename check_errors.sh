@@ -21,6 +21,10 @@ FAILURES=0
 #echo "CXXFLAGS=$CXXFLAGS"
 #echo "CPPFLAGS=$CPPFLAGS"
 
+# Default CXXFLAGS to -std=c++14 if not set in the environment
+# for backward compatibility.
+CXXFLAGS=${CXXFLAGS-"-std=c++14"}
+
 #${CXX} --version
 cd compilation_errors
 SCRIPT='

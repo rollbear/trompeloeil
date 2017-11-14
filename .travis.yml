@@ -30,7 +30,7 @@ matrix:
         - CXX=${COMPILER} CXXFLAGS="${CXXFLAGS}" ./check_errors.sh
         - mkdir build && cd build
         - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
-        - make -j 4 VERBOSE=1 self_test
+        - make -j 4 VERBOSE=1 self_test kcov
 
     - os: linux
       addons:
@@ -72,7 +72,7 @@ matrix:
         - CXX=${COMPILER} CXXFLAGS="${CXXFLAGS}" ./check_errors.sh
         - mkdir build && cd build
         - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
-        - make -j 4 VERBOSE=1 self_test
+        - make -j 4 VERBOSE=1 self_test kcov
 
     - os: linux
       addons:
