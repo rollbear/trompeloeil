@@ -19,7 +19,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-3.7" CXXFLAGS="-std=c++14"
+        - COMPILER="clang++-3.7"
       before_script:
         # The clang runtime for the address sanitizer is missing from the
         # apt, hence the downloaded tarballs.
@@ -27,7 +27,7 @@ matrix:
         - wget http://releases.llvm.org/3.7.1/clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - tar -xvf clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - sudo cp -n clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.7.1/lib/linux/*.a /usr/lib/llvm-3.7/lib/clang/3.7.1/lib/linux/
-        - CXX=${COMPILER} CXXFLAGS="${CXXFLAGS}" ./check_errors.sh
+        - CXX=${COMPILER} ./check_errors.sh
         - mkdir build && cd build
         - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
         - make -j 4 VERBOSE=1 self_test kcov
@@ -60,7 +60,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-3.9" CXXFLAGS="-std=c++14"
+        - COMPILER="clang++-3.9"
       before_script:
         # Unlike with clang++-3.7, the runtime libraries exists with 3.9,
         # but still doesn't work because of gold linker version incompatibility.
@@ -69,7 +69,7 @@ matrix:
         - wget http://releases.llvm.org/3.9.1/clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - tar -xvf clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - sudo cp clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.9.1/lib/linux/*.a /usr/lib/llvm-3.9/lib/clang/3.9.1/lib/linux/
-        - CXX=${COMPILER} CXXFLAGS="${CXXFLAGS}" ./check_errors.sh
+        - CXX=${COMPILER} ./check_errors.sh
         - mkdir build && cd build
         - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
         - make -j 4 VERBOSE=1 self_test kcov
