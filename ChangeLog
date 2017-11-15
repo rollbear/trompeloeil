@@ -9,6 +9,8 @@
 	    in `g++` when compiling `libc++`.
 	  * Refined which sanitizers can be used based on given compiler
 	    and compiler version.
+	  * Bumped kcov to v34.
+	  * Changed kcov include pattern to include/trompeloeil.hpp.
 	* `README.md`
 	  * Updated supported compiler list.
 	  * Added link to `docs/Backward.md`.

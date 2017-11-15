@@ -70,7 +70,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     GIT_REPOSITORY
       https://github.com/simonkagstrom/kcov
     GIT_TAG
-      v33
+      v34
     INSTALL_DIR
       ${CMAKE_CURRENT_BINARY_DIR}/kcov
     CMAKE_ARGS
@@ -199,7 +199,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   add_custom_target(
     run_coverage
     COMMAND
-      ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
+      ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=include/trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
     DEPENDS
       self_test
       kcov
