@@ -76,8 +76,6 @@ namespace
                REQUIRE_CALL_V(obj, f1(0));        \
                REQUIRE_CALL_V(obj, f2(0,1))
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
   std::string escape_parens(const std::string& s)
   {
     constexpr auto backslash = '\\';
@@ -97,7 +95,26 @@ namespace
     return tmp;
   }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
+#if TROMPELOEIL_TEST_REGEX_FAILURES
+
+  bool is_match(const std::string& msg, const std::string& re)
+  {
+    return std::regex_search(msg, std::regex(re));
+  }
+
+#else /* TROMPELOEIL_TEST_REGEX_FAILURES */
+
+  /*
+   * g++-4.8 -std=c++11: If std::regex_search is used,
+   * the test cases fail with exception std::regex_error instead of reporting.
+   * In this case replace a regex match with less precise string match.
+   */
+  bool is_match(const std::string& msg, const std::string& re)
+  {
+    return msg.c_str() && re.c_str(); // true. Enhancement: match by string.
+  }
+
+#endif /* !TROMPELOEIL_TEST_REGEX_FAILURES */
 
 } /* unnamed namespace */
 
@@ -165,10 +182,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
-// g++-4.8 -std=c++11 - This test case fails with exception regex_error instead of reported
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: incorrect sequence on moved seq object is reported",
@@ -197,11 +210,9 @@ TEST_CASE_METHOD(
     auto re = R":(Sequence mismatch.*\"seq2\".*matching.*obj.func\(_,_\).*has obj.count\(\) at.*first):";
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -231,10 +242,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
-// g++-4.8 -std=c++11 fails with std::regex_error.
 
 TEST_CASE_METHOD(
   Fixture,
@@ -267,15 +274,9 @@ TEST_CASE_METHOD(
   {
     REQUIRE(!reports.empty());
     auto re = R":(Sequence mismatch.*\"seq\".*matching.*obj2.count\(\).*has obj2\.func\(_,_\) at.*first):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
-// g++-4.8 -std=c++11 fails with false from std::regex_search()
 
 TEST_CASE_METHOD(
   Fixture,
@@ -312,11 +313,9 @@ TEST_CASE_METHOD(
   {
     REQUIRE(!reports.empty());
     auto re = R":(Sequence mismatch.*seq2.*of obj2\.count\(\).*has obj1.count\(\).*first):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -376,10 +375,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
-// g++-4.8 -std=c++11 fails with false from std::regex_search()
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: breaking a sequence before retirement is illegal",
@@ -411,13 +406,11 @@ TEST_CASE_METHOD(
     REQUIRE(reports.size() == 1U);
     auto re = R":(Sequence mismatch.*seq1.*of obj1\.func\(_, _\).*has obj1\.count\(\).*first):";
     INFO("report=" << reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg,  std::regex(re)));
+    REQUIRE(is_match(reports.front().msg,  re));
     auto& first = reports.front();
     INFO(first.file << ':' << first.line << "\n" << first.msg);
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -447,8 +440,6 @@ TEST_CASE_METHOD(
   REQUIRE(s == "123");
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: Sequence object destruction with live expectations is reported",
@@ -477,10 +468,8 @@ TEST_CASE_METHOD(
   R":(\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   missing obj\.foo\(_\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 ):";
-  REQUIRE(std::regex_search(msg, std::regex(re)));
+  REQUIRE(is_match(msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1040,8 +1029,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: An uncomparable but constructible type by reference mmismatch is reported",
@@ -1063,13 +1050,9 @@ TEST_CASE_METHOD(
 
 Tried u\.func_ustr\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
     INFO("msg=" << msg);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1092,11 +1075,9 @@ TEST_CASE_METHOD(
 
 Tried u\.func_ustrv\("str"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
     INFO("msg=" << msg);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1414,8 +1395,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: long value with mismatches int is reported for duck typed eq",
@@ -1437,11 +1416,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func_v\(trompeloeil::eq\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == 3):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1455,8 +1432,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1479,11 +1454,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func_cstr\(trompeloeil::eq\(std::string\(\"foo\"\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == foo):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests of parameter matching using explicitly typed matcher eq
 
@@ -1500,8 +1473,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1525,11 +1496,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func\(trompeloeil::eq<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == 3):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests of parameter matching using duck typed matcher ne
 
@@ -1559,8 +1528,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: long value with matching int is reported for duck typed ne",
@@ -1582,11 +1549,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func_v\(trompeloeil::ne\(3L\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != 3):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1600,8 +1565,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1624,11 +1587,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func_cstr\(trompeloeil::ne\(std::string\(\"foo\"\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != foo):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests of parameter matching using typed matcher ne
 
@@ -1644,8 +1605,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1667,11 +1626,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.foo\(trompeloeil::ne<std::string>\("bar"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != bar):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1686,8 +1643,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1710,11 +1665,9 @@ TEST_CASE_METHOD(
 Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1729,8 +1682,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1754,11 +1705,9 @@ TEST_CASE_METHOD(
 Tried obj\.foo\(trompeloeil::ne<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 //
 
@@ -1775,8 +1724,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1800,11 +1747,9 @@ TEST_CASE_METHOD(
 Tried obj\.foo\(trompeloeil::eq<int\*>\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == nullptr):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1818,8 +1763,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1842,11 +1785,9 @@ TEST_CASE_METHOD(
 Tried obj\.foo\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 //
 
@@ -1862,8 +1803,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1886,11 +1825,9 @@ TEST_CASE_METHOD(
 Tried obj\.foo\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == nullptr):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1904,8 +1841,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1928,11 +1863,9 @@ TEST_CASE_METHOD(
 Tried obj\.bar\(trompeloeil::ne\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 != .*):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 //
 
@@ -1948,8 +1881,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1972,11 +1903,9 @@ TEST_CASE_METHOD(
 Tried obj\.bar\(trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == nullptr):";
 
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 //
 // tests of parameter matching using duck typed matcher ge
@@ -2013,8 +1942,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a lesser value is reported by ge",
@@ -2037,11 +1964,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.getter\(trompeloeil::ge\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 >= 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests of parameter matching using typed matcher ge
 
@@ -2073,8 +1998,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a lesser value is reported by disambiguated ge<int&>",
@@ -2095,15 +2018,11 @@ TEST_CASE_METHOD(
 
 Tried obj\.func\(trompeloeil::ge<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 >= 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
 // tests of parameter matching using duck typed matcher gt
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2127,11 +2046,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2148,8 +2065,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2173,15 +2088,11 @@ TEST_CASE_METHOD(
 
 Tried obj.getter\(trompeloeil::gt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
 // tests of parameter matching using typed matcher gt
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2203,11 +2114,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2222,8 +2131,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2245,15 +2152,11 @@ TEST_CASE_METHOD(
 
 Tried obj.func\(trompeloeil::gt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 > 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
 // tests of parameter matching using duck typed matcher lt
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2277,13 +2180,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2307,11 +2206,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.getter\(trompeloeil::lt\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2330,8 +2227,6 @@ TEST_CASE_METHOD(
 }
 
 // tests of parameter matching using typed matcher lt
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2353,13 +2248,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2381,11 +2272,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func\(trompeloeil::lt<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 < 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2419,8 +2308,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a greater value is reported by le",
@@ -2443,11 +2330,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.getter\(trompeloeil::le\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 <= 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2481,8 +2366,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a greater value is reported by disambiguated le<int&>",
@@ -2503,11 +2386,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.func\(trompeloeil::le<int&>\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 <= 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2567,7 +2448,7 @@ TEST_CASE_METHOD(
 
 Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2598,7 +2479,7 @@ TEST_CASE_METHOD(
 
 Tried obj.c_c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2648,7 +2529,7 @@ TEST_CASE_METHOD(
 
 Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2679,7 +2560,7 @@ TEST_CASE_METHOD(
 
 Tried obj.c_str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2728,7 +2609,7 @@ TEST_CASE_METHOD(
 
 Tried obj\.strcref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2779,7 +2660,7 @@ TEST_CASE_METHOD(
 
 Tried obj.strref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2830,7 +2711,7 @@ TEST_CASE_METHOD(
 
 Tried obj.strrref\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2881,7 +2762,7 @@ TEST_CASE_METHOD(
 
 Tried obj.str\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2911,7 +2792,7 @@ TEST_CASE_METHOD(
 
 Tried obj.overload\(trompeloeil::re<char const\*>\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /mid/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -2996,7 +2877,7 @@ TEST_CASE_METHOD(
 
 Tried obj.str\(trompeloeil::re\("end\$", std::regex_constants::match_not_eol\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /end\$/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -3026,7 +2907,7 @@ TEST_CASE_METHOD(
 
 Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_constants::match_not_eol\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching regular expression /end\$/):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -3074,7 +2955,7 @@ TEST_CASE_METHOD(
 
 Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected not _1 == foo):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
@@ -3092,8 +2973,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3116,11 +2995,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.overload\(!trompeloeil::eq<std::string>\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected not _1 == foo):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests of parameter matching using ptr deref matcher
 
@@ -3205,8 +3082,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: nullptr when equal ptr deref expected is reported",
@@ -3229,13 +3104,9 @@ Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
 
     INFO("msg=" << reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3261,13 +3132,9 @@ Tried obj\.pp\(\*trompeloeil::eq\(nullptr\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == nullptr):";
 
     INFO("msg=" << reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3291,11 +3158,9 @@ TEST_CASE_METHOD(
 Tried obj\.ptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
     INFO(reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3325,8 +3190,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: unique_ptr<>() value when equal ptr deref expected is reported",
@@ -3348,13 +3211,9 @@ TEST_CASE_METHOD(
 Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
     INFO("msg=" << reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3376,11 +3235,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.uptr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3409,8 +3266,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: unique_ptr<>() rvalue ref when equal ptr deref expected is reported",
@@ -3431,13 +3286,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3459,11 +3310,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3493,8 +3342,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: unique_ptr<>() const lvalue ref when equal ptr deref expected is reported",
@@ -3516,13 +3363,9 @@ TEST_CASE_METHOD(
 Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
     INFO(reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3546,11 +3389,9 @@ Tried obj\.uptrcr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
 
     INFO(reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3564,8 +3405,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3582,12 +3421,10 @@ Expected obj\.uptrcr\(\*trompeloeil::eq\(3\)\) to be called once, actually never
   param \*_1 == 3):";
 
   INFO(reports.front().msg);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  REQUIRE(is_match(reports.front().msg, re));
 
 //  REQUIRE(reports.front().msg == "");
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 #if TROMPELOEIL_TEST_REGEX_FAILURES
 
@@ -3629,7 +3466,7 @@ TEST_CASE_METHOD(
 
 Tried obj\.strptr\(\*trompeloeil::re\("end\$"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 matching regular expression /end\$/):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
 
@@ -3685,8 +3522,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: custom matcher of unlisted element is reported",
@@ -3710,11 +3545,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.getter\(any_of\(\{ 1,5,77 \}\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 matching any_of\(\{ 1, 5, 77 \}\)):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3745,8 +3578,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: an empty string is reported",
@@ -3768,11 +3599,9 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 is not empty):";
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 namespace
 {
@@ -3812,8 +3641,6 @@ trompeloeil::make_matcher<kind>(
     max);
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a custom duck typed make_matcher-matcher that fails is reported",
@@ -3835,11 +3662,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.foo\(cxx11_is_clamped\("b", "d"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 in range \[b, d\]):";
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4000,8 +3825,6 @@ TEST_CASE_METHOD(
   REQUIRE(os.str() == "{ { 3, hello }, { { 1, one }, { 2, two }, { 3, three } } }");
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: failure on parameter of user type is printed with custom print func",
@@ -4018,11 +3841,9 @@ TEST_CASE_METHOD(
     REQUIRE(!reports.empty());
     auto re = R":(No match for call of func with signature void\(nn::TestOutput\) with\.
   param  _1 == trompeloeil::print\(nn::TestOutput\{3\}\)):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests on scoping (lifetime) of expectations
 
@@ -4102,8 +3923,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: a pending unsatisfied require call is reported at end of scope",
@@ -4119,12 +3938,8 @@ TEST_CASE_METHOD(
 Expected obj\.foo\("bar"\) to be called once, actually never called
   param  _1 == bar):";
   INFO(reports.front().msg);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  REQUIRE(is_match(reports.front().msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4147,12 +3962,8 @@ Expected obj\.func\(3, ):") +
   auto& msg = reports.front().msg;
   INFO("msg=" << msg);
   INFO("re=" << re);
-  REQUIRE(std::regex_search(msg, std::regex(re)));
+  REQUIRE(is_match(msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4172,10 +3983,8 @@ Expected obj\.func\(3, _\) to be called once, actually never called
   param  _2 matching _):";
   auto& msg = reports.front().msg;
   INFO("msg=" << msg);
-  REQUIRE(std::regex_search(msg, std::regex(re)));
+  REQUIRE(is_match(msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // test of multiplicity retiring expectations, fulfilled or not
 
@@ -4243,8 +4052,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: unsatisfied expectation when mock dies is reported",
@@ -4260,12 +4067,8 @@ TEST_CASE_METHOD(
   INFO(reports.front().msg);
   auto re = R":(Pending expectation on destroyed mock object:
 Expected .*count\(\) to be called once, actually never called):";
-  REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  REQUIRE(is_match(reports.front().msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4288,11 +4091,9 @@ TEST_CASE_METHOD(
 Expected .*count\(\) to be called once, actually never called):";
   auto re_getter = R":(Pending expectation on destroyed mock object:
 Expected .*getter\(1\) to be called once, actually never called):";
-  REQUIRE(std::regex_search(reports[0].msg, std::regex(re_getter)));
-  REQUIRE(std::regex_search(reports[1].msg, std::regex(re_count)));
+  REQUIRE(is_match(reports[0].msg, re_getter));
+  REQUIRE(is_match(reports[1].msg, re_count));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4340,8 +4141,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: no calls reported as never called",
@@ -4353,12 +4152,8 @@ TEST_CASE_METHOD(
       .RETURN(1));
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("actually never called")));
+  REQUIRE(is_match(reports.front().msg, "actually never called"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4374,12 +4169,8 @@ TEST_CASE_METHOD(
     obj.count();
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("actually called once")));
+  REQUIRE(is_match(reports.front().msg, "actually called once"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4396,12 +4187,8 @@ TEST_CASE_METHOD(
     obj.count();
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("actually called 2 times")));
+  REQUIRE(is_match(reports.front().msg, "actually called 2 times"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4414,12 +4201,8 @@ TEST_CASE_METHOD(
       .RETURN(1));
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called once")));
+  REQUIRE(is_match(reports.front().msg, "to be called once"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4433,12 +4216,8 @@ TEST_CASE_METHOD(
       .RETURN(1));
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("to be called 2 times")));
+  REQUIRE(is_match(reports.front().msg, "to be called 2 times"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4455,17 +4234,11 @@ TEST_CASE_METHOD(
   {
     REQUIRE(reports.size() == 1U);
     INFO(reports.front().msg);
-    REQUIRE(std::regex_search(reports.front().msg,
-                              std::regex("Match of forbidden call")));
-
+    REQUIRE(is_match(reports.front().msg, "Match of forbidden call"));
   }
 }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
 // test of destruction, or lack of, for deathwatched objects
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4476,10 +4249,8 @@ TEST_CASE_METHOD(
     trompeloeil::deathwatched<mock_c> obj;
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("Unexpected destruction of.*@")));
+  REQUIRE(is_match(reports.front().msg, "Unexpected destruction of.*@"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4493,8 +4264,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4510,12 +4279,8 @@ TEST_CASE_METHOD(
 
   delete copy;
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("Unexpected destruction of .*@")));
+  REQUIRE(is_match(reports.front().msg, "Unexpected destruction of .*@"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4531,12 +4296,8 @@ TEST_CASE_METHOD(
 
   delete copy;
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("Unexpected destruction of .*@")));
+  REQUIRE(is_match(reports.front().msg, "Unexpected destruction of .*@"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4548,10 +4309,8 @@ TEST_CASE_METHOD(
     std::unique_ptr<trompeloeil::expectation> p = NAMED_REQUIRE_DESTRUCTION(obj);
   }
   REQUIRE(reports.size() == 1U);
-  REQUIRE(std::regex_search(reports.front().msg, std::regex("Object obj is still alive")));
+  REQUIRE(is_match(reports.front().msg, "Object obj is still alive"));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4638,8 +4397,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: require destruction fulfilled out of sequence is reported",
@@ -4656,12 +4413,8 @@ TEST_CASE_METHOD(
   auto& msg = reports.front().msg;
   auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*foo"):";
   INFO("msg=" << msg);
-  REQUIRE(std::regex_search(msg, std::regex(re)));
+  REQUIRE(is_match(msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4685,13 +4438,9 @@ TEST_CASE_METHOD(
     auto& msg = reports.front().msg;
     auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4709,12 +4458,8 @@ TEST_CASE_METHOD(
   auto& msg = reports.front().msg;
   auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*foo"):";
   INFO("msg=" << msg);
-  REQUIRE(std::regex_search(msg, std::regex(re)));
+  REQUIRE(is_match(msg, re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4738,15 +4483,11 @@ TEST_CASE_METHOD(
     auto& msg = reports.front().msg;
     auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
 // tests of calls that do not match any valid expectations
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4763,13 +4504,9 @@ TEST_CASE_METHOD(
     REQUIRE(reports.size() == 1U);
     auto re = R":(No match for call of getter with signature int\(int\) with\.
   param  _1 == 7):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4810,13 +4547,9 @@ TEST_CASE_METHOD(
 
 Matches saturated call requirement
   obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4870,13 +4603,9 @@ TEST_CASE_METHOD(
 
 Matches saturated call requirement
   obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4906,13 +4635,9 @@ Tried obj\.getter\(5\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == 4):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4944,13 +4669,9 @@ Tried obj\.getter\():" +
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     INFO("re=" << re);
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -4981,13 +4702,9 @@ Tried obj\.getter\():" +
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     INFO("re=" << re);
-    REQUIRE(std::regex_search(msg, std::regex(re)));
+    REQUIRE(is_match(msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -5013,13 +4730,9 @@ TEST_CASE_METHOD(
     INFO("report=" << reports.front().msg);
     auto re = R":(Match of forbidden call of obj\.getter\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   param  _1 == 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -5041,11 +4754,9 @@ TEST_CASE_METHOD(
 
 Tried obj\.tfunc\(3\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 == 3):";
-    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+    REQUIRE(is_match(reports.front().msg, re));
   }
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 // tests of parameter passing to expectations
 
@@ -5198,8 +4909,6 @@ TEST_CASE_METHOD(
 
 // tests of tracing of matched calls
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: matching calls are traced",
@@ -5256,12 +4965,8 @@ threw unknown exception
 ):";
   INFO(os.str());
   INFO("re=" << re);
-  REQUIRE(std::regex_search(os.str(), std::regex(re)));
+  REQUIRE(is_match(os.str(), re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
-
-#if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -5285,10 +4990,8 @@ TEST_CASE_METHOD(
 obj2\.foo\("bar"\) with\.
   param  _1 == bar
 ):";
-  REQUIRE(std::regex_search(os.str(), std::regex(re)));
+  REQUIRE(is_match(os.str(), re));
 }
-
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
 TEST_CASE(
   "C++11: all overridden short mocks can be expected and called",
