@@ -87,7 +87,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-4.0" CXXFLAGS="-std=c++14" SANITIZE=true
+        - COMPILER="clang++-4.0" SANITIZE=true
 
     - os: linux
       addons:
@@ -113,7 +113,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-4.9" CXXFLAGS="-std=c++14" SANITIZE=true
+        - COMPILER="g++-4.9" SANITIZE=true
 
     - os: linux
       addons:
@@ -126,7 +126,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-5" CXXFLAGS="-std=c++14" SANITIZE=true
+        - COMPILER="g++-5" SANITIZE=true
 
     - os: linux
       addons:
@@ -139,7 +139,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-6" CXXFLAGS="-std=c++14" SANITIZE=true
+        - COMPILER="g++-6" SANITIZE=true
 
     - os: linux
       addons:
@@ -152,19 +152,19 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-7" CXXFLAGS="-std=c++14" SANITIZE=true
+        - COMPILER="g++-7" SANITIZE=true
 
     - os: osx
       osx_image: xcode8
       compiler: clang
       env:
-        - COMPILER="clang++" CXXFLAGS="-std=c++14" SANITIZE=false
+        - COMPILER="clang++" SANITIZE=false
 
     - os: osx
       osx_image: xcode7.3
       compiler: clang
       env:
-        - COMPILER="clang++" CXXFLAGS="-std=c++14" SANITIZE=false
+        - COMPILER="clang++" SANITIZE=false
 
 install:
   - |
