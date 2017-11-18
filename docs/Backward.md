@@ -14,6 +14,10 @@
   - [Macro expansion of `ANY` matcher before stringizing](#cxx11_any_stringizing)
 - [G++ 4.8.x limitations](#gxx48x_limitations)
   - [Compiler defects](#gxx48x_compiler)
+    - [Overload failures](#gxx48x_compiler_overload)
+    - [! matcher failures](#gxx48x_compiler_neg_matcher)
+    - [ANY matcher failures](#gxx48x_compiler_any_matcher)
+    - [Summary of compiler matcher failures](#gxx48x_compiler_matcher_summary)
   - [Standard library defects](#gxx48x_library)
     - [Regular expressions](#gxx48x_library_regex)
     - [`<tuple>`](#gxx48x_library_tuple)
@@ -460,20 +464,87 @@ conversion operators were declared,
 ```
 instead of `operator T&&() const`.
 
-Even so, this still leaves some test case failures that, instead of
-investigating their resolution, are simply not run.  These have
+Even so, this still leaves some test case failures that have
 been guarded with these predicates,
 ```
-!(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804)
-
 TROMPELOEIL_TEST_OVERLOAD_FAILURES
 
 TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
+
+!(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804)
 ```
 
+#### <A name="gxx48x_compiler_overload"/> Overload failures
+
+Given mock functions
+```Cpp
+struct C_ptr
+{
+  MAKE_MOCK1(overloaded, void(int**));
+  MAKE_MOCK1(overloaded, void(std::string*));
+};
+
+C_ptr obj;
+```
+when using `g++-4.8`, the following expectation fails to compile,
+```Cpp
+REQUIRE_CALL_V(obj, overloaded(*trompeloeil::eq(nullptr)));
+```
+with the message `error: call of overloaded ... is ambiguous`.
+
+A workaround is to explicitly specify the template parameter to the matcher,
+```Cpp
+REQUIRE_CALL_V(obj, overloaded(*trompeloeil::eq<int*>(nullptr)));
+```
+
+#### <A name="gxx48x_compiler_neg_matcher"/> ! matcher failures
+
+Given the mock function
+```Cpp
+struct mock_str
+{
+  MAKE_MOCK1(str, void(std::string));
+};
+
+mock_str obj;
+```
+when using `g++-4.8`, the following expectation fails to compile,
+```Cpp
+REQUIRE_CALL_V(obj, str(!trompeloeil::eq("foo")));
+```
+with the message `error: no matching function for call to ...`.
+
+A workaround is to explicitly specify the template parameter to the matcher,
+```Cpp
+REQUIRE_CALL_V(obj, str(!trompeloeil::eq<std::string>("foo")));
+```
+
+#### <A name="gxx48x_compiler_any_matcher"/> ANY matcher failures
+
+Given mock functions
+```Cpp
+struct U
+{
+  MAKE_MOCK1(func, void(int&));
+  MAKE_MOCK1(func, void(const int&));
+  MAKE_MOCK1(func, void(int&&));
+};
+```
+
+when using `g++-4.8.3`, the following expectation compiles,
+```Cpp
+REQUIRE_CALL_V(u, func(ANY(const int&)));
+```
+but generates an unhandled exception at runtime.
+
+There is no known workaround at this time.
+
+#### <A name="gxx48x_compiler_matcher_summary"/> Summary of compiler matcher failures
+
 Your test cases may or may not trigger these failures also.
-Perhaps then you may find a workaround, perhaps not.
-Consider moving to `g++-4.9` or later instead.
+Perhaps you may find a workaround, perhaps not.
+
+Consider moving to a compiler other than `g++-4.8`.
 
 ### <A name="gxx48x_library"/> Standard library defects
 
