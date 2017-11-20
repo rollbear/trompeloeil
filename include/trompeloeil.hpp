@@ -3174,12 +3174,11 @@ namespace trompeloeil
     }
 
   private:
-    template <
-      typename Sig,
-      typename H,
-      typename R = decltype(::trompeloeil::default_return<return_of_t<Sig>>())>
+    template <typename H>
     struct throw_handler_t
     {
+      using R = decltype(default_return<return_of_t<signature>>());
+
       throw_handler_t(H&& h_)
         : h(std::forward<H>(h_))
       {}
@@ -3214,7 +3213,7 @@ namespace trompeloeil
 
       constexpr bool valid = !throws && !has_return;// && !forbidden;
       using tag = std::integral_constant<bool, valid>;
-      auto handler = throw_handler_t<signature, H>(std::forward<H>(h));
+      auto handler = throw_handler_t<H>(std::forward<H>(h));
       matcher->set_return(tag{}, std::move(handler));
       return {matcher};
     }
@@ -3991,8 +3990,10 @@ namespace trompeloeil
     unsigned long trompeloeil_expectation_line;                                \
     const char *trompeloeil_expectation_string;                                \
                                                                                \
-    using call_params_type_t = ::trompeloeil::call_params_type_t<sig>;         \
-    using return_of_t = ::trompeloeil::return_of_t<sig>;                       \
+    using trompeloeil_call_params_type_t =                                     \
+      ::trompeloeil::call_params_type_t<sig>;                                  \
+                                                                               \
+    using trompeloeil_return_of_t = ::trompeloeil::return_of_t<sig>;           \
                                                                                \
     template <typename ... trompeloeil_param_type>                             \
     auto name(                                                                 \
@@ -4286,7 +4287,7 @@ namespace trompeloeil
 #define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
   with(                                                                        \
     arg_s,                                                                     \
-    [capture](e_t::call_params_type_t const& trompeloeil_x)                    \
+    [capture](e_t::trompeloeil_call_params_type_t const& trompeloeil_x)        \
     {                                                                          \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
@@ -4342,7 +4343,7 @@ namespace trompeloeil
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
   sideeffect(                                                                  \
-    [capture](e_t::call_params_type_t& trompeloeil_x) {                        \
+    [capture](e_t::trompeloeil_call_params_type_t& trompeloeil_x) {            \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
       auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                       \
@@ -4397,7 +4398,8 @@ namespace trompeloeil
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
   handle_return(                                                               \
-    [capture](e_t::call_params_type_t& trompeloeil_x) -> e_t::return_of_t      \
+    [capture](e_t::trompeloeil_call_params_type_t& trompeloeil_x)              \
+      -> e_t::trompeloeil_return_of_t                                          \
     {                                                                          \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
@@ -4453,7 +4455,7 @@ namespace trompeloeil
 
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
   handle_throw(                                                                \
-    [capture](e_t::call_params_type_t& trompeloeil_x) {                        \
+    [capture](e_t::trompeloeil_call_params_type_t& trompeloeil_x) {            \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
       auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                       \
