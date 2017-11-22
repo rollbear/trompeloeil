@@ -849,22 +849,16 @@ namespace trompeloeil
   class duck_typed_matcher : public matcher
   {
   public:
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
-
-    // Make unit tests compile for g++ 4.8.
-    operator std::string&&()
-    const;
-
-#else
+#if (!TROMPELOEIL_GCC) || \
+    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
 
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.
-
     template <typename V,
               typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
     operator V&&() const;
 
-#endif /* TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900 */
+#endif
 
     template <typename V,
               typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()...))>
@@ -1615,17 +1609,8 @@ namespace trompeloeil
     noexcept
     {}
 
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
-
-    // Make unit tests compile for g++ 4.8.
-    template <typename T>
-    operator std::unique_ptr<T>&&()
-    const;
-
-    operator int&&()
-    const;
-
-#else
+#if (!TROMPELOEIL_GCC) || \
+    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
 
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.

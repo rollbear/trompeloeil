@@ -14,6 +14,7 @@
   - [Macro expansion of `ANY` matcher before stringizing](#cxx11_any_stringizing)
 - [G++ 4.8.x limitations](#gxx48x_limitations)
   - [Compiler defects](#gxx48x_compiler)
+    - [Rvalue reference failures](gxx48x_compiler_rvalue_ref)
     - [Overload failures](#gxx48x_compiler_overload)
     - [! matcher failures](#gxx48x_compiler_neg_matcher)
     - [ANY matcher failures](#gxx48x_compiler_any_matcher)
@@ -467,12 +468,95 @@ instead of `operator T&&() const`.
 Even so, this still leaves some test case failures that have
 been guarded with these predicates,
 ```
+TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
+
 TROMPELOEIL_TEST_OVERLOAD_FAILURES
 
 TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
 
 !(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804)
 ```
+
+#### <A name="gxx48x_compiler_rvalue_ref"/> Rvalue reference failures
+
+Given mock functions
+```Cpp
+class C
+{
+public:
+  virtual std::unique_ptr<int> ptr(std::unique_ptr<int>&&) = 0;
+};
+
+struct mock_c : public C
+{
+  MAKE_MOCK1(ptr, std::unique_ptr<int>(std::unique_ptr<int>&&), override);
+};
+
+class U
+{
+public:
+  MAKE_MOCK1(func_rr, void(int&&));
+  MAKE_MOCK1(func_crr, void(const int&&));
+  MAKE_MOCK1(func_uniqv, void(std::unique_ptr<int>));
+};
+```
+when using `g++-4.8`, the following expectations fail to compile,
+```Cpp
+  {
+    mock_c obj;
+
+    REQUIRE_CALL_V(obj, ptr(_),
+      .WITH(_1 != nullptr)
+      .RETURN(std::move(_1)));
+  }
+
+  {
+    mock_c obj;
+    auto pi = new int{3};
+
+    REQUIRE_CALL_V(obj, ptr(_),
+      .WITH(_1.get() == pi)
+      .RETURN(std::move(_1)));
+  }
+
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_uniqv(_));
+  }
+
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_rr(_));
+  }
+
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_crr(_));
+  }
+```
+with the message,
+```
+no known conversion for argument 1
+from
+‘const trompeloeil::wildcard’
+to
+‘trompeloeil::param_list_t<[signature], 0ul>.
+```
+
+A "workaround" is to declare user-defined conversion functions in
+`wildcard` (any maybe `duck_typed_matcher`) for the types that require it,
+such as the following,
+```Cpp
+  template <typename T>
+  operator std::unique_ptr<T>&&()
+  const;
+
+  operator int&&()
+  const;
+```
+This workaround has not been applied to the Trompeloeil `wildcard` class,
+since it is impossible to determine in advance which user-defined conversions
+are required.
 
 #### <A name="gxx48x_compiler_overload"/> Overload failures
 
