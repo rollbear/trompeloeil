@@ -398,7 +398,7 @@ TEST_CASE_METHOD(
 
   try {
     std::string s = "apa";
-    obj1.func(3, s);
+    obj1.func(count, s);
     FAIL("didn't throw");
   }
   catch (reported)
