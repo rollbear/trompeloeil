@@ -25,6 +25,16 @@ void func(const int&);
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(ANY(int)),
+    .SIDE_EFFECT(*_2 = 1));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f(ANY(int)))
     .SIDE_EFFECT(*_2 = 1);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

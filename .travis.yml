@@ -27,10 +27,10 @@ matrix:
         - wget http://releases.llvm.org/3.7.1/clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - tar -xvf clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - sudo cp -n clang+llvm-3.7.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.7.1/lib/linux/*.a /usr/lib/llvm-3.7/lib/clang/3.7.1/lib/linux/
-        - CXX=${COMPILER}  ./check_errors.sh
+        - CXX=${COMPILER} ./check_errors.sh
         - mkdir build && cd build
         - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
-        - make VERBOSE=1 self_test kcov
+        - make -j 4 VERBOSE=1 self_test kcov
 
     - os: linux
       addons:
@@ -45,7 +45,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-3.8" SANITIZE=true
+        - COMPILER="clang++-3.8" CXXFLAGS="-std=c++14" SANITIZE=true
 
     - os: linux
       addons:
@@ -69,10 +69,10 @@ matrix:
         - wget http://releases.llvm.org/3.9.1/clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - tar -xvf clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
         - sudo cp clang+llvm-3.9.1-x86_64-linux-gnu-ubuntu-14.04/lib/clang/3.9.1/lib/linux/*.a /usr/lib/llvm-3.9/lib/clang/3.9.1/lib/linux/
-        - CXX=${COMPILER}  ./check_errors.sh
+        - CXX=${COMPILER} ./check_errors.sh
         - mkdir build && cd build
         - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=true ..
-        - make VERBOSE=1 self_test kcov
+        - make -j 4 VERBOSE=1 self_test kcov
 
     - os: linux
       addons:
@@ -88,6 +88,19 @@ matrix:
             - libdw-dev
       env:
         - COMPILER="clang++-4.0" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-4.8" CXXFLAGS="-std=c++11" CXX_STANDARD="11" SANITIZE=true
 
     - os: linux
       addons:
@@ -160,9 +173,13 @@ install:
     fi
 
 before_script:
-  - CXX=${COMPILER}  ./check_errors.sh
+  - CXX=${COMPILER} CXXFLAGS=${CXXFLAGS} ./check_errors.sh ||
+    FAILURES="$?" && if [[ ${CXX_STANDARD} == "11" && ${FAILURES} != "4" ]]; then
+      echo "Expected four failures from C++11 build, got " ${FAILURES} ;
+      exit 1 ;
+    fi
   - mkdir build && cd build
-  - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+  - CXX=${COMPILER} cmake -DCXX_STANDARD="${CXX_STANDARD}" -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
   - make VERBOSE=1 self_test
 
 script:

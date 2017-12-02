@@ -11,7 +11,11 @@ write_basic_package_version_file(
   VERSION 28
   COMPATIBILITY AnyNewerVersion)
 
-set(CMAKE_CXX_STANDARD 14)
+if (CXX_STANDARD MATCHES "11")
+  set(CMAKE_CXX_STANDARD 11)
+else()
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
 add_library(trompeloeil INTERFACE)
 
@@ -46,7 +50,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
     file(
       DOWNLOAD
-        https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch.hpp  ${CATCH_DIR}/catch.hpp
+        https://raw.githubusercontent.com/catchorg/Catch2/v1.11.0/single_include/catch.hpp  ${CATCH_DIR}/catch.hpp
       STATUS
         status
       LOG
@@ -66,7 +70,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     GIT_REPOSITORY
       https://github.com/simonkagstrom/kcov
     GIT_TAG
-      v33
+      v34
     INSTALL_DIR
       ${CMAKE_CURRENT_BINARY_DIR}/kcov
     CMAKE_ARGS
@@ -102,15 +106,36 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
+  # Default sanitizer target properties.
   set(TSAN "-fsanitize=undefined,thread")
-  set(SSAN "-fsanitize=address,undefined")
+  set(SSAN "-fsanitize=undefined,address")
+
+  # Exceptions to sanitizer target properties based on compiler and compiler version.
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+    if (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0"))
+        set(SSAN "-fsanitize=undefined,address -fsanitize-address-use-after-scope")
+    else()
+      set(SSAN "-fsanitize=undefined,address")
+    endif()
+
+  elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+    if ((NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.8")) AND
+       (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9"))
+      set(TSAN "-fsanitize=thread")
+      set(SSAN "-fsanitize=address")
+    endif()
+
+  endif()
 
   add_executable(
     self_test
     EXCLUDE_FROM_ALL
-    test/test_main.cpp
     test/compiling_tests.cpp
-    )
+    test/compiling_tests_11.cpp
+    test/compiling_tests_14.cpp
+  )
 
   target_include_directories(
     self_test

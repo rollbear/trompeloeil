@@ -1,3 +1,37 @@
+	Back ported Trompeloeil to C++11.  Changes by file and directory:
+	* `.travis.yml`
+	  * Added job for `g++-4.8` C++11 mode.
+	  * Accepted 4 errors in `check_errors.sh` when in C++11 mode.
+	* `CMakeLists.txt`
+	  * Allowed C++ dialect to be specified on command line using
+	    `CXX_STANDARD="11"` for C++11, default C++14.
+	  * Fixed Catch at version 1.11.0, given 2.0.1 triggers a defect
+	    in `g++` when compiling `libc++`.
+	  * Refined which sanitizers can be used based on given compiler
+	    and compiler version.
+	  * Bumped kcov to v34.
+	  * Changed kcov include pattern to include/trompeloeil.hpp.
+	* `README.md`
+	  * Updated supported compiler list.
+	  * Added link to `docs/Backward.md`.
+	  * Added link to `docs/PlatformAndLibraries.md`.
+	* `include/trompeloeil.hpp`
+	  * Significantly reworked to accommodate the C++11 API and
+	    support compilation in a C++11 dialect.
+	* `check_errors.sh`
+	  * Require `CXXFLAGS` with either `-std=c++11` or `-std=c++14`.
+	* `docs/FAQ.md`
+	  * Updated supported compilers list.
+	  * Updated answer regarding C++11 support.
+	* `docs/`
+	  * New: "Backward compatibility with earlier versions of C++".
+	  * New: "Platform and library support for Trompeloeil".
+	* `compilation_errors/`
+	  * Support for C++11 expectation syntax in test cases.
+	* `test/`
+	  * Split `compiling_tests.cpp` into separately compilable files,
+	    for Catch main, C++11 test cases and C++14 test cases.
+
 	* Fixed whitespace and a minor spelling error in trompeloeil.hpp.
 	* Tidy up test cases in compilation_errors.
 

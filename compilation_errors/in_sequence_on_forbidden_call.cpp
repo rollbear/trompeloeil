@@ -24,7 +24,18 @@ int main()
 {
   MS obj;
   trompeloeil::sequence s;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(),
+    .TIMES(0)
+    .IN_SEQUENCE(s));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f())
     .TIMES(0)
     .IN_SEQUENCE(s);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

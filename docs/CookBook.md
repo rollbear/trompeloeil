@@ -297,7 +297,7 @@ Paste the following code snippet in global namespace in one of your
 
 If you have several
 [translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declatation in the others:
+add the following extern declaration in the others:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;

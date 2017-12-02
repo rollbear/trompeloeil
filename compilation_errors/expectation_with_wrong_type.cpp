@@ -24,6 +24,16 @@ using trompeloeil::_;
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(1,nullptr,_),
+    .RETURN(_2));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f(1,nullptr,_))
     .RETURN(_2);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }
