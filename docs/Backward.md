@@ -373,9 +373,15 @@ For example, a regular expression written in a C++14 dialect, or later,
 won't match the string generated when running in a C++11 dialect.
 The `ANY(int)` matcher is actually expanded to some Trompeloeil-internal data.
 
-A helper macro, `TROMPELOEIL_CXX11_AS_STRING()`, may be used to give a
-stringized form correct for C++11 so it may be used in constructing
-larger strings.  Rewriting the example above illustrates its use:
+A helper macro, such as `CXX11_AS_STRING()`, may be defined to give a
+stringized form correct for C++11:
+```Cpp
+#define CXX11_AS_STRING_IMPL(x) #x
+#define CXX11_AS_STRING(x) CXX11_AS_STRING_IMPL(x)
+```
+
+It may be used in constructing larger strings.  Rewriting the example above
+illustrates its use:
 ```Cpp
   auto re = R":(Sequence expectations not met at destruction of sequence object "s":
   missing obj\.getter\():" +
@@ -384,15 +390,26 @@ larger strings.  Rewriting the example above illustrates its use:
   missing obj\.foo\(_\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 ):";
 ```
-where `escape_parens()` performs escaping of parentheses in the input string.
+where `escape_parens()` performs escaping of parentheses in the input string,
+```Cpp
+  std::string escape_parens(const std::string& s)
+  {
+    constexpr auto backslash = '\\';
 
-For symmetry, but of little use, a helper macro, `TROMPELOEIL_CXX14_AS_STRING()`,
-may be used in C++14 dialect code.  It merely stringizes its argument.
+    std::string tmp;
 
-Short names for macros are also defined,
-```
-#define CXX11_AS_STRING           TROMPELOEIL_CXX11_AS_STRING
-#define CXX14_AS_STRING           TROMPELOEIL_CXX14_AS_STRING
+    for (auto& c : s)
+    {
+      if (c == '(' || c == ')')
+      {
+        tmp += backslash;
+      }
+
+      tmp += c;
+    }
+
+    return tmp;
+  }
 ```
 
 This is a quality of implementation issue that wasn't resolved before

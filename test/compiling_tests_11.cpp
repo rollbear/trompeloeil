@@ -29,6 +29,15 @@
 
 #include "compiling_tests.hpp"
 
+/*
+ * Used in combination with escape_parens() (below) to work around
+ * macro expansion occurring before stringizing in C++11 expectation
+ * macros, which results in different matching requirements for
+ * messages reported from the Trompeloeil runtime.
+ */
+#define CXX11_AS_STRING_IMPL(x) #x
+#define CXX11_AS_STRING(x) CXX11_AS_STRING_IMPL(x)
+
 // Exercise C++11/14 Trompeloeil interface
 
 using trompeloeil::_;
