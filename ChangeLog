@@ -1,3 +1,6 @@
+	* Moved CXX11_AS_STRING macro out of trompeloeil.hpp and into
+	  compiling_tests_11.cpp.
+
 	Back ported Trompeloeil to C++11.  Changes by file and directory:
 	* `.travis.yml`
 	  * Added job for `g++-4.8` C++11 mode.
