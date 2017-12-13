@@ -1,3 +1,5 @@
+	* Silenced 2 clang++-5 warnings about missing "override"
+
 	* Moved CXX11_AS_STRING macro out of trompeloeil.hpp and into
 	  compiling_tests_11.cpp.
 
