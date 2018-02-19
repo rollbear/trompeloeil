@@ -3,3 +3,4 @@ cmake-build*
 *~
 a.out
 *.o
+test_package/build
