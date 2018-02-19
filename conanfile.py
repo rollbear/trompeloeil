@@ -11,8 +11,7 @@
 # Project home: https://github.com/rollbear/trompeloeil
 #
 
-from conans import ConanFile, tools
-import os
+from conans import ConanFile
 
 
 class TrompeloelConan(ConanFile):
