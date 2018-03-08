@@ -1932,7 +1932,7 @@ namespace trompeloeil
 
     lifetime_monitor(lifetime_monitor const&) = delete;
 
-    ~lifetime_monitor()
+    ~lifetime_monitor() override
     {
       auto lock = get_lock();
       if (!died)
@@ -2862,7 +2862,7 @@ namespace trompeloeil
 
     call_matcher(call_matcher &&r) = delete;
 
-    ~call_matcher()
+    ~call_matcher() override
     {
       auto lock = get_lock();
       if (is_unfulfilled())
