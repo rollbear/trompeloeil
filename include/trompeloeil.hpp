@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2017
+ * Copyright Björn Fahller 2014-2018
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -270,6 +270,26 @@
 
 namespace trompeloeil
 {
+  template <typename T>
+  struct identity_type
+  {
+    using type = T;
+  };
+
+  template <typename R, typename C, typename ... Args>
+  identity_type<R(Args...)>
+  nonconst_member_signature(R (C::*)(Args...))
+  {
+    return {};
+  }
+
+  template <typename R, typename C, typename ... Args>
+  identity_type<R(Args...)>
+  const_member_signature(R (C::*)(Args...) const)
+  {
+    return {};
+  }
+
   namespace detail
   {
 # if (TROMPELOEIL_CPLUSPLUS == 201103L)
@@ -2449,6 +2469,7 @@ namespace trompeloeil
   template <typename T>
   using call_params_type_t = typename call_params_type<T>::type;
 
+
   template <typename R>
   struct default_return_t
   {
@@ -2465,6 +2486,8 @@ namespace trompeloeil
   {
     return default_return_t<R>::value();
   }
+
+
 
   template <>
   inline
@@ -3815,6 +3838,13 @@ namespace trompeloeil
       R (T::*)(P...)>;
   };
 
+  template <typename T>
+  struct mock_interface : public T
+  {
+    using trompeloeil_interface_name = T;
+    using T::T;
+ };
+
 }
 
 #define TROMPELOEIL_LINE_ID(name)                                        \
@@ -3961,6 +3991,77 @@ namespace trompeloeil
   TROMPELOEIL_MAKE_MOCK_(name,const,15, __VA_ARGS__,,)
 
 #endif
+
+#define TROMPELOEIL_IMPLEMENT_MOCK0(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(0, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK1(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(1, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK2(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(2, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK3(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(3, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK4(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(4, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK5(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(5, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK6(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(6, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK7(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(7, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK8(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(8, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK9(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(9, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK10(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(10, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK11(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(11, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK12(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(12, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK13(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(13, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK14(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(14, name)
+#define TROMPELOEIL_IMPLEMENT_MOCK15(name) \
+  TROMPELOEIL_IMPLEMENT_MOCK_(15, name)
+
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK0(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(0, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK1(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(1, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK2(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(2, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK3(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(3, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK4(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(4, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK5(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(5, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK6(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(6, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK7(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(7, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK8(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(8, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK9(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(9, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK10(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(10, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK11(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(11, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK12(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(12, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK13(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(13, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK14(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(14, name)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK15(name) \
+  TROMPELOEIL_IMPLEMENT_CONST_MOCK_(15, name)
+
+#define TROMPELOEIL_IMPLEMENT_MOCK_(num, name) \
+  TROMPELOEIL_MAKE_MOCK_(name,,num, decltype(::trompeloeil::nonconst_member_signature(&trompeloeil_interface_name::name))::type,override,)
+#define TROMPELOEIL_IMPLEMENT_CONST_MOCK_(num, name) \
+  TROMPELOEIL_MAKE_MOCK_(name,const,num, decltype(::trompeloeil::const_member_signature(&trompeloeil_interface_name::name))::type,override,)
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
@@ -4550,6 +4651,40 @@ namespace trompeloeil
 #define MAKE_CONST_MOCK13         TROMPELOEIL_MAKE_CONST_MOCK13
 #define MAKE_CONST_MOCK14         TROMPELOEIL_MAKE_CONST_MOCK14
 #define MAKE_CONST_MOCK15         TROMPELOEIL_MAKE_CONST_MOCK15
+
+#define IMPLEMENT_MOCK0           TROMPELOEIL_IMPLEMENT_MOCK0
+#define IMPLEMENT_MOCK1           TROMPELOEIL_IMPLEMENT_MOCK1
+#define IMPLEMENT_MOCK2           TROMPELOEIL_IMPLEMENT_MOCK2
+#define IMPLEMENT_MOCK3           TROMPELOEIL_IMPLEMENT_MOCK3
+#define IMPLEMENT_MOCK4           TROMPELOEIL_IMPLEMENT_MOCK4
+#define IMPLEMENT_MOCK5           TROMPELOEIL_IMPLEMENT_MOCK5
+#define IMPLEMENT_MOCK6           TROMPELOEIL_IMPLEMENT_MOCK6
+#define IMPLEMENT_MOCK7           TROMPELOEIL_IMPLEMENT_MOCK7
+#define IMPLEMENT_MOCK8           TROMPELOEIL_IMPLEMENT_MOCK8
+#define IMPLEMENT_MOCK9           TROMPELOEIL_IMPLEMENT_MOCK9
+#define IMPLEMENT_MOCK10          TROMPELOEIL_IMPLEMENT_MOCK10
+#define IMPLEMENT_MOCK11          TROMPELOEIL_IMPLEMENT_MOCK11
+#define IMPLEMENT_MOCK12          TROMPELOEIL_IMPLEMENT_MOCK12
+#define IMPLEMENT_MOCK13          TROMPELOEIL_IMPLEMENT_MOCK13
+#define IMPLEMENT_MOCK14          TROMPELOEIL_IMPLEMENT_MOCK14
+#define IMPLEMENT_MOCK15          TROMPELOEIL_IMPLEMENT_MOCK15
+
+#define IMPLEMENT_CONST_MOCK0     TROMPELOEIL_IMPLEMENT_CONST_MOCK0
+#define IMPLEMENT_CONST_MOCK1     TROMPELOEIL_IMPLEMENT_CONST_MOCK1
+#define IMPLEMENT_CONST_MOCK2     TROMPELOEIL_IMPLEMENT_CONST_MOCK2
+#define IMPLEMENT_CONST_MOCK3     TROMPELOEIL_IMPLEMENT_CONST_MOCK3
+#define IMPLEMENT_CONST_MOCK4     TROMPELOEIL_IMPLEMENT_CONST_MOCK4
+#define IMPLEMENT_CONST_MOCK5     TROMPELOEIL_IMPLEMENT_CONST_MOCK5
+#define IMPLEMENT_CONST_MOCK6     TROMPELOEIL_IMPLEMENT_CONST_MOCK6
+#define IMPLEMENT_CONST_MOCK7     TROMPELOEIL_IMPLEMENT_CONST_MOCK7
+#define IMPLEMENT_CONST_MOCK8     TROMPELOEIL_IMPLEMENT_CONST_MOCK8
+#define IMPLEMENT_CONST_MOCK9     TROMPELOEIL_IMPLEMENT_CONST_MOCK9
+#define IMPLEMENT_CONST_MOCK10    TROMPELOEIL_IMPLEMENT_CONST_MOCK10
+#define IMPLEMENT_CONST_MOCK11    TROMPELOEIL_IMPLEMENT_CONST_MOCK11
+#define IMPLEMENT_CONST_MOCK12    TROMPELOEIL_IMPLEMENT_CONST_MOCK12
+#define IMPLEMENT_CONST_MOCK13    TROMPELOEIL_IMPLEMENT_CONST_MOCK13
+#define IMPLEMENT_CONST_MOCK14    TROMPELOEIL_IMPLEMENT_CONST_MOCK14
+#define IMPLEMENT_CONST_MOCK15    TROMPELOEIL_IMPLEMENT_CONST_MOCK15
 
 #define REQUIRE_CALL_V            TROMPELOEIL_REQUIRE_CALL_V
 #define NAMED_REQUIRE_CALL_V      TROMPELOEIL_NAMED_REQUIRE_CALL_V

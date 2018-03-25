@@ -178,6 +178,24 @@ struct unmovable
   }
 };
 
+struct interface
+{
+  virtual ~interface() = default;
+  virtual int func(int) = 0;
+  virtual int cfunc(int) const = 0;
+  virtual int func3(int, int, std::string) = 0;
+  virtual int func3(int, int, std::string) const = 0;
+};
+
+struct mi : trompeloeil::mock_interface<interface>
+{
+  using mock_interface::mock_interface;
+  IMPLEMENT_MOCK1(func);
+  IMPLEMENT_CONST_MOCK1(cfunc);
+  IMPLEMENT_MOCK3(func3);
+  IMPLEMENT_CONST_MOCK3(func3);
+};
+
 struct uncomparable { };
 
 struct uncomparable_string {
