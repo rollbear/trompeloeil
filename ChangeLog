@@ -1,3 +1,11 @@
+	* mock_interface<T> provides a convenient short cut when implementing
+	  mocks from interfaces. It is used together with the macros
+	  IMPLEMENT_MOCKn(func_name) and IMPLEMENT_CONST_MOCKn(func_name).
+	  The signature of the function is deduced. It is not possible to use
+	  mock_interface<T> with multiple inheritance, and it is not possible
+	  to mock overloads with IMPLEMENT_MOCKn(func_name) or
+	  IMPLEMENT_CONST_MOCKn(func_name)
+
 	* Used markdownlint to make documentation more consistent
 
 	* Silenced 2 clang++-5 warnings about missing "override"
