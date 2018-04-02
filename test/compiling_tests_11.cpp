@@ -127,6 +127,30 @@ namespace
 
 } /* unnamed namespace */
 
+// mock_interface<> tests
+
+TEST_CASE_METHOD(
+        Fixture,
+        "C++11: mock from interface is callable like any other",
+        "[C++11][mock_interface]")
+{
+  mi imock;
+  REQUIRE_CALL_V(imock, func(3),
+    .RETURN(4));
+  REQUIRE_CALL_V(imock, cfunc(3),
+    .RETURN(5));
+  REQUIRE_CALL_V(imock, func3(1,2,"three"),
+    .RETURN(6));
+  const mi& cimock = imock;
+  REQUIRE_CALL_V(cimock, func3(2,3,"four"),
+    .RETURN(7));
+  REQUIRE(imock.func(3) == 4);
+  REQUIRE(imock.cfunc(3) == 5);
+  REQUIRE(imock.func3(1,2,"three") == 6);
+  REQUIRE(cimock.func3(2,3,"four") == 7);
+
+}
+
 // IN_SEQUENCE tests
 
 TEST_CASE_METHOD(
