@@ -583,7 +583,8 @@ functions.
 There are two ways to create mocks. A very frequently seen situation is
 when inheriting from an interface (i.e. an abstract base class with
 pure virtual functions). When this is the case, the easiest route is to
-inherit the interface via [`trompeloeil::mock_interface<T>`](#mock_interface)
+inherit the interface via
+[`trompeloeil::mock_interface<T>`](#reference.md/mock_interface)
 and implement the mock functions with the macros
 [**`IMPLEMENT_MOCKn(...)`**](reference.md/#IMPLEMENT_MOCKn) and
 [**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/#IMPLEMENT_CONST_MOCKn). These
@@ -591,9 +592,9 @@ only work when implementing to an interface, do not handle multiple inheritance
 and do not handle overloads.
 
 A more generic technique is to implement free mocks as members of any
-`struct` or `class` using the macros [MAKE_MOCKn](
+`struct` or `class` using the macros [**`MAKE_MOCKn`**](
   reference.md/#MAKE_MOCKn
-) and [MAKE_CONST_MOCKn](
+) and [**`MAKE_CONST_MOCKn`**](
   reference.md/#MAKE_CONST_MOCKn
 ), where `n` is the number of parameters in the function.
 

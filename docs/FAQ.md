@@ -460,7 +460,7 @@ Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
 
 **A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
 [**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
-especially when you have a (possibly open) interval for **`.TIMES()**`.
+especially when you have a (possibly open) interval for **`.TIMES()`**.
 
 Trompeloeil always sees sequences as observed from a sequence object, and a
 sequence object can only move forward in what it allows.
@@ -494,11 +494,11 @@ this is the first call for the sequence object, so it is allowed. It says
 call.
 
 `mock.foo2();`
-The current step in the sequence is `foo1()`, but it is satisfied, so moving on
-to the next one is allowed. The next one is `foo2()`, which matches this call,
+The current step in the sequence is `mock.foo1()`, but it is satisfied, so moving on
+to the next one is allowed. The next one is `mock.foo2()`, which matches this call,
 so everything is good.
 
 `mock.foo1();`
 The current step in the sequence is `mock.foo2()`. Is is satisfied and
 saturated, so the sequence object must move to the next step. The next step is
-`foo3()`, which is a mismatch, so a sequence violation is reported.
+`mock.foo3()`, which is a mismatch, so a sequence violation is reported.
