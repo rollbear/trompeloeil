@@ -1,34 +1,35 @@
 # Platform and library support for Trompeloeil
 
-- [Using libc++ with Trompeloeil](#using_libcxx)
+- [Using libc\+\+ with Trompeloeil](#using_libcxx)
 - [Using sanitizers with Trompeloeil](#using_sanitizers)
 - [Compiler versions in sample Linux distributions](#compilers_in_distributions)
-    - [Ubuntu](#compilers_in_ubuntu)
-      - [In summary](#ubuntu_summary)
-      - [In detail](#ubuntu_detail)
-    - [Fedora](#compilers_in_fedora)
+  - [Ubuntu](#compilers_in_ubuntu)
+    - [In summary](#ubuntu_summary)
+    - [In detail](#ubuntu_detail)
+  - [Fedora](#compilers_in_fedora)
 - [Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)](#testing_on_artful)
   - [`std::to_string()` is not defined for some versions of `libstd++-v3`](#defect_to_string)
   - [Glibc 2.26 no longer supplies `xlocale.h`](#defect_xlocale)
   - [Glibc 2.26 `std::signbit()` broken for GCC compilers < 6](#defect_signbit)
   - [Conclusion](#artful_conclusion)
 
-
-## <A name="using_libcxx"/> Using libc++ with Trompeloeil
+## <A name="using_libcxx"/> Using libc\+\+ with Trompeloeil
 
 On some distributions `clang` is configured to use `libstdc++-v3` as the
-implementation of the C++ Standard Library.  In order to use `libc++`,
+implementation of the C\+\+ Standard Library.  In order to use `libc++`,
 pass the `-stdlib=c++` command line flag to the compiler.
 
 For example,
-```
-$ clang++-5.0 -std=c++14 -stdlib=c++ <other command line arguments>
+
+```text
+clang++-5.0 -std=c++14 -stdlib=c++ <other command line arguments>
 ```
 
 To use `libc++` with `g++` a few more command line flags need to be passed.
 This is a command line known to work with `g++-6`,
-```
-$ g++-6 -std=c++14 -nostdinc++ -isystem/usr/include/c++/v1 \
+
+```text
+g++-6 -std=c++14 -nostdinc++ -isystem/usr/include/c++/v1 \
 <other command line arguments> \
 -nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc
 ```
@@ -65,12 +66,12 @@ with a contribution of your toolchain to `universe`.
 For more information, see
 
 ubuntu.com, "Repositories" \
-https://help.ubuntu.com/community/Repositories \
+Available: <https://help.ubuntu.com/community/Repositories> \
 Accessed: 29 October 2017
 
 #### <A name="ubuntu_summary"/> In summary
 
-```
+```text
                 Trusty Tahr                 Xenial Xerus                Zesty Zapus         Artful Aardvark     Bionic Beaver
                 (14.04LTS)                  (16.04LTS)                  (17.04)             (17.10)             (18.04LTS)
 Released        2014-04-17                  2016-04-21                  2017-04-17          2017-10-19          2018-04
@@ -88,7 +89,7 @@ libc++-dev      universe                    universe                    universe
 
 #### <A name="ubuntu_detail"/> In detail
 
-```
+```text
                 Trusty Tahr                 Xenial Xerus                Zesty Zapus         Artful Aardvark     Bionic Beaver
                 (14.04LTS)                  (16.04LTS)                  (17.04)             (17.10)             (18.04LTS)
 Released        2014-04-17                  2016-04-21                  2017-04-17          2017-10-19          2018-04
@@ -280,7 +281,7 @@ Last updated: 28 October 2017.
 A short list of Fedora releases tells a similar story
 to the Ubuntu distribution.
 
-```
+```text
                 25                          26                          27                          28
 Released        2016-11-22                  2017-07-11                  (2017-11-14)                (2018-05-01)
 Supported to    TODO                        TODO                        TBD                         TBD
@@ -301,7 +302,6 @@ libcxx-devel    3.9.1-1.fc25                4.0.1-3.fc26                4.0.1-3.
 Table first compiled: 28 October 2017
 Last updated: 9 November 2017
 
-
 ## <A name="testing_on_artful"/> Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)
 
 The release of Artful Aardvark (Ubuntu 17.10) contains a number of issues
@@ -318,10 +318,11 @@ supported compilers and libraries.
 ### <A name="defect_to_string"/> `std::to_string()` is not defined for some versions of `libstd++-v3`
 
 Affects: `libstdc++-v3` from these packages
+
 - `libstdc++-4.8-dev:amd64 4.8.5-4ubuntu6`
-  - See: https://bugs.launchpad.net/ubuntu/+source/gcc-4.8/+bug/1725847
+  - See: <https://bugs.launchpad.net/ubuntu/+source/gcc-4.8/+bug/1725847>
 - `libstdc++-5-dev:amd64 5.5.0-1ubuntu1`
-  - See: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1725848
+  - See: <https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1725848>
 
 Workaround: Add `-D_GLIBCXX_USE_C99=1` to your compiler command lines.
 
@@ -333,7 +334,7 @@ drops support for `xlocale.h`.
 `libc++` tracked this change and supplied a fix for 5.0.
 
 See: "Fix libcxx build with glibc 2.26+ by removing xlocale.h include." \
-Available: https://github.com/llvm-mirror/libcxx/commit/6e02e89f65ca1ca1d6ce30fbc557563164dd327e \
+Available: <https://github.com/llvm-mirror/libcxx/commit/6e02e89f65ca1ca1d6ce30fbc557563164dd327e> \
 Accessed: 11 November 2017
 
 But Artful Aardvark ships package `libc++-dev 3.9.1-3`.
@@ -341,9 +342,10 @@ As a consequence, no software using `libc++` out-of-the-box version
 can compile on Artful.
 
 Workaround: Create a symlink from `locale.h` to `xlocale.h`
-```
-$ cd /usr/include
-$ sudo ln -s locale.h xlocale.h
+
+```text
+cd /usr/include
+sudo ln -s locale.h xlocale.h
 ```
 
 ### <A name="defect_signbit"/> Glibc 2.26 `std::signbit()` broken for GCC compilers < 6
@@ -359,13 +361,13 @@ The Clang compilers happen to work with this part of `glibc` 2.26
 as they don't implement 128-bit floating point and a different
 code path is followed, even for the earliest supported compilers.
 
-See: https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1725869
+See: <https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1725869>
 
 Workaround: Patch your local copy of `math.h` in `glibc` with the
 fix from `glibc` upstream, found by following the links in this bug report:
 
 See: "Bug 22296 - glibc 2.26: signbit build issue with Gcc 5.5.0 on x86_64" \
-Available: https://sourceware.org/bugzilla/show_bug.cgi?id=22296 \
+Available: <https://sourceware.org/bugzilla/show_bug.cgi?id=22296> \
 Accessed: 11 November 2017
 
 ### <A name="artful_conclusion"/> Conclusion

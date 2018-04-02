@@ -1,3 +1,5 @@
+	* Used markdownlint to make documentation more consistent
+
 	* Silenced 2 clang++-5 warnings about missing "override"
 
 	* Moved CXX11_AS_STRING macro out of trompeloeil.hpp and into
