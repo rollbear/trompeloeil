@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2017
+ * Copyright Björn Fahller 2014-2018
  * Copyright (C) 2017 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
