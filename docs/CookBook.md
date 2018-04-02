@@ -580,14 +580,22 @@ Place the below code snippet in, for example, your `TEST_CLASS_INITIALIZE(...)`
 A Mock class is any class that [mocks](reference.md/#mock_function) member
 functions.
 
-Member functions are mocked using the macros [MAKE_MOCKn](
+There are two ways to create mocks. A very frequently seen situation is
+when inheriting from an interface (i.e. an abstract base class with
+pure virtual functions). When this is the case, the easiest route is to
+inherit the interface via [`trompeloeil::mock_interface<T>`](#mock_interface)
+and implement the mock functions with the macros
+[**`IMPLEMENT_MOCKn(...)`**](reference.md/#IMPLEMENT_MOCKn) and
+[**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/#IMPLEMENT_CONST_MOCKn). These
+only work when implementing to an interface, do not handle multiple inheritance
+and do not handle overloads.
+
+A more generic technique is to implement free mocks as members of any
+`struct` or `class` using the macros [MAKE_MOCKn](
   reference.md/#MAKE_MOCKn
 ) and [MAKE_CONST_MOCKn](
   reference.md/#MAKE_CONST_MOCKn
 ), where `n` is the number of parameters in the function.
-
-Mock classes are typically used to implement interfaces, so they normally
-inherit from a pure virtual class, but this is not necessary.
 
 Example:
 
@@ -600,22 +608,33 @@ public:
   virtual void add(int n, std::string&&) = 0;
 };
 
-class MockDictionary : public Dictionary
+class MockDictionary : public trompeloeil::mock_interface<Dictionary>
 {
-  MAKE_CONST_MOCK1(lookup, std::string&(int), override);
-  MAKE_MOCK2(add, void(int, std::string&&), override);
+  IMPLEMENT_CONST_MOCK1(lookup);
+  IMPLEMENT_MOCK2(add);
 };
+
+struct Logger
+{
+  MAKE_MOCK2(log, void(int severity, const std::string& msg));
+};
+
 ```
 
 In the example above, `MockDictionary` is, as the name implies, a mock class for
 the pure virtual class `Dictionary`.
 
-The line `MAKE_CONST_MOCK1(lookup, std::string&(int), override);` implements the
-function `std::string& lookup(int) const` and the line
-`MAKE_MOCK2(add, void(int, std::string&&), override);` implements the function
-`void add(int, std::string&&)`. `override` is not needed, but it is good
-practice to always mark overridden virtual functions `override` since it
-gives the compiler an ability to complain about mistakes.
+The line `IMPLEMENT_CONST_MOCK1(lookup);` implements the function
+`std::string& lookup(int) const` and the line `IMPLEMENT_MOCK2(add);` implements
+the function `void add(int, std::string&&)`.
+
+The line `MAKE_MOCK2(log, void(int severity, const std::string& msg))`
+creates a mock function `void Logger::log(int, const std::string&)`. If
+[**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_CONST_MOCKn(...)`**](reference.md/#MAKE_CONST_MOCKn) are used
+to implement a virtual function from a base class, it is always recommended to
+add a third macro parameter `override` since it gives the compiler an ability to
+complain about mistakes.
 
 ### <A name="mocking_non_public"/> Mocking private or protected member functions
 
@@ -671,6 +690,10 @@ See [Matching calls to overloaded member functions](
 ) for how to place [expectations](
   reference.md/#expectation
 ) on them.
+
+**NOTE!** Overloaded member functions cannot be mocked using the
+macros [**`IMPLEMENT_MOCKn(...)`**](reference.md/IMPLEMENT_MOCKn) or
+[**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/IMPLEMENT_CONST_MOCKn)`.
 
 ### <A name="mocking_class_template"/> Mocking a class template
 
