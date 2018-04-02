@@ -23,7 +23,18 @@ int m = 0;
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(),
+    .SIDE_EFFECT(m = 3)
+    .TIMES(0));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f())
     .SIDE_EFFECT(m = 3)
     .TIMES(0);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

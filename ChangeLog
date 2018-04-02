@@ -1,4 +1,40 @@
-v29 2017-10-23
+	* mock_interface<T> provides a convenient short cut when implementing
+	  mocks from interfaces. It is used together with the macros
+	  IMPLEMENT_MOCKn(func_name) and IMPLEMENT_CONST_MOCKn(func_name).
+	  The signature of the function is deduced. It is not possible to use
+	  mock_interface<T> with multiple inheritance, and it is not possible
+	  to mock overloads with IMPLEMENT_MOCKn(func_name) or
+	  IMPLEMENT_CONST_MOCKn(func_name)
+
+	* Used markdownlint to make documentation more consistent. Thanks @AndrewPaxie
+
+	* Silenced 2 clang++-5 warnings about missing "override"
+
+	Back ported Trompeloeil to C++11. Thanks @AndrewPaxie!
+	Changes by file and directory:
+	* Cleaned up `.travis.yml`
+	* Cleaned up `CMakeLists.txt` and bumped kcov for travis builds
+	* `README.md`
+	  * Updated supported compiler list.
+	  * Added link to `docs/Backward.md`.
+	  * Added link to `docs/PlatformAndLibraries.md`.
+	* `check_errors.sh` require `CXXFLAGS` with either `-std=c++11` or `-std=c++14`.
+	* `docs/FAQ.md`
+	  * Updated supported compilers list.
+	  * Updated answer regarding C++11 support.
+	* `docs/`
+	  * New: "Backward compatibility with earlier versions of C++".
+	  * New: "Platform and library support for Trompeloeil".
+	* `compilation_errors/`
+	  * Support for C++11 expectation syntax in test cases.
+	* `test/`
+	  * Split `compiling_tests.cpp` into separately compilable files,
+	    for Catch main, C++11 test cases and C++14 test cases.
+
+	* Fixed whitespace and a minor spelling error in trompeloeil.hpp.
+	* Tidy up test cases in compilation_errors.
+
+v29 2017-07-23
 
 	* Fix Issue #54: Exception thrown exit - fixed static dtor fiasco
 	* Fix Issue #48: Move "re" in lambda capture list in "regex_check".

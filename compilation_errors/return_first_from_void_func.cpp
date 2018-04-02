@@ -25,7 +25,18 @@ int main()
 {
   int n;
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(),
+    .RETURN(1)
+    .LR_SIDE_EFFECT(n = 0));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f())
     .RETURN(1)
     .LR_SIDE_EFFECT(n = 0);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

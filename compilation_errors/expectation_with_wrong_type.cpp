@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//argument.*2
+//(cannot initialize|no known conversion).*trompeloeil::param_list_t<int.*\(int, int, int\), 1.*>
 
 #include <trompeloeil.hpp>
 
@@ -24,6 +24,16 @@ using trompeloeil::_;
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(1,nullptr,_),
+    .RETURN(_2));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f(1,nullptr,_))
     .RETURN(_2);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

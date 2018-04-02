@@ -21,6 +21,10 @@ FAILURES=0
 #echo "CXXFLAGS=$CXXFLAGS"
 #echo "CPPFLAGS=$CPPFLAGS"
 
+# Default CXXFLAGS to -std=c++14 if not set in the environment
+# for backward compatibility.
+CXXFLAGS=${CXXFLAGS-"-std=c++14"}
+
 #${CXX} --version
 cd compilation_errors
 SCRIPT='
@@ -34,7 +38,7 @@ for f in *.cpp
 do
   RE=`sed -n "$SCRIPT" < $f`
   printf "%-45s" $f
-  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include -std=c++14 $f -c 2>&1 | egrep -q "${RE}" && echo ${PASS} && continue || echo ${FAIL} && false
+  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include $f -c 2>&1 | egrep -q "${RE}" && echo ${PASS} && continue || echo ${FAIL} && false
   FAILURES=$((FAILURES+$?))
 done
 exit $FAILURES

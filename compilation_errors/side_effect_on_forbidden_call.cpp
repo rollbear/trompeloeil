@@ -24,6 +24,16 @@ struct MS
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  FORBID_CALL_V(obj, f(),
+    .SIDE_EFFECT(std::cout << 3));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   FORBID_CALL(obj, f())
     .SIDE_EFFECT(std::cout << 3);
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 }

@@ -33,7 +33,7 @@
   - [Typed matchers](#typed_matcher)
   - [Duck-typed matchers](#duck_typed_matcher)
   - [Legacy matchers](#legacy_matcher)
-  
+
 ## <A name="unit_test_frameworks"/> Integrating with unit test frame works
 
 By default, *Trompeloeil* reports violations by throwing an exception,
@@ -63,9 +63,9 @@ you do not implement `main()` yourself.
 Compile time adaptation to unit test frame works is done by specializing the
 `trompeloeil::reporter<trompeloeil::specialized>` struct.
 
-Somewhere in global namespace, in one of your
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-enter the following code:
+Somewhere in global namespace, in one of your [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), enter the following code:
 
 ```Cpp
 namespace trompeloeil
@@ -82,9 +82,9 @@ namespace trompeloeil
 }
 ```
 
-In all other
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declaration in global namespace instead:
+In all other [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), add the following extern declaration in global namespace instead:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -94,9 +94,10 @@ It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
 `trompeloeil::severity::fatal` and `trompeloeil::severity::nonfatal`. The value
 `severity::nonfatal` is used when reporting violations during stack rollback,
-typically during the destruction of an
-[expectation](reference.md/#expectation). In this case it is vital that
-no exception is thrown, or the process will terminate. If the value is
+typically during the destruction of an [expectation](
+  reference.md/#expectation
+). In this case it is vital that no exception is
+thrown, or the process will terminate. If the value is
 `severity::fatal`, it is instead imperative that the function does not return.
 It may throw or abort.
 
@@ -105,7 +106,6 @@ location. An example is an unexpected call to a
 [mock function](reference.md/#mock_function) for which there
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
-
 
 ### Run time adapter
 
@@ -171,9 +171,9 @@ Paste the following code snippet in global namespace in one of your
   }
 ```
 
-If you have several
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declaration in the others:
+If you have several [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), add the following extern declaration in the others:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -264,8 +264,8 @@ before any tests are run.
 
 ### <A name="adapt_doctest"/>Use *Trompeloeil* with [doctest](https://github.com/onqtam/doctest)
 
-* [doctest 1.2 or newer](#doctest12)
-* [doctest &lt; 1.2](#doctest_old)
+- [doctest 1.2 or newer](#doctest12)
+- [doctest &lt; 1.2](#doctest_old)
 
 #### <A name="doctest12"/> doctest 1.2 or newer
 
@@ -295,9 +295,9 @@ Paste the following code snippet in global namespace in one of your
   }
 ```
 
-If you have several
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declatation in the others:
+If you have several [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), add the following extern declaration in the others:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -305,7 +305,6 @@ extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 
 If you roll your own `main()`, you may prefer a runtime adapter instead.
 Before running any tests, make sure to call:
-
 
 ```Cpp
   trompeloeil::set_reporter([](
@@ -325,7 +324,6 @@ Before running any tests, make sure to call:
     }
   });
 ```
-
 
 #### <A name="doctest_old"/> doctest &lt; 1.2
 
@@ -365,9 +363,9 @@ Paste the following code snippet in global namespace in one of your
   }
 ```
 
-If you have several
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
-add the following extern declaration in the others:
+If you have several [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), add the following extern declaration in the others:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -377,9 +375,8 @@ If you roll your own `main()`, you may prefer a runtime adapter instead.
 As above, create a simple `doctest_violation` type by pasting the below code
 into the file containing `main()`.
 
-
 ```Cpp
-  struct doctest_violation : std::ostringstream 
+  struct doctest_violation : std::ostringstream
   {
     friend std::ostream& operator<<(std::ostream& os, doctest_violation const& v)
     {
@@ -389,7 +386,6 @@ into the file containing `main()`.
 ```
 
 Then, before running any tests, make sure to call:
-
 
 ```Cpp
   trompeloeil::set_reporter([](
@@ -411,7 +407,6 @@ Then, before running any tests, make sure to call:
     }
   });
 ```
-
 
 ### <A name="adapt_gtest"/>Use *Trompeloeil* with [gtest](https://code.google.com/p/googletest/)
 
@@ -443,9 +438,9 @@ Paste the following code snippet in global namespace in one of the
   }
 ```
 
-In all other
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233)
-add the following extern declaration:
+In all other [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), add the following extern declaration:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -496,7 +491,7 @@ int main(int argc, char *argv[])
       throw lest::message{"", lest::location{ line ? file : "[file/line unavailable]", int(line) }, "", msg };
     }
     else
-    {   
+    {
       stream << lest::location{ line ? file : "[file/line unavailable]", int(line) } << ": " << msg;
     }
   });
@@ -531,9 +526,9 @@ Paste the following code snippet in global namespace in one of your
   }
 ```
 
-In all other
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233)
-add the following extern declaration:
+In all other [translation units](
+  http://stackoverflow.com/questions/8342185/ddg#8342233
+), add the following extern declaration:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
@@ -585,13 +580,23 @@ Place the below code snippet in, for example, your `TEST_CLASS_INITIALIZE(...)`
 A Mock class is any class that [mocks](reference.md/#mock_function) member
 functions.
 
-Member functions are mocked using the macros
-[MAKE_MOCKn](reference.md/#MAKE_MOCKn) and
-[MAKE_CONST_MOCKn](reference.md/#MAKE_CONST_MOCKn), where `n` is the number
-of parameters in the function.
+There are two ways to create mocks. A very frequently seen situation is
+when inheriting from an interface (i.e. an abstract base class with
+pure virtual functions). When this is the case, the easiest route is to
+inherit the interface via
+[`trompeloeil::mock_interface<T>`](#reference.md/mock_interface)
+and implement the mock functions with the macros
+[**`IMPLEMENT_MOCKn(...)`**](reference.md/#IMPLEMENT_MOCKn) and
+[**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/#IMPLEMENT_CONST_MOCKn). These
+only work when implementing to an interface, do not handle multiple inheritance
+and do not handle overloads.
 
-Mock classes are typically used to implement interfaces, so they normally
-inherit from a pure virtual class, but this is not necessary.
+A more generic technique is to implement free mocks as members of any
+`struct` or `class` using the macros [**`MAKE_MOCKn`**](
+  reference.md/#MAKE_MOCKn
+) and [**`MAKE_CONST_MOCKn`**](
+  reference.md/#MAKE_CONST_MOCKn
+), where `n` is the number of parameters in the function.
 
 Example:
 
@@ -604,29 +609,40 @@ public:
   virtual void add(int n, std::string&&) = 0;
 };
 
-class MockDictionary : public Dictionary
+class MockDictionary : public trompeloeil::mock_interface<Dictionary>
 {
-  MAKE_CONST_MOCK1(lookup, std::string&(int), override);
-  MAKE_MOCK2(add, void(int, std::string&&), override);
+  IMPLEMENT_CONST_MOCK1(lookup);
+  IMPLEMENT_MOCK2(add);
 };
+
+struct Logger
+{
+  MAKE_MOCK2(log, void(int severity, const std::string& msg));
+};
+
 ```
 
 In the example above, `MockDictionary` is, as the name implies, a mock class for
 the pure virtual class `Dictionary`.
 
-The line `MAKE_CONST_MOCK1(lookup, std::string&(int), override);` implements the
-function `std::string& lookup(int) const` and the line
-`MAKE_MOCK2(add, void(int, std::string&&), override);` implements the function
-`void add(int, std::string&&)`. `override` is not needed, but it is good
-practice to always mark overridden virtual functions `override` since it
-gives the compiler an ability to complain about mistakes.
+The line `IMPLEMENT_CONST_MOCK1(lookup);` implements the function
+`std::string& lookup(int) const` and the line `IMPLEMENT_MOCK2(add);` implements
+the function `void add(int, std::string&&)`.
+
+The line `MAKE_MOCK2(log, void(int severity, const std::string& msg))`
+creates a mock function `void Logger::log(int, const std::string&)`. If
+[**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_CONST_MOCKn(...)`**](reference.md/#MAKE_CONST_MOCKn) are used
+to implement a virtual function from a base class, it is always recommended to
+add a third macro parameter `override` since it gives the compiler an ability to
+complain about mistakes.
 
 ### <A name="mocking_non_public"/> Mocking private or protected member functions
 
 Mocking private or protected member functions is no different from mocking
 public member functions. Just make them public in the mock class. It may seem
 strange that you can change access rights of a member function through
-inheritance, but C++ allows it.
+inheritance, but C\+\+ allows it.
 
 Example:
 
@@ -649,7 +665,6 @@ be able to set [expectations](#setting_expectations) on them, but there is
 nothing preventing a public function from implementing a private virtual function
 in a base class.
 
-
 ### <A name="mocking_overloaded"/> Mocking overloaded member functions
 
 *Trompeloeil* matches [mock functions](reference.md/#mock_function) by
@@ -671,13 +686,19 @@ public:
 Above there are three [mock functions](reference.md/#mock_function) named
 `overload`, with different signatures.
 
-See [Matching calls to overloaded member functions](#matching_overloads) for
-how to place [expectations](reference.md/#expectation) on them.
+See [Matching calls to overloaded member functions](
+  #matching_overloads
+) for how to place [expectations](
+  reference.md/#expectation
+) on them.
 
+**NOTE!** Overloaded member functions cannot be mocked using the
+macros [**`IMPLEMENT_MOCKn(...)`**](reference.md/IMPLEMENT_MOCKn) or
+[**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/IMPLEMENT_CONST_MOCKn)`.
 
 ### <A name="mocking_class_template"/> Mocking a class template
 
-Unlike some *C++* mocking frame works, *Trompeloeil* does not make a
+Unlike some *C\+\+* mocking frame works, *Trompeloeil* does not make a
 distinction between mocks in class templates and mocks in concrete classes.
 
 Example:
@@ -700,8 +721,9 @@ work for any type `T`.
 ### <A name="mocking_non_virtual"/> Mocking non-virtual member functions
 
 While it is often the case that mocks are used to implement interfaces,
-there is no such requirement. Just add the
-[mock functions](reference.md/#mock_function) that are needed.
+there is no such requirement. Just add the [mock functions](
+  reference.md/#mock_function
+) that are needed.
 
 Example:
 
@@ -738,7 +760,7 @@ struct c_api_cookie;
 struct c_api_cookie* c_api_init();
 
 int c_api_func1(struct c_api_cookie* cookie, const char* str, size_t len);
- 
+
 void c_api_end(struct c_api_cookie*);
 
 #ifdef __cplusplus
@@ -776,12 +798,12 @@ extern "C" {
   {
     return api_mock.c_api_init();
   }
-  
+
   int c_api_func1(c_api_cookie* cookie, const char* str, size_t len)
   {
     return api_mock.c_api_func1(cookie, str, len);
   }
-  
+
   void c_api_end(c_api_cookie* cookie)
   {
     api_mock.c_api_end(cookie);
@@ -817,10 +839,10 @@ to make some calls legal and define what happens.
 
 There are three basic types of expectations.
 
- - [**`ALLOW_CALL(...)`**](reference.md/#ALLOW_CALL)
- - [**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL)
- - [**`FORBID_CALL(...)`**](reference.md/#FORBID_CALL)
- 
+- [**`ALLOW_CALL(...)`**](reference.md/#ALLOW_CALL)
+- [**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL)
+- [**`FORBID_CALL(...)`**](reference.md/#FORBID_CALL)
+
 **`ALLOW_CALL(...)`** is often used for a default. It can match any number of
 times.
 
@@ -842,14 +864,13 @@ allowed.
 If the scoped lifetime rules are unsuitable, there are also thee named
 versions of the expectations.
 
- - [**`NAMED_ALLOW_CALL(...)`**](reference.md/#NAMED_ALLOW_CALL)
- - [**`NAMED_REQUIRE_CALL(...)`**](reference.md/#NAMED_REQUIRE_CALL)
- - [**`NAMED_FORBID_CALL(...)`**](reference.md/#NAMED_FORBID_CALL)
-  
+- [**`NAMED_ALLOW_CALL(...)`**](reference.md/#NAMED_ALLOW_CALL)
+- [**`NAMED_REQUIRE_CALL(...)`**](reference.md/#NAMED_REQUIRE_CALL)
+- [**`NAMED_FORBID_CALL(...)`**](reference.md/#NAMED_FORBID_CALL)
+
 These do the same, but they create a
 `std::unique_ptr<trompeloeil::expectation>`, which you can bind to variables
 that you control the life time of.
-
 
 ### <A name="matching_exact_values"/> Matching exact values
 
@@ -889,10 +910,10 @@ provides a set of [matchers](reference.md/#matcher). Simple value matchers are:
 - [**`lt(`** *value* **`)`**](reference.md/#lt) matches value less than (using `operator<()`)
 - [**`le(`** *value* **`)`**](reference.md/#le) matches value less than or equal (using `operator<=()`)
 
-By default, the matchers are
-[*duck typed*](https://en.wikipedia.org/wiki/Duck_typing), i.e. they match
-a parameter that supports the operation. If disambiguation is necessary to
-resolve overloads, an explicit type can be specified.
+By default, the matchers are [*duck typed*](
+  https://en.wikipedia.org/wiki/Duck_typing
+), i.e. they match a parameter that supports the operation. If disambiguation
+is necessary to resolve overloads, an explicit type can be specified.
 
 Example:
 
@@ -939,8 +960,9 @@ void test()
 }
 ```
 
-**TIP!** Using `C++` [raw string literals](http://www.stroustrup.com/C++11FAQ.html#raw-strings)
-can massively help getting regular expression escapes right.
+**TIP!** Using `C++` [raw string literals](
+  http://www.stroustrup.com/C++11FAQ.html#raw-strings
+) can massively help getting regular expression escapes right.
 
 ### <A name="matching_pointers"/> Matching pointers to values
 
@@ -1042,7 +1064,6 @@ refer to a local variable by reference, use
 [**`.LR_WITH(...)`**](reference.md/#LR_WITH) instead (`LR_` for
 "local reference").
 
-
 ### <A name="matching_non_copyable"/> Matching `std::unique_ptr<T>` and other non-copyable values
 
 Matching parameter values that you cannot copy, or do not want to copy,
@@ -1106,10 +1127,10 @@ using namespace trompeloeil;
 void test()
 {
   Mock m;
-  
+
   REQUIRE_CALL(m, func(ANY(int*)));
   REQUIRE_CALL(m, func(ne<char*>(nullptr)));
-  
+
   func(&m);
 }
 ```
@@ -1125,10 +1146,10 @@ before returning (or throwing).
 
 Typical side effects are:
 
- - Setting out parameters
- - Capturing in parameters
- - Calling other functions
- 
+- Setting out parameters
+- Capturing in parameters
+- Calling other functions
+
 Example:
 
 ```Cpp
@@ -1150,7 +1171,7 @@ void test()
     REQUIRE_CALL(d, subscribe(_))
       .LR_SIDE_EFFECT(clients.push_back(std::move(_1)))
       .TIMES(AT_LEAST(1));
-    
+
     func(&d);
   }
   for (auto& cb : clients) cb("meow");
@@ -1193,7 +1214,7 @@ void test()
 {
   Dictionary d;
   std::vector<std::string> dict{...};
-  
+
   ALLOW_CALL(d, lookup(ge(dict.size())))
     .RETURN("");                          // create std::string from ""
   ALLOW_CALL(d, lookup(lt(dict.size())))
@@ -1221,7 +1242,6 @@ allowed to return a captured local variable as a reference in
 [**`LR_RETURN(...)`**](reference.md/#LR_RETURN) a returned variable must be
 decorated to ensure that a reference is intended.
 
-
 Example:
 
 ```Cpp
@@ -1243,7 +1263,7 @@ void test()
   std::vector<std::string> dict{...};
 
   std::string empty;
-  
+
   ALLOW_CALL(d, lookup(gt(dict.size())))
     .LR_RETURN((empty));                // extra () -> reference to local variable
   ALLOW_CALL(d, lookup(dict.size()))
@@ -1337,12 +1357,12 @@ using trompeloeil::_;
 void test_no_mem()
 {
   Allocator<int> ai;
-  
+
   ALLOW_CALL(ai, allocate(_))
     .RETURN(nullptr);
-    
+
   ALLOW_CALL(ai, deallocate(nullptr));
-  
+
   hairy_int_job(&ai);
 }
 ```
@@ -1350,7 +1370,6 @@ void test_no_mem()
 The simplistic allocator above is rigged to allow any attempts to allocate
 memory, but always return `nullptr`, and only allow deallocation of
 `nullptr`.
-
 
 ### <A name="temporary_disallow"/> Temporarily disallowing matching calls
 
@@ -1375,10 +1394,10 @@ using trompeloeil::_;
 void test_restricted_mem()
 {
   Allocator<int> ai;
-  
+
   ALLOW_CALL(ai, allocate(_))
     .RETURN(new int[_1]);
-    
+
   ALLOW_CALL(ai, deallocate(_))
     .SIDE_EFFECT(delete[] _1);
 
@@ -1386,7 +1405,7 @@ void test_restricted_mem()
 
   {
     FORBID_CALL(ai, allocate(_));
-    
+
     job.churn(); // must not allocate memory
   }
 
@@ -1527,7 +1546,7 @@ that will succeed.
 [**`.IN_SEQUENCE(...)`**](reference.md/#IN_SEQUENCE) can refer to several
 sequence objects, which is a way to allow some variation in order, without
 being too lax. For a more thorough walk through, see the blog post [Sequence
-control with the Trompeloeil C++14 Mocking Framework](http://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html)
+control with the Trompeloeil C\+\+14 Mocking Framework](http://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html)
 
 [**`.IN_SEQUNECE(...)`**](reference.md/#IN_SEQUENCE) can also be used on
 [**`REQUIRE_DESTRUCTION(...)`**](reference.md/#REQUIRE_DESTRUCTION) and
@@ -1553,19 +1572,19 @@ public:
 void some_test()
 {
   Mock m;
-  
+
   REQUIRE_CALL(m, func(0))
     .TIMES(2);
-    
+
   REQUIRE_CALL(m, func(1))
     .TIMES(3, 5);
-    
+
   REQUIRE_CALL(m, func(2))
     .TIMES(AT_LEAST(3));
-    
+
   REQUIRE_CALL(m, func(3))
     .TIMES(AT_MOST(4));
-    
+
   func(&m);
 }
 ```
@@ -1606,20 +1625,20 @@ private:
 void consume_test()
 {
   auto owner = std::make_unique<trompeloeil::deathwatched<Mock>>();
-  
+
   auto mock = owner.get(); // use raw unowned pointer
-  
+
   consumer<Mock> c(std::move(owner));
-  
+
   {
     REQUIRE_CALL(*mock, func(3));
-    
+
     c.poke(3);
   }
   {
     REQUIRE_CALL(*mock, func(-1));
     REQUIRE_DESTRUCTION(*mock);
-  
+
     c.poke(0);
   }
 }
@@ -1656,7 +1675,7 @@ possible to be explicit with the sequencing by using
 ```
 
 ## <A name="custom_formatting"/> Customize output format of values
- 
+
 When [tracing](#tracing) or printing parameter values in violation reports,
 the values are printed using their
 [stream insertion operators](http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt),
@@ -1703,7 +1722,7 @@ Simply put, tracing is exposing which mocks are called with which values.
 all calls to a
 [`std::ostream`](http://en.cppreference.com/w/cpp/io/basic_ostream), but you
 can also write your own [custom tracer](#custom_tracer).
- 
+
 ### <A name="stream_tracer"/> Using `trompeloeil::stream_tracer`
 
 *`stream_tracer`* is a mechanism used to find out how
@@ -1732,15 +1751,15 @@ using trompeloeil::_;
 void tracing_test()
 {
   trompeloeil::stream_tracer tracer{std::cout};
-  
+
   Mock m;
-  
+
   ALLOW_CALL(m, create(_))
     .RETURN(3);
-    
+
   ALLOW_CALL(m, func(_))
     .RETURN("value");
-  
+
   weird_func(&m);
 }
 ```
@@ -1748,7 +1767,7 @@ void tracing_test()
 Running the above test will print on `std::cout` all calls made. A sample
 output may be:
 
-```
+```text
 /tmp/t.cpp:33
 m.create(_) with.
   param  _1 = hello
@@ -1791,7 +1810,6 @@ public:
 Write your own class inheriting from `trompeloeil::tracer`, and implement the
 member function `trace`, to do what you need, and you're done.
 
-
 ## <A name="custom_matchers"/> Writing custom matchers
 
 If you need additional matchers over the ones provided by *Trompeloeil*
@@ -1807,7 +1825,7 @@ error messages, and any number of stored values.
 
 All matchers, including your own custom designed matchers, can be used as
 [pointer matchers](#matching_pointers) by using the unary prefix `*`
-dereference operator. 
+dereference operator.
 
 ### <A name="typed_matcher"/> Typed matcher
 
@@ -1819,7 +1837,7 @@ allowing a parameter to match any of a set of values.
 
 To create a matcher, you provide a function that calls
 [**`trompeleil::make_matcher<Type>(...)`**](reference.md/#make_matcher).
- 
+
 Below is the code for the function `any_of(std::initializer_list<int>)`
 which creates the matcher.
 
@@ -1827,13 +1845,13 @@ which creates the matcher.
   inline auto any_of(std::initializer_list<int> elements)
   {
     return trompeloeil::make_matcher<int>( // matcher of int
-    
+
       // predicate lambda that checks the condition
       [](int value, std::vector<int> const & alternatives) {
         return std::any_of(std::begin(alternatives), std::end(alternatives),
                            [&value](int element) { return value == element; });
       },
-      
+
       // print lambda for error message
       [](std::ostream& os, std::vector<int> const& alternatives) {
         os << " matching any_of({";
@@ -1845,7 +1863,7 @@ which creates the matcher.
         }
         os << " }";
       },
-      
+
       // stored value
       std::vector<int>(elements)
     )
@@ -1883,13 +1901,14 @@ void test()
 The *print* lambda is only called if a failure is reported.
 The report in the above example will look like:
 
-```
+```text
 No match for call of m.func with signature void(int) with.
   param  _1 = 7
 
 Tried m.func(any_of({1, 2, 4, 8}) at file.cpp:12
   Expected _1 matching any_of({ 1, 2, 4, 8 });
 ```
+
 Where everything after `Expected _1` is the output from the *print* lambda.
 
 Extending the example above to work with any type, using a template, is
@@ -1900,13 +1919,13 @@ straight forward:
   inline auto any_of(std::initializer_list<T> elements)
   {
     return trompeloeil::make_matcher<T>( // matcher of T
-    
+
       // predicate lambda that checks the condition
       [](T const& value, std::vector<T> const & alternatives) {
         return std::any_of(std::begin(alternatives), std::end(alternatives),
                            [&value](T const& element) { return value == element; });
       },
-      
+
       // print lambda for error message
       [](std::ostream& os, std::vector<T> const& alternatives) {
         os << " matching any_of({";
@@ -1919,7 +1938,7 @@ straight forward:
         }
         os << " }";
       },
-      
+
       // stored value
       std::vector<T>(elements)
     )
@@ -1949,7 +1968,7 @@ It is also important that the *predicate* lambda uses a
 specifier, which uses the required operations, in order to filter out calls
 that would not compile.
 
-#### <A name="not_empty"/> A `not_empty()` matcher.
+#### <A name="not_empty"/> A `not_empty()` matcher
 
 Here's an implementation of a `not_empty()` matcher.
 
@@ -1957,17 +1976,17 @@ Here's an implementation of a `not_empty()` matcher.
   inline auto not_empty()
   {
     return trompeloeil::make_matcher<trompeloeil::wildcard>( // duck typed
-    
+
       // predicate lambda that checks the condition
       [](auto const& value) -> decltype(!value.empty()) {
         return !value.empty();
       },
-      
+
       // print lambda for error message
       [](std::ostream& os) {
         os << " is not empty";
       }
-      
+
       // no stored values
     );
   }
@@ -1985,7 +2004,7 @@ Here's an example of the usage.
     MAKE_MOCK1(func, void(std::string&&));
     MAKE_MOCK1(func2, void(std::vector<int> const&);
   };
-  
+
   void test()
   {
     C obj;
@@ -2022,17 +2041,17 @@ with `trompeloeil::wildcard` as the default.
   inline auto not_empty()
   {
     return trompeloeil::make_matcher<Type>( // typed or duck typed
-    
+
       // predicate lambda that checks the condition
       [](auto const& value) -> decltype(!value.empty()) {
         return !value.empty();
       },
-      
+
       // print lambda for error message
       [](std::ostream& os) {
         os << " is not empty";
       }
-      
+
       // no stored values
     );
   }
@@ -2042,7 +2061,7 @@ Now, if the user writes `EXPECT_CALL(obj, func(not_empty()))`, it is
 duck-typed, but if the user writes `EXPECT_CALL(obj, func<std::string&&>()`
 it will only match a call with a `std::string&&` parameter.
 
-#### <A name="is_clamped"/> An `is_clamped(min, max)` matcher.
+#### <A name="is_clamped"/> An `is_clamped(min, max)` matcher
 
 Here's an implementation of an `is_clamped(min, max)` matcher.
 
@@ -2051,14 +2070,14 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
   inline auto is_clamped(T const& min, U const& max)
   {
     return trompeloeil::make_matcher<Type>( // typed or duck typed
-    
+
       // predicate lambda that checks the condition
       [](auto const& value, auto const& lower, auto const& upper)
        -> decltype(lower <= value && value <= upper)
       {
         return !trompeloeil::is_null(value) && lower <= value && value <= upper;
       },
-      
+
       // print lambda for error message
       [](std::ostream& os, auto const& lower, auto const& upper) {
         os << " clamped by [";
@@ -2067,7 +2086,7 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
         trompeloeil::print(os, upper);
         os << "]";
       }
-      
+
       // stored values
       min,
       max
@@ -2078,7 +2097,7 @@ Here's an implementation of an `is_clamped(min, max)` matcher.
 The [`trompeloeil::is_null(value)`](reference.md/#is_null) in the *predicate*
 lambda is there to prevent against e.g. clamp checks for `const char*` between
 two [`std::string`s](http://en.cppreference.com/w/cpp/string/basic_string),
-where the `const char*` may be *null*. The `is_null()` check is omitted in the 
+where the `const char*` may be *null*. The `is_null()` check is omitted in the
 trailing return specification,
 because it does not add anything to it - it always returns a `bool` and
 it works for all types.
@@ -2103,12 +2122,12 @@ simple:
              return !trompeloeil::is_null(value) && lower <= value && value <= upper;
            };
   }
-  
+
   template <typename Type = trompeloeil::wildcard, typename T, typename U>
   inline auto is_clamped(T const& min, U const% max)
   {
     return trompeloeil::make_matcher<Type>( // duck typed
-    
+
       // predicate lambda that checks the condition
       is_clamped_predicate(),
       ...
@@ -2135,7 +2154,7 @@ simple - use a `struct` instead:
   inline auto is_clamped(T const& min, U const% max)
   {
     return trompeloeil::make_matcher<Type>( // duck typed
-    
+
       // predicate lambda that checks the condition
       is_clamped_predicate(),
       ...
@@ -2148,13 +2167,14 @@ was introduced in *Trompeloeil* v18, writing matchers was more elaborate.
 This section is here for those who need to maintain old matcher code.
 
 All legacy matchers
+
 - inherit from `trompeloeil::matcher` or `trompeloeil::typed_matcher<T>`
 - implement a `bool matches(parameter_value) const` member function
 - implement an output stream insertion operator
 
 All legacy matchers can be used as
 [pointer matchers](#matching_pointers) by using the unary prefix `*` dereference
-operator. 
+operator.
 
 ### Typed legacy matcher
 
@@ -2230,13 +2250,14 @@ void test()
 The output stream insertion operator is only called if a failure is reported.
 The report in the above example will look like:
 
-```
+```text
 No match for call of m.func with signature void(int) with.
   param  _1 = 7
 
 Tried m.func(any_of({1, 2, 4, 8}) at file.cpp:12
   Expected _1 matching any_of({ 1, 2, 4, 8 });
 ```
+
 Where everything after `Expected _1` is the output from the stream insertion
 operator.
 
@@ -2303,10 +2324,12 @@ use ([**`REQUIRE_CALL()`**](reference.md/#REQUIRE_CALL),
 [**`FORBID_CALL()`**](reference.md/#FORBID_CALL).)
 
 The `matches(T const&)` member function at **//2** becomes very simple. It
-does not need the [SFINAE](http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
-[`std::enable_if_t<>`](http://en.cppreference.com/w/cpp/types/enable_if) to select
-valid types, since a type mismatch gives a compilation error on the
-type conversion operator at **//1**.
+does not need the [SFINAE](
+  http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error
+) [`std::enable_if_t<>`](
+  http://en.cppreference.com/w/cpp/types/enable_if
+) to select valid types, since a type mismatch gives a compilation error
+on the type conversion operator at **//1**.
 
 The output stream insertion operator is neither more or less tricky than with
 typed matchers. Making violation reports readable may require some thought,

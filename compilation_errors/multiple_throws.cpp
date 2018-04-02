@@ -23,7 +23,19 @@ struct MS
 int main()
 {
   MS obj;
+
+#if (TROMPELOEIL_CPLUSPLUS == 201103L)
+
+  REQUIRE_CALL_V(obj, f(),
+    .THROW(3)
+    .THROW('a'));
+
+#else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
+
   REQUIRE_CALL(obj, f())
     .THROW(3)
     .THROW('a');
+
+#endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
+
 }
