@@ -17,10 +17,11 @@
 - Q. [Can I match a value pointed to by a pointer parameter?](#match_deref)
 - Q. [Can I negate the effect of a matcher?](#negate_matcher)
 - Q. [Can I check if an expectation is fulfilled?](#query_expectation)
+- Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
-**A.** It's a parallel to arts. 
+**A.** It's a parallel to arts.
 [Trompe-l'œil](https://en.wikipedia.org/wiki/Trompe-l%27%C5%93il), which
 literally means "trick the eye," refers to an art form where the artist
 creates something that tricks the viewer into thinking they see something
@@ -56,14 +57,15 @@ Your tests can now `#include <chimera.hpp>` and use (for example)
 ## <A name="compilers"/>Q. Which compilers supports *Trompeloeil*?
 
 **A.** *Trompeloeil* is known to work well with:
-- [g++](http://gcc.gnu.org) 4.9.3 and later.
-- [clang++](http://clang.llvm.org) 3.5 and later.
+
+- [g\+\+](http://gcc.gnu.org) 4.9.3 and later.
+- [clang\+\+](http://clang.llvm.org) 3.5 and later.
 - [VisualStudio](http://visualstudio.com) 2015 and later.
 
-*Trompeloeil* is known to work somewhat with *g++* 4.8.\[4, 5\] and
-somewhat less with *g++* 4.8.3.  *`g++ 4.8.x`* only compiles with a
-C++11 dialect (e.g. *`-std=c++11`*).  For details, see
-["G++ 4.8.x limitations"](Backward.md/#gxx48x_limitations).
+*Trompeloeil* is known to work somewhat with *g\+\+* 4.8.4 and 4.8.5, and
+somewhat less with *g\+\+* 4.8.3.  *`g++ 4.8.x`* only compiles with a
+C\+\+11 dialect (e.g. *`-std=c++11`*).  For details, see
+["G\+\+ 4.8.x limitations"](Backward.md/#gxx48x_limitations).
 
 ## <A name="unit_test_adaptation"/>Q. How do I use *Trompeloeil* with XXX unit test framework?
 
@@ -118,6 +120,7 @@ until it goes out of scope.
 [**`MAKE_CONST_MOCKn()`**](reference.md/#MAKE_CONST_MOCKn)
 
 Example:
+
 ```Cpp
 class Interface
 {
@@ -148,6 +151,7 @@ for it, or just enclose the value in an extra parenthesis, like this
 [**`.LR_RETURN((value))`**](reference.md/#LR_RETURN)
 
 Example:
+
 ```Cpp
 class C
 {
@@ -161,17 +165,17 @@ using trompeloeil::lt;
 TEST(some_test)
 {
   C mock_obj;
-  
+
   std::map<int, std::string> dictionary{ {...} };
-  
+
   std::string default_string;
-  
+
   ALLOW_CALL(mock_obj, lookup(_))
     .LR_RETURN(dictionary.at(_1)); // function call
-  
+
   ALLOW_CALL(mock_obj, lookup(trompeloeil::lt(0)))
     .LR_RETURN((default_string)); // extra parenthesis
-    
+
   ALLOW_CALL(mock_obj, lookup(0))
     .LR_RETURN(std::ref(default_string));
 
@@ -191,7 +195,7 @@ change the returned string.
 **A.** It would almost certainly be very confusing. All local variables
 referenced in [**`.WITH()`**](reference.md/#WITH),
 [**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT),
-[**`.RETURN()`**](reference.md/#RETURN) and 
+[**`.RETURN()`**](reference.md/#RETURN) and
 [**`.THROW()`**](reference.md/#THROW)
 are captured by value, i.e. each such clause has its own copy of the local
 variable. If you could change it, it would change the value in that clause
@@ -211,17 +215,17 @@ using trompeloeil::_;
 TEST(some_test)
 {
   C mock_obj;
-  
+
   unsigned abs_sum = 0;
-  
+
   ALLOW_CALL(mock_obj, func(trompeloeil::gt(0)))
     .SIDE_EFFECT(abs_sum+= _1); // illegal code!
-     
+
   ALLOW_CALL(mock_obj, func(trompeloeil::lt(0))
     .SIDE_EFFECT(abs_sum-= _1); // illegal code!
-     
+
   ALLOW_CALL(mock_obj, func(0));
-  
+
   test_func(&mock_obj);
 ```
 
@@ -264,7 +268,6 @@ because everything is allowed. If a safe way of allowing all calls is
 thought of, then this may change, but having a perhaps unnecessarily strict
 rule that can be relaxed is safer than the alternative.
 
-
 ## <A name="why_pos"/> Q. Why are parameters referenced by position and not by name?
 
 **A.** If you can figure out a way to refer to parameters by name, please
@@ -294,7 +297,9 @@ made.
 
 And indeed, since this FAQ question was first answered, a back port of a
 useful subset of Trompeloeil has been completed for use with *`C++11`*.
-For details, see ["Backward compatibility with earlier versions of C++"](Backward.md).
+For details, see ["Backward compatibility with earlier versions of C\+\+"](
+  Backward.md
+).
 
 ## <A name="why_hex"/> Q. Why are my parameter values printed as hexadecimal dumps in violation reports?
 
@@ -396,6 +401,7 @@ TEST("my obj calls func1 with empty string when poked")
   }
 }
 ```
+
 ## <A name="match_deref"/> Q. Can I match a value pointed to by a pointer parameter?
 
 **A.** You can always match with [**`_`**](reference.md/#wildcard)
@@ -447,3 +453,52 @@ sequence they describe [`is_completed()`](reference.md/#is_completed).
 
 These are rarely useful in pure unit tests, but it can be useful for mini
 integration tests, especially when threading is involved.
+
+### <A name="sequence_times"/>
+
+Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
+
+**A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
+[**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
+especially when you have a (possibly open) interval for **`.TIMES()`**.
+
+Trompeloeil always sees sequences as observed from a sequence object, and a
+sequence object can only move forward in what it allows.
+
+Example:
+
+```Cpp
+trompeloeil::sequence seq;
+REQUIRE_CALL(mock, foo1)
+  .TIMES(AT_LEAST(1))
+  .IN_SEQUENCE(seq);
+REQUIRE_CALL(mock, foo2)
+  .IN_SEQUENCE(seq);
+REQUIRE_CALL(mock, foo3)
+  .IN_SEQUENCE(seq);
+
+// later...
+
+mock.foo1();
+mock.foo2();
+mock.foo1(); // boom!
+mock.foo3();
+```
+
+In the example above, a sequence violation is reported on the second call to
+`mock.foo1()`. It goes like this:
+
+`mock.foo1();`
+this is the first call for the sequence object, so it is allowed. It says
+**`AT_LEAST(1)`**, so it may move to the next step, or it may repeat the same
+call.
+
+`mock.foo2();`
+The current step in the sequence is `mock.foo1()`, but it is satisfied, so moving on
+to the next one is allowed. The next one is `mock.foo2()`, which matches this call,
+so everything is good.
+
+`mock.foo1();`
+The current step in the sequence is `mock.foo2()`. Is is satisfied and
+saturated, so the sequence object must move to the next step. The next step is
+`mock.foo3()`, which is a mismatch, so a sequence violation is reported.

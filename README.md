@@ -4,7 +4,7 @@
 
 CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil) [![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
 
-[conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v28%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v28%3Astable/link)
+[conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v30%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v30%3Astable/link)
 
 
 > *trompe l'oeil* noun    (Concise Encyclopedia)  
@@ -103,7 +103,7 @@ Compiler compatibility
 Trompeloeil is known to work with:
 
 * GCC [4.8.4](docs/Backward.md#gxx48x_limitations)+, 4.9.3+, 5, 6, 7
-* Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5
+* Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5, 6
 * Visual Studio 2015, 2017
 
 Latest patch level releases are assumed in the versions listed above.
