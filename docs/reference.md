@@ -899,8 +899,7 @@ you can call [mock functions](#mock_function) from those.
 
 **NOTE!** **`IMPLEMENT_MOCKn(...)`** cannot handle overloaded functions.
 
-See also [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) for
-non-`const` member functions.
+See also [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) for `const` member functions.
 
 See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
 member functions.
