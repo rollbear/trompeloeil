@@ -17,6 +17,7 @@
 - Q. [Can I match a value pointed to by a pointer parameter?](#match_deref)
 - Q. [Can I negate the effect of a matcher?](#negate_matcher)
 - Q. [Can I check if an expectation is fulfilled?](#query_expectation)
+- Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -452,3 +453,52 @@ sequence they describe [`is_completed()`](reference.md/#is_completed).
 
 These are rarely useful in pure unit tests, but it can be useful for mini
 integration tests, especially when threading is involved.
+
+### <A name="sequence_times"/>
+
+Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
+
+**A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
+[**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
+especially when you have a (possibly open) interval for **`.TIMES()**`.
+
+Trompeloeil always sees sequences as observed from a sequence object, and a
+sequence object can only move forward in what it allows.
+
+Example:
+
+```Cpp
+trompeloeil::sequence seq;
+REQUIRE_CALL(mock, foo1)
+  .TIMES(AT_LEAST(1))
+  .IN_SEQUENCE(seq);
+REQUIRE_CALL(mock, foo2)
+  .IN_SEQUENCE(seq);
+REQUIRE_CALL(mock, foo3)
+  .IN_SEQUENCE(seq);
+
+// later...
+
+mock.foo1();
+mock.foo2();
+mock.foo1(); // boom!
+mock.foo3();
+```
+
+In the example above, a sequence violation is reported on the second call to
+`mock.foo1()`. It goes like this:
+
+`mock.foo1();`
+this is the first call for the sequence object, so it is allowed. It says
+**`AT_LEAST(1)`**, so it may move to the next step, or it may repeat the same
+call.
+
+`mock.foo2();`
+The current step in the sequence is `foo1()`, but it is satisfied, so moving on
+to the next one is allowed. The next one is `foo2()`, which matches this call,
+so everything is good.
+
+`mock.foo1();`
+The current step in the sequence is `mock.foo2()`. Is is satisfied and
+saturated, so the sequence object must move to the next step. The next step is
+`foo3()`, which is a mismatch, so a sequence violation is reported.
