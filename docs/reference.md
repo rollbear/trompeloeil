@@ -22,6 +22,8 @@
   - [**`AT_LEAST(`** *number* **`)`**](#AT_LEAST)
   - [**`AT_MOST(`** *number* **`)`**](#AT_MOST)
   - [**`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#FORBID_CALL)
+  - [**`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_CONST_MOCKn)
+  - [**`IMPLEMENT_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_MOCKn)
   - [**`IN_SEQUENCE(`** *seq...* **`)`**](#IN_SEQUENCE)
   - [**`LR_RETURN(`** *expr* **`)`**](#LR_RETURN)
   - [**`LR_SIDE_EFFECT(`** *expr* **`)`**](#LR_SIDE_EFFECT)
@@ -46,6 +48,7 @@
   - [`trompeloeil::expectation_violation`](#expectation_violation_type)
   - [`trompeloeil::lifetime_monitor`](#lifetime_monitor_type)
   - [`trompeloeil::matcher`](#matcher_type)
+  - [`trompeloeil::mock_interface<T>`](#mock_interface)
   - [`trompeloeil::sequence`](#sequence_type)
   - [`trompeloeil::severity`](#severity_type)
   - [`trompeloeil::stream_tracer`](#stream_tracer)
@@ -806,6 +809,102 @@ See also [**`NAMED_FORBID_CALL(...)`**](#NAMED_FORBID_CALL) which creates an
 expectation as a
 [`std::unique_ptr<trompeloeil::expectation>`](#expectation_type) which can be
 stored in test fixtures or otherwise have its lifetime programmatically controlled.
+
+<A name="IMPLEMENT_CONST_MOCKn"/>
+
+### **`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**
+
+Make a `const` [mock function](#mock_function) implementation of the
+`virtual` function named *func_name* from the inherited interface. This macro
+is only usable with `virtual` non-`final` functions, and only when used with
+[`mock_interface<T>`](#mock_interface), where `T` is the interface.
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual int func(int, const std::vector<int>&)) const = 0;
+};
+
+class C : public trompeloeil::mock_interface<I>
+{
+public:
+  IMPLEMENT_CONST_MOCK2(func);
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public trompeloeil::mock_interface<I>
+{
+public:
+  int func(int, const std::vector<int>&) const override;
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**NOTE!** **`IMPLEMENT_CONST_MOCKn(...)`** cannot handle overloaded functions.
+
+See also [**`IMPLEMENT_MOCKn(...)`**](#IMPLEMENT_MOCKn) for non-`const`
+member functions.
+
+See also [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) and
+[**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for making mock implementations
+of any member functions.
+
+<A name="IMPLEMENT_MOCKn"/>
+
+### **`IMPLEMENT_MOCKn(`** *func_name* **`)`**
+
+Make a non-`const` [mock function](#mock_function) implementation of the
+`virtual` function named *func_name* from the inherited interface. This macro
+is only usable with `virtual` non-`final` functions, and only when used with
+[`mock_interface<T>`](#mock_interface), where `T` is the interface.
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual int func(int, const std::vector<int>&)) = 0;
+};
+
+class C : public trompeloeil::mock_interface<I>
+{
+public:
+  IMPLEMENT_MOCK2(func1);
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public trompeloeil::mock_interface<I>
+{
+public:
+  int func(int, const std::vector<int>&) override;
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**NOTE!** **`IMPLEMENT_MOCKn(...)`** cannot handle overloaded functions.
+
+See also [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) for
+non-`const` member functions.
+
+See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
+member functions.
+
 
 <A name="IN_SEQUENCE"/>
 
@@ -1868,6 +1967,47 @@ and [tag dispatch](http://www.generic-programming.org/languages/cpp/techniques.p
 
 Use it, or [`trompeloeil::typed_matcher<T>`](#typed_matcher), as the base class
 when writing custom [matchers](CookBook.md/#custom_matchers).
+
+### <A name="mock_interface"/>`trompeloeil::mock_interface<T>`
+
+`trompeloeil::mock_interface<T>` is a template useful when creating a mock from
+an existing interface (i.e. a `struct` or `class` with virtual functions that
+you want to mock).
+
+It enables use of the [**`IMPLEMENT_MOCKn(...)`**](#IMPLEMENT_MOCKn) and
+[**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) macros.
+The [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) and
+[**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) macros can also be used.
+
+The interface type `T` must not be final.
+
+Example:
+
+```Cpp
+class interface
+{
+public:
+  virtual ~interface() = default;
+  virtual void func(int) = 0;
+};
+
+class mock : trompeloeil::mock_interface<interface>
+{
+public:
+  IMPLEMENT_MOCK1(func); // implements pure virtual interface::func(int);
+};
+
+void tested_func(interface& i);
+
+void test()
+{
+  mock m;
+  REQUIRE_CALL(m, func(3));
+  tested_func(m);
+}
+```
+
+**NOTE!** `mock_interface<T>` cannot be used to inherit multiple interfaces.
 
 ### <A name="sequence_type"/>`trompeloeil::sequence`
 
