@@ -1,4 +1,7 @@
+
 	* Fix documentation of sanitize flags
+
+	* Enabled destructor override warning in self_test build for Clang 5.0 or later
 
 	* Updated unit test framework to Catch 2.2.1.
 
