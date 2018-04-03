@@ -604,7 +604,7 @@ Example:
 class Dictionary
 {
 public:
-  virtual ~Interface() = default;
+  virtual ~Dictionary() = default;
   virtual std::string& lookup(int n) const = 0;
   virtual void add(int n, std::string&&) = 0;
 };
