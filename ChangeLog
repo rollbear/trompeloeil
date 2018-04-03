@@ -1,3 +1,4 @@
+	* Enabled destructor override warning for Clang 5.0 or later
 
 	* Updated unit test framework to Catch 2.2.1.
 
