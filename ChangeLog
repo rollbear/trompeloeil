@@ -1,3 +1,4 @@
+	* Fix documentation of sanitize flags
 
 	* Updated unit test framework to Catch 2.2.1.
 
