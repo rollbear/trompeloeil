@@ -74,11 +74,13 @@
 
 #define TROMPELOEIL_GCC_VERSION 0
 
-/* MSVC is an amalgam of C++ versions, with no provision to
- * force C++11 mode.  It also has a __cplusplus macro stuck at 199711L.
- * Assume the C++14 code path.
- */
-#define TROMPELOEIL_CPLUSPLUS 201401L
+#if _MSC_VER > 1910
+#  define TROMPELOEIL_CPLUSPLUS 201401L
+#elif _MSC_VER == 1900
+#  define TROMPELOEIL_CPLUSPLUS 201103L
+#else
+#  error requires Visual Studio 2015 RC or later
+#endif
 
 #endif
 
