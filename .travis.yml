@@ -198,6 +198,12 @@ matrix:
         - COMPILER="g++-8" SANITIZE=true
 
     - os: osx
+      osx_image: xcode9
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANITIZE=false
+
+    - os: osx
       osx_image: xcode8
       compiler: clang
       env:
