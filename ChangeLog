@@ -1,3 +1,5 @@
+	* Fix issue #82: restore compilation with VS 2015
+
 v30 2018-04-02
 
 	* mock_interface<T> provides a convenient short cut when implementing
