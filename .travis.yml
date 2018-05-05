@@ -154,6 +154,19 @@ matrix:
       env:
         - COMPILER="g++-7" SANITIZE=true
 
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-8" SANITIZE=true
+
     - os: osx
       osx_image: xcode8
       compiler: clang
