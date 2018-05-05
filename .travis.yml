@@ -94,6 +94,21 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - g++-6
+            - clang-5.0
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-5.0" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - g++-4.8
             - libcurl4-openssl-dev
