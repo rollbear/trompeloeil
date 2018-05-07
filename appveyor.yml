@@ -1,0 +1,18 @@
+version: "{branch} #{build}"
+
+image:
+  - Visual Studio 2017
+
+environment:
+  matrix:
+    - GENERATOR: "Visual Studio 15 2017 Win64"
+    - GENERATOR: "Visual Studio 15 2017"
+
+before_build:
+  - mkdir build
+  - cd build
+  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Debug ..
+
+build_script:
+- cmd: >-
+    cmake --build . --target self_test
