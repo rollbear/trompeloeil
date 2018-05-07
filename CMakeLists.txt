@@ -66,19 +66,25 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
   endif()
 
-  ExternalProject_Add(
-    kcov
-    GIT_REPOSITORY
-      https://github.com/simonkagstrom/kcov
-    GIT_TAG
-      v34
-    INSTALL_DIR
-      ${CMAKE_CURRENT_BINARY_DIR}/kcov
-    CMAKE_ARGS
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
-    )
+  # Assumptions:
+  # Clang and GNU compilers run on Linux or Linux-like platforms.
+  # MSVC compilers run on Windows platforms.
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+    # kcov is only available on Linux platforms.
+	ExternalProject_Add(
+	  kcov
+	  GIT_REPOSITORY
+		https://github.com/simonkagstrom/kcov
+	  GIT_TAG
+		v34
+	  INSTALL_DIR
+		${CMAKE_CURRENT_BINARY_DIR}/kcov
+	  CMAKE_ARGS
+		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
+	  )
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       string(CONCAT
              WARN_FLAGS
@@ -103,32 +109,46 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -pedantic"
              " -Wshadow")
     endif()
+
     set(WARN_FLAGS "${WARN_FLAGS} -Werror")
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
-  # Default sanitizer target properties.
-  set(TSAN "-fsanitize=undefined,thread")
-  set(SSAN "-fsanitize=undefined,address")
+    # Default sanitizer target properties.
+    set(TSAN "-fsanitize=undefined,thread")
+    set(SSAN "-fsanitize=undefined,address")
 
-  # Exceptions to sanitizer target properties based on compiler and compiler version.
-  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Exceptions to sanitizer target properties based on compiler and compiler version.
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
-    if (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0"))
-        set(SSAN "-fsanitize=undefined,address -fsanitize-address-use-after-scope")
-    else()
-      set(SSAN "-fsanitize=undefined,address")
+      if (NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0"))
+         set(SSAN "-fsanitize=undefined,address -fsanitize-address-use-after-scope")
+      else()
+        set(SSAN "-fsanitize=undefined,address")
+      endif()
+
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+      if ((NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.8")) AND
+         (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9"))
+        set(TSAN "-fsanitize=thread")
+        set(SSAN "-fsanitize=address")
+      endif()
+
     endif()
 
-  elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  endif() # Clang or GNU
 
-    if ((NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.8")) AND
-       (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9"))
-      set(TSAN "-fsanitize=thread")
-      set(SSAN "-fsanitize=address")
+  if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+
+    add_compile_options(/W4)
+    add_compile_options(/bigobj)
+
+    check_cxx_compiler_flag(/permissive HAS_PERMISSIVE_FLAG)
+    if(HAS_PERMISSIVE_FLAG)
+      add_compile_options(/permissive-)
     endif()
 
-  endif()
+  endif() # MSVC
 
   add_executable(
     self_test
@@ -185,27 +205,47 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     )
   endif()
 
-  add_custom_target(
-    run_self_test
-    COMMAND
-      ${CMAKE_CURRENT_BINARY_DIR}/self_test
-    DEPENDS
-      self_test
-  )
+  # Shameless hack to get target to work on Windows.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+    add_custom_target(
+      run_self_test
+      COMMAND
+        ${CMAKE_CURRENT_BINARY_DIR}/self_test
+      DEPENDS
+        self_test
+    )
+
+  else()
+
+    add_custom_target(
+      run_self_test
+      COMMAND
+        ${CMAKE_CURRENT_BINARY_DIR}/Debug/self_test
+      DEPENDS
+        self_test
+    )
+
+  endif()
 
   if(TRAVIS_JOB_ID)
     set(COVERALLS_FLAG "--coveralls-id=${TRAVIS_JOB_ID}")
   endif()
 
-  add_custom_target(
-    run_coverage
-    COMMAND
-      ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
-    DEPENDS
-      self_test
-      kcov
-  )
-endif()
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+    add_custom_target(
+      run_coverage
+      COMMAND
+        ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
+      DEPENDS
+        self_test
+        kcov
+    )
+
+  endif()
+
+endif() # MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug
 
 install(
   TARGETS
