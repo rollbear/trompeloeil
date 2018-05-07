@@ -16,3 +16,6 @@ before_build:
 build_script:
 - cmd: >-
     cmake --build . --target self_test
+
+test_script:
+- cmd: cmake --build . --target run_self_test
