@@ -2,7 +2,11 @@
 
 ![trompeloeil logo](trompeloeil-logo.png)
 
-CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil) [![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
+CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil)
+[ ![AppVeyor Build Status](
+  https://ci.appveyor.com/api/projects/status/mbmjd9sl4n73qxm2/branch/master?svg=true)](
+    https://ci.appveyor.com/project/rollbear/trompeloeil)
+[![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
 
 [conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v30%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v30%3Astable/link)
 
