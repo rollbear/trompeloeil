@@ -74,6 +74,9 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
+  # Enable verbose output from Makefile builds.
+  set(CMAKE_VERBOSE_MAKEFILE ON)
+
   # kcov is only available on Linux platforms.
   ExternalProject_Add(
     kcov
