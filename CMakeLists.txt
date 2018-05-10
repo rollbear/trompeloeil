@@ -70,6 +70,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   # Clang and GNU compilers run on Linux or Linux-like platforms.
   # MSVC compilers run on Windows platforms.
 
+  add_subdirectory(compilation_errors)
+
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
   # kcov is only available on Linux platforms.
