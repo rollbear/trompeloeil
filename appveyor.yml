@@ -16,8 +16,7 @@ before_build:
   - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Debug ..
 
 build_script:
-- cmd: >-
-    cmake --build . --target self_test
+- cmake --build . --target self_test
 
 test_script:
-- cmd: cmake --build . --target run_self_test
+- cmake --build . --target run_self_test
