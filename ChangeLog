@@ -1,6 +1,8 @@
+v31 2018-05-11
+
 	* Issue #83: Add AppVeyor support for VS 2015 and VS 2017
 
-	* Fix issue #82: restore compilation with VS 2015
+	* Fix issue #82: restore compilation with VS 2015.
 
 v30 2018-04-02
 
