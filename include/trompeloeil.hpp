@@ -291,10 +291,10 @@ namespace trompeloeil
     return {};
   }
 
-  namespace detail
-  {
 # if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
+  namespace detail
+  {
     /* Implement C++14 features using only C++11 entities. */
 
     /* <memory> */
@@ -526,25 +526,37 @@ namespace trompeloeil
     template <typename... T>
     using index_sequence_for = make_index_sequence<sizeof...(T)>;
 
+  } /* namespace detail */
+
 # else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 
-    using std::make_unique;
-
-    using std::conditional_t;
-    using std::decay_t;
-    using std::enable_if_t;
-    using std::remove_pointer_t;
-    using std::remove_reference_t;
-
-    using std::exchange;
-    using std::index_sequence;
-    using std::index_sequence_for;
-    using std::integer_sequence;
-    using std::make_index_sequence;
+  /* Only these entities really need to
+   * be available in namespace detail, but
+   * VS 2015 has a problem with this approach.
+   *
+   *  namespace detail {
+   *
+   *  using std::make_unique;
+   *
+   *  using std::conditional_t;
+   *  using std::decay_t;
+   *  using std::enable_if_t;
+   *  using std::remove_pointer_t;
+   *  using std::remove_reference_t;
+   *
+   *  using std::exchange;
+   *  using std::index_sequence;
+   *  using std::index_sequence_for;
+   *  using std::integer_sequence;
+   *  using std::make_index_sequence;
+   *
+   *  }
+   *
+   * Instead, use a namespace alias.
+   */
+  namespace detail = std;
 
 # endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
-
-  }
 
   class specialized;
 
@@ -4077,6 +4089,10 @@ namespace trompeloeil
     unsigned long trompeloeil_expectation_line;                                \
     const char *trompeloeil_expectation_string;                                \
                                                                                \
+    /* Work around parsing bug in VS 2015 when a "complex" */                  \
+    /* decltype() appears in a trailing return type. */                        \
+    using trompeloeil_sig_t = sig;                                             \
+                                                                               \
     using trompeloeil_call_params_type_t =                                     \
       ::trompeloeil::call_params_type_t<sig>;                                  \
                                                                                \
@@ -4085,7 +4101,7 @@ namespace trompeloeil
     template <typename ... trompeloeil_param_type>                             \
     auto name(                                                                 \
       trompeloeil_param_type&& ... trompeloeil_param)                          \
-      -> ::trompeloeil::modifier_t<sig,                                        \
+      -> ::trompeloeil::modifier_t<trompeloeil_sig_t,                          \
                                    TROMPELOEIL_LINE_ID(tag_type_trompeloeil),  \
                                    trompeloeil_param_type...>                  \
     {                                                                          \
