@@ -4091,7 +4091,8 @@ namespace trompeloeil
                                                                                \
     /* Work around parsing bug in VS 2015 when a "complex" */                  \
     /* decltype() appears in a trailing return type. */                        \
-    using trompeloeil_sig_t = sig;                                             \
+    /* Further, work around C2066 defect in VS 2017 15.7.1. */                 \
+    using trompeloeil_sig_t = typename ::trompeloeil::identity_type<sig>::type;\
                                                                                \
     using trompeloeil_call_params_type_t =                                     \
       ::trompeloeil::call_params_type_t<sig>;                                  \
