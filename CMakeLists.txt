@@ -70,20 +70,25 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   # Clang and GNU compilers run on Linux or Linux-like platforms.
   # MSVC compilers run on Windows platforms.
 
+  add_subdirectory(compilation_errors)
+
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
-    # kcov is only available on Linux platforms.
-	ExternalProject_Add(
-	  kcov
-	  GIT_REPOSITORY
-		https://github.com/simonkagstrom/kcov
-	  GIT_TAG
-		v34
-	  INSTALL_DIR
-		${CMAKE_CURRENT_BINARY_DIR}/kcov
-	  CMAKE_ARGS
-		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
-	  )
+  # Enable verbose output from Makefile builds.
+  set(CMAKE_VERBOSE_MAKEFILE ON)
+
+  # kcov is only available on Linux platforms.
+  ExternalProject_Add(
+    kcov
+    GIT_REPOSITORY
+      https://github.com/simonkagstrom/kcov
+    GIT_TAG
+      v34
+    INSTALL_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/kcov
+    CMAKE_ARGS
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
+    )
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       string(CONCAT
