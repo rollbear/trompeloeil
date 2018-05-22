@@ -141,6 +141,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
     add_compile_options(/W4)
+    add_compile_options(/WX)
     add_compile_options(/bigobj)
 
     check_cxx_compiler_flag(/permissive HAS_PERMISSIVE_FLAG)
