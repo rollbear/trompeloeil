@@ -23,4 +23,5 @@ build_script:
   - cmake --build . --target self_test --config %CONFIGURATION%
 
 test_script:
-  - cmake --build . --target run_self_test --config %CONFIGURATION%
+  - if "%CONFIGURATION%"=="Debug" cmake --build . --target run_debug_self_test --config %CONFIGURATION%
+  - if "%CONFIGURATION%"=="Release" cmake --build . --target run_release_self_test --config %CONFIGURATION%
