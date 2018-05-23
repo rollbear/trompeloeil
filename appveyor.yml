@@ -5,6 +5,7 @@ image:
 
 configuration:
   - Debug
+  - Release
 
 environment:
   matrix:
