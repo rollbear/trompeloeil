@@ -2,7 +2,7 @@
 
 	* Enabled destructor override warning in self_test build for Clang 5.0 or later
 
-	* Updated unit test framework to Catch 2.2.1.
+	* Updated unit test framework to Catch 2.2.2.
 
 	* Fix issue #69: work around C4702 warning from VS Release builds.
 
