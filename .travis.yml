@@ -9,8 +9,37 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.5
+          packages:
+            - g++-6
+            - clang-3.5
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-3.5" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.6
+          packages:
+            - g++-6
+            - clang-3.6
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-3.6" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.7
-            - ppa:george-edison55/cmake-3.x
           packages:
             - g++-6
             - clang-3.7
@@ -33,7 +62,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.8
+            - llvm-toolchain-precise-3.8
           packages:
             - g++-6
             - clang-3.8
@@ -41,14 +70,14 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-3.8" CXXFLAGS="-std=c++14" SANITIZE=true
+        - COMPILER="clang++-3.8" SANITIZE=true
 
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.9
+            - llvm-toolchain-trusty-3.9
           packages:
             - g++-6
             - clang-3.9
@@ -190,19 +219,19 @@ matrix:
         - COMPILER="g++-8" SANITIZE=true
 
     - os: osx
-      osx_image: xcode9
-      compiler: clang
-      env:
-        - COMPILER="clang++" SANITIZE=false
-
-    - os: osx
-      osx_image: xcode8
-      compiler: clang
-      env:
-        - COMPILER="clang++" SANITIZE=false
-
-    - os: osx
       osx_image: xcode7.3
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANITIZE=false
+
+    - os: osx
+      osx_image: xcode8.3
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANITIZE=false
+
+    - os: osx
+      osx_image: xcode9.3
       compiler: clang
       env:
         - COMPILER="clang++" SANITIZE=false
