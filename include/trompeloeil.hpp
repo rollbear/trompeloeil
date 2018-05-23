@@ -2497,7 +2497,18 @@ namespace trompeloeil
   R
   default_return()
   {
-    return default_return_t<R>::value();
+    /* Work around VS 2017 15.7.x C4702 warning by
+     * enclosing the operation in an otherwise
+     * unnecessary try/catch block.
+     */
+    try
+    {
+      return default_return_t<R>::value();
+    }
+    catch (...)
+    {
+      throw;
+    }
   }
 
 
@@ -2933,7 +2944,18 @@ namespace trompeloeil
     F& func,
     P& params)
   {
-    return agent.trace_return(func(params));
+    /* Work around VS 2017 15.7.x C4702 warning by
+     * enclosing the operation in an otherwise
+     * unnecessary try/catch block.
+     */
+    try
+    {
+      return agent.trace_return(func(params));
+    }
+    catch (...)
+    {
+      throw;
+    }
   }
 
   template <typename Sig, typename T>
@@ -3207,7 +3229,18 @@ namespace trompeloeil
       template <typename T>
       R operator()(T& p)
       {
-        h(p);
+        /* Work around VS 2017 15.7.x C4702 warning by
+         * enclosing the operation in an otherwise
+         * unnecessary try/catch block.
+         */
+        try
+        {
+          h(p);
+        }
+        catch (...)
+        {
+          throw;
+        }
         return R();
       }
 
@@ -4091,7 +4124,8 @@ namespace trompeloeil
                                                                                \
     /* Work around parsing bug in VS 2015 when a "complex" */                  \
     /* decltype() appears in a trailing return type. */                        \
-    using trompeloeil_sig_t = sig;                                             \
+    /* Further, work around C2066 defect in VS 2017 15.7.1. */                 \
+    using trompeloeil_sig_t = typename ::trompeloeil::identity_type<sig>::type;\
                                                                                \
     using trompeloeil_call_params_type_t =                                     \
       ::trompeloeil::call_params_type_t<sig>;                                  \

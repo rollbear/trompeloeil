@@ -4,6 +4,11 @@
 
 	* Updated unit test framework to Catch 2.2.1.
 
+	* Fix issue #69: work around C4702 warning from VS Release builds.
+
+	* Fix issue #88: work around C2066 error from VS 2017 15.7.1.
+
+
 v31 2018-05-11
 
 	* Issue #83: Add AppVeyor support for VS 2015 and VS 2017
