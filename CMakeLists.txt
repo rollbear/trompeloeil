@@ -9,7 +9,8 @@ include(CheckCXXCompilerFlag)
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
   VERSION 31
-  COMPATIBILITY AnyNewerVersion)
+  COMPATIBILITY AnyNewerVersion
+)
 
 if (CXX_STANDARD MATCHES "11")
   set(CMAKE_CXX_STANDARD 11)
@@ -72,18 +73,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
-    # kcov is only available on Linux platforms.
-	ExternalProject_Add(
-	  kcov
-	  GIT_REPOSITORY
-		https://github.com/simonkagstrom/kcov
-	  GIT_TAG
-		v34
-	  INSTALL_DIR
-		${CMAKE_CURRENT_BINARY_DIR}/kcov
-	  CMAKE_ARGS
-		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
-	  )
+  # Enable verbose output from Makefile builds.
+  set(CMAKE_VERBOSE_MAKEFILE ON)
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       string(CONCAT
@@ -143,100 +134,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   endif() # MSVC
 
-  add_executable(
-    self_test
-    EXCLUDE_FROM_ALL
-    test/compiling_tests.cpp
-    test/compiling_tests_11.cpp
-    test/compiling_tests_14.cpp
-  )
-
-  target_include_directories(
-    self_test
-    PRIVATE
-    ${CATCH_DIR}
-  )
-
-  if (SANITIZE)
-    set_target_properties(
-      self_test
-      PROPERTIES
-        LINK_FLAGS
-          "${SSAN} -fuse-ld=gold"
-        COMPILE_FLAGS
-          ${SSAN}
-    )
-  endif()
-
-  target_link_libraries(
-    self_test
-    PUBLIC
-      trompeloeil
-  )
-
-  add_executable(
-    thread_terror
-    EXCLUDE_FROM_ALL
-    test/thread_terror.cpp
-    )
-
-  target_link_libraries(
-    thread_terror
-    PUBLIC
-      trompeloeil
-      pthread
-  )
-
-  if (SANITIZE)
-    set_target_properties(
-      thread_terror
-      PROPERTIES
-        LINK_FLAGS
-          ${TSAN}
-        COMPILE_FLAGS
-          ${TSAN}
-    )
-  endif()
-
-  # Shameless hack to get target to work on Windows.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-
-    add_custom_target(
-      run_self_test
-      COMMAND
-        ${CMAKE_CURRENT_BINARY_DIR}/self_test
-      DEPENDS
-        self_test
-    )
-
-  else()
-
-    add_custom_target(
-      run_self_test
-      COMMAND
-        ${CMAKE_CURRENT_BINARY_DIR}/Debug/self_test
-      DEPENDS
-        self_test
-    )
-
-  endif()
-
-  if(TRAVIS_JOB_ID)
-    set(COVERALLS_FLAG "--coveralls-id=${TRAVIS_JOB_ID}")
-  endif()
-
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-
-    add_custom_target(
-      run_coverage
-      COMMAND
-        ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
-      DEPENDS
-        self_test
-        kcov
-    )
-
-  endif()
+  enable_testing()
+  add_subdirectory(test)
 
 endif() # MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug
 
@@ -255,6 +154,7 @@ install(
   DESTINATION
     lib/cmake/trompeloeil
 )
+
 install(
   FILES
     trompeloeil-config.cmake

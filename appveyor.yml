@@ -3,6 +3,9 @@ version: "{branch} #{build}"
 image:
   - Visual Studio 2017
 
+configuration:
+  - Debug
+
 environment:
   matrix:
     - GENERATOR: "Visual Studio 14 2015 Win64"
@@ -16,8 +19,7 @@ before_build:
   - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Debug ..
 
 build_script:
-- cmd: >-
-    cmake --build . --target self_test
+  - cmake --build . --target self_test --config %CONFIGURATION%
 
 test_script:
-- cmd: cmake --build . --target run_self_test
+  - ctest -V --output-on-failure -C %CONFIGURATION%
