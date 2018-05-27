@@ -241,6 +241,7 @@ install:
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       which cmake || brew install cmake
     fi
+  - JOBS=2 # Travis machines have 2 cores.
 
 before_script:
   - CXX=${COMPILER} CXXFLAGS=${CXXFLAGS} ./check_errors.sh ||
@@ -250,13 +251,13 @@ before_script:
     fi
   - mkdir build && cd build
   - CXX=${COMPILER} cmake -DCXX_STANDARD="${CXX_STANDARD}" -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
-  - cmake --build . --target self_test --config Debug
+  - cmake --build . --target self_test --config Debug -- -j${JOBS}
 
 script:
-  - ctest -V --output-on-failure -C Debug
+  - ctest -V --output-on-failure -C Debug -j${JOBS}
 
 after_success:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      cmake --build . --target run_coverage --config Debug
+      cmake --build . --target run_coverage --config Debug -- -j${JOBS}
     fi
