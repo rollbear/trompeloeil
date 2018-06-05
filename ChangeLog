@@ -1,3 +1,5 @@
+	* Fix issue #87: C4355 warning from VS Release builds.  Thanks @Neargye
+
 	* Fix issue #69: work around C4702 warning from VS Release builds.
 
 	* Fix issue #88: work around C2066 error from VS 2017 15.7.1.
