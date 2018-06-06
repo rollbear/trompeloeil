@@ -891,7 +891,7 @@ public:
 void test()
 {
   Mock m;
-  ALLOW_CALL(m, func(1);          // int version any number of times
+  ALLOW_CALL(m, func(1));         // int version any number of times
   REQUIRE_CALL(m, func(nullptr)); // const char * version exactly once
   func(&m);
   // expectations must be met before end of scope
