@@ -709,9 +709,7 @@ namespace trompeloeil
       unsigned long line,
       std::string const &call) = 0;
   protected:
-    tracer()
-    noexcept
-      : previous{set_tracer(this)} {}
+    tracer() = default;
     tracer(tracer const&) = delete;
     tracer& operator=(tracer const&) = delete;
     virtual
@@ -720,7 +718,7 @@ namespace trompeloeil
       set_tracer(previous);
     }
   private:
-    tracer* previous = nullptr;
+    tracer* previous = set_tracer(this);
   };
 
   class stream_tracer : public tracer
