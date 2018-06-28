@@ -2,7 +2,7 @@
  * Trompeloeil C++ mocking framework
  *
  * Copyright Björn Fahller 2014-2018
- * Copyright (C) 2017 Andrew Paxie
+ * Copyright (C) 2017, 2018 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -109,7 +109,34 @@ namespace detail
    * Use compiler-version independent make_unique.
    */
   using ::trompeloeil::detail::make_unique;
-}
+
+  // std::uncaught_exception() is deprecated in C++17.
+  inline
+  bool
+  there_are_uncaught_exceptions()
+  {
+    /*
+     * GCC 5.x supports specifying -std=c++17 but libstdc++-v3 for
+     * GCC 5.x doesn't declare std::uncaught_exceptions().
+     * Rather than detect what version of C++ Standard Library
+     * is in use, we equate the compiler version with the library version.
+     *
+     * Some day this test will based on __cpp_lib_uncaught_exceptions.
+     */
+#   if (TROMPELOEIL_CPLUSPLUS > 201402L) && \
+       ((!TROMPELOEIL_GCC) || \
+        (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 60000))
+
+    return std::uncaught_exceptions() > 0;
+
+#   else
+
+    return std::uncaught_exception();
+
+#   endif
+  }
+
+} /* namespace detail */
 
 class reported {};
 
@@ -134,7 +161,7 @@ namespace trompeloeil
                      char const* msg)
     {
       reports.push_back(report{s, file, line, msg});
-      if (s == severity::fatal && !std::uncaught_exception())
+      if (s == severity::fatal && !::detail::there_are_uncaught_exceptions())
       {
         throw reported{};
       }
