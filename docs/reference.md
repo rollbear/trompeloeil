@@ -1586,7 +1586,7 @@ Above, `p` points to a [`deathwatched`](#deathwatched_type)
 [mock object](#mock_object), meaning that a violation is reported if `*p` is
 destroyed without having a destruction requirement.
 
-[**`REQUIRE_DESTRUCTION(...)`**] in the local scope puts a requirement on
+**`REQUIRE_DESTRUCTION(...)`** in the local scope puts a requirement on
 `*p` that it must be destroyed by the end of the scope.
 
 It is thus a violation if the first call to `test_function(...)` destroys
