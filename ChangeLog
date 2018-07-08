@@ -1,3 +1,7 @@
+	* Improve support for compiler modes:
+	  GCC and Clang: -std=c++17; MSVC: /std:c++17
+	  GCC and Clang: -std=c++2a; MSVC: /std:c++latest
+
 	* Fix issue #87: C4355 warning from VS Release builds.  Thanks @Neargye
 
 	* Fix issue #69: work around C4702 warning from VS Release builds.

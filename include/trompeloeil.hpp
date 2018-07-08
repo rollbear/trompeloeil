@@ -2,7 +2,7 @@
  * Trompeloeil C++ mocking framework
  *
  * Copyright Björn Fahller 2014-2018
- * Copyright (C) 2017 Andrew Paxie
+ * Copyright (C) 2017, 2018 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -47,38 +47,59 @@
 
 #if defined(__clang__)
 
-#define TROMPELOEIL_CLANG 1
-#define TROMPELOEIL_GCC 0
-#define TROMPELOEIL_MSVC 0
+#  define TROMPELOEIL_CLANG 1
+#  define TROMPELOEIL_GCC 0
+#  define TROMPELOEIL_MSVC 0
 
-#define TROMPELOEIL_GCC_VERSION 0
+#  define TROMPELOEIL_GCC_VERSION 0
 
-#define TROMPELOEIL_CPLUSPLUS __cplusplus
+#  define TROMPELOEIL_CPLUSPLUS __cplusplus
 
 #elif defined(__GNUC__)
 
-#define TROMPELOEIL_CLANG 0
-#define TROMPELOEIL_GCC 1
-#define TROMPELOEIL_MSVC 0
+#  define TROMPELOEIL_CLANG 0
+#  define TROMPELOEIL_GCC 1
+#  define TROMPELOEIL_MSVC 0
 
-#define TROMPELOEIL_GCC_VERSION                                                \
+#  define TROMPELOEIL_GCC_VERSION \
   (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
-#define TROMPELOEIL_CPLUSPLUS __cplusplus
+#  define TROMPELOEIL_CPLUSPLUS __cplusplus
 
 #elif defined(_MSC_VER)
 
-#define TROMPELOEIL_CLANG 0
-#define TROMPELOEIL_GCC 0
-#define TROMPELOEIL_MSVC 1
+#  define TROMPELOEIL_CLANG 0
+#  define TROMPELOEIL_GCC 0
+#  define TROMPELOEIL_MSVC 1
 
-#define TROMPELOEIL_GCC_VERSION 0
+#  define TROMPELOEIL_GCC_VERSION 0
 
-/* MSVC is an amalgam of C++ versions, with no provision to
- * force C++11 mode.  It also has a __cplusplus macro stuck at 199711L.
- * Assume the C++14 code path.
- */
-#define TROMPELOEIL_CPLUSPLUS 201401L
+#  if defined(_MSVC_LANG)
+
+    // Compiler is at least Microsoft Visual Studio 2015 Update 3.
+#    define TROMPELOEIL_CPLUSPLUS _MSVC_LANG
+
+#  else /* defined(_MSVC_LANG) */
+
+    /*
+     * This version of Microsoft Visual C++ is released
+     * in a version of Microsoft Visual Studio between
+     * 2015 RC and less than 2015 Update 3.
+     *
+     * It is an amalgam of C++ versions, with no provision
+     * to specify C++11 mode.
+     *
+     * It also has a __cplusplus macro stuck at 199711L with
+     * no way to change it, such as /Zc:__cplusplus.
+     *
+     * Assume the C++14 code path, but don't promise that it is a
+     * fully conforming implementation of C++14 either.
+     * Hence a value of 201401L, which less than 201402L,
+     * the standards conforming value of __cplusplus.
+     */
+#    define TROMPELOEIL_CPLUSPLUS 201401L
+
+#  endif /* !defined(_MSVC_LANG) */
 
 #endif
 
