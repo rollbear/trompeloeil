@@ -602,19 +602,8 @@ namespace trompeloeil
 
 # endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
-# if TROMPELOEIL_CPLUSPLUS == 201703L && !TROMPELOEIL_CLANG
-
-  template <typename T>
-  using can_move_construct = std::is_move_constructible<T>;
-
-  template <typename T>
-  using can_copy_construct = std::is_copy_constructible<T>;
-
-  template <typename F, typename ... A>
-  using invoke_result_type = std::invoke_result_t<F, A...>;
-
-# else
-
+# if TROMPELOEIL_CPLUSPLUS == 201703L
+#   if TROMPELOEIL_CLANG
   // these are mostly added to work around clang++ bugs
   // https://bugs.llvm.org/show_bug.cgi?id=38033
   // https://bugs.llvm.org/show_bug.cgi?id=38010
@@ -630,6 +619,25 @@ namespace trompeloeil
 
   template <typename T>
   using can_copy_construct = is_detected<copy_construct_type, detail::decay_t<T>>;
+
+#   else
+  template <typename T>
+  using can_move_construct = std::is_move_constructible<T>;
+
+  template <typename T>
+  using can_copy_construct = std::is_copy_constructible<T>;
+#   endif
+
+  template <typename F, typename ... A>
+  using invoke_result_type = std::invoke_result_t<F, A...>;
+
+# else
+
+  template <typename T>
+  using can_move_construct = std::is_move_constructible<T>;
+
+  template <typename T>
+  using can_copy_construct = std::is_copy_constructible<T>;
 
   template <typename F, typename ... A>
   using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
