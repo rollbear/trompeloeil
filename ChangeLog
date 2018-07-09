@@ -1,3 +1,5 @@
+	* Worked around clang++-6 bugs 38010 and 38033
+
 	* Improve support for compiler modes:
 	  GCC and Clang: -std=c++17; MSVC: /std:c++17
 	  GCC and Clang: -std=c++2a; MSVC: /std:c++latest
