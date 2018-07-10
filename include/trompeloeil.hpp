@@ -936,14 +936,6 @@ namespace trompeloeil
 
     template <
       typename T,
-#if 0
-      typename = detail::enable_if_t<
-        !std::is_base_of<
-          wildcard,
-          detail::decay_t<T>
-        >::value
-      >,
-#endif
       typename = detail::enable_if_t<
         can_copy_construct<T>::value
         || !can_move_construct<T>::value
