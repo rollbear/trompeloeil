@@ -51,6 +51,9 @@
 #  define TROMPELOEIL_GCC 0
 #  define TROMPELOEIL_MSVC 0
 
+#  define TROMPELOEIL_CLANG_VERSION \
+  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+
 #  define TROMPELOEIL_GCC_VERSION 0
 
 #  define TROMPELOEIL_CPLUSPLUS __cplusplus
@@ -61,6 +64,7 @@
 #  define TROMPELOEIL_GCC 1
 #  define TROMPELOEIL_MSVC 0
 
+#  define TROMPELOEIL_CLANG_VERSION 0
 #  define TROMPELOEIL_GCC_VERSION \
   (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
@@ -72,6 +76,7 @@
 #  define TROMPELOEIL_GCC 0
 #  define TROMPELOEIL_MSVC 1
 
+#  define TROMPELOEIL_CLANG_VERSION 0
 #  define TROMPELOEIL_GCC_VERSION 0
 
 #  if defined(_MSVC_LANG)
@@ -602,8 +607,9 @@ namespace trompeloeil
 
 # endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
-# if TROMPELOEIL_CPLUSPLUS == 201703L
-#   if TROMPELOEIL_CLANG
+# if TROMPELOEIL_CPLUSPLUS >= 201703L
+#   if TROMPELOEIL_CLANG && TROMPELOEIL_CLANG_VERSION >= 60000
+
   // these are mostly added to work around clang++ bugs
   // https://bugs.llvm.org/show_bug.cgi?id=38033
   // https://bugs.llvm.org/show_bug.cgi?id=38010
@@ -629,7 +635,7 @@ namespace trompeloeil
 #   endif
 
   template <typename F, typename ... A>
-  using invoke_result_type = std::invoke_result_t<F, A...>;
+  using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
 
 # else
 
