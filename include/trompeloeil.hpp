@@ -51,6 +51,9 @@
 #  define TROMPELOEIL_GCC 0
 #  define TROMPELOEIL_MSVC 0
 
+#  define TROMPELOEIL_CLANG_VERSION \
+  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+
 #  define TROMPELOEIL_GCC_VERSION 0
 
 #  define TROMPELOEIL_CPLUSPLUS __cplusplus
@@ -61,6 +64,7 @@
 #  define TROMPELOEIL_GCC 1
 #  define TROMPELOEIL_MSVC 0
 
+#  define TROMPELOEIL_CLANG_VERSION 0
 #  define TROMPELOEIL_GCC_VERSION \
   (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
@@ -72,6 +76,7 @@
 #  define TROMPELOEIL_GCC 0
 #  define TROMPELOEIL_MSVC 1
 
+#  define TROMPELOEIL_CLANG_VERSION 0
 #  define TROMPELOEIL_GCC_VERSION 0
 
 #  if defined(_MSVC_LANG)
@@ -311,6 +316,29 @@ namespace trompeloeil
   {
     return {};
   }
+
+  template <typename ...>
+  struct void_t_
+  {
+    using type = void;
+  };
+
+  template <typename ... T>
+  using void_t = typename void_t_<T...>::type;
+
+  template <template <typename ...> class, typename, typename ...>
+  struct is_detected_{
+    using type = std::false_type;
+  };
+
+  template <template <typename ...> class D, typename ... Ts>
+  struct is_detected_<D, void_t<D<Ts...>>, Ts...>
+  {
+    using type = std::true_type;
+  };
+
+  template <template <typename ...> class D, typename ... Ts>
+  using is_detected = typename is_detected_<D, void, Ts...>::type;
 
 # if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
@@ -579,6 +607,49 @@ namespace trompeloeil
 
 # endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
+# if TROMPELOEIL_CPLUSPLUS >= 201703L
+#   if TROMPELOEIL_CLANG && TROMPELOEIL_CLANG_VERSION >= 60000
+
+  // these are mostly added to work around clang++ bugs
+  // https://bugs.llvm.org/show_bug.cgi?id=38033
+  // https://bugs.llvm.org/show_bug.cgi?id=38010
+
+  template <typename T>
+  using move_construct_type = decltype(T(std::declval<T&&>()));
+
+  template <typename T>
+  using copy_construct_type = decltype(T(std::declval<const T&>()));
+
+  template <typename T>
+  using can_move_construct = is_detected<move_construct_type, detail::decay_t<T>>;
+
+  template <typename T>
+  using can_copy_construct = is_detected<copy_construct_type, detail::decay_t<T>>;
+
+#   else
+  template <typename T>
+  using can_move_construct = std::is_move_constructible<T>;
+
+  template <typename T>
+  using can_copy_construct = std::is_copy_constructible<T>;
+#   endif
+
+  template <typename F, typename ... A>
+  using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
+
+# else
+
+  template <typename T>
+  using can_move_construct = std::is_move_constructible<T>;
+
+  template <typename T>
+  using can_copy_construct = std::is_copy_constructible<T>;
+
+  template <typename F, typename ... A>
+  using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
+
+# endif
+
   class specialized;
 
   namespace {
@@ -845,32 +916,66 @@ namespace trompeloeil
     }
   };
 
-  template <typename ...>
-  struct void_t_
-  {
-    using type = void;
-  };
-
-  template <typename ... T>
-  using void_t = typename void_t_<T...>::type;
-
-  template <template <typename ...> class, typename, typename ...>
-  struct is_detected_{
-    using type = std::false_type;
-  };
-
-  template <template <typename ...> class D, typename ... Ts>
-  struct is_detected_<D, void_t<D<Ts...>>, Ts...>
-  {
-    using type = std::true_type;
-  };
-
-  template <template <typename ...> class D, typename ... Ts>
-  using is_detected = typename is_detected_<D, void, Ts...>::type;
-
   struct matcher { };
 
-  template <typename T>
+  struct wildcard : public matcher
+  {
+    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
+    template <typename ... T>
+    constexpr
+    wildcard(
+      T&& ...)
+    noexcept
+    {}
+
+#if (!TROMPELOEIL_GCC) || \
+    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
+
+    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
+    // if this operator is defined.
+    template <typename T,
+              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
+    operator T&&()
+    const;
+
+#endif
+
+    template <
+      typename T,
+      typename = detail::enable_if_t<
+        can_copy_construct<T>::value
+        || !can_move_construct<T>::value
+      >
+    >
+    operator T&()
+    const;
+
+    template <typename T>
+    constexpr
+    bool
+    matches(
+      T const&)
+    const
+    noexcept
+    {
+      return true;
+    }
+
+    friend
+    std::ostream&
+    operator<<(
+      std::ostream& os,
+      wildcard const&)
+    noexcept
+    {
+      return os << " matching _";
+    }
+  };
+
+  static constexpr wildcard const _{};
+
+
+template <typename T>
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
 
   template <typename T>
@@ -890,7 +995,7 @@ namespace trompeloeil
 
     template <typename T,
               typename = decltype(std::declval<T>() == nullptr),
-              typename = detail::enable_if_t<std::is_copy_constructible<T>::value>>
+              typename = detail::enable_if_t<can_copy_construct<T>::value>>
     operator T&()const;
 
     template <typename T, typename C>
@@ -907,13 +1012,15 @@ namespace trompeloeil
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.
     template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
+              typename = detail::enable_if_t<!is_matcher<V>{}>,
+              typename = invoke_result_type<Pred, V&&, T...>>
     operator V&&() const;
 
 #endif
 
     template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()...))>
+              typename = detail::enable_if_t<!is_matcher<V>{}>,
+              typename = invoke_result_type<Pred, V&, T...>>
     operator V&() const;
   };
 
@@ -1650,58 +1757,6 @@ namespace trompeloeil
   {
     matchers.push_back(m);
   }
-
-  struct wildcard : public matcher
-  {
-    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
-    template <typename ... T>
-    constexpr
-    wildcard(
-      T&& ...)
-    noexcept
-    {}
-
-#if (!TROMPELOEIL_GCC) || \
-    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
-
-    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
-    // if this operator is defined.
-    template <typename T,
-              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
-    operator T&&()
-    const;
-
-#endif
-
-    template <typename T,
-              typename = detail::enable_if_t<std::is_copy_constructible<T>::value
-                                             || !std::is_move_constructible<T>::value>>
-    operator T&()
-    const;
-
-    template <typename T>
-    constexpr
-    bool
-    matches(
-      T const&)
-    const
-    noexcept
-    {
-      return true;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      wildcard const&)
-    noexcept
-    {
-      return os << " matching _";
-    }
-  };
-
-  static constexpr wildcard const _{};
 
   template <typename T>
   void can_match_parameter(T&);
