@@ -1,8 +1,20 @@
 	* Fix documentation of sanitize flags
 
-	* Enabled destructor override warning in self_test build for Clang 5.0 or later
+	* Enable destructor override warning in self_test build for Clang 5.0 or later
 
-	* Updated unit test framework to Catch 2.2.1.
+	* Update unit test framework to Catch 2.2.1.
+
+	* Worked around clang++-6 bugs 38010 and 38033
+
+	* Improve support for compiler modes:
+	  GCC and Clang: -std=c++17; MSVC: /std:c++17
+	  GCC and Clang: -std=c++2a; MSVC: /std:c++latest
+
+	* Fix issue #87: C4355 warning from VS Release builds.  Thanks @Neargye
+
+	* Fix issue #69: work around C4702 warning from VS Release builds.
+
+	* Fix issue #88: work around C2066 error from VS 2017 15.7.1.
 
 v31 2018-05-11
 

@@ -2,7 +2,7 @@
  * Trompeloeil C++ mocking framework
  *
  * Copyright Björn Fahller 2014-2018
- * Copyright (C) 2017 Andrew Paxie
+ * Copyright (C) 2017, 2018 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -47,38 +47,64 @@
 
 #if defined(__clang__)
 
-#define TROMPELOEIL_CLANG 1
-#define TROMPELOEIL_GCC 0
-#define TROMPELOEIL_MSVC 0
+#  define TROMPELOEIL_CLANG 1
+#  define TROMPELOEIL_GCC 0
+#  define TROMPELOEIL_MSVC 0
 
-#define TROMPELOEIL_GCC_VERSION 0
+#  define TROMPELOEIL_CLANG_VERSION \
+  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 
-#define TROMPELOEIL_CPLUSPLUS __cplusplus
+#  define TROMPELOEIL_GCC_VERSION 0
+
+#  define TROMPELOEIL_CPLUSPLUS __cplusplus
 
 #elif defined(__GNUC__)
 
-#define TROMPELOEIL_CLANG 0
-#define TROMPELOEIL_GCC 1
-#define TROMPELOEIL_MSVC 0
+#  define TROMPELOEIL_CLANG 0
+#  define TROMPELOEIL_GCC 1
+#  define TROMPELOEIL_MSVC 0
 
-#define TROMPELOEIL_GCC_VERSION                                                \
+#  define TROMPELOEIL_CLANG_VERSION 0
+#  define TROMPELOEIL_GCC_VERSION \
   (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
-#define TROMPELOEIL_CPLUSPLUS __cplusplus
+#  define TROMPELOEIL_CPLUSPLUS __cplusplus
 
 #elif defined(_MSC_VER)
 
-#define TROMPELOEIL_CLANG 0
-#define TROMPELOEIL_GCC 0
-#define TROMPELOEIL_MSVC 1
+#  define TROMPELOEIL_CLANG 0
+#  define TROMPELOEIL_GCC 0
+#  define TROMPELOEIL_MSVC 1
 
-#define TROMPELOEIL_GCC_VERSION 0
+#  define TROMPELOEIL_CLANG_VERSION 0
+#  define TROMPELOEIL_GCC_VERSION 0
 
-/* MSVC is an amalgam of C++ versions, with no provision to
- * force C++11 mode.  It also has a __cplusplus macro stuck at 199711L.
- * Assume the C++14 code path.
- */
-#define TROMPELOEIL_CPLUSPLUS 201401L
+#  if defined(_MSVC_LANG)
+
+    // Compiler is at least Microsoft Visual Studio 2015 Update 3.
+#    define TROMPELOEIL_CPLUSPLUS _MSVC_LANG
+
+#  else /* defined(_MSVC_LANG) */
+
+    /*
+     * This version of Microsoft Visual C++ is released
+     * in a version of Microsoft Visual Studio between
+     * 2015 RC and less than 2015 Update 3.
+     *
+     * It is an amalgam of C++ versions, with no provision
+     * to specify C++11 mode.
+     *
+     * It also has a __cplusplus macro stuck at 199711L with
+     * no way to change it, such as /Zc:__cplusplus.
+     *
+     * Assume the C++14 code path, but don't promise that it is a
+     * fully conforming implementation of C++14 either.
+     * Hence a value of 201401L, which less than 201402L,
+     * the standards conforming value of __cplusplus.
+     */
+#    define TROMPELOEIL_CPLUSPLUS 201401L
+
+#  endif /* !defined(_MSVC_LANG) */
 
 #endif
 
@@ -290,6 +316,29 @@ namespace trompeloeil
   {
     return {};
   }
+
+  template <typename ...>
+  struct void_t_
+  {
+    using type = void;
+  };
+
+  template <typename ... T>
+  using void_t = typename void_t_<T...>::type;
+
+  template <template <typename ...> class, typename, typename ...>
+  struct is_detected_{
+    using type = std::false_type;
+  };
+
+  template <template <typename ...> class D, typename ... Ts>
+  struct is_detected_<D, void_t<D<Ts...>>, Ts...>
+  {
+    using type = std::true_type;
+  };
+
+  template <template <typename ...> class D, typename ... Ts>
+  using is_detected = typename is_detected_<D, void, Ts...>::type;
 
 # if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
@@ -558,6 +607,49 @@ namespace trompeloeil
 
 # endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
+# if TROMPELOEIL_CPLUSPLUS >= 201703L
+#   if TROMPELOEIL_CLANG && TROMPELOEIL_CLANG_VERSION >= 60000
+
+  // these are mostly added to work around clang++ bugs
+  // https://bugs.llvm.org/show_bug.cgi?id=38033
+  // https://bugs.llvm.org/show_bug.cgi?id=38010
+
+  template <typename T>
+  using move_construct_type = decltype(T(std::declval<T&&>()));
+
+  template <typename T>
+  using copy_construct_type = decltype(T(std::declval<const T&>()));
+
+  template <typename T>
+  using can_move_construct = is_detected<move_construct_type, detail::decay_t<T>>;
+
+  template <typename T>
+  using can_copy_construct = is_detected<copy_construct_type, detail::decay_t<T>>;
+
+#   else
+  template <typename T>
+  using can_move_construct = std::is_move_constructible<T>;
+
+  template <typename T>
+  using can_copy_construct = std::is_copy_constructible<T>;
+#   endif
+
+  template <typename F, typename ... A>
+  using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
+
+# else
+
+  template <typename T>
+  using can_move_construct = std::is_move_constructible<T>;
+
+  template <typename T>
+  using can_copy_construct = std::is_copy_constructible<T>;
+
+  template <typename F, typename ... A>
+  using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
+
+# endif
+
   class specialized;
 
   namespace {
@@ -709,9 +801,7 @@ namespace trompeloeil
       unsigned long line,
       std::string const &call) = 0;
   protected:
-    tracer()
-    noexcept
-      : previous{set_tracer(this)} {}
+    tracer() = default;
     tracer(tracer const&) = delete;
     tracer& operator=(tracer const&) = delete;
     virtual
@@ -720,7 +810,7 @@ namespace trompeloeil
       set_tracer(previous);
     }
   private:
-    tracer* previous = nullptr;
+    tracer* previous = set_tracer(this);
   };
 
   class stream_tracer : public tracer
@@ -826,32 +916,66 @@ namespace trompeloeil
     }
   };
 
-  template <typename ...>
-  struct void_t_
-  {
-    using type = void;
-  };
-
-  template <typename ... T>
-  using void_t = typename void_t_<T...>::type;
-
-  template <template <typename ...> class, typename, typename ...>
-  struct is_detected_{
-    using type = std::false_type;
-  };
-
-  template <template <typename ...> class D, typename ... Ts>
-  struct is_detected_<D, void_t<D<Ts...>>, Ts...>
-  {
-    using type = std::true_type;
-  };
-
-  template <template <typename ...> class D, typename ... Ts>
-  using is_detected = typename is_detected_<D, void, Ts...>::type;
-
   struct matcher { };
 
-  template <typename T>
+  struct wildcard : public matcher
+  {
+    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
+    template <typename ... T>
+    constexpr
+    wildcard(
+      T&& ...)
+    noexcept
+    {}
+
+#if (!TROMPELOEIL_GCC) || \
+    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
+
+    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
+    // if this operator is defined.
+    template <typename T,
+              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
+    operator T&&()
+    const;
+
+#endif
+
+    template <
+      typename T,
+      typename = detail::enable_if_t<
+        can_copy_construct<T>::value
+        || !can_move_construct<T>::value
+      >
+    >
+    operator T&()
+    const;
+
+    template <typename T>
+    constexpr
+    bool
+    matches(
+      T const&)
+    const
+    noexcept
+    {
+      return true;
+    }
+
+    friend
+    std::ostream&
+    operator<<(
+      std::ostream& os,
+      wildcard const&)
+    noexcept
+    {
+      return os << " matching _";
+    }
+  };
+
+  static constexpr wildcard const _{};
+
+
+template <typename T>
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
 
   template <typename T>
@@ -871,7 +995,7 @@ namespace trompeloeil
 
     template <typename T,
               typename = decltype(std::declval<T>() == nullptr),
-              typename = detail::enable_if_t<std::is_copy_constructible<T>::value>>
+              typename = detail::enable_if_t<can_copy_construct<T>::value>>
     operator T&()const;
 
     template <typename T, typename C>
@@ -888,13 +1012,15 @@ namespace trompeloeil
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.
     template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
+              typename = detail::enable_if_t<!is_matcher<V>{}>,
+              typename = invoke_result_type<Pred, V&&, T...>>
     operator V&&() const;
 
 #endif
 
     template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()...))>
+              typename = detail::enable_if_t<!is_matcher<V>{}>,
+              typename = invoke_result_type<Pred, V&, T...>>
     operator V&() const;
   };
 
@@ -1631,58 +1757,6 @@ namespace trompeloeil
   {
     matchers.push_back(m);
   }
-
-  struct wildcard : public matcher
-  {
-    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
-    template <typename ... T>
-    constexpr
-    wildcard(
-      T&& ...)
-    noexcept
-    {}
-
-#if (!TROMPELOEIL_GCC) || \
-    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
-
-    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
-    // if this operator is defined.
-    template <typename T,
-              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
-    operator T&&()
-    const;
-
-#endif
-
-    template <typename T,
-              typename = detail::enable_if_t<std::is_copy_constructible<T>::value
-                                             || !std::is_move_constructible<T>::value>>
-    operator T&()
-    const;
-
-    template <typename T>
-    constexpr
-    bool
-    matches(
-      T const&)
-    const
-    noexcept
-    {
-      return true;
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      wildcard const&)
-    noexcept
-    {
-      return os << " matching _";
-    }
-  };
-
-  static constexpr wildcard const _{};
 
   template <typename T>
   void can_match_parameter(T&);
@@ -2497,7 +2571,18 @@ namespace trompeloeil
   R
   default_return()
   {
-    return default_return_t<R>::value();
+    /* Work around VS 2017 15.7.x C4702 warning by
+     * enclosing the operation in an otherwise
+     * unnecessary try/catch block.
+     */
+    try
+    {
+      return default_return_t<R>::value();
+    }
+    catch (...)
+    {
+      throw;
+    }
   }
 
 
@@ -2933,7 +3018,18 @@ namespace trompeloeil
     F& func,
     P& params)
   {
-    return agent.trace_return(func(params));
+    /* Work around VS 2017 15.7.x C4702 warning by
+     * enclosing the operation in an otherwise
+     * unnecessary try/catch block.
+     */
+    try
+    {
+      return agent.trace_return(func(params));
+    }
+    catch (...)
+    {
+      throw;
+    }
   }
 
   template <typename Sig, typename T>
@@ -3207,7 +3303,18 @@ namespace trompeloeil
       template <typename T>
       R operator()(T& p)
       {
-        h(p);
+        /* Work around VS 2017 15.7.x C4702 warning by
+         * enclosing the operation in an otherwise
+         * unnecessary try/catch block.
+         */
+        try
+        {
+          h(p);
+        }
+        catch (...)
+        {
+          throw;
+        }
         return R();
       }
 
@@ -4091,7 +4198,8 @@ namespace trompeloeil
                                                                                \
     /* Work around parsing bug in VS 2015 when a "complex" */                  \
     /* decltype() appears in a trailing return type. */                        \
-    using trompeloeil_sig_t = sig;                                             \
+    /* Further, work around C2066 defect in VS 2017 15.7.1. */                 \
+    using trompeloeil_sig_t = typename ::trompeloeil::identity_type<sig>::type;\
                                                                                \
     using trompeloeil_call_params_type_t =                                     \
       ::trompeloeil::call_params_type_t<sig>;                                  \

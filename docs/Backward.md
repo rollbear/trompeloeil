@@ -36,7 +36,7 @@ compliance with the features available in the C\+\+11 standard without
 compiler extensions.  (Indeed, it might be much worse: you might have
 a project forced to use `g++-4.8.3` with further constraints.)
 
-To allow you consider Trompeloeil as your mock object framework
+To allow you to consider Trompeloeil as your mock object framework
 for a project with these constraints, we have back ported Trompeloeil to
 `g++-4.8.4` (C\+\+11, `libstdc++-v3`) with an API that may be used with
 a C\+\+11 dialect selected.  The C\+\+11 API remains supported when a C\+\+14
