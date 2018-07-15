@@ -1,3 +1,11 @@
+	* Update unit test framework to Catch 2.2.3.
+
+	* Fix documentation of sanitize flags
+
+	* Enable destructor override warning in self_test build for Clang 5.0 or later
+
+	* Update unit test framework to Catch 2.2.1.
+
 	* Worked around clang++-6 bugs 38010 and 38033
 
 	* Improve support for compiler modes:
@@ -15,6 +23,7 @@ v31 2018-05-11
 	* Issue #83: Add AppVeyor support for VS 2015 and VS 2017
 
 	* Fix issue #82: restore compilation with VS 2015.
+
 
 v30 2018-04-02
 

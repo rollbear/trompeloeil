@@ -40,8 +40,9 @@ Trompeloeil test cases have been compiled and run without error with
 AddressSanitizer (ASan), Undefined Behavior Sanitizer (UBSan) and
 Thread Sanitizer (TSan).
 
-Feel free to add `-faddress`, `-fthread` or `-fundefined`
-to your compiler command lines, especially when unit testing.
+Feel free to add `-fsanitize=address`, `-fsanitize=thread` or
+`-fsanitize=undefined` to your compiler command lines, especially
+when unit testing.
 
 Maybe your compiler supports `-fsanitize-address-use-after-scope`.
 Add that flag as well.
