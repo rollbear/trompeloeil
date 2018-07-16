@@ -1,3 +1,5 @@
+	* Fix issue #95: check_errors.sh typo and detect failure in Travis
+
 	* Update unit test framework to Catch 2.2.3.
 
 	* Fix documentation of sanitize flags
