@@ -1,10 +1,13 @@
+v32 2018-07-23
+
 	* Fix issue #95: check_errors.sh typo and detect failure in Travis
 
 	* Update unit test framework to Catch 2.2.3.
 
 	* Fix documentation of sanitize flags
 
-	* Enable destructor override warning in self_test build for Clang 5.0 or later
+	* Enable destructor override warning in self_test build for Clang 5.0
+	  or later
 
 	* Update unit test framework to Catch 2.2.1.
 
