@@ -1113,6 +1113,28 @@ template <typename T>
   template <typename T>
   using is_collection = is_detected<iterable, T>;
 
+#if TROMPELOEIL_CPLUSPLUS >= 201703L
+  template <typename>
+  struct is_pair : false_type {};
+
+  template <typename T, typename U>
+  struct is_pair<std::pair<T,U>> : std::true_type {};
+
+  template <typename>
+  struct is_tuple : std::false_type {};
+
+  template <typename ... Ts>
+  struct is_tuple<std::tuple<Ts...>> : std::true_type {};
+
+  template <typename T, typename ... Ps>
+  using brace_construct = decltype(T{std::declval<Ps>()...});
+
+  template <typename T, auto ... I>
+  using aggregate_constructible_n = brace_construct<T, (decltype(I,_))>;
+
+  template <auto N, typename T>
+  constexpr bool has_cardinality()
+  #endif
   template <typename T,
             bool = is_output_streamable<T>::value,
             bool = is_collection<detail::remove_reference_t<T>>::value>

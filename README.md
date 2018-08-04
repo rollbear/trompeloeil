@@ -10,6 +10,7 @@ CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=mast
 
 [conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v32%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v32%3Astable/link)
 
+[![HitCount](http://hits.dwyl.io/rollbear/trompeloeil.svg)](http://hits.dwyl.io/rollbear/trompeloeil)
 
 > *trompe l'oeil* noun    (Concise Encyclopedia)  
 > Style of representation in which a painted object is intended
