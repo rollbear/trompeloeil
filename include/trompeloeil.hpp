@@ -3965,6 +3965,9 @@ template <typename T>
     using T::T;
  };
 
+#if defined(TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER)
+ extern template struct reporter<specialized>;
+#endif // TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER
 }
 
 #define TROMPELOEIL_LINE_ID(name)                                        \
