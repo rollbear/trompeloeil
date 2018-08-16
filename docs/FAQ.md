@@ -18,6 +18,7 @@
 - Q. [Can I negate the effect of a matcher?](#negate_matcher)
 - Q. [Can I check if an expectation is fulfilled?](#query_expectation)
 - Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
+- Q. [How do I use this in a CMake project?](#cmake)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -502,3 +503,46 @@ so everything is good.
 The current step in the sequence is `mock.foo2()`. Is is satisfied and
 saturated, so the sequence object must move to the next step. The next step is
 `mock.foo3()`, which is a mismatch, so a sequence violation is reported.
+
+### <A name="cmake"/>
+
+Q. How do I use this in a CMake project?
+
+To use *Trompeloeil* in a project that is built with CMake, there are several options. First, you can install it on your system by cloning the repo and running something like:
+```
+cd my_proj
+mkdir toolkits ; cd toolkits
+git clone https://github.com/rollbear/trompeloeil.git
+cd trompeloeil
+mkdir build ; cd build
+cmake -G "Unix Makefiles" ..
+sudo cmake --build . --target install
+```
+Alternately, you can install it locally somewhere in your project (here, in `my_proj/toolkits/install`):
+```
+cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../../install
+cmake --build . --target install
+```
+Then in your project's `CMakeLists.txt`, add a `find_package()` call (assuming you have defined a variable pointing to `my_proj/toolkits/install/lib/cmake` elsewhere, or drop the hints if you installed the libraries globally on your system):
+```cmake
+find_package( Catch2      REQUIRED HINTS "${toolkitsModuleDir}/Catch2"      ) # Sample unit test framework
+find_package( trompeloeil REQUIRED HINTS "${toolkitsModuleDir}/trompeloeil" )
+
+add_executable( my_unit_tests
+    test1.cpp
+    test2.cpp
+    test_main.cpp
+)
+
+target_link_libraries( my_unit_tests
+    my_library_under_test # provided by an add_library() call elsewhere in your project
+
+    # Nothing to link since both of these libs are header-only,
+    # but this sets up the include path correctly too
+    Catch2::Catch2 
+    trompeloeil
+)
+
+# Optional: Use CTest to manage your tests
+add_test( run_my_unit_tests my_unit_tests ) # May need to call enable_testing() elsewhere also
+```
