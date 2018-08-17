@@ -18,7 +18,7 @@
 - Q. [Can I negate the effect of a matcher?](#negate_matcher)
 - Q. [Can I check if an expectation is fulfilled?](#query_expectation)
 - Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
-- Q. [How do I use this in a CMake project?](#cmake)
+- Q. [How do I use *Trompeloeil* in a CMake project?](#cmake)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -455,9 +455,7 @@ sequence they describe [`is_completed()`](reference.md/#is_completed).
 These are rarely useful in pure unit tests, but it can be useful for mini
 integration tests, especially when threading is involved.
 
-### <A name="sequence_times"/>
-
-Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
+### <A name="sequence_times"/>Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
 
 **A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
 [**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
@@ -504,13 +502,11 @@ The current step in the sequence is `mock.foo2()`. Is is satisfied and
 saturated, so the sequence object must move to the next step. The next step is
 `mock.foo3()`, which is a mismatch, so a sequence violation is reported.
 
-### <A name="cmake"/> 
+### <A name="cmake"/>Q. How do I use *Trompeloeil* in a CMake project?
 
-Q. How do I use this in a CMake project?
-
-To use *Trompeloeil* in a project that is built with CMake, there are several
-options to make it accessible to CMake. (The commands below of for Linux, but
-it works similarly on other platforms.)
+**A.** To use *Trompeloeil* in a project that is built with CMake, there are several
+options to make it accessible to CMake. (The commands below of for Linux, but it works
+similarly on other platforms.)
 
 First, you could build and install it locally somewhere in your project (here,
 in `./my_proj/toolkits`):
@@ -570,6 +566,8 @@ that you have defined a target called `my_library_under_test` in other parts of
 the CMake files. (If you installed the libraries globally on your system, you
 should be able to drop the hints in the `find_package()` calls.)
 
-Finally, you can add *Trompeloeil* to your project and then use CMake's
-`find_file()` to locate the header you need instead and add its path to
-your `include_directories()`.
+Finally, you can add *Trompeloeil* to your project and then either (a) use CMake's
+`find_file()` to locate the header and add its path to
+`include_directories()`; or (b) use `add_subdirectory()` (one or two argument
+version) to add its path to your project.
+
