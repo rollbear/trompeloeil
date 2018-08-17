@@ -455,7 +455,7 @@ sequence they describe [`is_completed()`](reference.md/#is_completed).
 These are rarely useful in pure unit tests, but it can be useful for mini
 integration tests, especially when threading is involved.
 
-### <A name="sequence_times"/>Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
+## <A name="sequence_times"/>Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
 
 **A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
 [**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
@@ -502,7 +502,7 @@ The current step in the sequence is `mock.foo2()`. Is is satisfied and
 saturated, so the sequence object must move to the next step. The next step is
 `mock.foo3()`, which is a mismatch, so a sequence violation is reported.
 
-### <A name="cmake"/>Q. How do I use *Trompeloeil* in a CMake project?
+## <A name="cmake"/>Q. How do I use *Trompeloeil* in a CMake project?
 
 **A.** To use *Trompeloeil* in a project that is built with CMake, there are several
 options to make it accessible to CMake. (The commands below of for Linux, but it works
