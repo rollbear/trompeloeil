@@ -1,3 +1,8 @@
+	* When compiled with preprocessor macro
+	  TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER, a `extern`
+	  `trompeloeil::reporter` is declared from `trompeloeil.hpp`.
+	  Thanks @rcdailey
+
 v32 2018-07-23
 
 	* Fix issue #95: check_errors.sh typo and detect failure in Travis
