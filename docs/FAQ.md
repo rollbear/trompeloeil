@@ -18,6 +18,7 @@
 - Q. [Can I negate the effect of a matcher?](#negate_matcher)
 - Q. [Can I check if an expectation is fulfilled?](#query_expectation)
 - Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
+- Q. [How do I use *Trompeloeil* in a CMake project?](#cmake)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -454,9 +455,7 @@ sequence they describe [`is_completed()`](reference.md/#is_completed).
 These are rarely useful in pure unit tests, but it can be useful for mini
 integration tests, especially when threading is involved.
 
-### <A name="sequence_times"/>
-
-Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
+## <A name="sequence_times"/>Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
 
 **A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
 [**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
@@ -502,3 +501,73 @@ so everything is good.
 The current step in the sequence is `mock.foo2()`. Is is satisfied and
 saturated, so the sequence object must move to the next step. The next step is
 `mock.foo3()`, which is a mismatch, so a sequence violation is reported.
+
+## <A name="cmake"/>Q. How do I use *Trompeloeil* in a CMake project?
+
+**A.** To use *Trompeloeil* in a project that is built with CMake, there are several
+options to make it accessible to CMake. (The commands below of for Linux, but it works
+similarly on other platforms.)
+
+First, you could build and install it locally somewhere in your project (here,
+in `./my_proj/toolkits`):
+
+```cmake
+git clone https://github.com/rollbear/trompeloeil.git
+cd trompeloeil
+mkdir build ; cd build
+cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../../my_proj/toolkits
+cmake --build . --target install
+```
+
+This will create a directory structure inside `toolkits` that has `include/trompeoeil.hpp`
+and the CMake find modules in `lib/cmake/trompeoeil`. Whether you add the entire *Trompeoeil*
+repo to your source control is up to you, but the minimal set of files for proper CMake 
+support in is in the `toolkits` directory.
+
+Second, you could install it globally on your system by cloning the repo and installing with
+root privileges:
+
+```cmake
+git clone https://github.com/rollbear/trompeloeil.git
+cd trompeloeil
+mkdir build ; cd build
+cmake -G "Unix Makefiles" ..
+sudo cmake --build . --target install
+```
+
+In either case, add a `find_package()` call in your project's `CMakeLists.txt`:
+
+```cmake
+find_package( Catch2      REQUIRED HINTS "${toolkitsDir}/Catch2"      ) # Sample unit test framework
+find_package( trompeloeil REQUIRED HINTS "${toolkitsDir}/trompeloeil" )
+
+add_executable( my_unit_tests
+    test1.cpp
+    test2.cpp
+    test_main.cpp
+)
+
+target_link_libraries( my_unit_tests
+    my_library_under_test # provided by an add_library() call elsewhere in your project
+
+    # Nothing to link since both of these libs are header-only,
+    # but this sets up the include path correctly too
+    Catch2::Catch2 
+    trompeloeil
+)
+
+# Optional: Use CTest to manage your tests
+add_test( run_my_unit_tests my_unit_tests ) # May need to call enable_testing() elsewhere also
+```
+
+This assumes that you have defined a variable called `toolkitsDir` pointing to
+`my_proj/toolkits/lib/cmake`, that you have Catch2 installed similarly, and
+that you have defined a target called `my_library_under_test` in other parts of
+the CMake files. (If you installed the libraries globally on your system, you
+should be able to drop the hints in the `find_package()` calls.)
+
+Finally, you can add *Trompeloeil* to your project and then either (a) use CMake's
+`find_file()` to locate the header and add its path to
+`include_directories()`; or (b) use `add_subdirectory()` (one or two argument
+version) to add its path to your project.
+
