@@ -1,3 +1,5 @@
+	* Minor documentation updates.
+
 	* Update pattern in expectation_with_wrong_type.cpp to match
 	  new error message from GCC '9' at svn revision 264700.
 

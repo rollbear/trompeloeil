@@ -17,12 +17,12 @@
 
 On some distributions `clang` is configured to use `libstdc++-v3` as the
 implementation of the C\+\+ Standard Library.  In order to use `libc++`,
-pass the `-stdlib=c++` command line flag to the compiler.
+pass the `-stdlib=libc++` command line flag to the compiler.
 
 For example,
 
 ```text
-clang++-5.0 -std=c++14 -stdlib=c++ <other command line arguments>
+clang++-5.0 -std=c++14 -stdlib=libc++ <other command line arguments>
 ```
 
 To use `libc++` with `g++` a few more command line flags need to be passed.
