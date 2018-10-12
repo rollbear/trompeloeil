@@ -1,3 +1,7 @@
+	* ANY() matcher gives a short descriptive compilation error message
+	  when the type is an array type (it would silently decay into a
+	  pointer type, which can be very confusing.)
+
 	* When compiled with preprocessor macro
 	  TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER, a `extern`
 	  `trompeloeil::reporter` is declared from `trompeloeil.hpp`.

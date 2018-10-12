@@ -2016,17 +2016,33 @@ template <typename T>
     return {std::move(pred), std::move(print), std::forward<T>(t)...};
   }
 
+
   template <
     typename T,
     typename R = make_matcher_return<T, lambdas::any_predicate, lambdas::any_printer>>
   inline
   auto
-  any_matcher(char const* type_name)
+  any_matcher_impl(char const* type_name, std::false_type)
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<T>(lambdas::any_predicate(), lambdas::any_printer(type_name));
   }
 
+  template <typename T>
+  wildcard
+  any_matcher_impl(char const*, std::true_type);
+
+  template <typename T>
+  inline
+  auto
+  any_matcher(char const* name)
+  TROMPELOEIL_TRAILING_RETURN_TYPE(decltype(any_matcher_impl<T>(name, std::is_array<T>{})))
+  {
+    static_assert(!std::is_array<T>::value,
+                  "array parameter type decays to pointer type for ANY()"
+                  " matcher. Please rephrase as pointer instead");
+    return any_matcher_impl<T>(name, std::is_array<T>{});
+  }
   template <
     typename T = wildcard,
     typename V,
