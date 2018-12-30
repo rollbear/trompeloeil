@@ -3898,6 +3898,36 @@ TEST_CASE_METHOD(
   }
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: A null-comparable object is printed as 'nullptr' if eqeual",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, null_comparable{nullptr});
+  REQUIRE(os.str() == "nullptr");
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: A null-comparable object is printed as using its ostream insertion if ueqeual",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, null_comparable{&os});
+  REQUIRE(os.str() == "null_comparable");
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: An object for which null-compare is non-bool, is printed using its ostream insertion",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, pseudo_null_comparable{});
+  REQUIRE(os.str() == "pseudo_null_comparable");
+}
+
 // tests on scoping (lifetime) of expectations
 
 TEST_CASE_METHOD(

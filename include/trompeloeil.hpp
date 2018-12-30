@@ -1053,7 +1053,9 @@ template <typename T>
   };
 
   template <typename T, typename U>
-  using equality_comparison = decltype(std::declval<T>() == std::declval<U>());
+  using equality_comparison = decltype((std::declval<T>() == std::declval<U>())
+                                       ? true
+                                       : false);
 
   template <typename T, typename U>
   using is_equal_comparable = is_detected<equality_comparison, T, U>;

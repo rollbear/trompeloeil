@@ -240,6 +240,24 @@ struct uncomparable_string {
   std::string s;
 };
 
+struct null_comparable {
+  void* p;
+  bool operator==(std::nullptr_t) const { return !p; }
+  friend std::ostream& operator<<(std::ostream& os, const null_comparable&)
+  {
+    return os << "null_comparable";
+  }
+};
+
+struct pseudo_null_comparable {
+  void operator==(std::nullptr_t) const {} // looking at you, boost::variant<>!
+  friend
+  std::ostream& operator<<(std::ostream& os, const pseudo_null_comparable&)
+  {
+    return os << "pseudo_null_comparable";
+  }
+};
+
 class C
 {
 public:
