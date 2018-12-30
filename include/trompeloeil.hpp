@@ -3878,6 +3878,8 @@ template <typename T>
   template <typename Sig>
   struct expectations
   {
+    expectations() = default;
+    expectations(expectations&&) = default;
     ~expectations() {
       active.decommission();
       saturated.decommission();

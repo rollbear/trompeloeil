@@ -263,6 +263,7 @@ class C
 public:
   C() {}
   C(int) {}
+  C(C&&) = default;
   virtual ~C() = default;
   virtual int count() = 0;
   virtual void func(int, std::string& s) = 0;

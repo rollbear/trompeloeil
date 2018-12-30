@@ -5267,3 +5267,22 @@ TEST_CASE_METHOD(
   m.f2(0,1);
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: A named expectation follows a moved mock object",
+  "[C++11][C++14]"
+)
+{
+  bool called = false;
+  auto set_expectation = [&called](auto obj) {
+    auto e = NAMED_REQUIRE_CALL_V(obj, foo("bar"),
+                                  .LR_SIDE_EFFECT(called = true));
+    return std::make_pair(std::move(obj), std::move(e));
+  };
+
+  auto e = set_expectation(mock_c{});
+  e.first.foo("bar");
+  REQUIRE(reports.empty());
+  REQUIRE(called);
+}
+
