@@ -5274,7 +5274,7 @@ TEST_CASE_METHOD(
 )
 {
   bool called = false;
-  auto set_expectation = [&called](auto obj) {
+  auto set_expectation = [&called](mock_c obj) {
     auto exp = NAMED_REQUIRE_CALL_V(obj, foo("bar"),
                                   .LR_SIDE_EFFECT(called = true));
     return std::make_pair(std::move(obj), std::move(exp));
