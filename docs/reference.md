@@ -54,7 +54,7 @@
   - [`trompeloeil::stream_tracer`](#stream_tracer)
   - [`tropmeloeil::tracer`](#tracer_type)
   - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
-  - [`trempoleil_movable_type`](#movable_type)
+  - [`trompeloeil_movable_type`](#movable_mock)
 - [Functions and Function Templates](#functions)
   - [`trompeloeil::expectation::is_satisfied()`](#is_satisfied)
   - [`trompeloeil::expectation::is_saturated()`](#is_saturated)

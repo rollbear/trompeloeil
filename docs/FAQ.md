@@ -520,6 +520,7 @@ moved, the actions associated with an expectation
  it is better to play safe.
  
 With that said, you can explicitly make mock objects movable, if you want to.
-See:
+See: [**`trompeloeil_movable_mock`**](reference.md/#movable_mock).
+
 
 
