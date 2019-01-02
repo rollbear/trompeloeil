@@ -4325,7 +4325,7 @@ template <typename T>
     return {nullptr, 0ul, nullptr};                                            \
   }                                                                            \
                                                                                \
-  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations)
+  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations){}
 
 
 #define TROMPELOEIL_LPAREN (
