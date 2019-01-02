@@ -298,6 +298,7 @@ public:
   using trompeloeil_movable_mock = void;
   MAKE_MOCK1(func, void(int));
 };
+
 int intfunc(int i);
 
 extern int global_n;

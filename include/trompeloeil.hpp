@@ -3886,8 +3886,8 @@ template <typename T>
       active.decommission();
       saturated.decommission();
     }
-    call_matcher_list<Sig> active;
-    call_matcher_list<Sig> saturated;
+    call_matcher_list<Sig> active{};
+    call_matcher_list<Sig> saturated{};
   };
 
   template <typename Sig>
@@ -3905,8 +3905,8 @@ template <typename T>
       active.decommission();
       saturated.decommission();
     }
-    call_matcher_list<Sig> active;
-    call_matcher_list<Sig> saturated;
+    call_matcher_list<Sig> active{};
+    call_matcher_list<Sig> saturated{};
   };
 
   template <typename Sig, typename ... P>
