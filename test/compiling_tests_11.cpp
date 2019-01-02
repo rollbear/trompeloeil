@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2018
+ * Copyright Björn Fahller 2014-2019
  * Copyright (C) 2017 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
@@ -5274,14 +5274,14 @@ TEST_CASE_METHOD(
 )
 {
   bool called = false;
-  auto set_expectation = [&called](mock_c obj) {
-    auto exp = NAMED_REQUIRE_CALL_V(obj, foo("bar"),
+  auto set_expectation = [&called](movable_mock obj) {
+    auto exp = NAMED_REQUIRE_CALL_V(obj, func(3),
                                   .LR_SIDE_EFFECT(called = true));
     return std::make_pair(std::move(obj), std::move(exp));
   };
 
-  auto e = set_expectation(mock_c{});
-  e.first.foo("bar");
+  auto e = set_expectation(movable_mock{});
+  e.first.func(3);
   REQUIRE(reports.empty());
   REQUIRE(called);
 }
