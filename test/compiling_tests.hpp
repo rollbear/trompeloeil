@@ -295,6 +295,7 @@ public:
 class movable_mock
 {
 public:
+  movable_mock() = default;
   using trompeloeil_movable_mock = void;
   MAKE_MOCK1(func, void(int));
 };
