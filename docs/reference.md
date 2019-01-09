@@ -54,7 +54,6 @@
   - [`trompeloeil::stream_tracer`](#stream_tracer)
   - [`tropmeloeil::tracer`](#tracer_type)
   - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
-  - [`trompeloeil_movable_type`](#movable_mock)
 - [Functions and Function Templates](#functions)
   - [`trompeloeil::expectation::is_satisfied()`](#is_satisfied)
   - [`trompeloeil::expectation::is_saturated()`](#is_saturated)
@@ -64,6 +63,8 @@
   - [`trompeloeil::print(std::ostream&, T const&)`](#print)
   - [`trompeloeil::set_reporter(...)`](#set_reporter)
   - [`trompeloeil::sequence::is_completed()`](#is_completed)
+- [Constants](#constants)  
+  - [`trompeloeil_movable_mock`](#movable_mock)
 
 ## <A name="notions"/>Notions
 
@@ -2131,66 +2132,6 @@ type. It inherits from [`trompeloeil::matcher`](#matcher_type).
 See "[Writing custom matchers](CookBook.md/#custom_matchers)" in the
 [Cook Book](CookBook.md) for examples.
 
-### <A named="movable_mock"/> `trompeloeil_movable_mock`
-
-By adding a public member type `trompeloeil_movable_mock` to your mock
-struct/class, you make it move constructible. Note that when a mock object is
-moved, any current expectations will be taken over by the newly constructed
-mock object, but the implicitly created lambdas associated with
-[**`.WITH()`**](reference.md/#WITH),
-[**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT),
-[**`.RETURN()`**](reference.md/#RETURN) and
-[**`.THROW()`**](reference.md/#THROW) and their `**LR_**` counter parts, will
-not themselves be moved. This means that if they refer to member variables
-in the mock objects, they will refer to dead store after the move. Also, keep
-in mind the lifetime of expectations. If you move a mock object that has
-active expectations, they should almost certainly be
-[**`NAMED_REQUIRE_CALL()`**](reference.md/#NAMED_REQUIRE_CALL),
-[**`NAMED_ALLOW_CALL()`**](reference.md/#NAMED_ALLOW_CALL) or
-[**`NAMED_FORBID_CALL()`**](reference.md/#NAMED_FORBID_CALL).
-
-```Cpp
-class immobile
-{
-public:
-  MAKE_MOCK1(func, void(int));
-};
-
-class movable
-{
-public:
-  int i = 0;
-  struct trompeloeil_movable_mock{}; // allow move construction
-  MAKE_MOCK1(func, void(int));
-};
-
-template <typename T>
-T transfer(T t)
-{
-  return t;
-}
-
-test(...)
-{
-  auto m = transfer(immobile{}); // compilation error
-  ...
-}
-test(...)
-{
-  movable m;
-  auto e = NAMED_REQUIRE_CALL(m, func(3));
-  auto mm = transfer(std::move(m)); // OK, e now belongs to mm.
-  ...
-}
-test(...)
-{
-  movable m{3};
-  auto e = NAMED_REQUIRE_CALL(m, func(_))
-    .LR_WITH(_1 == m.i);
-  auto mm = transfer(std::move(m)); // Danger! e still refers to m.i.
-  ...
-}
-``` 
 
 ## <A name="functions"/>Functions
 
@@ -2339,3 +2280,75 @@ void test()
   assert(seq.is_completed());  // now sequence is completed
 }
 ```
+
+## <A name="constants"/>Constants
+
+### <A name="movable_mock"/> `trompeloeil_movable_mock`
+
+By adding a static constexpr bool member `trompeloeil_movable_mock` with the
+value `true` to your mock struct/class, you make it move constructible. Note
+that when a mock object is moved, any current expectations will be taken over
+by the newly constructed mock object, but note also that if the implicitly
+created lambdas associated with
+[**`.WITH()`**](reference.md/#WITH),
+[**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT),
+[**`.RETURN()`**](reference.md/#RETURN) and
+[**`.THROW()`**](reference.md/#THROW) and their `**LR_**` counter parts, refers
+to member variables in the mock objects, they will continue to refer the old
+moved from object.
+ 
+Also, keep in mind the lifetime of expectations. If the lifetime of an
+expectation is associated with the life of the moved-from object, your test
+will likely fail, since the expectation object would then be destroyed before it
+has been satisfied. Using
+[**`NAMED_REQUIRE_CALL()`**](reference.md/#NAMED_REQUIRE_CALL),
+[**`NAMED_ALLOW_CALL()`**](reference.md/#NAMED_ALLOW_CALL) or
+[**`NAMED_FORBID_CALL()`**](reference.md/#NAMED_FORBID_CALL) can help, since
+they make the expectation life times more visible.
+
+```Cpp
+class immobile
+{
+public:
+  MAKE_MOCK1(func, void(int));
+};
+
+class movable
+{
+public:
+  int i = 0;
+  
+  static constexpr bool trompeloeil_movable_mock = true;
+  // allow move construction
+  
+  MAKE_MOCK1(func, void(int));
+};
+
+template <typename T>
+T transfer(T t)
+{
+  return t;
+}
+
+test(...)
+{
+  auto m = transfer(immobile{}); // compilation error
+  ...
+}
+test(...)
+{
+  movable m;
+  auto e = NAMED_REQUIRE_CALL(m, func(3));
+  auto mm = transfer(std::move(m));
+   // A call to mm.func() now satisfies e
+  ...
+}
+test(...)
+{
+  movable m{3};
+  auto e = NAMED_REQUIRE_CALL(m, func(_))
+    .LR_WITH(_1 == m.i);
+  auto mm = transfer(std::move(m)); // Danger! e still refers to m.i.
+  ...
+}
+``` 

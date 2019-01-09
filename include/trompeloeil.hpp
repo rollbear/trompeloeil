@@ -295,7 +295,7 @@
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
-struct trompeloeil_movable_mock {};
+static constexpr bool trompeloeil_movable_mock = false;
 
 namespace trompeloeil
 {
@@ -3877,7 +3877,7 @@ template <typename T>
     }
   };
 
-  template <typename Mock, typename Sig>
+  template <bool movable, typename Sig>
   struct expectations
   {
     expectations() = default;
@@ -3891,7 +3891,7 @@ template <typename T>
   };
 
   template <typename Sig>
-  struct expectations<::trompeloeil_movable_mock, Sig>
+  struct expectations<false, Sig>
   {
     expectations() = default;
     expectations(expectations&&)
@@ -3913,10 +3913,10 @@ template <typename T>
   return_of_t<Sig> mock_func(std::false_type, P&& ...);
 
 
-  template <typename M, typename Sig, typename ... P>
+  template <bool movable, typename Sig, typename ... P>
   return_of_t<Sig>
   mock_func(std::true_type,
-            expectations<M, Sig>& e,
+            expectations<movable, Sig>& e,
             char const *func_name,
             char const *sig_name,
             P&& ... p)
