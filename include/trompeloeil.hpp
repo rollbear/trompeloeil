@@ -1186,7 +1186,7 @@ template <typename T>
     {
       os << "{ ";
       const char* sep = "";
-      for (auto& elem : t)
+      for (auto const& elem : t)
       {
         os << sep;
         ::trompeloeil::print(os, elem);

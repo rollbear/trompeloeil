@@ -3880,6 +3880,18 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
+  "C++11: A range with rvalue access proxies is printed via proxy access",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  std::vector<bool> evil{false,true,true,false};
+  os << std::noboolalpha;
+  trompeloeil::print(os, evil);
+  REQUIRE(os.str() == "{ 0, 1, 1, 0 }");
+}
+
+TEST_CASE_METHOD(
+  Fixture,
   "C++11: failure on parameter of user type is printed with custom print func",
   "[C++11][C++14][streaming]")
 {
