@@ -1,3 +1,13 @@
+	* Fixed a bug where a mocked function would not compile if a parameter
+	  had an operator==(nullptr) returning a type that is not convertible
+	  to bool.
+
+	* Fixed a bug where a mocked function would not compile if a parameter
+	  was a range with iterators to rvalue proxy objects, like vector<bool>.
+
+	* Mock objects can be move constructed if they have a static constexpr
+	  bool member named trompeloeil_movable_mock with value = true.
+
 	* ANY() matcher gives a short descriptive compilation error message
 	  when the type is an array type (it would silently decay into a
 	  pointer type, which can be very confusing.)
