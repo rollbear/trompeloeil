@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2018
+ * Copyright Björn Fahller 2014-2019
  * Copyright (C) 2017, 2018 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
@@ -294,6 +294,8 @@
   /**/
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
+
+static constexpr bool trompeloeil_movable_mock = false;
 
 namespace trompeloeil
 {
@@ -3875,25 +3877,46 @@ template <typename T>
     }
   };
 
-  template <typename Sig>
+  template <bool movable, typename Sig>
   struct expectations
   {
+    expectations() = default;
+    expectations(expectations&&) = default;
     ~expectations() {
       active.decommission();
       saturated.decommission();
     }
-    call_matcher_list<Sig> active;
-    call_matcher_list<Sig> saturated;
+    call_matcher_list<Sig> active{};
+    call_matcher_list<Sig> saturated{};
+  };
+
+  template <typename Sig>
+  struct expectations<false, Sig>
+  {
+    expectations() = default;
+    expectations(expectations&&)
+    {
+      static_assert(std::is_same<Sig,void>::value,
+        "By default, mock objects are not movable. "
+        "To make a mock object movable, see: "
+        "https://github.com/rollbear/trompeloeil/blob/master/docs/reference.md#movable_mock");
+    }
+    ~expectations() {
+      active.decommission();
+      saturated.decommission();
+    }
+    call_matcher_list<Sig> active{};
+    call_matcher_list<Sig> saturated{};
   };
 
   template <typename Sig, typename ... P>
   return_of_t<Sig> mock_func(std::false_type, P&& ...);
 
 
-  template <typename Sig, typename ... P>
+  template <bool movable, typename Sig, typename ... P>
   return_of_t<Sig>
   mock_func(std::true_type,
-            expectations<Sig>& e,
+            expectations<movable, Sig>& e,
             char const *func_name,
             char const *sig_name,
             P&& ... p)
@@ -4210,7 +4233,9 @@ template <typename T>
   static_assert(TROMPELOEIL_LINE_ID(cardinality_match)::value,                 \
                 "Function signature does not have " #num " parameters");       \
   using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
-  using TROMPELOEIL_LINE_ID(expectation_list_t) = ::trompeloeil::expectations<sig>; \
+  using TROMPELOEIL_LINE_ID(expectation_list_t) =                              \
+    ::trompeloeil::expectations<trompeloeil_movable_mock, sig>;                \
+                                                                               \
   struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
     const char* trompeloeil_expectation_file;                                  \
@@ -4277,11 +4302,12 @@ template <typename T>
                                                                                \
     ::trompeloeil::ignore(s_ptr, e_ptr);                                       \
                                                                                \
-    return ::trompeloeil::mock_func<sig>(TROMPELOEIL_LINE_ID(cardinality_match){},  \
-                                         TROMPELOEIL_LINE_ID(expectations),    \
-                                         #name,                                \
-                                         #sig                                  \
-                                         TROMPELOEIL_PARAMS(num));             \
+    return ::trompeloeil::mock_func<trompeloeil_movable_mock, sig>(            \
+                                    TROMPELOEIL_LINE_ID(cardinality_match){},  \
+                                    TROMPELOEIL_LINE_ID(expectations),         \
+                                    #name,                                     \
+                                    #sig                                       \
+                                    TROMPELOEIL_PARAMS(num));                  \
   }                                                                            \
                                                                                \
   auto                                                                         \
@@ -4299,7 +4325,7 @@ template <typename T>
     return {nullptr, 0ul, nullptr};                                            \
   }                                                                            \
                                                                                \
-  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations)
+  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations){}
 
 
 #define TROMPELOEIL_LPAREN (

@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2018
+ * Copyright Björn Fahller 2014-2019
  * Copyright (C) 2017, 2018 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
@@ -263,6 +263,7 @@ class C
 public:
   C() {}
   C(int) {}
+  C(C&&) = default;
   virtual ~C() = default;
   virtual int count() = 0;
   virtual void func(int, std::string& s) = 0;
@@ -289,6 +290,14 @@ public:
   MAKE_MOCK1(getter, int(int), override);
   MAKE_MOCK2(getter, void(int, std::string&), override);
   using C::p_;
+};
+
+class movable_mock
+{
+public:
+  movable_mock() = default;
+  static constexpr bool trompeloeil_movable_mock = true;
+  MAKE_MOCK1(func, void(int));
 };
 
 int intfunc(int i);
