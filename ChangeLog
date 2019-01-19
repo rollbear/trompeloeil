@@ -7,6 +7,11 @@
 	  `trompeloeil::reporter` is declared from `trompeloeil.hpp`.
 	  Thanks @rcdailey
 
+	* Minor documentation updates.
+
+	* Update pattern in expectation_with_wrong_type.cpp to match
+	  new error message from GCC '9' at svn revision 264700.
+
 v32 2018-07-23
 
 	* Fix issue #95: check_errors.sh typo and detect failure in Travis
