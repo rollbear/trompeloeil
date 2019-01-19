@@ -1186,10 +1186,11 @@ template <typename T>
     {
       os << "{ ";
       const char* sep = "";
-      for (auto const& elem : t)
+      auto const end = std::end(t);
+      for (auto i = std::begin(t); i != end; ++i)
       {
         os << sep;
-        ::trompeloeil::print(os, elem);
+        ::trompeloeil::print(os, *i);
         sep = ", ";
       }
       os << " }";
