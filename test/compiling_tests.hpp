@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2018
+ * Copyright Björn Fahller 2014-2019
  * Copyright (C) 2017, 2018 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
@@ -13,6 +13,7 @@
  */
 
 #ifndef COMPILING_TESTS_HPP_
+#define COMPILING_TESTS_HPP_
 
 #define TROMPELOEIL_SANITY_CHECKS
 #include <trompeloeil.hpp>
