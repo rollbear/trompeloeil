@@ -4298,8 +4298,8 @@ template <typename T>
     using pmf_e_t = typename ::trompeloeil::signature_to_member_function<      \
       T_ ## name, TROMPELOEIL_LINE_ID(tag_type_trompeloeil), sig>::type const; \
                                                                                \
-    auto s_ptr = static_cast<pmf_s_t>(&T_ ## name::trompeloeil_self_ ## name); \
-    auto e_ptr = static_cast<pmf_e_t>(&T_ ## name::trompeloeil_tag_ ## name);  \
+    pmf_s_t const s_ptr = &T_ ## name::trompeloeil_self_ ## name;              \
+    pmf_e_t const e_ptr = &T_ ## name::trompeloeil_tag_ ## name;               \
                                                                                \
     ::trompeloeil::ignore(s_ptr, e_ptr);                                       \
                                                                                \
