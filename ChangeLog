@@ -1,3 +1,5 @@
+	* Silenced noisy g++-7 -Wuseless-cast warning
+
 	* Fixed a bug where a mocked function would not compile if a parameter
 	  had an operator==(nullptr) returning a type that is not convertible
 	  to bool.

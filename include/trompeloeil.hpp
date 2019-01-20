@@ -4293,10 +4293,10 @@ template <typename T>
     using T_ ## name = typename std::remove_reference<decltype(*this)>::type;  \
                                                                                \
     using pmf_s_t = typename ::trompeloeil::signature_to_member_function<      \
-      T_ ## name, decltype(*this), sig>::type;                                 \
+      T_ ## name, decltype(*this), sig>::type const;                           \
                                                                                \
     using pmf_e_t = typename ::trompeloeil::signature_to_member_function<      \
-      T_ ## name, TROMPELOEIL_LINE_ID(tag_type_trompeloeil), sig>::type;       \
+      T_ ## name, TROMPELOEIL_LINE_ID(tag_type_trompeloeil), sig>::type const; \
                                                                                \
     auto s_ptr = static_cast<pmf_s_t>(&T_ ## name::trompeloeil_self_ ## name); \
     auto e_ptr = static_cast<pmf_e_t>(&T_ ## name::trompeloeil_tag_ ## name);  \
