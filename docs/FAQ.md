@@ -19,6 +19,7 @@
 - Q. [Can I check if an expectation is fulfilled?](#query_expectation)
 - Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
 - Q. [How do I use *Trompeloeil* in a CMake project?](#cmake)
+- Q. [Why are mock objects not move constructible?](#move_constructible)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -570,4 +571,25 @@ Finally, you can add *Trompeloeil* to your project and then either (a) use CMake
 `find_file()` to locate the header and add its path to
 `include_directories()`; or (b) use `add_subdirectory()` (one or two argument
 version) to add its path to your project.
+
+
+### <A name="move_constructible"/>
+
+Q. Why are mock objects not move constructible?
+
+Because a move is potentially dangerous in non-obvious ways. If a mock object is
+moved, the actions associated with an expectation
+([**`.WITH()`**](reference.md/#WITH),
+ [**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT),
+ [**`.RETURN()`**](reference.md/#RETURN),
+ [**`.THROW()`**](reference.md/#THROW)) and their
+ `LR_` versions, are *not* moved. If they refer to data members stored in a
+ moved mock object, they will refer to dead data. This is an accepted const
+ in normal C++ code, but since the effect is hidden under the macros,
+ it is better to play safe.
+ 
+With that said, you can explicitly make mock objects movable, if you want to.
+See: [**`trompeloeil_movable_mock`**](reference.md/#movable_mock).
+
+
 

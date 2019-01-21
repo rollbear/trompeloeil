@@ -82,13 +82,21 @@ namespace trompeloeil
 }
 ```
 
-In all other [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration in global namespace instead:
+If you have multiple translation units, you can define the
+`TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER` preprocessor definition which causes the
+`<trompeloeil.hpp>` header to automatically generate the following `extern` statement:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 ```
+
+This preprocessor definition can be added to your unit test code via your build system to make this
+more transparent to your code. This definition provides the ability to define a compile-time
+reporter without being required to insert code into multiple, existing translation units.
+
+The old (legacy) requirement was that the `extern` statement above had to be explicitly declared in
+every translation unit, which is tedious. However, this is still a functional alternative if you
+can't define the preprocessor directive at the build system level for whatever reason.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values

@@ -241,11 +241,30 @@ struct uncomparable_string {
   std::string s;
 };
 
+struct null_comparable {
+  void* p;
+  bool operator==(std::nullptr_t) const { return !p; }
+  friend std::ostream& operator<<(std::ostream& os, const null_comparable&)
+  {
+    return os << "null_comparable";
+  }
+};
+
+struct pseudo_null_comparable {
+  void operator==(std::nullptr_t) const {} // looking at you, boost::variant<>!
+  friend
+  std::ostream& operator<<(std::ostream& os, const pseudo_null_comparable&)
+  {
+    return os << "pseudo_null_comparable";
+  }
+};
+
 class C
 {
 public:
   C() {}
   C(int) {}
+  C(C&&) = default;
   virtual ~C() = default;
   virtual int count() = 0;
   virtual void func(int, std::string& s) = 0;
@@ -272,6 +291,14 @@ public:
   MAKE_MOCK1(getter, int(int), override);
   MAKE_MOCK2(getter, void(int, std::string&), override);
   using C::p_;
+};
+
+class movable_mock
+{
+public:
+  movable_mock() = default;
+  static constexpr bool trompeloeil_movable_mock = true;
+  MAKE_MOCK1(func, void(int));
 };
 
 int intfunc(int i);

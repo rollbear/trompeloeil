@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014-2018
+ * Copyright Björn Fahller 2014-2019
  * Copyright (C) 2017 Andrew Paxie
  *
  *  Use, modification and distribution is subject to the
@@ -3910,6 +3910,36 @@ TEST_CASE_METHOD(
   }
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: A null-comparable object is printed as 'nullptr' if eqeual",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, null_comparable{nullptr});
+  REQUIRE(os.str() == "nullptr");
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: A null-comparable object is printed as using its ostream insertion if ueqeual",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, null_comparable{&os});
+  REQUIRE(os.str() == "null_comparable");
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: An object for which null-compare is non-bool, is printed using its ostream insertion",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, pseudo_null_comparable{});
+  REQUIRE(os.str() == "pseudo_null_comparable");
+}
+
 // tests on scoping (lifetime) of expectations
 
 TEST_CASE_METHOD(
@@ -5247,5 +5277,24 @@ TEST_CASE_METHOD(
   m.f0();
   m.f1(0);
   m.f2(0,1);
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: A named expectation follows a moved mock object",
+  "[C++11][C++14]"
+)
+{
+  bool called = false;
+  auto set_expectation = [&called](movable_mock obj) {
+    auto exp = NAMED_REQUIRE_CALL_V(obj, func(3),
+                                  .LR_SIDE_EFFECT(called = true));
+    return std::make_pair(std::move(obj), std::move(exp));
+  };
+
+  auto e = set_expectation(movable_mock{});
+  e.first.func(3);
+  REQUIRE(reports.empty());
+  REQUIRE(called);
 }
 
