@@ -1,7 +1,7 @@
 #
 # Trompeloeil C++ mocking framework
 #
-# Copyright Bjorn Fahller 2017
+# Copyright Bjorn Fahller 2017-2019
 #
 #  Use, modification and distribution is subject to the
 #  Boost Software License, Version 1.0. (See accompanying
@@ -16,7 +16,7 @@ from conans import ConanFile
 
 class TrompeloelConan(ConanFile):
     name = "trompeloeil"
-    version = "v32"
+    version = "v33"
     license = "Boost Software License - Version 1.0 - August 17th, 2003"
     url = "https://github.com/rollbear/trompeloeil.git"
     description = "Header only C++14 mocking framework"
