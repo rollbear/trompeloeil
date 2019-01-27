@@ -647,7 +647,11 @@ complain about mistakes.
 
 ### <A name="mocking_non_public"/> Mocking private or protected member functions
 
-Mocking private or protected member functions is no different from mocking
+Mocking private or protected member functions using
+[**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_CONST_MOCKn(...)`**](reference.md/#MAKE_CONST_MOCKn) is no different
+from mocking
+
 public member functions. Just make them public in the mock class. It may seem
 strange that you can change access rights of a member function through
 inheritance, but C\+\+ allows it.
@@ -673,6 +677,11 @@ be able to set [expectations](#setting_expectations) on them, but there is
 nothing preventing a public function from implementing a private virtual function
 in a base class.
 
+**NOTE!** Mocking private or protected functions does not work with
+[**`IMPLEMENT_MOCKn(...)`**](reference.md/#IMPLEMENT_MOCKn) or
+[**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/#IMPLEMENT_CONST_MOCKn), since
+these need full visibility of the function in the base class.
+
 ### <A name="mocking_overloaded"/> Mocking overloaded member functions
 
 *Trompeloeil* matches [mock functions](reference.md/#mock_function) by
@@ -694,11 +703,8 @@ public:
 Above there are three [mock functions](reference.md/#mock_function) named
 `overload`, with different signatures.
 
-See [Matching calls to overloaded member functions](
-  #matching_overloads
-) for how to place [expectations](
-  reference.md/#expectation
-) on them.
+See [Matching calls to overloaded member functions](#matching_overloads)
+for how to place [expectations](reference.md/#expectation) on them.
 
 **NOTE!** Overloaded member functions cannot be mocked using the
 macros [**`IMPLEMENT_MOCKn(...)`**](reference.md/IMPLEMENT_MOCKn) or
