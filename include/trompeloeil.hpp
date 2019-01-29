@@ -4224,9 +4224,9 @@ template <typename T>
   TROMPELOEIL_IMPLEMENT_CONST_MOCK_(15, name)
 
 #define TROMPELOEIL_IMPLEMENT_MOCK_(num, name) \
-  TROMPELOEIL_MAKE_MOCK_(name,,num, decltype(::trompeloeil::nonconst_member_signature(&trompeloeil_interface_name::name))::type,override,)
+  TROMPELOEIL_MAKE_MOCK_(name,,num, typename decltype(::trompeloeil::nonconst_member_signature(&trompeloeil_interface_name::name))::type,override,)
 #define TROMPELOEIL_IMPLEMENT_CONST_MOCK_(num, name) \
-  TROMPELOEIL_MAKE_MOCK_(name,const,num, decltype(::trompeloeil::const_member_signature(&trompeloeil_interface_name::name))::type,override,)
+  TROMPELOEIL_MAKE_MOCK_(name,const,num, typename decltype(::trompeloeil::const_member_signature(&trompeloeil_interface_name::name))::type,override,)
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
