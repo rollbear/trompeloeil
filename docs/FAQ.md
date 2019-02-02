@@ -573,9 +573,7 @@ Finally, you can add *Trompeloeil* to your project and then either (a) use CMake
 version) to add its path to your project.
 
 
-### <A name="move_constructible"/>
-
-Q. Why are mock objects not move constructible?
+### <A name="move_constructible"/> Q. Why are mock objects not move constructible?
 
 Because a move is potentially dangerous in non-obvious ways. If a mock object is
 moved, the actions associated with an expectation
@@ -584,7 +582,7 @@ moved, the actions associated with an expectation
  [**`.RETURN()`**](reference.md/#RETURN),
  [**`.THROW()`**](reference.md/#THROW)) and their
  `LR_` versions, are *not* moved. If they refer to data members stored in a
- moved mock object, they will refer to dead data. This is an accepted const
+ moved mock object, they will refer to dead data. This is an accepted cost
  in normal C++ code, but since the effect is hidden under the macros,
  it is better to play safe.
  
