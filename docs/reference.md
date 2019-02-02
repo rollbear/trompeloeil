@@ -2297,14 +2297,6 @@ created lambdas associated with
 to member variables in the mock objects, they will continue to refer the old
 moved from object.
  
-Also, keep in mind the lifetime of expectations. If the lifetime of an
-expectation is associated with the life of the moved-from object, your test
-will likely fail, since the expectation object would then be destroyed before it
-has been satisfied. Using
-[**`NAMED_REQUIRE_CALL()`**](reference.md/#NAMED_REQUIRE_CALL),
-[**`NAMED_ALLOW_CALL()`**](reference.md/#NAMED_ALLOW_CALL) or
-[**`NAMED_FORBID_CALL()`**](reference.md/#NAMED_FORBID_CALL) can help, since
-they make the expectation life times more visible.
 
 ```Cpp
 class immobile
@@ -2352,3 +2344,38 @@ test(...)
   ...
 }
 ``` 
+
+Also, keep in mind the lifetime of expectations. If the lifetime of an
+expectation is associated with the life of the moved-from object, your test
+will likely fail, since the expectation object would then be destroyed before it
+has been satisfied. Example:
+ 
+```Cpp
+class movable
+{
+public:
+  static constexpr bool trompeloeil_movable_mock = true;
+  
+  MAKE_MOCK0(func, void());
+};
+
+movable setup()
+{
+  movable obj;
+  REQUIRE_CALL(obj, func());
+  return obj;
+  // Expectation dies here, unsatisfied, failing the test
+}
+
+test(...)
+{
+  movable obj = setup(); // test fails when returning from setup()
+  ...
+}
+``` 
+
+ Using
+[**`NAMED_REQUIRE_CALL()`**](reference.md/#NAMED_REQUIRE_CALL),
+[**`NAMED_ALLOW_CALL()`**](reference.md/#NAMED_ALLOW_CALL) or
+[**`NAMED_FORBID_CALL()`**](reference.md/#NAMED_FORBID_CALL) can help, since
+they make the expectation life times more visible.
