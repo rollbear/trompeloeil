@@ -51,7 +51,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
     file(
       DOWNLOAD
-        https://raw.githubusercontent.com/catchorg/Catch2/v2.2.3/single_include/catch.hpp  ${CATCH_DIR}/catch.hpp
+        https://github.com/catchorg/Catch2/releases/download/v2.6.0/catch.hpp  ${CATCH_DIR}/catch.hpp
       STATUS
         status
       LOG
