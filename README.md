@@ -27,6 +27,8 @@ Documentation
 
 - [Integrating with unit test frame works](docs/CookBook.md/#unit_test_frameworks)
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
+- [How to contribute](#contribute)
+- [Compiler compatibility](#compilers)
 - [Presentation videos](#videos)
 - [Trompeloeil on CppCast](http://cppcast.com/2017/02/bjorn-fahller/)
 - [Cheat Sheet (2*A4)](docs/trompeloeil_cheat_sheet.pdf)
@@ -37,10 +39,6 @@ Documentation
 - [Reference](docs/reference.md)
 
 Also, follow up with the post on [sequencing](https://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html) for examples on how to restrict or relax allowed sequences of matching calls.  
-
-If you want to contribute, read ACCU
-[overload 125](https://accu.org/var/uploads/journals/Overload125.pdf)
-to learn the internals.
 
 Teaser
 ------
@@ -102,7 +100,29 @@ TEST(exercise_interface_func)
 }
 ```
 
-Compiler compatibility
+<A name="contribute"/> How to contribute
+-----------------
+
+Contributions are most welcome. For new functionality, please file an issue as
+an enhancement request first, to get a discussion going about how to best
+implement it. Also for bugfixes, it is good to file an issue, so that others can
+see what the problem is and when it's solved. Internal changes are normally not
+mentioned in the ChangeLog - it should typically reflect what a user can see
+(however, performance improvements and silencing warnings are visible for
+users.) Feel free to add your name to the copyright blurb.
+
+
+|Change                       | PR to          |
+|-----------------------------|----------------|
+|Documentation                |master branch   |
+|Trivial bugfixes             |master branch   |
+|Non trivial bugfixes         |develop branch  |
+|Simple new functionality     |develop branch  |
+|Non-trivial new functionality|new topic branch|
+
+
+
+<A name="compilers"/> Compiler compatibility
 ----------------------
 
 Trompeloeil is known to work with:
