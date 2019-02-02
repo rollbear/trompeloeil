@@ -4,6 +4,7 @@
 - [Creating Mock Classes](#creating_mock_classes)
   - [Mocking private or protected member functions](#mocking_non_public)
   - [Mocking overloaded member functions](#mocking_overloaded)
+  - [Mocking operator()](#mocking_call_operator)
   - [Mocking a class template](#mocking_class_template)
   - [Mocking non-virtual member functions](#mocking_non_virtual)
   - [Mocking free functions](#mocking_free_functions)
@@ -709,6 +710,24 @@ for how to place [expectations](reference.md/#expectation) on them.
 **NOTE!** Overloaded member functions cannot be mocked using the
 macros [**`IMPLEMENT_MOCKn(...)`**](reference.md/IMPLEMENT_MOCKn) or
 [**`IMPLEMENT_CONST_MOCKn(...)`**](reference.md/IMPLEMENT_CONST_MOCKn)`.
+
+### <A name="mocking_call_operator"/> Mocking operator()
+
+The *Trompeloeil* macros cannot handle `operator()` directly, so to
+mock the function call operator you have to go via an indirection, where
+you implement a trivial `operator()` that calls a function that you can mock.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  int operator()(int x) const { return function_call(x); }
+  MAKE_CONST_MOCK1(function_call, int(int));
+};
+```
+
 
 ### <A name="mocking_class_template"/> Mocking a class template
 
