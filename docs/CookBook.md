@@ -161,7 +161,7 @@ Paste the following code snippet in global namespace in one of your
       severity s,
       const char* file,
       unsigned long line,
-      const char* msg)
+      const std::string& msg)
     {
       std::ostringstream os;
       if (line) os << file << ':' << line << '\n';
