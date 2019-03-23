@@ -654,23 +654,19 @@ namespace trompeloeil
 
   class specialized;
 
-  namespace {
-    inline
-    const std::shared_ptr<std::recursive_mutex>&
-    get_mutex_obj()
-    {
-      static auto obj = std::make_shared<std::recursive_mutex>();
-      return obj;
-    }
-
-    auto mutex_holder = get_mutex_obj();
-
-  }
-
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
-    return std::unique_lock<std::recursive_mutex>{ *get_mutex_obj() };
+    // Ugly hack for lifetime of mutex. The statically allocated recursive_mutex
+    // is intentionally leaked, to ensure that the mutex is available and valid
+    // even if the last use is from the destructor of a global object in a
+    // translation unit without #include <trompeloeil.hpp>
+
+    using std::recursive_mutex;
+
+    alignas(recursive_mutex) static char buffer[sizeof(recursive_mutex)];
+    static auto const mutex = new (buffer) recursive_mutex;
+    return std::unique_lock<recursive_mutex>{*mutex};
   }
 
   template <size_t N, typename T>
