@@ -654,19 +654,22 @@ namespace trompeloeil
 
   class specialized;
 
+  template <typename T>
+  using aligned_storage_for =
+    typename std::aligned_storage<sizeof(T), alignof(T)>::type;
+
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
-    // Ugly hack for lifetime of mutex. The statically allocated recursive_mutex
-    // is intentionally leaked, to ensure that the mutex is available and valid
-    // even if the last use is from the destructor of a global object in a
-    // translation unit without #include <trompeloeil.hpp>
+    // Ugly hack for lifetime of mutex. The statically allocated
+    // recursive_mutex is intentionally leaked, to ensure that the
+    // mutex is available and valid even if the last use is from
+    // the destructor of a global object in a translation unit
+    // without #include <trompeloeil.hpp>
 
-    using std::recursive_mutex;
-
-    alignas(recursive_mutex) static char buffer[sizeof(recursive_mutex)];
-    static auto const mutex = new (buffer) recursive_mutex;
-    return std::unique_lock<recursive_mutex>{*mutex};
+    static aligned_storage_for<std::recursive_mutex> buffer{};
+    static auto mutex = new (&buffer) std::recursive_mutex;
+    return std::unique_lock<std::recursive_mutex>{*mutex};
   }
 
   template <size_t N, typename T>
