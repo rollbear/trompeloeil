@@ -56,25 +56,22 @@ sample adaptations are:
 - [MSTest](#adapt_mstest)
 
 There are two mechanisms for adapting to a testing frame work. The compile time
-adapter and the run time adapter. The compile time adapter is easier to use if
-you do not implement `main()` yourself, and especially if your test program
-is only one
-[translation unit](http://stackoverflow.com/questions/8342185/ddg#8342233).
+adapter and the run time adapter. The compile time adapter is easier to use,
+especially if you write several test programs, but the runtime adapter allows
+for more flexibility, for example if you need run-time data like CLI arguments.
 
 ### Compile time adapter
 
-Compile time adaptation to unit test frame works is done by specializing the
-`trompeloeil::reporter<trompeloeil::specialized>` struct.
-
-Somewhere in global namespace, in one of your [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), enter the following code:
+If you have a unit testing framework named *my_test*, create a header file
+`<my_test/trompeloeil.hpp>`. This header file must include `<trompeloeil.hpp>`,
+and provide an inline specialization of the
+`trompeloeil::reporter<trompeloeil::specialized>::send()` function.
 
 ```Cpp
 namespace trompeloeil
 {
   template <>
-  void reporter<specialized>::send(
+  inline void reporter<specialized>::send(
     severity s,
     const char* file,
     unsigned long line,
@@ -84,25 +81,6 @@ namespace trompeloeil
   }
 }
 ```
-
-If you have multiple translation units, you can define the
-`TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER` preprocessor macro which
-makes the `<trompeloeil.hpp>` header to automatically generate the following
-`extern` statement:
-
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
-```
-
-This preprocessor definition can be added to your unit test code via your build
-system to make this less intrusive to your code. This definition provides the
-ability to define a compile-time reporter without being required to insert code
-into multiple, existing translation units.
-
-The old (legacy) requirement was that the `extern` statement above had to be
-explicitly declared in every translation unit, which is tedious. However, this
-is still a functional alternative if you can't define the preprocessor directive
-at the build system level for whatever reason.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
@@ -120,6 +98,9 @@ location. An example is an unexpected call to a
 [mock function](reference.md/#mock_function) for which there
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
+
+Please contribute your adapter, so that others can enjoy your unit testing
+framework together with *Trompeloeil*.
 
 ### Run time adapter
 
