@@ -57,7 +57,9 @@ sample adaptations are:
 
 There are two mechanisms for adapting to a testing frame work. The compile time
 adapter and the run time adapter. The compile time adapter is easier to use if
-you do not implement `main()` yourself.
+you do not implement `main()` yourself, and especially if your test program
+is only one
+[translation unit](http://stackoverflow.com/questions/8342185/ddg#8342233).
 
 ### Compile time adapter
 
@@ -84,20 +86,23 @@ namespace trompeloeil
 ```
 
 If you have multiple translation units, you can define the
-`TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER` preprocessor definition which causes the
-`<trompeloeil.hpp>` header to automatically generate the following `extern` statement:
+`TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER` preprocessor macro which
+makes the `<trompeloeil.hpp>` header to automatically generate the following
+`extern` statement:
 
 ```Cpp
 extern template struct trompeloeil::reporter<trompeloeil::specialized>;
 ```
 
-This preprocessor definition can be added to your unit test code via your build system to make this
-more transparent to your code. This definition provides the ability to define a compile-time
-reporter without being required to insert code into multiple, existing translation units.
+This preprocessor definition can be added to your unit test code via your build
+system to make this less intrusive to your code. This definition provides the
+ability to define a compile-time reporter without being required to insert code
+into multiple, existing translation units.
 
-The old (legacy) requirement was that the `extern` statement above had to be explicitly declared in
-every translation unit, which is tedious. However, this is still a functional alternative if you
-can't define the preprocessor directive at the build system level for whatever reason.
+The old (legacy) requirement was that the `extern` statement above had to be
+explicitly declared in every translation unit, which is tedious. However, this
+is still a functional alternative if you can't define the preprocessor directive
+at the build system level for whatever reason.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
@@ -150,8 +155,9 @@ are no expectations. In these cases `file` will be `""` string and
 
 ### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch!](https://github.com/philsquared/Catch)
 
-Paste the following code snippet in global namespace in one of your
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+If your test program has one single
+[translation unit](http://stackoverflow.com/questions/8342185/ddg#8342233),
+paste the following code snippet in global namespace:
 
 ```Cpp
   namespace trompeloeil
@@ -180,13 +186,15 @@ Paste the following code snippet in global namespace in one of your
   }
 ```
 
-If you have several [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration in the others:
-
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
-```
+If you have several
+[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233),
+paste the above in global namespace of one of them, and in all other
+translation units, make sure the macro
+`TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER` is defined before
+`#include <trompeloeil.hpp>`. Adding this macro to the compilation via the
+build system will be less intrusive to your code. *Note!* that you
+can unfortunately not define the macro in the translation unit that implements
+the `trompeloeil::reporter<specialized>::send()` function.
 
 If you roll your own `main()`, you may prefer a runtime adapter instead.
 Before running any tests, make sure to call:
