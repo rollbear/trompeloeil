@@ -159,7 +159,7 @@ Before running any tests, make sure to call:
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     if (line) os << file << ':' << line << '\n';
@@ -201,7 +201,7 @@ If you instead prefer a runtime adapter, make sure to call
     trompeloeil::severity,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     os << file << ':' << line;
@@ -247,7 +247,7 @@ Before running any tests, make sure to call:
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     auto f = line ? file : "[file/line unavailable]";
     if (s == severity::fatal)
@@ -283,7 +283,7 @@ Then, before running any tests, make sure to call:
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     ::doctest_violation violation;
     if (line) violation << file << ':' << line << '\n';
@@ -322,7 +322,7 @@ If you instead prefer a runtime adapter, make sure to call
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     if (s == trompeloeil::severity::fatal)
     {
@@ -392,7 +392,7 @@ If you instead prefer a runtime adapter, make sure to call
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     if (line != 0U) os << file << ':' << line << '\n';
