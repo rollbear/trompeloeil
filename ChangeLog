@@ -1,3 +1,5 @@
+	* Silenced g++-4.9 -Wmissing-field-initializers warning with libc++.
+
 	* Fixed issue #121 where mutexes were created in each translation unit
 
 v33 2019-01-21

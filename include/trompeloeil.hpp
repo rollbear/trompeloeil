@@ -667,7 +667,7 @@ namespace trompeloeil
     // the destructor of a global object in a translation unit
     // without #include <trompeloeil.hpp>
 
-    static aligned_storage_for<std::recursive_mutex> buffer{};
+    static aligned_storage_for<std::recursive_mutex> buffer;
     static auto mutex = new (&buffer) std::recursive_mutex;
     return std::unique_lock<std::recursive_mutex>{*mutex};
   }
