@@ -67,20 +67,60 @@ If you have a unit testing framework named *my_test*, create a header file
 and provide an inline specialization of the
 `trompeloeil::reporter<trompeloeil::specialized>::send()` function.
 
+Below, as an example, is the adapter for the
+[*doctest*](https://github.com/onqtam/doctest) unit testing frame work, in the
+file `<doctest/trompeloeil.hpp>`
+
+
 ```Cpp
+#ifndef TROMPELOEIL_DOCTEST_HPP_
+#define TROMPELOEIL_DOCTEST_HPP_
+
+#ifndef DOCTEST_VERSION_MAJOR                   //** 1 **//
+#error "<doctest.h> must be included before <doctest/trompeloeil.hpp>"
+#endif
+
+#include "../trompeloeil.hpp"                   //** 2 **//
+
 namespace trompeloeil
 {
   template <>
-  inline void reporter<specialized>::send(
+  inline void reporter<specialized>::send(      //** 3 **//
     severity s,
     const char* file,
     unsigned long line,
-    const char* message)
+    const char* msg)
   {
-    // your adaptation here
+    auto f = line ? file : "[file/line unavailable]";
+    if (s == severity::fatal)
+    {
+      ADD_FAIL_AT(f, line, msg);                //** 4 **//
+    }
+    else
+    {
+      ADD_FAIL_CHECK_AT(f, line, msg);          //** 4 **//
+    }
   }
 }
+
+
+#endif //TROMPELOEIL_DOCTEST_HPP_
 ```
+
+The preprocessor check at `//** 1 **//` is not necessary, but it gives a
+friendly hint about what's missing. The function uses *doctest* macros
+at `//** 4 **//`, so `<doctest.h>` must be included for this to compile.
+
+At `//** 2 **//` the include path is relative, since this is the file from
+the *Trompeloeil* distribution, where the main `trompeloeil.hpp` file is
+known to be in the parent directory of `doctest/trompeloeil.hpp`.
+
+At `//** 3 **//` the specialized function is marked `inline`, so as not to
+cause linker errors if your test program consists of several translation
+units, each including `<doctest/trompeloeil.hpp>`.
+
+At `//** 4 **//` the violations are reported in a *doctest* specific
+manner.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
@@ -134,10 +174,10 @@ location. An example is an unexpected call to a
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
 
-### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch!](https://github.com/philsquared/Catch)
+### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch2](https://github.com/catchorg/Catch2)
 
-The easiest way to use *Trompeloeil* with *Catch* is to
-`#include <catch/trompeloeil.hpp>` in your test .cpp files. Note that the
+The easiest way to use *Trompeloeil* with *Catch2* is to
+`#include <catch2/trompeloeil.hpp>` in your test .cpp files. Note that the
 inclusion order is important. `<catch.hpp>` must be included before
 `<catch/trompeloeil.hpp>`.
 
@@ -145,7 +185,7 @@ Like this:
 
 ```Cpp
 #include <catch.hpp>
-#include <catch/trompeloeil.hpp>
+#include <catch2/trompeloeil.hpp>
 
 TEST_CASE("...
 ```
@@ -182,7 +222,7 @@ Before running any tests, make sure to call:
 The easiest way to use *Trompeloeil* with *crpcut* is to
 `#include <crpcut/trompeloeil.hpp>` in your test .cpp files. Note that the
 inclusion order is important. `<crpcut.hpp>` must be included before
-`<catch/trompeloeil.hpp>`.
+`<crpcut/trompeloeil.hpp>`.
 
 Like this:
 
