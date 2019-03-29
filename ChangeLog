@@ -1,3 +1,11 @@
+	* Silenced GCC -Wctor-dtor-privacy warning in unit tests.
+
+	* Ran GCC with -Wnoexcept enabled and used warning output
+	  to add noexcept specifier to some functions in unit tests.
+
+	* Removed unneeded side-effect test from test case
+	  compiler_errors/return_wrong_pointer_constness.cpp.
+
 	* Silenced g++-4.9 -Wmissing-field-initializers warning with libc++.
 
 	* Fixed issue #121 where mutexes were created in each translation unit

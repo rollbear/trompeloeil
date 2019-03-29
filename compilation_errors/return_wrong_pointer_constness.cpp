@@ -22,19 +22,16 @@ struct MS
 
 int main()
 {
-  int n;
   MS obj;
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
   REQUIRE_CALL_V(obj, f(),
-    .LR_SIDE_EFFECT(n = 0)
     .RETURN(""));
 
 #else /* (TROMPELOEIL_CPLUSPLUS == 201103L) */
 
   REQUIRE_CALL(obj, f())
-    .LR_SIDE_EFFECT(n = 0)
     .RETURN("");
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */

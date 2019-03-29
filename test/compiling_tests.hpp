@@ -243,7 +243,7 @@ struct uncomparable_string {
 
 struct null_comparable {
   void* p;
-  bool operator==(std::nullptr_t) const { return !p; }
+  bool operator==(std::nullptr_t) const noexcept { return !p; }
   friend std::ostream& operator<<(std::ostream& os, const null_comparable&)
   {
     return os << "null_comparable";
@@ -280,9 +280,9 @@ protected:
 class mock_c : public C
 {
 public:
-  mock_c() {}
+  mock_c() noexcept {}
   mock_c(int i) : C(i) {}
-  mock_c(const char* p) : C(p) {}
+  mock_c(const char* p) noexcept : C(p) {}
   MAKE_MOCK1(ptr, std::unique_ptr<int>(std::unique_ptr<int>&&), override);
   MAKE_MOCK0(count, int(), override final);
   MAKE_MOCK1(foo, void(std::string));
@@ -428,6 +428,7 @@ any_of(std::initializer_list<T> elements)
 template <typename T>
 class has_empty
 {
+protected:
   struct no;
   static no func(...);
   template <typename U>
@@ -443,6 +444,7 @@ public:
   operator T() const;
   template <typename T>
   bool matches(T const& t) const
+  noexcept(noexcept(!t.empty()))
   {
     return !t.empty();
   }
@@ -493,8 +495,8 @@ public:
 class none
 {
 public:
-  none() {}
-  none(none const&) {}
+  none() noexcept {}
+  none(none const&) noexcept {}
   virtual ~none() {}
 };
 
@@ -513,7 +515,7 @@ template <int N>
 struct I
 {
   I(int i_) : i{i_} {}
-  operator int() const { return i; }
+  operator int() const noexcept { return i; }
   int i;
 };
 
