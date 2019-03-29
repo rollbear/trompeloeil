@@ -1637,6 +1637,7 @@ template <typename T>
     , exp_loc(loc)
     , seq(*i.second)
     {
+      auto lock = get_lock();
       seq.add_last(this);
     }
 

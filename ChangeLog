@@ -10,6 +10,9 @@
 
 	* Fixed issue #121 where mutexes were created in each translation unit
 
+	* Fixed issue #124 where sequence objects were not properly protected
+	  against access from several threads.
+
 v33 2019-01-21
 
 	* Silenced noisy g++-7 -Wuseless-cast warning
