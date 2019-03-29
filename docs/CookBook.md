@@ -49,6 +49,7 @@ sample adaptations are:
 
 - [Catch!](#adapt_catch)
 - [crpcut](#adapt_crpcut)
+- [CxxTest](#adapt_cxxtest)
 - [doctest](#adapt_doctest)
 - [gtest](#adapt_gtest)
 - [lest](#adapt_lest)
@@ -70,7 +71,6 @@ and provide an inline specialization of the
 Below, as an example, is the adapter for the
 [*doctest*](https://github.com/onqtam/doctest) unit testing frame work, in the
 file `<doctest/trompeloeil.hpp>`
-
 
 ```Cpp
 #ifndef TROMPELOEIL_DOCTEST_HPP_
@@ -190,7 +190,6 @@ Like this:
 TEST_CASE("...
 ```
 
-
 If you roll your own `main()`, you may prefer a runtime adapter instead.
 Before running any tests, make sure to call:
 
@@ -217,6 +216,57 @@ Before running any tests, make sure to call:
   });
 ```
 
+### <A name="adapt_cxxtest"/>Use *Trompeloeil* with [CxxTest](https://www.cxxtest.com)
+
+The easiest way to use *Trompeloeil* with *CxxTest* is to
+`#include <cxxtest/trompeloeil.hpp>` in your test `.hpp` files. Note that the
+inclusion order is important. `<cxxtest/TestSuite.h>` must be included before
+`<cxxtest/trompeloeil.hpp>`.
+
+Like this:
+
+```Cpp
+#include <cxxtest/TestSuite.h>
+#include <cxxtest/trompeloeil.hpp>
+
+class TestClass: public CxxTest::TestSuite
+{
+public:
+  void TestXXX()
+  {
+    // ...
+  }
+};
+```
+
+If you roll your own `main()`, you may prefer a runtime adapter instead.
+Before running any tests, make sure to call:
+
+```Cpp
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    std::string const& msg)
+  {
+    std::ostringstream os;
+    if (line) os << file << ':' << line << '\n';
+    os << msg;
+    auto failure = os.str();
+    if (s == severity::fatal)
+    {
+      // Must not return normally i.e. must throw, abort or terminate.
+      TS_FAIL(failure);
+    }
+    else
+    {
+      // nonfatal: violation occurred during stack rollback.
+      // Must not throw an exception.
+      TS_WARN(failure);
+    }
+  });
+```
+
 ### <A name="adapt_crpcut"/>Use *Trompeloeil* with [crpcut](http://crpcut.sourceforge.net)
 
 The easiest way to use *Trompeloeil* with *crpcut* is to
@@ -232,7 +282,6 @@ Like this:
 
 TEST(...
 ```
-
 
 If you instead prefer a runtime adapter, make sure to call
 
@@ -277,7 +326,6 @@ Like this:
 
 TEST_CASE("...
 ```
-
 
 If you roll your own `main()`, you may prefer a runtime adapter instead.
 Before running any tests, make sure to call:
@@ -609,7 +657,6 @@ public:
   MAKE_CONST_MOCK1(function_call, int(int));
 };
 ```
-
 
 ### <A name="mocking_class_template"/> Mocking a class template
 
