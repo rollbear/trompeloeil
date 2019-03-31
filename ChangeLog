@@ -1,3 +1,13 @@
+	* Rearranged include directory structure to make it easier to use, and
+	  to write, adapters for unit test frame works. Now, if you want to
+	  use Trompeloeil with, for example, the 'doctest' unit testing frame
+	  work, you include
+
+	  #include <doctest.h>
+	  #include <doctest/trompeloeil.hpp>
+
+	  The old adaptation mechanisms still work.
+
 	* Support compilation without RTTI support. This makes error reporting
 	  from deathwatched<> violations less informative (it cannot mention
 	  the name of the type of the object) but has no other impact on
