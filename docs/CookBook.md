@@ -194,9 +194,9 @@ Before running any tests, make sure to call:
 ```Cpp
   trompeloeil::set_reporter([](
     trompeloeil::severity s,
-    const char* file,
+    char const* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     if (line) os << file << ':' << line << '\n';
