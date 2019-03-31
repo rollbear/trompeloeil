@@ -49,6 +49,7 @@ sample adaptations are:
 
 - [Catch!](#adapt_catch)
 - [crpcut](#adapt_crpcut)
+- [CxxTest](#adapt_cxxtest)
 - [doctest](#adapt_doctest)
 - [gtest](#adapt_gtest)
 - [lest](#adapt_lest)
@@ -56,48 +57,70 @@ sample adaptations are:
 - [MSTest](#adapt_mstest)
 
 There are two mechanisms for adapting to a testing frame work. The compile time
-adapter and the run time adapter. The compile time adapter is easier to use if
-you do not implement `main()` yourself.
+adapter and the run time adapter. The compile time adapter is easier to use,
+especially if you write several test programs, but the runtime adapter allows
+for more flexibility, for example if you need run-time data like CLI arguments.
 
 ### Compile time adapter
 
-Compile time adaptation to unit test frame works is done by specializing the
-`trompeloeil::reporter<trompeloeil::specialized>` struct.
+If you have a unit testing framework named *my_test*, create a header file
+`<my_test/trompeloeil.hpp>`. This header file must include `<trompeloeil.hpp>`,
+and provide an inline specialization of the
+`trompeloeil::reporter<trompeloeil::specialized>::send()` function.
 
-Somewhere in global namespace, in one of your [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), enter the following code:
+Below, as an example, is the adapter for the
+[*doctest*](https://github.com/onqtam/doctest) unit testing frame work, in the
+file `<doctest/trompeloeil.hpp>`
 
 ```Cpp
+#ifndef TROMPELOEIL_DOCTEST_HPP_
+#define TROMPELOEIL_DOCTEST_HPP_
+
+#ifndef DOCTEST_VERSION_MAJOR                   //** 1 **//
+#error "<doctest.h> must be included before <doctest/trompeloeil.hpp>"
+#endif
+
+#include "../trompeloeil.hpp"                   //** 2 **//
+
 namespace trompeloeil
 {
   template <>
-  void reporter<specialized>::send(
+  inline void reporter<specialized>::send(      //** 3 **//
     severity s,
     const char* file,
     unsigned long line,
-    const char* message)
+    const char* msg)
   {
-    // your adaptation here
+    auto f = line ? file : "[file/line unavailable]";
+    if (s == severity::fatal)
+    {
+      ADD_FAIL_AT(f, line, msg);                //** 4 **//
+    }
+    else
+    {
+      ADD_FAIL_CHECK_AT(f, line, msg);          //** 4 **//
+    }
   }
 }
+
+
+#endif //TROMPELOEIL_DOCTEST_HPP_
 ```
 
-If you have multiple translation units, you can define the
-`TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER` preprocessor definition which causes the
-`<trompeloeil.hpp>` header to automatically generate the following `extern` statement:
+The preprocessor check at `//** 1 **//` is not necessary, but it gives a
+friendly hint about what's missing. The function uses *doctest* macros
+at `//** 4 **//`, so `<doctest.h>` must be included for this to compile.
 
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
-```
+At `//** 2 **//` the include path is relative, since this is the file from
+the *Trompeloeil* distribution, where the main `trompeloeil.hpp` file is
+known to be in the parent directory of `doctest/trompeloeil.hpp`.
 
-This preprocessor definition can be added to your unit test code via your build system to make this
-more transparent to your code. This definition provides the ability to define a compile-time
-reporter without being required to insert code into multiple, existing translation units.
+At `//** 3 **//` the specialized function is marked `inline`, so as not to
+cause linker errors if your test program consists of several translation
+units, each including `<doctest/trompeloeil.hpp>`.
 
-The old (legacy) requirement was that the `extern` statement above had to be explicitly declared in
-every translation unit, which is tedious. However, this is still a functional alternative if you
-can't define the preprocessor directive at the build system level for whatever reason.
+At `//** 4 **//` the violations are reported in a *doctest* specific
+manner.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
@@ -115,6 +138,9 @@ location. An example is an unexpected call to a
 [mock function](reference.md/#mock_function) for which there
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
+
+Please contribute your adapter, so that others can enjoy your unit testing
+framework together with *Trompeloeil*.
 
 ### Run time adapter
 
@@ -148,44 +174,20 @@ location. An example is an unexpected call to a
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
 
-### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch!](https://github.com/philsquared/Catch)
+### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch2](https://github.com/catchorg/Catch2)
 
-Paste the following code snippet in global namespace in one of your
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+The easiest way to use *Trompeloeil* with *Catch2* is to
+`#include <catch2/trompeloeil.hpp>` in your test .cpp files. Note that the
+inclusion order is important. `<catch.hpp>` must be included before
+`<catch/trompeloeil.hpp>`.
 
-```Cpp
-  namespace trompeloeil
-  {
-    template <>
-    void reporter<specialized>::send(
-      severity s,
-      const char* file,
-      unsigned long line,
-      const char* msg)
-    {
-      std::ostringstream os;
-      if (line) os << file << ':' << line << '\n';
-      os << msg;
-      auto failure = os.str();
-      if (s == severity::fatal)
-      {
-        FAIL(failure);
-      }
-      else
-      {
-        CAPTURE(failure);
-        CHECK(failure.empty());
-      }
-    }
-  }
-```
-
-If you have several [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration in the others:
+Like this:
 
 ```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+#include <catch.hpp>
+#include <catch2/trompeloeil.hpp>
+
+TEST_CASE("...
 ```
 
 If you roll your own `main()`, you may prefer a runtime adapter instead.
@@ -196,7 +198,7 @@ Before running any tests, make sure to call:
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     if (line) os << file << ':' << line << '\n';
@@ -214,38 +216,71 @@ Before running any tests, make sure to call:
   });
 ```
 
-### <A name="adapt_crpcut"/>Use *Trompeloeil* with [crpcut](http://crpcut.sourceforge.net)
+### <A name="adapt_cxxtest"/>Use *Trompeloeil* with [CxxTest](https://www.cxxtest.com)
 
-Paste the following code snippet in global namespace in one of the
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+The easiest way to use *Trompeloeil* with *CxxTest* is to
+`#include <cxxtest/trompeloeil.hpp>` in your test `.hpp` files. Note that the
+inclusion order is important. `<cxxtest/TestSuite.h>` must be included before
+`<cxxtest/trompeloeil.hpp>`.
+
+Like this:
 
 ```Cpp
-  namespace trompeloeil
+#include <cxxtest/TestSuite.h>
+#include <cxxtest/trompeloeil.hpp>
+
+class TestClass: public CxxTest::TestSuite
+{
+public:
+  void TestXXX()
   {
-    template <>
-    void reporter<specialized>::send(
-      severity,
-      char const *file,
-      unsigned long line,
-      const char* msg)
-    {
-      std::ostringstream os;
-      os << file << ':' << line;
-      auto loc = os.str();
-      auto location = line == 0U
-        ? ::crpcut::crpcut_test_monitor::current_test()->get_location()
-        : ::crpcut::datatypes::fixed_string::make(loc.c_str(), loc.length());
-      ::crpcut::comm::report(::crpcut::comm::exit_fail,
-                             std::ostringstream(msg),
-                             location);
-    }
+    // ...
   }
+};
 ```
 
-In all other translation units, add the extern declaration
+If you roll your own `main()`, you may prefer a runtime adapter instead.
+Before running any tests, make sure to call:
 
 ```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    std::string const& msg)
+  {
+    std::ostringstream os;
+    if (line) os << file << ':' << line << '\n';
+    os << msg;
+    auto failure = os.str();
+    if (s == severity::fatal)
+    {
+      // Must not return normally i.e. must throw, abort or terminate.
+      TS_FAIL(failure);
+    }
+    else
+    {
+      // nonfatal: violation occurred during stack rollback.
+      // Must not throw an exception.
+      TS_WARN(failure);
+    }
+  });
+```
+
+### <A name="adapt_crpcut"/>Use *Trompeloeil* with [crpcut](http://crpcut.sourceforge.net)
+
+The easiest way to use *Trompeloeil* with *crpcut* is to
+`#include <crpcut/trompeloeil.hpp>` in your test .cpp files. Note that the
+inclusion order is important. `<crpcut.hpp>` must be included before
+`<crpcut/trompeloeil.hpp>`.
+
+Like this:
+
+```Cpp
+#include <crpcut.hpp>
+#include <crpcut/trompeloeil.hpp>
+
+TEST(...
 ```
 
 If you instead prefer a runtime adapter, make sure to call
@@ -255,7 +290,7 @@ If you instead prefer a runtime adapter, make sure to call
     trompeloeil::severity,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     os << file << ':' << line;
@@ -278,38 +313,18 @@ before any tests are run.
 
 #### <A name="doctest12"/> doctest 1.2 or newer
 
-Paste the following code snippet in global namespace in one of your
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+The easiest way to use *Trompeloeil* with *doctest* is to
+`#include <doctest/trompeloeil.hpp>` in your test .cpp files. Note that the
+inclusion order is important. `<doctest.h>` must be included before
+`<doctest/trompeloeil.hpp>`.
+
+Like this:
 
 ```Cpp
-  namespace trompeloeil
-  {
-    template <>
-    void reporter<specialized>::send(
-      severity s,
-      const char* file,
-      unsigned long line,
-      const char* msg)
-    {
-      auto f = line ? file : "[file/line unavailable]";
-      if (s == severity::fatal)
-      {
-        ADD_FAIL_AT(f, line, msg);
-      }
-      else
-      {
-        ADD_FAIL_CHECK_AT(f, line, msg);
-      }
-    }
-  }
-```
+#include <doctest.h>
+#include <doctest/trompeloeil.hpp>
 
-If you have several [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration in the others:
-
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+TEST_CASE("...
 ```
 
 If you roll your own `main()`, you may prefer a runtime adapter instead.
@@ -320,7 +335,7 @@ Before running any tests, make sure to call:
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     auto f = line ? file : "[file/line unavailable]";
     if (s == severity::fatal)
@@ -336,52 +351,7 @@ Before running any tests, make sure to call:
 
 #### <A name="doctest_old"/> doctest &lt; 1.2
 
-Paste the following code snippet in global namespace in one of your
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
-
-```Cpp
-  struct doctest_violation : std::ostringstream
-  {
-    friend std::ostream& operator<<(std::ostream& os, doctest_violation const& v)
-    {
-      return os << v.str();
-    }
-  };
-
-  namespace trompeloeil
-  {
-    template <>
-    void reporter<specialized>::send(
-      severity s,
-      const char* file,
-      unsigned long line,
-      const char* msg)
-    {
-      ::doctest_violation violation;
-      if (line) violation << file << ':' << line << '\n';
-      violation << msg;
-      if (s == severity::fatal)
-      {
-        REQUIRE_FALSE(violation);
-      }
-      else
-      {
-        CHECK_FALSE(violation);
-      }
-    }
-  }
-```
-
-If you have several [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration in the others:
-
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
-```
-
-If you roll your own `main()`, you may prefer a runtime adapter instead.
-As above, create a simple `doctest_violation` type by pasting the below code
+Create a simple `doctest_violation` type by pasting the below code
 into the file containing `main()`.
 
 ```Cpp
@@ -401,7 +371,7 @@ Then, before running any tests, make sure to call:
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     ::doctest_violation violation;
     if (line) violation << file << ':' << line << '\n';
@@ -419,40 +389,18 @@ Then, before running any tests, make sure to call:
 
 ### <A name="adapt_gtest"/>Use *Trompeloeil* with [gtest](https://code.google.com/p/googletest/)
 
-Paste the following code snippet in global namespace in one of the
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+The easiest way to use *Trompeloeil* with *gtest* is to
+`#include <gtest/trompeloeil.hpp>` in your test .cpp files. Note that the
+inclusion order is important. `<gtest.h>` must be included before
+`<gtest/trompeloeil.hpp>`.
+
+Like this:
 
 ```Cpp
-  namespace trompeloeil
-  {
-    template <>
-    void reporter<specialized>::send(
-      severity s,
-      char const *file,
-      unsigned long line,
-      const char* msg)
-    {
-      if (s == severity::fatal)
-      {
-        std::ostringstream os;
-        if (line != 0U)
-        {
-          os << file << ':' << line << '\n';
-        }
-        throw expectation_violation(os.str() + msg);
-      }
+#include <gtest.h>
+#include <gtest/trompeloeil.hpp>
 
-      ADD_FAILURE_AT(file, line) << msg;
-    }
-  }
-```
-
-In all other [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration:
-
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+TEST("...
 ```
 
 If you instead prefer a runtime adapter, make sure to call
@@ -462,7 +410,7 @@ If you instead prefer a runtime adapter, make sure to call
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     if (s == trompeloeil::severity::fatal)
     {
@@ -511,36 +459,18 @@ int main(int argc, char *argv[])
 
 ### <A name="adapt_boost_unit_test_framework"/>Use *Trompeloeil* with [boost Unit Test Framework](http://www.boost.org/doc/libs/1_59_0/libs/test/doc/html/index.html)
 
-Paste the following code snippet in global namespace in one of your
-[translation units](http://stackoverflow.com/questions/8342185/ddg#8342233):
+The easiest way to use *Trompeloeil* with *boost::unit_test* is to
+`#include <boost/trompeloeil.hpp>` in your test .cpp files. Note that the
+inclusion order is important. `<boost/test/unit_test.hpp>` must be included before
+`<boost/trompeloeil.hpp>`.
+
+Like this:
 
 ```Cpp
-  namespace trompeloeil
-  {
-    template <>
-    void reporter<specialized>::send(
-      severity s,
-      char const *file,
-      unsigned long line,
-      const char* msg)
-    {
-      std::ostringstream os;
-      if (line != 0U) os << file << ':' << line << '\n';
-      auto text = os.str() + msg;
-      if (s == severity::fatal)
-        BOOST_FAIL(text);
-      else
-        BOOST_ERROR(text);
-    }
-  }
-```
+#include <boost/test/unit_test.hpp>
+#include <boost/trompeloeil.hpp>
 
-In all other [translation units](
-  http://stackoverflow.com/questions/8342185/ddg#8342233
-), add the following extern declaration:
-
-```Cpp
-extern template struct trompeloeil::reporter<trompeloeil::specialized>;
+BOOST_AUTO_TEST_CASE("...
 ```
 
 If you instead prefer a runtime adapter, make sure to call
@@ -550,7 +480,7 @@ If you instead prefer a runtime adapter, make sure to call
     trompeloeil::severity s,
     const char* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     std::ostringstream os;
     if (line != 0U) os << file << ':' << line << '\n';
@@ -727,7 +657,6 @@ public:
   MAKE_CONST_MOCK1(function_call, int(int));
 };
 ```
-
 
 ### <A name="mocking_class_template"/> Mocking a class template
 

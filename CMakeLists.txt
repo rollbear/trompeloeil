@@ -156,7 +156,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     test/compiling_tests.cpp
     test/compiling_tests_11.cpp
     test/compiling_tests_14.cpp
-  )
+    include/catch2/trompeloeil.hpp)
 
   target_include_directories(
     self_test
@@ -273,8 +273,8 @@ install(
 )
 
 install(
-  FILES
-    include/trompeloeil.hpp
+  DIRECTORY
+    include/
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}
 )

@@ -20,10 +20,11 @@ class TrompeloelConan(ConanFile):
     license = "Boost Software License - Version 1.0 - August 17th, 2003"
     url = "https://github.com/rollbear/trompeloeil.git"
     description = "Header only C++14 mocking framework"
-    exports_sources = "include/*.hpp", "LICENCE*.txt"
+    exports_sources = "include/*", "LICENCE*.txt"
+    no_copy_source = True
     # No settings/options are necessary, this is header only
 
 
     def package(self):
-        self.copy("*.hpp", src="include", dst="include")
+        self.copy("include/*")
         self.copy("LICENSE*.txt", dst="licenses")
