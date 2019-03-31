@@ -20,6 +20,7 @@
 - Q. [What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?](#sequence_times)
 - Q. [How do I use *Trompeloeil* in a CMake project?](#cmake)
 - Q. [Why are mock objects not move constructible?](#move_constructible)
+- Q. [Why can't I mock a function that returns a template?](#return_template)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -575,7 +576,7 @@ version) to add its path to your project.
 
 ### <A name="move_constructible"/> Q. Why are mock objects not move constructible?
 
-Because a move is potentially dangerous in non-obvious ways. If a mock object is
+**A.** Because a move is potentially dangerous in non-obvious ways. If a mock object is
 moved, the actions associated with an expectation
 ([**`.WITH()`**](reference.md/#WITH),
  [**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT),
@@ -591,3 +592,37 @@ See: [**`trompeloeil_movable_mock`**](reference.md/#movable_mock).
 
 
 
+### <A name="return_template"/> Q. Why can't I mock a function that returns a template?
+
+Like this:
+
+```Cpp
+struct M
+{
+  MAKE_MOCK2(make, std::pair<int,int>(int,int));
+};
+```
+
+**A.** You can, but there is a limitation in the preprocessor, that makes it
+work poorly with templates. It sees the parameters to the
+[**`MAKE_MOCK2()`**](reference.md/#MAKE_MOCKn)
+macro above as `make`, `std::pair<int`, followed by `int>(int,int)`, which
+of course is nonsense and causes compilation errors.
+
+One way around this is to create an alias:
+
+```Cpp
+using pair_int_int = std::pair<int,int>;
+
+struct M
+{
+  MAKE_MOCK2(make, pair_int_int(int,int));
+};
+```
+
+This works around the preprocessor parameter problem.
+
+Another way, if you're mocking an interface, is to use
+[**`trompeloeil::mock_interface<T>`**](reference.md/#mock_interface)
+and [**`IMPLEMENT_MOCKn`**](reference.md/#IMPLEMENT_MOCKn). See
+[CookBook](CookBook.md/#creating_mock_classes) for an intro.
