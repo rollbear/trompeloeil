@@ -13,20 +13,14 @@
 	  the name of the type of the object) but has no other impact on
 	  functionality.
 
-	* Silenced GCC -Wctor-dtor-privacy warning in unit tests.
-
-	* Ran GCC with -Wnoexcept enabled and used warning output
-	  to add noexcept specifier to some functions in unit tests.
-
-	* Removed unneeded side-effect test from test case
-	  compiler_errors/return_wrong_pointer_constness.cpp.
-
 	* Silenced g++-4.9 -Wmissing-field-initializers warning with libc++.
 
 	* Fixed issue #121 where mutexes were created in each translation unit
 
 	* Fixed issue #124 where sequence objects were not properly protected
 	  against access from several threads.
+
+	* Silenced several warnings in the Trompeloeil self test programs.
 
 v33 2019-01-21
 
