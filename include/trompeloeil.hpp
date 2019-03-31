@@ -276,6 +276,11 @@
 
 #define TROMPELOEIL_PARAMS(num) TROMPELOEIL_CONCAT(TROMPELOEIL_PARAMS, num)
 
+#if defined(__cxx_rtti) || defined(__GXX_RTTI) || defined(_CPPRTTI)
+#  define TROMPELOEIL_TYPE_ID_NAME(x) typeid(x).name()
+#else
+#  define TROMPELOEIL_TYPE_ID_NAME(x) "object"
+#endif
 
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
@@ -2547,7 +2552,7 @@ template <typename T>
     }
     std::ostringstream os;
     os << "Unexpected destruction of "
-       << typeid(T).name() << "@" << this << '\n';
+       << TROMPELOEIL_TYPE_ID_NAME(T) << "@" << this << '\n';
     send_report<specialized>(severity::nonfatal,
                              location{},
                              os.str());
