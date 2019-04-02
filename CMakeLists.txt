@@ -97,9 +97,9 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       check_cxx_compiler_flag("-Wno-extra-semi-stmt" WARN_SEMI_STMT)
 
       if (WARN_SEMI_STMT)
-        string(CONCAT
+        string(APPEND
                WARN_FLAGS
-               "-Wno-extra-semi-stmt")
+               " -Wno-extra-semi-stmt")
       endif()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
       string(CONCAT
