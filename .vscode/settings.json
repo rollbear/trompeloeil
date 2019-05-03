@@ -1,0 +1,27 @@
+{
+    "[markdown]": {
+        "editor.rulers": [
+            80
+        ]
+    },
+    "markdownlint.config": {
+        "line-length": {
+            "code_blocks": false,
+            "tables": false
+        },
+        "ul-style": {
+            "style": "asterisk"
+        },
+        "no-duplicate-heading": false,
+        "no-trailing-punctuation": {
+            "punctuation": ".,;:!"
+        },
+        "no-inline-html": {
+            "allowed_elements": [
+                "br"
+            ]
+        }
+    },
+    "markdown.extension.toc.updateOnSave": true,
+    "markdown.extension.toc.unorderedList.marker": "*"
+}
