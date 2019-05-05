@@ -120,7 +120,8 @@ users.) Feel free to add your name to the copyright blurb.
 |Simple new functionality     |develop branch  |
 |Non-trivial new functionality|new topic branch|
 
-
+For more details on contributing to this project, please see the
+[Contributing](docs/Contributing.md) page.
 
 <A name="compilers"/> Compiler compatibility
 ----------------------
