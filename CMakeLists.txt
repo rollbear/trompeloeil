@@ -260,14 +260,14 @@ install(
   EXPORT
     trompeloeil-targets
   DESTINATION
-    lib/cmake/trompeloeil
+    ${CMAKE_INSTALL_LIBDIR}/cmake/trompeloeil
 )
 install(
   FILES
     trompeloeil-config.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
   DESTINATION
-    lib/cmake/trompeloeil
+    ${CMAKE_INSTALL_LIBDIR}/cmake/trompeloeil
   COMPONENT
     Devel
 )
