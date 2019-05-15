@@ -33,11 +33,11 @@ namespace trompeloeil
     auto f = line ? file : "[file/line unavailable]";
     if (s == severity::fatal)
     {
-      ADD_FAIL_AT(f, line, msg);
+      DOCTEST_ADD_FAIL_AT(f, line, msg);
     }
     else
     {
-      ADD_FAIL_CHECK_AT(f, line, msg);
+      DOCTEST_ADD_FAIL_CHECK_AT(f, line, msg);
     }
   }
 }
