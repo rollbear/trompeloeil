@@ -4331,7 +4331,7 @@ template <typename T>
     return {nullptr, 0ul, nullptr};                                            \
   }                                                                            \
                                                                                \
-  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations){}
+  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations){} // NOLINT(misc-non-private-member-variables-in-classes)
 
 
 #define TROMPELOEIL_LPAREN (
