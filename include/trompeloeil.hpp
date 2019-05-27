@@ -2698,12 +2698,7 @@ template <typename T>
     return_value(
       trace_agent&,
       call_params_type_t<Sig>& p) = 0;
-
-    virtual
-    void
-    report_missed(
-      char const *reason) = 0;
-
+    
     location loc;
     char const *name;
   };
@@ -3663,7 +3658,6 @@ template <typename T>
     void
     report_missed(
       char const *reason)
-    override
     {
       reported = true;
       report_unfulfilled(
