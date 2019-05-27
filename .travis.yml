@@ -142,7 +142,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-7" SANITIZE=true
+        - COMPILER="clang++-7" SANITIZE=false
 
     - os: linux
       addons:
