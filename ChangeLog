@@ -1,3 +1,6 @@
+	* Fixed clang-tidy warning, misc-non-private-member-variables-in-classes,
+	  that leaks into application code from the Trompeloeil header.
+
 v34 2019-04-01
 
 	* Rearranged include directory structure to make it easier to use, and

@@ -4228,6 +4228,7 @@ template <typename T>
   TROMPELOEIL_MAKE_MOCK_(name,const,num, decltype(::trompeloeil::const_member_signature(&trompeloeil_interface_name::name))::type,override,)
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
+  private:                                                                     \
   using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
     std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
   static_assert(TROMPELOEIL_LINE_ID(cardinality_match)::value,                 \
@@ -4273,6 +4274,7 @@ template <typename T>
     }                                                                          \
   };                                                                           \
                                                                                \
+  public:                                                                      \
   TROMPELOEIL_LINE_ID(matcher_list_t)&                                         \
   trompeloeil_matcher_list(                                                    \
     TROMPELOEIL_LINE_ID(tag_type_trompeloeil)*)                                \
@@ -4325,7 +4327,13 @@ template <typename T>
     return {nullptr, 0ul, nullptr};                                            \
   }                                                                            \
                                                                                \
-  mutable TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations){}
+  private:                                                                     \
+  mutable                                                                      \
+  TROMPELOEIL_LINE_ID(expectation_list_t) TROMPELOEIL_LINE_ID(expectations){}; \
+                                                                               \
+  public:                                                                      \
+  /* An unused alias declaration to make trailing semicolon acceptable. */     \
+  using TROMPELOEIL_LINE_ID(unused_alias) = void
 
 
 #define TROMPELOEIL_LPAREN (
