@@ -31,6 +31,7 @@
 #if defined(_MSC_VER)
 
 #define TROMPELOEIL_TEST_REGEX_FAILURES 1
+#define TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES 1
 #define TROMPELOEIL_TEST_OVERLOAD_FAILURES 1
 #define TROMPELOEIL_TEST_NEG_MATCHER_FAILURES 1
 #define TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES 1
@@ -43,6 +44,16 @@
 #define TROMPELOEIL_USING_LIBSTDCPP 1
 #else
 #define TROMPELOEIL_USING_LIBSTDCPP 0
+#endif
+
+// Detect if using libc++
+#if defined(_LIBCPP_VERSION)
+// Using libc++
+#define TROMPELOEIL_USING_LIBCPP 1
+#define TROMPELOEIL_LIBCPP_VERSION _LIBCPP_VERSION
+#else
+#define TROMPELOEIL_USING_LIBCPP 0
+#define TROMPELOEIL_LIBCPP_VERSION 0
 #endif
 
 /*
@@ -60,6 +71,26 @@
 #endif
 
 #endif /* !defined(TROMPELOEIL_TEST_REGEX_FAILURES) */
+
+/*
+ * The implementation of <regex> in libc++ 1.1.1 (1101),
+ * used with Clang++ 3.5.x and Clang++ 3.6.x, is not complete for
+ * std::regex_constants::match_not_bol and
+ * std::regex_constants::match_not_eol.
+ *
+ * For this reason tests using these constants will be
+ * disabled when using this version of the library,
+ * or earlier.
+ */
+#if !defined(TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES)
+
+#if TROMPELOEIL_LIBCPP_VERSION > 1101
+#define TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES 1
+#else
+#define TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES 0
+#endif
+
+#endif /* !defined(TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES) */
 
 /*
  * GCC 4.8 has issues with overloading that affects wildcard
