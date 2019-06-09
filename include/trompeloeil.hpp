@@ -63,7 +63,6 @@
   _Pragma("clang diagnostic ignored \"-Wunneeded-member-function\"") \
   __VA_ARGS__                                                        \
   _Pragma("clang diagnostic pop")
-#  endif
 
 #elif defined(__GNUC__)
 
