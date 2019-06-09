@@ -2777,7 +2777,7 @@ Tried obj.str\(trompeloeil::re\("end\$", std::regex_constants::match_not_eol\)\)
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-#if TROMPELOEIL_TEST_REGEX_FAILURES
+#if TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2805,7 +2805,7 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
   }
 }
 
-#endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
+#endif /* TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES */
 
 // tests of parameter matching using neg_matcher
 

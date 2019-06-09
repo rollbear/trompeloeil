@@ -7,6 +7,7 @@
     - [In summary](#ubuntu_summary)
     - [In detail](#ubuntu_detail)
   - [Fedora](#compilers_in_fedora)
+- [Tested configurations](#tested_configurations)
 - [Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)](#testing_on_artful)
   - [`std::to_string()` is not defined for some versions of `libstd++-v3`](#defect_to_string)
   - [Glibc 2.26 no longer supplies `xlocale.h`](#defect_xlocale)
@@ -302,6 +303,145 @@ libcxx-devel    3.9.1-1.fc25                4.0.1-3.fc26                4.0.1-3.
 
 Table first compiled: 28 October 2017
 Last updated: 9 November 2017
+
+## <A name="tested_configurations"/> Tested configurations
+
+Before release, Trompeloeil is tested with the following configurations
+of compiler, language dialect, and standard library.
+
+### GCC
+
+Last updated: 3 June 2019
+
+Key:
+
+- `N/A`: The combination `g++-4.8/c++11/libc++` leads to
+  compile errors and is not currently supported.  Further investigation
+  may change this outcome.
+- `--`: The version of `libstdc++-v3` lacks a definition of the
+  `_GLIBCXX_RELEASE` macro.
+- `stdc++` means `libstdc++-v3` from GCC.
+- `c++` means `libc++` from Clang.
+
+`g++-latest` means the "live at head" build of `g++`.
+
+```text
+Compiler        Mode      stdc++                            c++
+                -std=     __GLIBCXX__   _GLIBCXX_RELEASE    _LIBCPP_VERSION
+----------      ----      ------------------------------    ---------------
+g++-4.8         c++11     20150623      --                  N/A
+
+
+g++-4.9         c++11     20160726      --                  8000
+                c++14
+
+g++-5           c++11     20171010      --                  8000
+                c++14
+                c++17
+
+g++-6           c++11     20181026      --                  8000
+                c++14
+                c++17
+
+
+g++-7           c++11     20190326      7                   8000
+                c++14
+                c++17
+
+
+g++-8           c++11     20190406      8                   8000
+                c++14
+                c++17
+                c++2a
+
+
+g++-9           c++11     20190402      9                   8000
+                c++14
+                c++17
+                c++2a
+
+
+g++-latest      c++11     20190421      9                   8000
+                c++14
+                c++17
+                c++2a
+```
+
+### Clang
+
+`clang++-latest` means the "live at head" version of `clang++`.
+
+```text
+Compiler        Mode      stdc++                            c++
+                -std=     __GLIBCXX__   _GLIBCXX_RELEASE    _LIBCPP_VERSION
+----------      ----      ------------------------------    ---------------
+clang++-3.5     c++11     20190326      7                   1101
+                c++14
+
+
+clang++-3.6     c++11     20190326      7                   1101
+                c++14
+
+
+clang++-3.7     c++11     20190326      7                   3700
+                c++14
+
+
+clang++-3.8     c++11     20190326      7                   3800
+                c++14
+
+
+clang++-3.9     c++11     20190402      9                   3900
+                c++14
+
+
+clang++-4.0     c++11     20190402      9                   4000
+                c++14
+
+
+clang++-5.0     c++11     20190402      9                   5000
+                c++14
+                c++17
+                c++2a
+
+
+clang++-6.0     c++11     20190402      9                   6000
+                c++14
+                c++17
+                c++2a
+
+
+clang++-7       c++11     20190402      9                   7000
+                c++14
+                c++17
+                c++2a
+
+
+clang++-8       c++11     20190402      9                   8000
+                c++14
+                c++17
+                c++2a
+
+
+clang++-latest  c++11     20190402      9                   9000
+                c++14
+                c++17
+                c++2a
+```
+
+### Microsoft Visual Studio
+
+Last update: 3 June 2019
+
+Tested with Visual Studio Community 2019 16.1.1 .
+
+```text
+Platform Toolset            Configuration   Platform
+-------------------------   -------------   --------
+Visual Studio 2015 (v140)   Debug           x64
+Visual Studio 2017 (v141)   Release         x86
+Visual Studio 2019 (v142)
+```
 
 ## <A name="testing_on_artful"/> Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)
 
