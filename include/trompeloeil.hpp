@@ -58,6 +58,12 @@
 
 #  define TROMPELOEIL_CPLUSPLUS __cplusplus
 
+#  define TROMPELOEIL_NOT_IMPLEMENTED(...)                         \
+  _Pragma("clang diagnostic push")                                   \
+  _Pragma("clang diagnostic ignored \"-Wunneeded-member-function\"") \
+  __VA_ARGS__                                                        \
+  _Pragma("clang diagnostic pop")
+
 #elif defined(__GNUC__)
 
 #  define TROMPELOEIL_CLANG 0
@@ -106,6 +112,11 @@
 
 #  endif /* !defined(_MSVC_LANG) */
 
+#endif
+
+
+#ifndef TROMPELOEIL_NOT_IMPLEMENTED
+#define TROMPELOEIL_NOT_IMPLEMENTED(...) __VA_ARGS__
 #endif
 
 #include <tuple>
@@ -2698,7 +2709,7 @@ template <typename T>
     return_value(
       trace_agent&,
       call_params_type_t<Sig>& p) = 0;
-    
+
     location loc;
     char const *name;
   };
@@ -4290,20 +4301,6 @@ template <typename T>
   constness                                                                    \
   spec                                                                         \
   {                                                                            \
-    /* Use the auxiliary functions to avoid unneeded-member-function warning */\
-    using T_ ## name = typename std::remove_reference<decltype(*this)>::type;  \
-                                                                               \
-    using pmf_s_t = typename ::trompeloeil::signature_to_member_function<      \
-      T_ ## name, decltype(*this), sig>::type const;                           \
-                                                                               \
-    using pmf_e_t = typename ::trompeloeil::signature_to_member_function<      \
-      T_ ## name, TROMPELOEIL_LINE_ID(tag_type_trompeloeil), sig>::type const; \
-                                                                               \
-    pmf_s_t const s_ptr = &T_ ## name::trompeloeil_self_ ## name;              \
-    pmf_e_t const e_ptr = &T_ ## name::trompeloeil_tag_ ## name;               \
-                                                                               \
-    ::trompeloeil::ignore(s_ptr, e_ptr);                                       \
-                                                                               \
     return ::trompeloeil::mock_func<trompeloeil_movable_mock, sig>(            \
                                     TROMPELOEIL_LINE_ID(cardinality_match){},  \
                                     TROMPELOEIL_LINE_ID(expectations),         \
@@ -4312,20 +4309,13 @@ template <typename T>
                                     TROMPELOEIL_PARAMS(num));                  \
   }                                                                            \
                                                                                \
+  TROMPELOEIL_NOT_IMPLEMENTED(                                                 \
   auto                                                                         \
   trompeloeil_self_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness        \
-    -> decltype(*this)                                                         \
-  {                                                                            \
-    ::trompeloeil::ignore(#name TROMPELOEIL_PARAMS(num));                      \
-    return *this;                                                              \
-  }                                                                            \
+  -> decltype(*this));                                                         \
                                                                                \
-  TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                                    \
-  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness         \
-  {                                                                            \
-    ::trompeloeil::ignore(#name TROMPELOEIL_PARAMS(num));                      \
-    return {nullptr, 0ul, nullptr};                                            \
-  }                                                                            \
+  TROMPELOEIL_NOT_IMPLEMENTED(TROMPELOEIL_LINE_ID(tag_type_trompeloeil)        \
+  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness);       \
                                                                                \
   private:                                                                     \
   mutable                                                                      \
