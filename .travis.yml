@@ -149,6 +149,21 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-8
+          packages:
+            - g++-6
+            - clang-8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-8" SANITIZE=false
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - g++-4.8
             - libcurl4-openssl-dev
@@ -221,6 +236,19 @@ matrix:
             - libdw-dev
       env:
         - COMPILER="g++-8" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-9" SANITIZE=true
 
     - os: osx
       osx_image: xcode9
