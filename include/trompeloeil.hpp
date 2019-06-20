@@ -154,7 +154,7 @@
 
 #define TROMPELOEIL_REMOVE_PAREN(x) TROMPELOEIL_CONCAT(TROMPELOEIL_CLEAR_,     \
   TROMPELOEIL_REMOVE_PAREN_INTERNAL x)
-#define TROMPELOEIL_REMOVE_PAREN_INTERNAL(...)                              \
+#define TROMPELOEIL_REMOVE_PAREN_INTERNAL(...)                                 \
   TROMPELOEIL_REMOVE_PAREN_INTERNAL __VA_ARGS__
 #define TROMPELOEIL_CLEAR_TROMPELOEIL_REMOVE_PAREN_INTERNAL
 
@@ -217,55 +217,55 @@
   TROMPELOEIL_PARAM_LIST13(__VA_ARGS__),                                         \
   ::trompeloeil::param_list_t<__VA_ARGS__, 13> p14
 
-#define TROMPELOEIL_PARAM_LIST13(...)                                    \
-  TROMPELOEIL_PARAM_LIST12(__VA_ARGS__),                                         \
+#define TROMPELOEIL_PARAM_LIST13(...)                                          \
+  TROMPELOEIL_PARAM_LIST12(__VA_ARGS__),                                       \
   ::trompeloeil::param_list_t<__VA_ARGS__, 12> p13
 
-#define TROMPELOEIL_PARAM_LIST12(...)                                    \
-  TROMPELOEIL_PARAM_LIST11(__VA_ARGS__),                                         \
+#define TROMPELOEIL_PARAM_LIST12(...)                                          \
+  TROMPELOEIL_PARAM_LIST11(__VA_ARGS__),                                       \
   ::trompeloeil::param_list_t<__VA_ARGS__, 11> p12
 
-#define TROMPELOEIL_PARAM_LIST11(...)                                    \
-  TROMPELOEIL_PARAM_LIST10(__VA_ARGS__),                                         \
+#define TROMPELOEIL_PARAM_LIST11(...)                                          \
+  TROMPELOEIL_PARAM_LIST10(__VA_ARGS__),                                       \
   ::trompeloeil::param_list_t<__VA_ARGS__, 10> p11
 
-#define TROMPELOEIL_PARAM_LIST10(...)                                    \
-  TROMPELOEIL_PARAM_LIST9(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST10(...)                                          \
+  TROMPELOEIL_PARAM_LIST9(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 9> p10
 
-#define TROMPELOEIL_PARAM_LIST9(...)                                     \
-  TROMPELOEIL_PARAM_LIST8(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST9(...)                                           \
+  TROMPELOEIL_PARAM_LIST8(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 8> p9
 
-#define TROMPELOEIL_PARAM_LIST8(...)                                     \
-  TROMPELOEIL_PARAM_LIST7(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST8(...)                                           \
+  TROMPELOEIL_PARAM_LIST7(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 7> p8
 
-#define TROMPELOEIL_PARAM_LIST7(...)                                     \
-  TROMPELOEIL_PARAM_LIST6(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST7(...)                                           \
+  TROMPELOEIL_PARAM_LIST6(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 6> p7
 
-#define TROMPELOEIL_PARAM_LIST6(...)                                     \
-  TROMPELOEIL_PARAM_LIST5(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST6(...)                                           \
+  TROMPELOEIL_PARAM_LIST5(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 5> p6
 
-#define TROMPELOEIL_PARAM_LIST5(...)                                     \
-  TROMPELOEIL_PARAM_LIST4(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST5(...)                                           \
+  TROMPELOEIL_PARAM_LIST4(__VA_ARGS__),                                        \
     ::trompeloeil::param_list_t<__VA_ARGS__, 4> p5
 
-#define TROMPELOEIL_PARAM_LIST4(...)                                     \
-  TROMPELOEIL_PARAM_LIST3(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST4(...)                                           \
+  TROMPELOEIL_PARAM_LIST3(__VA_ARGS__),                                        \
     ::trompeloeil::param_list_t<__VA_ARGS__, 3> p4
 
-#define TROMPELOEIL_PARAM_LIST3(...)                                     \
-  TROMPELOEIL_PARAM_LIST2(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST3(...)                                           \
+  TROMPELOEIL_PARAM_LIST2(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 2> p3
 
-#define TROMPELOEIL_PARAM_LIST2(...)                                     \
-  TROMPELOEIL_PARAM_LIST1(__VA_ARGS__),                                          \
+#define TROMPELOEIL_PARAM_LIST2(...)                                           \
+  TROMPELOEIL_PARAM_LIST1(__VA_ARGS__),                                        \
   ::trompeloeil::param_list_t<__VA_ARGS__, 1> p2
 
-#define TROMPELOEIL_PARAM_LIST1(...)                                     \
+#define TROMPELOEIL_PARAM_LIST1(...)                                           \
   ::trompeloeil::param_list_t<__VA_ARGS__, 0> p1
 
 #define TROMPELOEIL_PARAM_LIST0(func_type)
