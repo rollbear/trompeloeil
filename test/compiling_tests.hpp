@@ -600,6 +600,9 @@ struct all_if
                     I<9>,I<10>,I<11>,I<12>,I<13>,I<14>) const = 0;
   virtual void cf15(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
                     I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>) const = 0;
+
+  virtual std::tuple<int, float, double> f1t(I<1>) = 0;
+  virtual std::pair<int, float> cf1t(I<1>) const = 0;
 };
 
 struct all_mock_if : public all_if
@@ -652,6 +655,8 @@ struct all_mock_if : public all_if
   MAKE_CONST_MOCK15(cf15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
     I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>), override);
 
+  MAKE_MOCK1(f1t, (std::tuple<int, float, double>(I<1>)), override);
+  MAKE_CONST_MOCK1(cf1t, (std::pair<int, float>(I<1>)), override);
 };
 
 struct all_mock
@@ -704,6 +709,8 @@ struct all_mock
   MAKE_CONST_MOCK15(cf15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
     I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>));
 
+  MAKE_MOCK1(f1t, (std::tuple<int, float, double>(I<1>)));
+  MAKE_CONST_MOCK1(cf1t, (std::pair<int, float>(I<1>)));
 };
 
 #endif /* !COMPILING_TESTS_HPP_ */
