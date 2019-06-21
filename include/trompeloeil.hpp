@@ -209,12 +209,12 @@
   TROMPELOEIL_CONCAT(TROMPELOEIL_INIT_WITH_STR,                                \
                      TROMPELOEIL_COUNT(__VA_ARGS__))(base, __VA_ARGS__)
 
-#define TROMPELOEIL_PARAM_LIST15(...)                                    \
-  TROMPELOEIL_PARAM_LIST14(__VA_ARGS__),                                         \
+#define TROMPELOEIL_PARAM_LIST15(...)                                          \
+  TROMPELOEIL_PARAM_LIST14(__VA_ARGS__),                                       \
   ::trompeloeil::param_list_t<__VA_ARGS__, 14> p15
 
-#define TROMPELOEIL_PARAM_LIST14(...)                                    \
-  TROMPELOEIL_PARAM_LIST13(__VA_ARGS__),                                         \
+#define TROMPELOEIL_PARAM_LIST14(...)                                          \
+  TROMPELOEIL_PARAM_LIST13(__VA_ARGS__),                                       \
   ::trompeloeil::param_list_t<__VA_ARGS__, 13> p14
 
 #define TROMPELOEIL_PARAM_LIST13(...)                                          \
