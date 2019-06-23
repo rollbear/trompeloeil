@@ -149,8 +149,14 @@
   TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__,                          \
                                          15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
-#define TROMPELOEIL_CONCAT_(x, y) x ## y
-#define TROMPELOEIL_CONCAT(x, y) TROMPELOEIL_CONCAT_(x, y)
+#define TROMPELOEIL_CONCAT_(x, ...) x ## __VA_ARGS__
+#define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
+
+#define TROMPELOEIL_REMOVE_PAREN(x) TROMPELOEIL_CONCAT(TROMPELOEIL_CLEAR_,     \
+  TROMPELOEIL_REMOVE_PAREN_INTERNAL x)
+#define TROMPELOEIL_REMOVE_PAREN_INTERNAL(...)                                 \
+  TROMPELOEIL_REMOVE_PAREN_INTERNAL __VA_ARGS__
+#define TROMPELOEIL_CLEAR_TROMPELOEIL_REMOVE_PAREN_INTERNAL
 
 #define TROMPELOEIL_INIT_WITH_STR15(base, x, ...)                              \
   base{#x, x}, TROMPELOEIL_INIT_WITH_STR14(base, __VA_ARGS__)
@@ -203,69 +209,70 @@
   TROMPELOEIL_CONCAT(TROMPELOEIL_INIT_WITH_STR,                                \
                      TROMPELOEIL_COUNT(__VA_ARGS__))(base, __VA_ARGS__)
 
-#define TROMPELOEIL_PARAM_LIST15(func_type)                                    \
-  TROMPELOEIL_PARAM_LIST14(func_type),                                         \
-  ::trompeloeil::param_list_t<func_type, 14> p15
+#define TROMPELOEIL_PARAM_LIST15(...)                                          \
+  TROMPELOEIL_PARAM_LIST14(__VA_ARGS__),                                       \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 14> p15
 
-#define TROMPELOEIL_PARAM_LIST14(func_type)                                    \
-  TROMPELOEIL_PARAM_LIST13(func_type),                                         \
-  ::trompeloeil::param_list_t<func_type, 13> p14
+#define TROMPELOEIL_PARAM_LIST14(...)                                          \
+  TROMPELOEIL_PARAM_LIST13(__VA_ARGS__),                                       \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 13> p14
 
-#define TROMPELOEIL_PARAM_LIST13(func_type)                                    \
-  TROMPELOEIL_PARAM_LIST12(func_type),                                         \
-  ::trompeloeil::param_list_t<func_type, 12> p13
+#define TROMPELOEIL_PARAM_LIST13(...)                                          \
+  TROMPELOEIL_PARAM_LIST12(__VA_ARGS__),                                       \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 12> p13
 
-#define TROMPELOEIL_PARAM_LIST12(func_type)                                    \
-  TROMPELOEIL_PARAM_LIST11(func_type),                                         \
-  ::trompeloeil::param_list_t<func_type, 11> p12
+#define TROMPELOEIL_PARAM_LIST12(...)                                          \
+  TROMPELOEIL_PARAM_LIST11(__VA_ARGS__),                                       \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 11> p12
 
-#define TROMPELOEIL_PARAM_LIST11(func_type)                                    \
-  TROMPELOEIL_PARAM_LIST10(func_type),                                         \
-  ::trompeloeil::param_list_t<func_type, 10> p11
+#define TROMPELOEIL_PARAM_LIST11(...)                                          \
+  TROMPELOEIL_PARAM_LIST10(__VA_ARGS__),                                       \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 10> p11
 
-#define TROMPELOEIL_PARAM_LIST10(func_type)                                    \
-  TROMPELOEIL_PARAM_LIST9(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 9> p10
+#define TROMPELOEIL_PARAM_LIST10(...)                                          \
+  TROMPELOEIL_PARAM_LIST9(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 9> p10
 
-#define TROMPELOEIL_PARAM_LIST9(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST8(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 8> p9
+#define TROMPELOEIL_PARAM_LIST9(...)                                           \
+  TROMPELOEIL_PARAM_LIST8(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 8> p9
 
-#define TROMPELOEIL_PARAM_LIST8(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST7(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 7> p8
+#define TROMPELOEIL_PARAM_LIST8(...)                                           \
+  TROMPELOEIL_PARAM_LIST7(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 7> p8
 
-#define TROMPELOEIL_PARAM_LIST7(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST6(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 6> p7
+#define TROMPELOEIL_PARAM_LIST7(...)                                           \
+  TROMPELOEIL_PARAM_LIST6(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 6> p7
 
-#define TROMPELOEIL_PARAM_LIST6(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST5(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 5> p6
+#define TROMPELOEIL_PARAM_LIST6(...)                                           \
+  TROMPELOEIL_PARAM_LIST5(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 5> p6
 
-#define TROMPELOEIL_PARAM_LIST5(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST4(func_type),                                          \
-    ::trompeloeil::param_list_t<func_type, 4> p5
+#define TROMPELOEIL_PARAM_LIST5(...)                                           \
+  TROMPELOEIL_PARAM_LIST4(__VA_ARGS__),                                        \
+    ::trompeloeil::param_list_t<__VA_ARGS__, 4> p5
 
-#define TROMPELOEIL_PARAM_LIST4(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST3(func_type),                                          \
-    ::trompeloeil::param_list_t<func_type, 3> p4
+#define TROMPELOEIL_PARAM_LIST4(...)                                           \
+  TROMPELOEIL_PARAM_LIST3(__VA_ARGS__),                                        \
+    ::trompeloeil::param_list_t<__VA_ARGS__, 3> p4
 
-#define TROMPELOEIL_PARAM_LIST3(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST2(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 2> p3
+#define TROMPELOEIL_PARAM_LIST3(...)                                           \
+  TROMPELOEIL_PARAM_LIST2(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 2> p3
 
-#define TROMPELOEIL_PARAM_LIST2(func_type)                                     \
-  TROMPELOEIL_PARAM_LIST1(func_type),                                          \
-  ::trompeloeil::param_list_t<func_type, 1> p2
+#define TROMPELOEIL_PARAM_LIST2(...)                                           \
+  TROMPELOEIL_PARAM_LIST1(__VA_ARGS__),                                        \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 1> p2
 
-#define TROMPELOEIL_PARAM_LIST1(func_type)                                     \
-  ::trompeloeil::param_list_t<func_type, 0> p1
+#define TROMPELOEIL_PARAM_LIST1(...)                                           \
+  ::trompeloeil::param_list_t<__VA_ARGS__, 0> p1
 
 #define TROMPELOEIL_PARAM_LIST0(func_type)
 
 #define TROMPELOEIL_PARAM_LIST(num, func_type)                                 \
-  TROMPELOEIL_CONCAT(TROMPELOEIL_PARAM_LIST, num)(func_type)
+  TROMPELOEIL_CONCAT(TROMPELOEIL_PARAM_LIST, num)                              \
+    (TROMPELOEIL_REMOVE_PAREN(func_type))
 
 
 #define TROMPELOEIL_PARAMS15 TROMPELOEIL_PARAMS14, p15
@@ -4241,12 +4248,15 @@ template <typename T>
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   private:                                                                     \
   using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
-    std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
+    std::integral_constant<bool, num ==                                        \
+      ::trompeloeil::param_list<TROMPELOEIL_REMOVE_PAREN(sig)>::size>;         \
   static_assert(TROMPELOEIL_LINE_ID(cardinality_match)::value,                 \
                 "Function signature does not have " #num " parameters");       \
-  using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
+  using TROMPELOEIL_LINE_ID(matcher_list_t) =                                  \
+  ::trompeloeil::call_matcher_list<TROMPELOEIL_REMOVE_PAREN(sig)>;             \
   using TROMPELOEIL_LINE_ID(expectation_list_t) =                              \
-    ::trompeloeil::expectations<trompeloeil_movable_mock, sig>;                \
+    ::trompeloeil::expectations<trompeloeil_movable_mock,                      \
+                                TROMPELOEIL_REMOVE_PAREN(sig)>;                \
                                                                                \
   struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
@@ -4257,12 +4267,14 @@ template <typename T>
     /* Work around parsing bug in VS 2015 when a "complex" */                  \
     /* decltype() appears in a trailing return type. */                        \
     /* Further, work around C2066 defect in VS 2017 15.7.1. */                 \
-    using trompeloeil_sig_t = typename ::trompeloeil::identity_type<sig>::type;\
+    using trompeloeil_sig_t = typename                                         \
+    ::trompeloeil::identity_type<TROMPELOEIL_REMOVE_PAREN(sig)>::type;         \
                                                                                \
     using trompeloeil_call_params_type_t =                                     \
-      ::trompeloeil::call_params_type_t<sig>;                                  \
+      ::trompeloeil::call_params_type_t<TROMPELOEIL_REMOVE_PAREN(sig)>;        \
                                                                                \
-    using trompeloeil_return_of_t = ::trompeloeil::return_of_t<sig>;           \
+    using trompeloeil_return_of_t =                                            \
+      ::trompeloeil::return_of_t<TROMPELOEIL_REMOVE_PAREN(sig)>;               \
                                                                                \
     template <typename ... trompeloeil_param_type>                             \
     auto name(                                                                 \
@@ -4272,7 +4284,7 @@ template <typename T>
                                    trompeloeil_param_type...>                  \
     {                                                                          \
       using matcher = ::trompeloeil::call_matcher<                             \
-                          sig,                                                 \
+                          TROMPELOEIL_REMOVE_PAREN(sig),                       \
                           ::trompeloeil::param_t<trompeloeil_param_type...>>;  \
       return {                                                                 \
           new matcher {                                                        \
@@ -4295,7 +4307,7 @@ template <typename T>
     return TROMPELOEIL_LINE_ID(expectations).active;                           \
   }                                                                            \
                                                                                \
-  ::trompeloeil::return_of_t<sig>                                              \
+  ::trompeloeil::return_of_t<TROMPELOEIL_REMOVE_PAREN(sig)>                    \
   name(                                                                        \
     TROMPELOEIL_PARAM_LIST(num, sig))                                          \
   constness                                                                    \
