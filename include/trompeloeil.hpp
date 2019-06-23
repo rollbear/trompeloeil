@@ -152,8 +152,8 @@
 #define TROMPELOEIL_CONCAT_(x, ...) x ## __VA_ARGS__
 #define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
 
-#define TROMPELOEIL_REMOVE_PAREN(x) TROMPELOEIL_CONCAT(TROMPELOEIL_CLEAR_,     \
-  TROMPELOEIL_REMOVE_PAREN_INTERNAL x)
+#define TROMPELOEIL_REMOVE_PAREN(...) TROMPELOEIL_CONCAT(TROMPELOEIL_CLEAR_,   \
+  TROMPELOEIL_REMOVE_PAREN_INTERNAL __VA_ARGS__)
 #define TROMPELOEIL_REMOVE_PAREN_INTERNAL(...)                                 \
   TROMPELOEIL_REMOVE_PAREN_INTERNAL __VA_ARGS__
 #define TROMPELOEIL_CLEAR_TROMPELOEIL_REMOVE_PAREN_INTERNAL
@@ -4308,12 +4308,11 @@ template <typename T>
   }                                                                            \
                                                                                \
   ::trompeloeil::return_of_t<TROMPELOEIL_REMOVE_PAREN(sig)>                    \
-  name(                                                                        \
-    TROMPELOEIL_PARAM_LIST(num, sig))                                          \
+  name(TROMPELOEIL_PARAM_LIST(num, TROMPELOEIL_REMOVE_PAREN(sig)))             \
   constness                                                                    \
   spec                                                                         \
   {                                                                            \
-    return ::trompeloeil::mock_func<trompeloeil_movable_mock, sig>(            \
+    return ::trompeloeil::mock_func<trompeloeil_movable_mock, TROMPELOEIL_REMOVE_PAREN(sig)>( \
                                     TROMPELOEIL_LINE_ID(cardinality_match){},  \
                                     TROMPELOEIL_LINE_ID(expectations),         \
                                     #name,                                     \
