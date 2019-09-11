@@ -44,6 +44,13 @@ namespace trompeloeil
       CHECK(failure.empty());
     }
   }
+
+  template <>
+  inline void reporter<specialized>::sendOk(
+    const char* trompeloeil_mock_calls_done_correctly)
+  {      
+      REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+  }
 }
 
 

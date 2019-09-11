@@ -865,6 +865,14 @@ namespace trompeloeil
   }
 
   template <typename T>
+  void
+  send_ok_report(
+    std::string const &msg)
+  {
+    reporter<T>::sendOk(msg.c_str());
+  }
+
+  template <typename T>
   struct reporter
   {
     static
@@ -874,6 +882,12 @@ namespace trompeloeil
       char const *file,
       unsigned long line,
       char const *msg);
+
+    static
+    void
+    sendOk(
+      char const *msg);
+
   };
 
   template <typename T>
@@ -887,6 +901,13 @@ namespace trompeloeil
       reporter_obj()(s, file, line, msg);
     }
 
+  template <typename T>
+  void reporter<T>::
+    sendOk(char const *msg)
+    {
+        (void)msg;
+    }
+    
   template <typename ... T>
   inline
   constexpr
@@ -3019,6 +3040,19 @@ template <typename T>
   }
 
   template <typename Sig>
+  void
+  report_match(
+    call_matcher_list <Sig> &matcher_list)
+  {
+    std::ostringstream os;
+    for (auto& m : matcher_list)
+    {
+        os << m.name;
+    }
+    send_ok_report<specialized>(os.str());
+  }
+    
+  template <typename Sig>
   class return_handler
   {
   public:
@@ -3943,6 +3977,9 @@ template <typename T>
                       e.saturated,
                       func_name + std::string(" with signature ") + sig_name,
                       param_value);
+    }
+    else{
+        report_match(e.active);
     }
     trace_agent ta{i->loc, i->name, tracer_obj()};
     try
