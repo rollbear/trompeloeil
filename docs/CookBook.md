@@ -1658,10 +1658,10 @@ class char_buff : public std::vector<char>
 
 namespace trompeloeil {
   template <>
-  void print(std::ostream& os, const char_buff& b)
+  inline void print(std::ostream& os, const char_buff& b)
   {
     os << b.size() << "#{ ";
-    for (auto v : b) { os << int(v) << " ";
+    for (auto v : b) { os << int(v) << " "; }
     os << "}";
   }
 }
