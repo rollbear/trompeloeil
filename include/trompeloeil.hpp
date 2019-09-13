@@ -4240,13 +4240,14 @@ template <typename T>
 
 #define TROMPELOEIL_MAKE_MOCK_(name, constness, num, sig, spec, ...)           \
   private:                                                                     \
+  using TROMPELOEIL_LINE_ID(signature) = sig;                                  \
   using TROMPELOEIL_LINE_ID(cardinality_match) =                               \
-    std::integral_constant<bool, num == ::trompeloeil::param_list<sig>::size>; \
+    std::integral_constant<bool, num == ::trompeloeil::param_list<TROMPELOEIL_LINE_ID(signature)>::size>; \
   static_assert(TROMPELOEIL_LINE_ID(cardinality_match)::value,                 \
                 "Function signature does not have " #num " parameters");       \
-  using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<sig>;\
+  using TROMPELOEIL_LINE_ID(matcher_list_t) = ::trompeloeil::call_matcher_list<TROMPELOEIL_LINE_ID(signature)>;\
   using TROMPELOEIL_LINE_ID(expectation_list_t) =                              \
-    ::trompeloeil::expectations<trompeloeil_movable_mock, sig>;                \
+    ::trompeloeil::expectations<trompeloeil_movable_mock, TROMPELOEIL_LINE_ID(signature)>; \
                                                                                \
   struct TROMPELOEIL_LINE_ID(tag_type_trompeloeil)                             \
   {                                                                            \
@@ -4257,12 +4258,12 @@ template <typename T>
     /* Work around parsing bug in VS 2015 when a "complex" */                  \
     /* decltype() appears in a trailing return type. */                        \
     /* Further, work around C2066 defect in VS 2017 15.7.1. */                 \
-    using trompeloeil_sig_t = typename ::trompeloeil::identity_type<sig>::type;\
+    using trompeloeil_sig_t = typename ::trompeloeil::identity_type<TROMPELOEIL_LINE_ID(signature)>::type; \
                                                                                \
     using trompeloeil_call_params_type_t =                                     \
-      ::trompeloeil::call_params_type_t<sig>;                                  \
+      ::trompeloeil::call_params_type_t<TROMPELOEIL_LINE_ID(signature)>;       \
                                                                                \
-    using trompeloeil_return_of_t = ::trompeloeil::return_of_t<sig>;           \
+    using trompeloeil_return_of_t = ::trompeloeil::return_of_t<TROMPELOEIL_LINE_ID(signature)>; \
                                                                                \
     template <typename ... trompeloeil_param_type>                             \
     auto name(                                                                 \
@@ -4272,7 +4273,7 @@ template <typename T>
                                    trompeloeil_param_type...>                  \
     {                                                                          \
       using matcher = ::trompeloeil::call_matcher<                             \
-                          sig,                                                 \
+                          TROMPELOEIL_LINE_ID(signature),                      \
                           ::trompeloeil::param_t<trompeloeil_param_type...>>;  \
       return {                                                                 \
           new matcher {                                                        \
@@ -4295,13 +4296,13 @@ template <typename T>
     return TROMPELOEIL_LINE_ID(expectations).active;                           \
   }                                                                            \
                                                                                \
-  ::trompeloeil::return_of_t<sig>                                              \
+  ::trompeloeil::return_of_t<TROMPELOEIL_LINE_ID(signature)>                   \
   name(                                                                        \
-    TROMPELOEIL_PARAM_LIST(num, sig))                                          \
+    TROMPELOEIL_PARAM_LIST(num, TROMPELOEIL_LINE_ID(signature)))               \
   constness                                                                    \
   spec                                                                         \
   {                                                                            \
-    return ::trompeloeil::mock_func<trompeloeil_movable_mock, sig>(            \
+    return ::trompeloeil::mock_func<trompeloeil_movable_mock, TROMPELOEIL_LINE_ID(signature)>( \
                                     TROMPELOEIL_LINE_ID(cardinality_match){},  \
                                     TROMPELOEIL_LINE_ID(expectations),         \
                                     #name,                                     \
@@ -4311,11 +4312,11 @@ template <typename T>
                                                                                \
   TROMPELOEIL_NOT_IMPLEMENTED(                                                 \
   auto                                                                         \
-  trompeloeil_self_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness        \
+  trompeloeil_self_ ## name(TROMPELOEIL_PARAM_LIST(num, TROMPELOEIL_LINE_ID(signature))) constness \
   -> decltype(*this));                                                         \
                                                                                \
   TROMPELOEIL_NOT_IMPLEMENTED(TROMPELOEIL_LINE_ID(tag_type_trompeloeil)        \
-  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, sig)) constness);       \
+  trompeloeil_tag_ ## name(TROMPELOEIL_PARAM_LIST(num, TROMPELOEIL_LINE_ID(signature))) constness); \
                                                                                \
   private:                                                                     \
   mutable                                                                      \
