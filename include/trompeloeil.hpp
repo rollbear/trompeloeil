@@ -950,22 +950,15 @@ namespace trompeloeil
 
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.
-    template <typename T,
-              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
+    template <typename T>
     operator T&&()
     const;
 
 #endif
 
-    template <
-      typename T,
-      typename = detail::enable_if_t<
-        can_copy_construct<T>::value
-        || !can_move_construct<T>::value
-      >
-    >
+    template <typename T>
     operator T&()
-    const;
+    const volatile; // less preferred than T&& above
 
     template <typename T>
     constexpr

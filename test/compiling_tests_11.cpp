@@ -1282,6 +1282,61 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable non-const lvalue reference type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptrr(_));
+    std::unique_ptr<int> p;
+    u.uptrr(p);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable rvalue reference type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptrrr(_));
+    std::unique_ptr<int> p;
+    u.uptrrr(std::move(p));
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable non-const value type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptr(_));
+    std::unique_ptr<int> p;
+    u.uptr(std::move(p));
+  }
+  REQUIRE(reports.empty());
+}
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable const lvalue reference type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptrcr(_));
+    std::unique_ptr<int> p;
+    u.uptrcr(p);
+  }
+  REQUIRE(reports.empty());
+}
+
 #if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
 
 TEST_CASE_METHOD(

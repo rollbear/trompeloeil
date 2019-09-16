@@ -414,6 +414,7 @@ public:
   MAKE_MOCK1(uptr, void(std::unique_ptr<int>));
   MAKE_MOCK1(uptrrr, void(std::unique_ptr<int>&&));
   MAKE_MOCK1(uptrcr, void(std::unique_ptr<int> const&));
+  MAKE_MOCK1(uptrr, void(std::unique_ptr<int>&));
   MAKE_MOCK1(strptr, void(std::string*));
   MAKE_MOCK1(pp, void(int**));
   MAKE_MOCK1(overloaded, void(int**));
