@@ -944,17 +944,9 @@ namespace trompeloeil
       T&& ...)
     noexcept
     {}
-
-#if (!TROMPELOEIL_GCC) || \
-    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
-
-    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
-    // if this operator is defined.
     template <typename T>
     operator T&&()
     const;
-
-#endif
 
     template <typename T>
     operator T&()
