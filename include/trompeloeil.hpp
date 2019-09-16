@@ -989,9 +989,8 @@ template <typename T>
     operator T&&() const;
 
     template <typename T,
-              typename = decltype(std::declval<T>() == nullptr),
-              typename = detail::enable_if_t<can_copy_construct<T>::value>>
-    operator T&()const;
+              typename = decltype(std::declval<T>() == nullptr)>
+    operator T&()const volatile;
 
     template <typename T, typename C>
     operator T C::*() const;
@@ -1007,16 +1006,14 @@ template <typename T>
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.
     template <typename V,
-              typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&&, T...>>
     operator V&&() const;
 
 #endif
 
     template <typename V,
-              typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&, T...>>
-    operator V&() const;
+    operator V&() const volatile;
   };
 
   template <typename T>

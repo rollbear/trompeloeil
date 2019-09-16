@@ -981,8 +981,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: rvalue reference parameter can be compared with nullptr in WITH",
@@ -1001,10 +999,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
-
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1025,8 +1019,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1224,8 +1216,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: wildcard matches unique_ptr<> value type",
@@ -1238,8 +1228,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1337,8 +1325,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: wildcard matches parameter rvalue reference type",
@@ -1352,10 +1338,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
-
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: wildcard matches parameter const rvalue reference type",
@@ -1368,8 +1350,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,

@@ -539,8 +539,6 @@ Even so, this still leaves some test case failures that have
 been guarded with these predicates,
 
 ```cpp
-TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TROMPELOEIL_TEST_OVERLOAD_FAILURES
 
 TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
