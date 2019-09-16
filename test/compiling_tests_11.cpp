@@ -3003,7 +3003,6 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
 
 // tests of parameter matching using neg_matcher
 
-#if TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3018,9 +3017,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* TROMPELOEIL_TEST_NEG_MATCHER_FAILURES */
-
-#if TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3047,7 +3043,6 @@ Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
-#endif /* TROMPELOEIL_TEST_NEG_MATCHER_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
