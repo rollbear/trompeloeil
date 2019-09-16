@@ -32,7 +32,6 @@
 
 #define TROMPELOEIL_TEST_REGEX_FAILURES 1
 #define TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES 1
-#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 1
 
 #else /* defined(_MSC_VER) */
 
@@ -89,20 +88,6 @@
 #endif
 
 #endif /* !defined(TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES) */
-
-/*
- * GCC 4.8 has issues with overloading that affects wildcard
- * and duck_typed_matcher.
- */
-#if !defined(TROMPELOEIL_TEST_OVERLOAD_FAILURES)
-
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
-#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 0
-#else
-#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 1
-#endif
-
-#endif /* !defined(TROMPELOEIL_TEST_OVERLOAD_FAILURES) */
 
 #endif /* !defined(_MSC_VER) */
 

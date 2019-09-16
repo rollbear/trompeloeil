@@ -3133,8 +3133,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_OVERLOAD_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: ptr to overloaded ptr matches equal deref",
@@ -3148,8 +3146,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_OVERLOAD_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
