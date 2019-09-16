@@ -937,13 +937,6 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
-    template <typename ... T>
-    constexpr
-    wildcard(
-      T&& ...)
-    noexcept
-    {}
     template <typename T>
     operator T&&()
     const;
