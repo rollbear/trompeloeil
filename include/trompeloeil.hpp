@@ -1006,12 +1006,14 @@ template <typename T>
     // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
     // if this operator is defined.
     template <typename V,
+              typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&&, T...>>
     operator V&&() const;
 
 #endif
 
     template <typename V,
+              typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&, T...>>
     operator V&() const volatile;
   };
