@@ -171,7 +171,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXX_STANDARD=17
+        - COMPILER="clang++-8" SANITIZE=false CXX_STANDARD="17"
 
     - os: linux
       addons:
@@ -186,7 +186,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXX_STANDARD=2a
+        - COMPILER="clang++-8" SANITIZE=false CXX_STANDARD="2a"
 
     - os: linux
       addons:
