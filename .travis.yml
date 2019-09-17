@@ -168,6 +168,7 @@ matrix:
             - g++-6
             - clang-8
             - libc++-8-dev
+            - libc++abi-8-dev
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
