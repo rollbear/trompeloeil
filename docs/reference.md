@@ -1178,7 +1178,8 @@ Make a `const` [mock function](#mock_function) named *func_name*. It is a good
 idea for this to implement a pure virtual function from an interface, but
 it is not a requirement. `n` is the number of parameters in *signature*.
 *specifiers* is an optional list which may include attributes or specifiers like
-[`override`](http://en.cppreference.com/w/cpp/language/override).
+[`override`](http://en.cppreference.com/w/cpp/language/override) or
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
 
 Example:
 
@@ -1223,7 +1224,8 @@ Make a non-const [mock function](#mock_function) named *func_name*. It is a
 good idea for this to implement a pure virtual function from an interface, but
 it is not a requirement. `n` is the number of parameters in *signature*.
 *specifiers* is an optional list which may include attributes or specifiers like
-[`override`](http://en.cppreference.com/w/cpp/language/override).
+[`override`](http://en.cppreference.com/w/cpp/language/override) or
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
 
 Example:
 

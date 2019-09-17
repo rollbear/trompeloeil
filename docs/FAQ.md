@@ -21,6 +21,7 @@
 - Q. [How do I use *Trompeloeil* in a CMake project?](#cmake)
 - Q. [Why are mock objects not move constructible?](#move_constructible)
 - Q. [Why can't I mock a function that returns a template?](#return_template)
+- Q. [Can I mock a `noexcept` function?](#mock_noexcept)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -626,3 +627,28 @@ Another way, if you're mocking an interface, is to use
 [**`trompeloeil::mock_interface<T>`**](reference.md/#mock_interface)
 and [**`IMPLEMENT_MOCKn`**](reference.md/#IMPLEMENT_MOCKn). See
 [CookBook](CookBook.md/#creating_mock_classes) for an intro.
+
+### <A name="mock_noexcept"/> Q. Can I mock a `noexcept` function?
+
+**A.** Yes, but with a caveat.
+
+The way to mock a
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec)
+function is to add a `noexcept` specifier to
+[**`MAKE_MOCKn`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_CONST_MOCKn`**](reference.md/#MAKE_CONST_MOCKn).
+
+```Cpp
+struct S
+{
+    MAKE_MOCK1(func, void(int), noexcept);
+    //                          ^^^^^^^^  noexcept function
+};
+```
+
+The caveat is that the [violation handlers](CookBook.md/#unit_test_frameworks),
+and specifically the default one, reports violations by throwing an exception,
+which means that any call made in violation of the [expectation](
+reference.md/#expectation) for a
+`noexcept` function leads to program termination. How much information you can
+gain from such an event depends on the runtime system of your tools.
