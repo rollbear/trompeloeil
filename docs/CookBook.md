@@ -682,10 +682,8 @@ work for any type `T`.
 
 ### <A name="mocking_non_virtual"/> Mocking non-virtual member functions
 
-While it is often the case that mocks are used to implement interfaces,
-there is no such requirement. Just add the [mock functions](
-  reference.md/#mock_function
-) that are needed.
+While it is often the case that mocks are used to implement interfaces, there is
+no such requirement. Just add the [mock functions][mockfun] that are needed.
 
 Example:
 
@@ -697,8 +695,15 @@ public:
 };
 ```
 
-Above `ConcreteMock` is a mock class that implements a non-virtual
-[mock function](reference.md/#mock_function) `bool func(size_t, const char*)`.
+Above `ConcreteMock` is a mock class that implements a non-virtual [mock
+function][mockfun] `bool func(size_t, const char*)`.
+
+> **REMINDER**: Non-virtual functions may not be dispatched via polymorphism at
+> runtime. This feature doesn't alter the underlying semantic rules for virtual
+> methods. If you upcast to a base type, the mock class implementations of these
+> methods will _not_ be invoked.
+
+[mockfun]: reference.md/#mock_function
 
 ### <A name="mocking_free_functions"/> Mocking free functions
 
