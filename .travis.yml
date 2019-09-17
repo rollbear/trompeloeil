@@ -326,6 +326,32 @@ matrix:
       env:
         - COMPILER="g++-9" SANITIZE=true
 
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-9" SANITIZE=true  CXX_STANDARD="17"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-9" SANITIZE=true  CXX_STANDARD="20"
+
     - os: osx
       osx_image: xcode9
       compiler: clang
