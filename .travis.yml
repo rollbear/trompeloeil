@@ -163,36 +163,6 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-xenial-8
-          packages:
-            - g++-6
-            - clang-8
-            - libcurl4-openssl-dev
-            - libelf-dev
-            - libdw-dev
-      env:
-        - COMPILER="clang++-8" SANITIZE=false CXX_STANDARD="17"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-xenial-8
-          packages:
-            - g++-6
-            - clang-8
-            - libcurl4-openssl-dev
-            - libelf-dev
-            - libdw-dev
-      env:
-        - COMPILER="clang++-8" SANITIZE=false CXX_STANDARD="2a"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
           packages:
             - g++-4.8
             - libcurl4-openssl-dev
@@ -265,6 +235,32 @@ matrix:
             - libdw-dev
       env:
         - COMPILER="g++-8" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-8" SANITIZE=true CXX_STANDARD="17"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-8" SANITIZE=true CXX_STANDARD="20"
 
     - os: linux
       addons:
