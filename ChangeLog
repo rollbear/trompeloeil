@@ -1,3 +1,7 @@
+	* Fixed issue 157 where it was impossible to place an expectation on a
+	  reference to a non-copyable type. This fix also resolved a number of
+	  problems with older compilers. See docs/Backward.md for details.
+
 	* Fixed clang-tidy warning, misc-non-private-member-variables-in-classes,
 	  that leaks into application code from the Trompeloeil header.
 
