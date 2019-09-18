@@ -981,8 +981,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: rvalue reference parameter can be compared with nullptr in WITH",
@@ -1001,10 +999,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
-
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1025,8 +1019,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1224,8 +1216,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: wildcard matches unique_ptr<> value type",
@@ -1238,8 +1228,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1282,7 +1270,60 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable non-const lvalue reference type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptrr(_));
+    std::unique_ptr<int> p;
+    u.uptrr(p);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable rvalue reference type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptrrr(_));
+    std::unique_ptr<int> p;
+    u.uptrrr(std::move(p));
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable non-const value type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptr(_));
+    std::unique_ptr<int> p;
+    u.uptr(std::move(p));
+  }
+  REQUIRE(reports.empty());
+}
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches non-copyable const lvalue reference type",
+  "[C++1][C++14][matching]")
+{
+  {
+    C_ptr u;
+    REQUIRE_CALL_V(u, uptrcr(_));
+    std::unique_ptr<int> p;
+    u.uptrcr(p);
+  }
+  REQUIRE(reports.empty());
+}
 
 TEST_CASE_METHOD(
   Fixture,
@@ -1297,10 +1338,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
-
-#if TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: wildcard matches parameter const rvalue reference type",
@@ -1313,8 +1350,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2968,7 +3003,6 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
 
 // tests of parameter matching using neg_matcher
 
-#if TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -2983,9 +3017,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#endif /* TROMPELOEIL_TEST_NEG_MATCHER_FAILURES */
-
-#if TROMPELOEIL_TEST_NEG_MATCHER_FAILURES
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3012,7 +3043,6 @@ Tried obj\.str\(!trompeloeil::eq\("foo"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
-#endif /* TROMPELOEIL_TEST_NEG_MATCHER_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,
@@ -3103,8 +3133,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-#if TROMPELOEIL_TEST_OVERLOAD_FAILURES
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: ptr to overloaded ptr matches equal deref",
@@ -3118,8 +3146,6 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
-
-#endif /* TROMPELOEIL_TEST_OVERLOAD_FAILURES */
 
 TEST_CASE_METHOD(
   Fixture,

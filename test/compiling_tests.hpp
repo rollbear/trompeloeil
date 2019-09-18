@@ -32,9 +32,6 @@
 
 #define TROMPELOEIL_TEST_REGEX_FAILURES 1
 #define TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES 1
-#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 1
-#define TROMPELOEIL_TEST_NEG_MATCHER_FAILURES 1
-#define TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES 1
 
 #else /* defined(_MSC_VER) */
 
@@ -91,47 +88,6 @@
 #endif
 
 #endif /* !defined(TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES) */
-
-/*
- * GCC 4.8 has issues with overloading that affects wildcard
- * and duck_typed_matcher.
- */
-#if !defined(TROMPELOEIL_TEST_OVERLOAD_FAILURES)
-
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
-#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 0
-#else
-#define TROMPELOEIL_TEST_OVERLOAD_FAILURES 1
-#endif
-
-#endif /* !defined(TROMPELOEIL_TEST_OVERLOAD_FAILURES) */
-
-/*
- * GCC 4.8 has issues with overloading that affects neg_matcher.
- */
-#if !defined(TROMPELOEIL_TEST_NEG_MATCHER_FAILURES)
-
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
-#define TROMPELOEIL_TEST_NEG_MATCHER_FAILURES 0
-#else
-#define TROMPELOEIL_TEST_NEG_MATCHER_FAILURES 1
-#endif
-
-#endif /* !defined(TROMPELOEIL_TEST_NEG_MATCHER_FAILURES) */
-
-/*
- * GCC 4.8 has issues with user-defined conversions to rvalue references
- * that affects duck_typed_matcher and wildcard.
- */
-#if !defined(TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES)
-
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40900
-#define TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES 0
-#else
-#define TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES 1
-#endif
-
-#endif /* !defined(TROMPELOEIL_TEST_RVALUE_REFERENCE_FAILURES) */
 
 #endif /* !defined(_MSC_VER) */
 
@@ -414,6 +370,7 @@ public:
   MAKE_MOCK1(uptr, void(std::unique_ptr<int>));
   MAKE_MOCK1(uptrrr, void(std::unique_ptr<int>&&));
   MAKE_MOCK1(uptrcr, void(std::unique_ptr<int> const&));
+  MAKE_MOCK1(uptrr, void(std::unique_ptr<int>&));
   MAKE_MOCK1(strptr, void(std::string*));
   MAKE_MOCK1(pp, void(int**));
   MAKE_MOCK1(overloaded, void(int**));

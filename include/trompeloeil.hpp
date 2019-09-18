@@ -937,35 +937,13 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    // This abomination of constructor seems necessary for g++ 4.9 and 5.1
-    template <typename ... T>
-    constexpr
-    wildcard(
-      T&& ...)
-    noexcept
-    {}
-
-#if (!TROMPELOEIL_GCC) || \
-    (TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 40900)
-
-    // g++ 4.8 gives a "conversion from <T> to <U> is ambiguous" error
-    // if this operator is defined.
-    template <typename T,
-              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
+    template <typename T>
     operator T&&()
     const;
 
-#endif
-
-    template <
-      typename T,
-      typename = detail::enable_if_t<
-        can_copy_construct<T>::value
-        || !can_move_construct<T>::value
-      >
-    >
+    template <typename T>
     operator T&()
-    const;
+    const volatile; // less preferred than T&& above
 
     template <typename T>
     constexpr
@@ -1011,9 +989,8 @@ template <typename T>
     operator T&&() const;
 
     template <typename T,
-              typename = decltype(std::declval<T>() == nullptr),
-              typename = detail::enable_if_t<can_copy_construct<T>::value>>
-    operator T&()const;
+              typename = decltype(std::declval<T>() == nullptr)>
+    operator T&()const volatile;
 
     template <typename T, typename C>
     operator T C::*() const;
@@ -1038,7 +1015,7 @@ template <typename T>
     template <typename V,
               typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&, T...>>
-    operator V&() const;
+    operator V&() const volatile;
   };
 
   template <typename T>

@@ -11,12 +11,6 @@ write_basic_package_version_file(
   VERSION 34
   COMPATIBILITY AnyNewerVersion)
 
-if (CXX_STANDARD MATCHES "11")
-  set(CMAKE_CXX_STANDARD 11)
-else()
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-
 add_library(trompeloeil INTERFACE)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -40,7 +34,11 @@ endif()
 
 if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
-  set(CMAKE_CXX_STANDARD 14)
+  if (${CXX_STANDARD})
+    set(CMAKE_CXX_STANDARD ${CXX_STANDARD})
+  else()
+    set(CMAKE_CXX_STANDARD 14)
+  endif()
   set(CMAKE_CXX_STANDARD_REQUIRED YES)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -51,7 +49,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
     file(
       DOWNLOAD
-        https://github.com/catchorg/Catch2/releases/download/v2.7.0/catch.hpp  ${CATCH_DIR}/catch.hpp
+        https://github.com/catchorg/Catch2/releases/download/v2.9.2/catch.hpp  ${CATCH_DIR}/catch.hpp
       STATUS
         status
       LOG

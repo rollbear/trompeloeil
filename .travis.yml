@@ -163,6 +163,57 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-8
+          packages:
+            - g++-6
+            - clang-8
+            - libc++-8-dev
+            - libc++abi-8-dev
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-8
+          packages:
+            - g++-6
+            - clang-8
+            - libc++-8-dev
+            - libc++abi-8-dev
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++" CXX_STANDARD="17"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-8
+          packages:
+            - g++-6
+            - clang-8
+            - libc++-8-dev
+            - libc++abi-8-dev
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++" CXX_STANDARD="20"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
             - g++-4.8
             - libcurl4-openssl-dev
@@ -242,12 +293,64 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - g++-8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-8" SANITIZE=true CXX_STANDARD="17"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-8" SANITIZE=true CXX_STANDARD="20"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
             - g++-9
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
       env:
         - COMPILER="g++-9" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-9" SANITIZE=true  CXX_STANDARD="17"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-9" SANITIZE=true  CXX_STANDARD="20"
 
     - os: osx
       osx_image: xcode11
