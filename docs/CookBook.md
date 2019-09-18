@@ -1064,6 +1064,36 @@ void test()
 Above there is a requirement that the function is called with a non-null
 `std::unique_ptr<int>`, which points to a value of `3`.
 
+If the signature of the function is to a reference, you can also use
+[`std::ref()`](https://en.cppreference.com/w/cpp/utility/functional/ref) to
+bind a reference in the expectation.
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(std::unique_ptr<int>&));
+};
+
+void func_to_test(Mock& m, std::unique_ptr<int>& ptr);
+
+void test()
+{
+  Mock m;
+  auto p = std::make_unique<int>(3);
+  {
+    REQUIRE_CALL(m, func(std::ref(p)))
+      .LR_WITH(&_1 == &p); // ensure same object, not just equal value
+    func_to_test(m, p);
+  }
+}
+```
+
+Note that the check for a matching parameter defaults to using `operator==`.
+If you want to ensure that it is the exact same object, not just one with the
+same value, you need to compare the addresses of the parameter and the
+expected value, as shown in the example above.
+
 ### <A name="matching_overloads"/> Matching calls to overloaded member functions
 
 Distinguishing between overloads is simple when using exact values to match
