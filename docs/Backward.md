@@ -464,256 +464,46 @@ the C\+\+11 API became available.
 
 ## <A name="gxx48x_limitations"/> G\+\+ 4.8.x limitations
 
-Trompeloeil's support for `g++ 4.8.x` is limited by significant
-compiler and standard library defects.
+Trompeloeil's support for `g++ 4.8.x` is limited by compiler and standard
+library defects.
 
 ### <A name="gxx48x_compiler"/> Compiler defects
 
-Compiling Trompeloeil with any version of `g++-4.8` results in
-compile-time errors that are not present in `g++-4.9` or later.
+`g++-4.8.3` and older suffers from [bug 58714](
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58714) which causes the
+wrong overload to be selected when overloads for mock functions exists
+for both `T&&` and `const T&` parameters.
 
-For example, when both of these user-defined conversion operators
-are defined in `duck_type_matcher`,
+Example:
 
-```cpp
-    template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&&>(), std::declval<T>()...))>
-    operator V&&() const;
+```Cpp
+struct S
+{
+    MAKE_MOCK1(func, void(const int&));
+    MAKE_MOCK1(func, void(int&&));
+};
 
-    template <typename V,
-              typename = decltype(std::declval<Pred>()(std::declval<V&>(), std::declval<T>()...))>
-    operator V&() const;
+void test()
+{
+  S s;
+  REQUIRE_CALL_V(s, func(ANY(const int&)));
+
+  const int i = 0;
+  s.func(i);
+}
 ```
 
-compiling the test cases gives errors similar to this one
+With `g++-4.8.3` and older, this is reported as:
 
 ```text
-error: conversion from
-‘trompeloeil::predicate_matcher<trompeloeil::lambdas::equal, trompeloeil::lambdas::equal_printer, trompeloeil::duck_typed_matcher<trompeloeil::lambdas::equal, long int>, long int>’
-to
-‘trompeloeil::param_list_t<void(int), 0ul> {aka int}’ is ambiguous
-      REQUIRE_CALL_V(obj, func_v(trompeloeil::eq(3L)));
+No match for call of func with signature void(const int&) with.
+
+  param  _1 == 1
 ```
 
-One workaround is not to define `operator V&&() const` but instead
-explicitly define conversion operators for just those types that
-are needed to pass the test cases.  For `duck_type_matcher` this
-means declaring the conversion operator
+because the expectation is wrongly placed on the `int&&` overload.
 
-```cpp
-operator std::string&&()
-const;
-```
-
-This error is also generated in `wildcard` when both of these
-user-defined conversion operators are defined,
-
-```cpp
-    template <typename T,
-              typename = detail::enable_if_t<!std::is_lvalue_reference<T>::value>>
-    operator T&&()
-    const;
-
-    template <typename T,
-              typename = detail::enable_if_t<std::is_copy_constructible<T>::value
-                                             || !std::is_move_constructible<T>::value>>
-    operator T&()
-    const;
-```
-
-In order to have the test cases pass, for `wildcard` these
-conversion operators were declared,
-
-```cpp
-    template <typename T>
-    operator std::unique_ptr<T>&&()
-    const;
-
-    operator int&&()
-    const;
-```
-
-instead of `operator T&&() const`.
-
-Even so, this still leaves some test case failures that have
-been guarded with these predicates,
-
-```cpp
-!(TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION < 40804)
-```
-
-#### <A name="gxx48x_compiler_rvalue_ref"/> Rvalue reference failures
-
-Given mock functions
-
-```cpp
-class C
-{
-public:
-  virtual std::unique_ptr<int> ptr(std::unique_ptr<int>&&) = 0;
-};
-
-struct mock_c : public C
-{
-  MAKE_MOCK1(ptr, std::unique_ptr<int>(std::unique_ptr<int>&&), override);
-};
-
-class U
-{
-public:
-  MAKE_MOCK1(func_rr, void(int&&));
-  MAKE_MOCK1(func_crr, void(const int&&));
-  MAKE_MOCK1(func_uniqv, void(std::unique_ptr<int>));
-};
-```
-
-when using `g++-4.8`, the following expectations fail to compile,
-
-```cpp
-  {
-    mock_c obj;
-
-    REQUIRE_CALL_V(obj, ptr(_),
-      .WITH(_1 != nullptr)
-      .RETURN(std::move(_1)));
-  }
-
-  {
-    mock_c obj;
-    auto pi = new int{3};
-
-    REQUIRE_CALL_V(obj, ptr(_),
-      .WITH(_1.get() == pi)
-      .RETURN(std::move(_1)));
-  }
-
-  {
-    U u;
-    REQUIRE_CALL_V(u, func_uniqv(_));
-  }
-
-  {
-    U u;
-    REQUIRE_CALL_V(u, func_rr(_));
-  }
-
-  {
-    U u;
-    REQUIRE_CALL_V(u, func_crr(_));
-  }
-```
-
-with the message,
-
-```text
-no known conversion for argument 1
-from
-‘const trompeloeil::wildcard’
-to
-‘trompeloeil::param_list_t<[signature], 0ul>.
-```
-
-A "workaround" is to declare user-defined conversion functions in
-`wildcard` (any maybe `duck_typed_matcher`) for the types that require it,
-such as the following,
-
-```cpp
-  template <typename T>
-  operator std::unique_ptr<T>&&()
-  const;
-
-  operator int&&()
-  const;
-```
-
-This workaround has not been applied to the Trompeloeil `wildcard` class,
-since it is impossible to determine in advance which user-defined conversions
-are required.
-
-#### <A name="gxx48x_compiler_overload"/> Overload failures
-
-Given mock functions
-
-```cpp
-struct C_ptr
-{
-  MAKE_MOCK1(overloaded, void(int**));
-  MAKE_MOCK1(overloaded, void(std::string*));
-};
-
-C_ptr obj;
-```
-
-when using `g++-4.8`, the following expectation fails to compile,
-
-```cpp
-REQUIRE_CALL_V(obj, overloaded(*trompeloeil::eq(nullptr)));
-```
-
-with the message `error: call of overloaded ... is ambiguous`.
-
-A workaround is to explicitly specify the template parameter to the matcher,
-
-```cpp
-REQUIRE_CALL_V(obj, overloaded(*trompeloeil::eq<int*>(nullptr)));
-```
-
-#### <A name="gxx48x_compiler_neg_matcher"/> ! matcher failures
-
-Given the mock function
-
-```cpp
-struct mock_str
-{
-  MAKE_MOCK1(str, void(std::string));
-};
-
-mock_str obj;
-```
-
-when using `g++-4.8`, the following expectation fails to compile,
-
-```cpp
-REQUIRE_CALL_V(obj, str(!trompeloeil::eq("foo")));
-```
-
-with the message `error: no matching function for call to ...`.
-
-A workaround is to explicitly specify the template parameter to the matcher,
-
-```cpp
-REQUIRE_CALL_V(obj, str(!trompeloeil::eq<std::string>("foo")));
-```
-
-#### <A name="gxx48x_compiler_any_matcher"/> ANY matcher failures
-
-Given mock functions
-
-```cpp
-struct U
-{
-  MAKE_MOCK1(func, void(int&));
-  MAKE_MOCK1(func, void(const int&));
-  MAKE_MOCK1(func, void(int&&));
-};
-```
-
-when using `g++-4.8.3`, the following expectation compiles,
-
-```cpp
-REQUIRE_CALL_V(u, func(ANY(const int&)));
-```
-
-but generates an unhandled exception at runtime.
-
-There is no known workaround at this time.
-
-#### <A name="gxx48x_compiler_matcher_summary"/> Summary of compiler matcher failures
-
-Your test cases may or may not trigger these failures also.
-Perhaps you may find a workaround, perhaps not.
-
-Consider moving to a compiler other than `g++-4.8`.
+Consider moving to a more modern compiler.
 
 ### <A name="gxx48x_library"/> Standard library defects
 
