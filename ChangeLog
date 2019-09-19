@@ -1,3 +1,9 @@
+	* Partially fixed issue 155, where an unfulfilled expectation, when
+	  built with the default throwing reporter, terminated without a
+	  message when compiled with gcc and optimization. With the partial
+	  fix the program still terminates, but with the correct violation
+	  message displayed.
+
 	* Fixed issue 157 where it was impossible to place an expectation on a
 	  reference to a non-copyable type. This fix also resolved a number of
 	  problems with older compilers. See docs/Backward.md for details.

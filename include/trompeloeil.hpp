@@ -3646,6 +3646,7 @@ template <typename T>
     void
     report_missed(
       char const *reason)
+    noexcept
     {
       reported = true;
       report_unfulfilled(
