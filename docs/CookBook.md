@@ -8,6 +8,7 @@
   - [Mocking a class template](#mocking_class_template)
   - [Mocking non-virtual member functions](#mocking_non_virtual)
   - [Mocking free functions](#mocking_free_functions)
+  - [Mocking functions which return a template](#mocking_return_template)
 - [Setting Expectations](#setting_expectations)
   - [Matching exact values](#matching_exact_values)
   - [Matching values with conditions](#matching_conditions)
@@ -794,6 +795,18 @@ void a_test()
 
   function_under_test();
 }
+```
+
+### <A name="mocking_return_template"/> Mocking functions which return a template
+
+To use template as return type you have to put the signature into parentheses
+like this:
+
+```Cpp
+struct M
+{
+  MAKE_MOCK2(make, (std::pair<int,int>(int,int)));
+};
 ```
 
 ## <A name="setting_expectations"/> Setting Expectations

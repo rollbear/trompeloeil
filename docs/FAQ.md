@@ -610,7 +610,16 @@ work poorly with templates. It sees the parameters to the
 macro above as `make`, `std::pair<int`, followed by `int>(int,int)`, which
 of course is nonsense and causes compilation errors.
 
-One way around this is to create an alias:
+One easy way around this is to put the signature into parentheses:
+
+```Cpp
+struct M
+{
+  MAKE_MOCK2(make, (std::pair<int,int>(int,int)));
+};
+```
+
+Or if you prefer the legacy way, create an alias:
 
 ```Cpp
 using pair_int_int = std::pair<int,int>;
@@ -621,7 +630,7 @@ struct M
 };
 ```
 
-This works around the preprocessor parameter problem.
+These work around the preprocessor parameter problem.
 
 Another way, if you're mocking an interface, is to use
 [**`trompeloeil::mock_interface<T>`**](reference.md/#mock_interface)
