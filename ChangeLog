@@ -1,3 +1,9 @@
+	* Improvements to documentation. Thanks to:
+
+	    Robert Dailey <rcdailey@gmail.com>
+	    Yuri Timenkov <yuri@timenkov.ru>
+	    Viatorus <lutztonineubert@gmail.com>
+
 	* Partially fixed issue 155, where an unfulfilled expectation, when
 	  built with the default throwing reporter, terminated without a
 	  message when compiled with gcc and optimization. With the partial
