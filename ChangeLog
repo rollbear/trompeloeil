@@ -4,6 +4,14 @@
 	    Yuri Timenkov <yuri@timenkov.ru>
 	    Viatorus <lutztonineubert@gmail.com>
 
+	* Improved DocTest integration. Thanks to:
+
+	    Cristian Morales Vega <cristian@samknows.com>
+
+	* CMakeLists.txt honours CMAKE_INSTALL_LIBDIR. Thanks to:
+
+	    Cristian Morales Vega <cristian@samknows.com>
+
 	* Partially fixed issue 155, where an unfulfilled expectation, when
 	  built with the default throwing reporter, terminated without a
 	  message when compiled with gcc and optimization. With the partial
@@ -14,7 +22,7 @@
 	  reference to a non-copyable type. This fix also resolved a number of
 	  problems with older compilers. See docs/Backward.md for details.
 
-	* Fixed clang-tidy warning, misc-non-private-member-variables-in-classes,
+	* Fixed clang-tidy warning, misc-non-private-member-variables-in-classes
 	  that leaks into application code from the Trompeloeil header.
 
 v34 2019-04-01
