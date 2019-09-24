@@ -8,7 +8,7 @@ include(CheckCXXCompilerFlag)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
-  VERSION 34
+  VERSION 35
   COMPATIBILITY AnyNewerVersion)
 
 add_library(trompeloeil INTERFACE)
