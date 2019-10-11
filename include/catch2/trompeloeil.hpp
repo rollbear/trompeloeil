@@ -2,6 +2,7 @@
  * Trompeloeil C++ mocking framework
  *
  * Copyright Björn Fahller 2014-2019
+ * Copyright Tore Martin Hagen 2019
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -43,6 +44,13 @@ namespace trompeloeil
       CAPTURE(failure);
       CHECK(failure.empty());
     }
+  }
+
+  template <>
+  inline void reporter<specialized>::sendOk(
+    const char* trompeloeil_mock_calls_done_correctly)
+  {      
+      REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
   }
 }
 

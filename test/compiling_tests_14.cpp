@@ -2,6 +2,7 @@
  * Trompeloeil C++ mocking framework
  *
  * Copyright Björn Fahller 2014-2018
+ * Copyright Tore Martin Hagen 2019
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -4943,6 +4944,56 @@ TEST_CASE_METHOD(
   m.f0();
   m.f1(0);
   m.f2(0,1);
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: REQUIRE_CALL genereate OK-report when satisfied",
+  "[C++14][matching]")
+{
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo("bar"));
+    obj.foo("bar");
+  }
+  REQUIRE(okReports.size() == 1U);
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: REQUIRE_CALL doesn't genereate OK-report when not satisfied",
+  "[C++14][matching]")
+{
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo("bar"));
+  }
+  REQUIRE(okReports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: ALLOW_CALL genereate OK-report when satisfied",
+  "[C++14][matching]")
+{
+  {
+    mock_c obj;
+    ALLOW_CALL(obj, foo("bar"));
+    obj.foo("bar");
+  }
+  REQUIRE(okReports.size() == 1U);
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: ALLOW_CALL doesn't genereate OK-report when not satisfied",
+  "[C++14][matching]")
+{
+  {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo("bar"));
+  }
+  REQUIRE(okReports.empty());
 }
 
 #endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
