@@ -3,6 +3,7 @@
  *
  * Copyright Björn Fahller 2014-2019
  * Copyright (C) 2017, 2018 Andrew Paxie
+ * Copyright Tore Martin Hagen 2019
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -872,6 +873,14 @@ namespace trompeloeil
   }
 
   template <typename T>
+  void
+  send_ok_report(
+    std::string const &msg)
+  {
+    reporter<T>::sendOk(msg.c_str());
+  }
+
+  template <typename T>
   struct reporter
   {
     static
@@ -881,6 +890,12 @@ namespace trompeloeil
       char const *file,
       unsigned long line,
       char const *msg);
+
+    static
+    void
+    sendOk(
+      char const *msg);
+
   };
 
   template <typename T>
@@ -894,6 +909,12 @@ namespace trompeloeil
       reporter_obj()(s, file, line, msg);
     }
 
+  template <typename T>
+  void reporter<T>::
+    sendOk(char const* /*msg*/)
+    {
+    }
+    
   template <typename ... T>
   inline
   constexpr
@@ -3032,6 +3053,17 @@ using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
   }
 
   template <typename Sig>
+  void
+  report_match(
+    call_matcher_list <Sig> &matcher_list)
+  {
+    if(! matcher_list.empty())
+    {
+        send_ok_report<specialized>((matcher_list.begin())->name);
+    }
+  }
+   
+  template <typename Sig>
   class return_handler
   {
   public:
@@ -3958,6 +3990,9 @@ using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
                       e.saturated,
                       func_name + std::string(" with signature ") + sig_name,
                       param_value);
+    }
+    else{
+        report_match(e.active);
     }
     trace_agent ta{i->loc, i->name, tracer_obj()};
     try
