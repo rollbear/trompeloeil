@@ -175,6 +175,28 @@ location. An example is an unexpected call to a
 are no expectations. In these cases `file` will be `""` string and
 `line` == 0.
 
+### Status OK reporting
+It is possible to make an adaption to the reporter that will be called if
+an expectation is met. This can be useful for correct counting and reporting
+from the testing framework.
+
+Provide an inline specialization of the
+`trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function.
+The function should call a matcher in the testing framework that always
+yields true.
+
+Below, as an example, is the adapter for the Catch2 unit testing frame
+work, in the file <catch2/trompeloeil.hpp>
+
+```Cpp
+  template <>
+  inline void reporter<specialized>::sendOk(
+    const char* trompeloeil_mock_calls_done_correctly)
+  {      
+      REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+  }
+```
+
 ### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch2](https://github.com/catchorg/Catch2)
 
 The easiest way to use *Trompeloeil* with *Catch2* is to

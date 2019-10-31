@@ -137,6 +137,7 @@ struct report
 };
 
 extern std::vector<report> reports;
+extern std::vector<std::string> okReports;
 
 namespace trompeloeil
 {
@@ -154,6 +155,11 @@ namespace trompeloeil
         throw reported{};
       }
     }
+      
+    static void sendOk(char const* msg)
+    {
+        okReports.push_back(msg);
+    }
   };
 }
 
@@ -161,6 +167,7 @@ struct Fixture
 {
   Fixture() {
     reports.clear();
+    okReports.clear();
   }
 };
 

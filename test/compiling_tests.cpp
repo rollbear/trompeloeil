@@ -30,6 +30,7 @@
 #include "compiling_tests.hpp"
 
 std::vector<report> reports;
+std::vector<std::string> okReports;
 
 int
 intfunc(int i)
