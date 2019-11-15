@@ -40,6 +40,17 @@ namespace trompeloeil
       DOCTEST_ADD_FAIL_CHECK_AT(f, line, msg);
     }
   }
+
+  template <>
+  inline void reporter<specialized>::sendOk(
+    const char* trompeloeil_mock_calls_done_correctly)
+  {
+#ifdef DOCTEST_CONFIG_TREAT_CHAR_STAR_AS_STRING
+    DOCTEST_REQUIRE_UNARY(trompeloeil_mock_calls_done_correctly);
+#else
+    DOCTEST_REQUIRE_NE(doctest::String(trompeloeil_mock_calls_done_correctly), "");
+#endif
+  }
 }
 
 
