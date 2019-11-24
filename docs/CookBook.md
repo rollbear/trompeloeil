@@ -177,8 +177,9 @@ are no expectations. In these cases `file` will be `""` string and
 
 ### Status OK reporting
 It is possible to make an adaption to the reporter that will be called if
-an expectation is met. This can be useful for correct counting and reporting
-from the testing framework.
+a positive expectation is met. This can be useful for correct counting and reporting
+from the testing framework. Negative expectations like `FORBID_CALL` and
+`.TIMES(0)` are not counted. 
 
 Provide an inline specialization of the
 `trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function.
@@ -195,6 +196,31 @@ work, in the file <catch2/trompeloeil.hpp>
   {      
       REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
   }
+```
+
+Below is a simple example for *Catch2*:
+
+```Cpp
+class MockFoo
+{
+public:
+    MAKE_MOCK0(func, void());
+};
+
+TEST_CASE("Foo test")
+{
+    MockFoo foo;
+    REQUIRE_CALL(foo, func()).TIMES(2,4);
+    foo.func();
+    foo.func();
+}
+```
+
+When the test is executed we get the following output
+```sh
+$ ./footest
+===============================================================================
+All tests passed (2 assertions in 1 test case)
 ```
 
 ### <A name="adapt_catch"/>Use *Trompeloeil* with [Catch2](https://github.com/catchorg/Catch2)
