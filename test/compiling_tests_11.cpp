@@ -938,6 +938,26 @@ TEST_CASE_METHOD(
   REQUIRE(s == "8");
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: THROW from a function returning a non-default constructible type",
+  "[c++11][C++14][return values]")
+{
+  int thrown = 0;
+  try {
+    mock_c obj;
+    REQUIRE_CALL_V(obj, no_default_return(),
+        .THROW(8));
+    obj.no_default_return();
+    FAIL("didn't throw");
+  }
+  catch (int n)
+  {
+    thrown = n;
+  }
+  REQUIRE(thrown == 8);
+}
+
 // WITH and LR_WITH tests
 
 TEST_CASE_METHOD(

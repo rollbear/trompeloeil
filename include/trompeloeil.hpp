@@ -3358,12 +3358,13 @@ template <typename T>
         try
         {
           h(p);
+          abort();
         }
         catch (...)
         {
           throw;
         }
-        return R();
+        return default_return<R>(); // unreachable code
       }
 
     private:
