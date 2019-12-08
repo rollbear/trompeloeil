@@ -164,6 +164,11 @@ struct Fixture
   }
 };
 
+struct not_default_constructible
+{
+  not_default_constructible(int) {}
+};
+
 struct uncopyable
 {
   uncopyable() {}
@@ -277,6 +282,7 @@ public:
   MAKE_MOCK1(getter, unmovable&(unmovable&), override);
   MAKE_MOCK1(getter, int(int), override);
   MAKE_MOCK2(getter, void(int, std::string&), override);
+  MAKE_MOCK0(no_default_return, not_default_constructible());
   using C::p_;
 };
 
