@@ -3986,6 +3986,17 @@ TEST_CASE_METHOD(
   REQUIRE(os.str() == "pseudo_null_comparable");
 }
 
+#if not defined(__GNUC__) || __GNUC__ >= 5 || defined(__clang__)
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: An object that is constructible from null, but not comparable with null, is printed using its ostream insertion",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, null_constructible{nullptr});
+  REQUIRE(os.str() == "null_constructible");
+}
+#endif
 // tests on scoping (lifetime) of expectations
 
 TEST_CASE_METHOD(

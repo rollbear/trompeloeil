@@ -1074,25 +1074,34 @@ template <typename T>
     char fill;
   };
 
+  struct indirect_null {
+    operator std::nullptr_t() const;
+  };
+
   template <typename T, typename U>
-  using equality_comparison = decltype((std::declval<T>() == std::declval<U>())
+  using equality_comparison = decltype((std::declval<T const&>() == std::declval<U const&>())
                                        ? true
                                        : false);
 
   template <typename T, typename U>
   using is_equal_comparable = is_detected<equality_comparison, T, U>;
 
+#if defined(__GNUC__) && not defined(__clang__) && __GNUC__ <= 4
+template <typename T>
+using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
+#else
   template <typename T>
-  using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
-
+  using is_null_comparable = is_equal_comparable<T, indirect_null>;
+#endif
   template <typename T>
   inline
   constexpr
-  bool
+  auto
   is_null(
     T const &t,
     std::true_type)
-  noexcept(noexcept(std::declval<const T&>() == nullptr))
+  noexcept(noexcept(std::declval<T const&>() == nullptr))
+  -> decltype(t == nullptr)
   {
     return t == nullptr;
   }
@@ -1259,6 +1268,15 @@ template <typename T>
     {
       streamer<T>::print(os, t);
     }
+  }
+
+  inline
+  void
+  print(
+      std::ostream& os,
+      std::nullptr_t)
+  {
+    os << "nullptr";
   }
 
   inline
@@ -2205,7 +2223,7 @@ template <typename T>
         T const&)
       const
       {
-          return !::trompeloeil::is_null(str.c_str())
+          return str.c_str()
                  && std::regex_search(str.c_str(), re, match_type);
       }
 
