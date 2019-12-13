@@ -225,6 +225,7 @@ struct uncomparable_string {
     return s == rh.s;
   }
   bool operator==(const char*) const = delete;
+  friend bool operator==(const char*, uncomparable_string) = delete;
   friend
   std::ostream& operator<<(std::ostream& os, const uncomparable_string& u)
   {
@@ -233,9 +234,22 @@ struct uncomparable_string {
   std::string s;
 };
 
+class null_constructible {
+public:
+  null_constructible(int* p_)  : p(p_) {}
+  bool operator==(null_constructible rh) const { return *p == *rh.p; }
+  friend std::ostream& operator<<(std::ostream& os, const null_constructible&)
+  {
+    return os << "null_constructible";
+  }
+private:
+  int* p;
+};
+
 struct null_comparable {
   void* p;
   bool operator==(std::nullptr_t) const noexcept { return !p; }
+  friend bool operator==(std::nullptr_t, null_comparable n) { return !n.p; }
   friend std::ostream& operator<<(std::ostream& os, const null_comparable&)
   {
     return os << "null_comparable";
@@ -244,6 +258,7 @@ struct null_comparable {
 
 struct pseudo_null_comparable {
   void operator==(std::nullptr_t) const {} // looking at you, boost::variant<>!
+  friend void operator==(std::nullptr_t, pseudo_null_comparable) {}
   friend
   std::ostream& operator<<(std::ostream& os, const pseudo_null_comparable&)
   {
