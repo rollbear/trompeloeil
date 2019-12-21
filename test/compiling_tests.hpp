@@ -232,7 +232,6 @@ struct uncomparable_string {
     return s == rh.s;
   }
   bool operator==(const char*) const = delete;
-  friend bool operator==(const char*, uncomparable_string) = delete;
   friend
   std::ostream& operator<<(std::ostream& os, const uncomparable_string& u)
   {
