@@ -1097,7 +1097,7 @@ template <typename T>
   template <typename T, typename U>
   using is_equal_comparable = is_detected<equality_comparison, T, U>;
 
-#if defined(__GNUC__) && __GNUC__ <= 4 && !defined(__clang__)
+#if (defined(__GNUC__) && __GNUC__ <= 4 && !defined(__clang__)) || (defined(_MSC_VER) && _MSC_VER < 1910)
 template <typename T>
 using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
 #else
