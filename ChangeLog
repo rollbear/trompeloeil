@@ -1,4 +1,4 @@
-	* Partially fixed issue 138, where an object constructible from nullptr
+	* Partially fixed issue 173, where an object constructible from nullptr
 	  but not comparable with nullptr, would be constructed when printed
 	  (for example when an expectation failed.)
 
