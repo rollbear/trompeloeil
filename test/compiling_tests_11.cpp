@@ -3986,7 +3986,7 @@ TEST_CASE_METHOD(
   REQUIRE(os.str() == "pseudo_null_comparable");
 }
 
-#if not defined(__GNUC__) || __GNUC__ >= 5 || defined(__clang__)
+#if !defined(__GNUC__) || __GNUC__ >= 5 || defined(__clang__)
 TEST_CASE_METHOD(
   Fixture,
   "C++11: An object that is constructible from null, but not comparable with null, is printed using its ostream insertion",

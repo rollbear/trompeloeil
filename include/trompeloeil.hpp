@@ -1054,6 +1054,17 @@ template <typename T>
   };
 
   struct indirect_null {
+#if defined(__GNUC__) && !defined(__clang__)
+    template <typename T, typename C, typename ... As>
+    using memfunptr = T (C::*)(As...);
+
+    template <typename T>
+    operator T*() const;
+    template <typename T, typename C>
+    operator T C::*() const;
+    template <typename T, typename C, typename ... As>
+    operator memfunptr<T,C,As...>() const;
+#endif
     operator std::nullptr_t() const;
   };
 
@@ -1065,7 +1076,7 @@ template <typename T>
   template <typename T, typename U>
   using is_equal_comparable = is_detected<equality_comparison, T, U>;
 
-#if defined(__GNUC__) && not defined(__clang__) && __GNUC__ <= 4
+#if defined(__GNUC__) && __GNUC__ <= 4 && !defined(__clang__)
 template <typename T>
 using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
 #else
