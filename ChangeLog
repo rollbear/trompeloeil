@@ -1,3 +1,5 @@
+v36 2019-04-01
+
 	* Status reporting of passed expectation calls as sucessful assertions in
 	  DOCTEST and Catch2. Thanks to:
 
