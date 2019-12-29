@@ -1,3 +1,20 @@
+	* Status reporting of passed expectation calls as sucessful assertions in
+	  DOCTEST and Catch2. Thanks to:
+
+	    Tore Martin Hagen <tore@instanes.name> for Catch2
+	    Cristian Morales Vega <cristian@samknows.com> for DOCTEST
+
+	  You get the support via the provided headers
+
+	    #include <catch2/trompeloeil.hpp>
+	    #include <doctest/trompeloeil.hpp>
+
+	  See the CookBook for information about adding such hooks for other unit
+	  testing frame works.
+
+	* Fixed issue 172 where THROW() would not compile if the function returns
+	  a type that is not default constructible.
+
 	* Partially fixed issue 173, where an object constructible from nullptr
 	  but not comparable with nullptr, would be constructed when printed
 	  (for example when an expectation failed.)
