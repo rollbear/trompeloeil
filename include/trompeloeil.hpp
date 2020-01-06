@@ -150,8 +150,17 @@
   TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__,                          \
                                          15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
+#if defined(_MSC_VER)
+
+#define TROMPELOEIL_CONCAT_(x, y, ...) x ## y __VA_ARGS__
+#define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
+
+#else /* defined(_MSC_VER) */
+
 #define TROMPELOEIL_CONCAT_(x, ...) x ## __VA_ARGS__
 #define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
+
+#endif /* !defined(_MSC_VER) */
 
 #define TROMPELOEIL_REMOVE_PAREN(...) TROMPELOEIL_CONCAT(TROMPELOEIL_CLEAR_,   \
   TROMPELOEIL_REMOVE_PAREN_INTERNAL __VA_ARGS__)
@@ -1075,7 +1084,7 @@ template <typename T>
   };
 
   struct indirect_null {
-#if defined(__GNUC__) && !defined(__clang__)
+#if TROMPELOEIL_GCC
     template <typename T, typename C, typename ... As>
     using memfunptr = T (C::*)(As...);
 
@@ -1085,7 +1094,7 @@ template <typename T>
     operator T C::*() const;
     template <typename T, typename C, typename ... As>
     operator memfunptr<T,C,As...>() const;
-#endif
+#endif /* TROMPELOEIL_GCC */
     operator std::nullptr_t() const;
   };
 
@@ -1097,13 +1106,14 @@ template <typename T>
   template <typename T, typename U>
   using is_equal_comparable = is_detected<equality_comparison, T, U>;
 
-#if (defined(__GNUC__) && __GNUC__ <= 4 && !defined(__clang__)) || (defined(_MSC_VER) && _MSC_VER < 1910)
-template <typename T>
-using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
+  template <typename T>
+  using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
 #else
   template <typename T>
   using is_null_comparable = is_equal_comparable<T, indirect_null>;
 #endif
+
   template <typename T>
   inline
   constexpr
@@ -4351,7 +4361,7 @@ using is_null_comparable = is_equal_comparable<T, std::nullptr_t>;
   }                                                                            \
                                                                                \
   ::trompeloeil::return_of_t<TROMPELOEIL_REMOVE_PAREN(sig)>                    \
-  name(TROMPELOEIL_PARAM_LIST(num, TROMPELOEIL_REMOVE_PAREN(sig)))             \
+  name(TROMPELOEIL_PARAM_LIST(num, sig))                                       \
   constness                                                                    \
   spec                                                                         \
   {                                                                            \

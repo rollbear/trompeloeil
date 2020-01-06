@@ -3385,6 +3385,7 @@ TEST_CASE_METHOD(
 
 Tried obj\.uptrrr\(\*trompeloeil::eq\(3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected \*_1 == 3):";
+    INFO("msg=" << reports.front().msg);
     REQUIRE(is_match(reports.front().msg, re));
   }
 }
@@ -3958,7 +3959,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: A null-comparable object is printed as 'nullptr' if eqeual",
+  "C++11: A null-comparable object is printed as 'nullptr' if equal",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3968,7 +3969,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: A null-comparable object is printed as using its ostream insertion if ueqeual",
+  "C++11: A null-comparable object is printed as using its ostream insertion if unequal",
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
@@ -3986,7 +3987,10 @@ TEST_CASE_METHOD(
   REQUIRE(os.str() == "pseudo_null_comparable");
 }
 
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 5) || (defined(_MSC_VER) && _MSC_VER >= 1910)
+#if !(defined(_MSC_VER) && _MSC_VER < 1910)
+// Disable this test case for Microsoft Visual Studio 2015
+// until a working implementation of is_null_comparable is found
+// for this compiler.
 TEST_CASE_METHOD(
   Fixture,
   "C++11: An object that is constructible from null, but not comparable with null, is printed using its ostream insertion",
@@ -3996,7 +4000,8 @@ TEST_CASE_METHOD(
   trompeloeil::print(os, null_constructible{nullptr});
   REQUIRE(os.str() == "null_constructible");
 }
-#endif
+#endif /* !(defined(_MSC_VER) && _MSC_VER < 1910) */
+
 // tests on scoping (lifetime) of expectations
 
 TEST_CASE_METHOD(
