@@ -24,6 +24,8 @@ class TrompeloelConan(ConanFile):
     no_copy_source = True
     # No settings/options are necessary, this is header only
 
+    def package_id(self):
+        self.info.header_only()
 
     def package(self):
         self.copy("include/*")
