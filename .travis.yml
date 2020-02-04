@@ -1,6 +1,11 @@
 language: cpp
 dist: xenial
 
+env:
+  global:
+    - PYENV_VERSION=3.7
+    - PATH=$PATH:~/Library/Python/3.7/bin HOMEBREW_NO_INSTALL_CLEANUP=1
+
 matrix:
   include:
     - os: linux
@@ -190,7 +195,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++" CXX_STANDARD="17"
+        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++" CXX_STANDARD="17" CONAN_COMPILER=clang CC_VERSION=8
 
     - os: linux
       addons:
@@ -233,7 +238,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-4.9" SANITIZE=true
+        - COMPILER="g++-4.9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=4.9
 
     - os: linux
       addons:
@@ -324,7 +329,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-9" SANITIZE=true
+        - COMPILER="g++-9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=9.2
 
     - os: linux
       addons:
@@ -356,7 +361,7 @@ matrix:
       osx_image: xcode11
       compiler: clang
       env:
-        - COMPILER="clang++" SANITIZE=false
+        - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=11.0 CC_LIBCXX=libc++
 
     - os: osx
       osx_image: xcode10.3
@@ -368,7 +373,7 @@ matrix:
       osx_image: xcode9
       compiler: clang
       env:
-        - COMPILER="clang++" SANITIZE=false
+        - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=9.0 CC_LIBCXX=libc++
 
     - os: osx
       osx_image: xcode8
@@ -380,12 +385,17 @@ matrix:
       osx_image: xcode7.3
       compiler: clang
       env:
-        - COMPILER="clang++" SANITIZE=false
+        - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=7.3 CC_LIBCXX=libc++
 
 install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       which cmake || brew install cmake
+      which pip3 || brew upgrade python@3 || brew upgrade python@3 || true
+    fi
+  - |
+    if [[ ! -z "${CONAN_COMPILER}" ]]; then
+      pip3 -v install --user conan
     fi
 
 before_script:
@@ -402,6 +412,17 @@ before_script:
         exit 1 ;
       fi ;
     }
+  - |
+    if [[ ! -z "${CONAN_COMPILER}" ]]; then
+      conan --version
+      export CC_LIBCXX=${CC_LIBCXX:-libstdc++11} # Default to GCC
+      conan create \
+        -e CXX=${COMPILER} \
+        -s compiler=${CONAN_COMPILER} \
+        -s compiler.version=${CC_VERSION} \
+        -s compiler.libcxx=${CC_LIBCXX} \
+        . testuser/testchannel
+    fi
   - mkdir build && cd build
   - CXX=${COMPILER} cmake -DCXX_STANDARD="${CXX_STANDARD}" -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
   - make VERBOSE=1 self_test

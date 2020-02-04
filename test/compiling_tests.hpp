@@ -171,6 +171,11 @@ struct Fixture
   }
 };
 
+struct not_default_constructible
+{
+  not_default_constructible(int) {}
+};
+
 struct uncopyable
 {
   uncopyable() {}
@@ -235,9 +240,22 @@ struct uncomparable_string {
   std::string s;
 };
 
+class null_constructible {
+public:
+  null_constructible(int* p_)  : p(p_) {}
+  bool operator==(null_constructible rh) const { return *p == *rh.p; }
+  friend std::ostream& operator<<(std::ostream& os, const null_constructible&)
+  {
+    return os << "null_constructible";
+  }
+private:
+  int* p;
+};
+
 struct null_comparable {
   void* p;
   bool operator==(std::nullptr_t) const noexcept { return !p; }
+  friend bool operator==(std::nullptr_t, null_comparable n) { return !n.p; }
   friend std::ostream& operator<<(std::ostream& os, const null_comparable&)
   {
     return os << "null_comparable";
@@ -246,6 +264,7 @@ struct null_comparable {
 
 struct pseudo_null_comparable {
   void operator==(std::nullptr_t) const {} // looking at you, boost::variant<>!
+  friend void operator==(std::nullptr_t, pseudo_null_comparable) {}
   friend
   std::ostream& operator<<(std::ostream& os, const pseudo_null_comparable&)
   {
@@ -284,6 +303,7 @@ public:
   MAKE_MOCK1(getter, unmovable&(unmovable&), override);
   MAKE_MOCK1(getter, int(int), override);
   MAKE_MOCK2(getter, void(int, std::string&), override);
+  MAKE_MOCK0(no_default_return, not_default_constructible());
   using C::p_;
 };
 
