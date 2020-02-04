@@ -56,6 +56,7 @@ sample adaptations are:
 - [lest](#adapt_lest)
 - [boost Unit Test Framework](#adapt_boost_unit_test_framework)
 - [MSTest](#adapt_mstest)
+- [Criterion](#adapt_criterion)
 
 There are two mechanisms for adapting to a testing frame work. The compile time
 adapter and the run time adapter. The compile time adapter is easier to use,
@@ -179,7 +180,7 @@ are no expectations. In these cases `file` will be `""` string and
 It is possible to make an adaption to the reporter that will be called if
 a positive expectation is met. This can be useful for correct counting and reporting
 from the testing framework. Negative expectations like `FORBID_CALL` and
-`.TIMES(0)` are not counted. 
+`.TIMES(0)` are not counted.
 
 Provide an inline specialization of the
 `trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function.
@@ -562,6 +563,51 @@ Place the below code snippet in, for example, your `TEST_CLASS_INITIALIZE(...)`
     Assert::Fail(wideMsg.c_str(), line == 0 ? nullptr : &loc);
   });
 ```
+
+### <A name="adapt_criterion"/>Use *Trompeloeil* with [Criterion](https://github.com/Snaipe/Criterion)
+
+The easiest way to use *Trompeloeil* with *Criterion* is to
+`#include <criterion/trompeloeil.hpp>` in your test .cpp files. Note that the
+inclusion order is important. `<criterion/criterion.hpp>` must be included before
+`<criterion/trompeloeil.hpp>`.
+
+Like this:
+
+```Cpp
+#include <criterion/criterion.hpp>
+#include <criterion/trompeloeil.hpp>
+
+Test(...
+```
+If you instead prefer a runtime adapter, make sure to call
+
+
+```Cpp
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    std::string const& msg)
+  {
+    struct criterion_assert_stats cr_stat__;
+    cr_stat__.passed = false;
+    cr_stat__.file = file;
+    cr_stat__.line = line;
+    cr_stat__.message = msg;
+    if (s == severity::fatal)
+    {
+        criterion_send_assert(&cr_stat__);
+        CR_FAIL_ABORT_();
+    }
+    else
+    {
+        criterion_send_assert(&cr_stat__);
+        CR_FAIL_CONTINUES_();
+    }
+  });
+```
+
+before running any tests.
 
 ## <A name="creating_mock_classes"/> Creating Mock Classes
 
