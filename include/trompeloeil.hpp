@@ -1084,8 +1084,10 @@ template <typename T>
   };
 
   struct indirect_null {
+#if !TROMPELOEIL_CLANG
     template <typename T>
     operator T&&() const = delete;
+#endif
 #if TROMPELOEIL_GCC
 
     template <typename T, typename C, typename ... As>
