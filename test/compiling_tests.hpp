@@ -176,6 +176,15 @@ struct not_default_constructible
   not_default_constructible(int) {}
 };
 
+struct QCharIsh {
+  QCharIsh();
+  QCharIsh(int);
+};
+
+bool operator==(QCharIsh,QCharIsh);
+bool operator==(std::nullptr_t,QCharIsh);
+bool operator==(QCharIsh,std::nullptr_t);
+
 struct uncopyable
 {
   uncopyable() {}
