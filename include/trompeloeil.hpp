@@ -1084,9 +1084,9 @@ template <typename T>
   };
 
   struct indirect_null {
-#if TROMPELOEIL_GCC
     template <typename T>
     operator T&&() const = delete;
+#if TROMPELOEIL_GCC
 
     template <typename T, typename C, typename ... As>
     using memfunptr = T (C::*)(As...);
