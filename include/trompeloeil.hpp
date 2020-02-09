@@ -1085,7 +1085,10 @@ template <typename T>
 
   struct indirect_null {
 #if !TROMPELOEIL_CLANG
-    template <typename T>
+    template <
+      typename T,
+      typename = detail::enable_if_t<!std::is_constructible<T, std::nullptr_t>::value>
+    >
     operator T&&() const = delete;
 #endif
 #if TROMPELOEIL_GCC
