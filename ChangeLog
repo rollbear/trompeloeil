@@ -1,3 +1,5 @@
+v37 2020-02-09
+
 	* Added adapter for the Criterion unit testing framework. Thanks you
 
 	  Etienne Barbier <etienne.barbier@atos.net>
@@ -13,7 +15,7 @@
 	* Fix issue 173 for GCC 4.x by performing testing to confirm
 	  correctness of existing code.
 
-v36 2019-04-01
+v36 2019-12-29
 
 	* Status reporting of passed expectation calls as sucessful assertions in
 	  DOCTEST and Catch2. Thanks to:
