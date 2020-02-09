@@ -1,3 +1,9 @@
+	* Added adapter for the Criterion unit testing framework. Thanks you
+
+	  Etienne Barbier <etienne.barbier@atos.net>
+
+	* Fixes to Conan packaging. Thank you kert
+
 	* Fix issue 180 for GCC and MSVC, where the presence of a type
 	  like Qt5/QChar broke compilation of unrelated mock signatures.
 
