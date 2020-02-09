@@ -155,7 +155,7 @@ namespace trompeloeil
         throw reported{};
       }
     }
-      
+
     static void sendOk(char const* msg)
     {
         okReports.push_back(msg);

@@ -923,7 +923,7 @@ namespace trompeloeil
     sendOk(char const* /*msg*/)
     {
     }
-    
+
   template <typename ... T>
   inline
   constexpr
@@ -3080,7 +3080,7 @@ template <typename T>
         send_ok_report<specialized>((matcher_list.begin())->name);
     }
   }
-   
+
   template <typename Sig>
   class return_handler
   {
