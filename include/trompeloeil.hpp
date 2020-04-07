@@ -760,6 +760,8 @@ namespace trompeloeil
                                            unsigned long line,
                                            std::string const &msg)>;
 
+  using ok_reporter_func = std::function<void(char const *msg)>;
+
   inline
   void
   default_reporter(
@@ -777,10 +779,25 @@ namespace trompeloeil
   }
 
   inline
+  void
+  default_ok_reporter(char const* /*msg*/)
+  {
+    /* OK reporter defaults to doing nothing. */
+  }
+
+  inline
   reporter_func&
   reporter_obj()
   {
     static reporter_func obj = default_reporter;
+    return obj;
+  }
+
+  inline
+  ok_reporter_func&
+  ok_reporter_obj()
+  {
+    static ok_reporter_func obj = default_ok_reporter;
     return obj;
   }
 
@@ -790,6 +807,16 @@ namespace trompeloeil
     reporter_func f)
   {
     return detail::exchange(reporter_obj(), std::move(f));
+  }
+
+  inline
+  reporter_func
+  set_reporter(
+    reporter_func rf,
+    ok_reporter_func orf)
+  {
+    detail::exchange(ok_reporter_obj(), std::move(orf));
+    return set_reporter(rf);
   }
 
   class tracer;
@@ -911,8 +938,9 @@ namespace trompeloeil
 
   template <typename T>
   void reporter<T>::
-    sendOk(char const* /*msg*/)
+    sendOk(char const* msg)
     {
+      ok_reporter_obj()(msg);
     }
     
   template <typename ... T>
