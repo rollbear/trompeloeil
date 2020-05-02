@@ -329,7 +329,8 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=9.2
+        # - COMPILER="g++-9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=9.2
+        - COMPILER="g++-9" SANITIZE=true
 
     - os: linux
       addons:
