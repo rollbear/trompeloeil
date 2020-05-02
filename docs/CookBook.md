@@ -154,11 +154,17 @@ using reporter_func = std::function<void(
   char const *file,
   unsigned long line,
   std::string const &msg)>;
-reporter_func trompeloeil::set_reporter(reporter_func new_reporter)
+using ok_reporter_func = std::function<void(char const *msg)>;
+
+reporter_func trompeloeil::set_reporter(reporter_func new_reporter);
+std::pair<reporter_func, ok_reporter_func> trompeloeil::set_reporter(
+  reporter_func new_reporter, ok_reporter_func new_ok_reporter)
 ```
 
 Call it with the adapter to your test frame work. The return value is the old
-adapter.
+adapter. The overload is provided to allow you to also set an 'OK reporter' at
+the same time (it also returns the old 'OK reporter') See the next section for
+details.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
@@ -182,21 +188,36 @@ a positive expectation is met. This can be useful for correct counting and repor
 from the testing framework. Negative expectations like `FORBID_CALL` and
 `.TIMES(0)` are not counted. 
 
-Provide an inline specialization of the
-`trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function.
+Either provide your adapter as an inline specialization of the
+`trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function at
+compile time or as the second argument to
+`trompeloeil::set_reporter(new_reporter, new_ok_reporter)` at runtime.
 The function should call a matcher in the testing framework that always
 yields true.
 
-Below, as an example, is the adapter for the Catch2 unit testing frame
-work, in the file <catch2/trompeloeil.hpp>
+Below, as an example, is the compile time adapter for the Catch2 unit testing frame
+work, in the file `<catch2/trompeloeil.hpp>`
 
 ```Cpp
   template <>
   inline void reporter<specialized>::sendOk(
     const char* trompeloeil_mock_calls_done_correctly)
   {      
-      REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+      REQUIRE(trompeloeil_mock_calls_done_correctly);
   }
+```
+
+If you roll your own `main()`, you may prefer a runtime adapter instead. Please note that the first param given to `set_reporter()` here is a dummy - see the sections below for implementation examples for your unit testing framework of choice.
+
+```Cpp
+trompeloeil::set_reporter(
+  [](auto, auto, auto, auto) {}, // Not relevant here
+  [](const char* trompeloeil_mock_calls_done_correctly)
+    {
+      // Example for Catch2
+      REQUIRE(trompeloeil_mock_calls_done_correctly);
+    }
+);
 ```
 
 Below is a simple example for *Catch2*:
