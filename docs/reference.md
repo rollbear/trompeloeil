@@ -49,6 +49,8 @@
   - [`trompeloeil::lifetime_monitor`](#lifetime_monitor_type)
   - [`trompeloeil::matcher`](#matcher_type)
   - [`trompeloeil::mock_interface<T>`](#mock_interface)
+  - [`trompeloeil::ok_reporter_func`](#ok_reporter_func)
+  - [`trompeloeil::reporter_func`](#reporter_func)
   - [`trompeloeil::sequence`](#sequence_type)
   - [`trompeloeil::severity`](#severity_type)
   - [`trompeloeil::stream_tracer`](#stream_tracer)
@@ -2012,6 +2014,50 @@ void test()
 
 **NOTE!** `mock_interface<T>` cannot be used to inherit multiple interfaces.
 
+### <A name="ok_reporter_func"/>`trompeloeil::ok_reporter_func`
+
+A type used to pass information to the unit testing frame work that a call to a
+[mock function](#mock_function) has not been reprted as a violation.
+
+```Cpp
+using trompeloeil::ok_reporter_func = std::function<const char*>;
+```
+
+The string passed is the parameters to the expectation. E.g.
+
+```Cpp
+struct Mock
+{
+  MAKE_MOCK1(func, void(int));
+};
+
+TEST(...)
+{
+  Mock m;
+  REQUIRE_CALL(m, func(3)); // passes "m.func(3)" to OK reporter
+
+  ...
+}
+```
+
+### <A name="reporter_func"/>`trompeloeil::reporter_func`
+
+A type used to pass information to the unit testing frame work that a call has
+been made in violation of a [mock function](#mock_function).
+
+```Cpp
+using trompeloeil::reporter_func = std::function<void(trompeloeil::severity,
+                                                      char const *file,
+                                                      unsigned long line,
+                                                      const std::string& msg)>;
+```
+
+See [`trompeloeil::severity`](#severity_type).
+
+The parameter `msg` contains detailed information about the violation and
+which (if any) [expectations](#expecation) there are on the
+[mock function](#mock_function).
+
 ### <A name="sequence_type"/>`trompeloeil::sequence`
 
 Type of object used for fine-tuned control of sequencing of matched
@@ -2234,7 +2280,7 @@ Examples are found in the Cook Book under
 
 ### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
 
-This function is used to adapt *Trompeloeil* to your unit test framework
+These functions are used to adapt *Trompeloeil* to your unit test framework
 of choice.
 
 The default reporter throws
@@ -2245,14 +2291,34 @@ If this is not suitable, you can change the report mechanism by
 calling `trompeloeil::set_reporter(...)`
 
 ```Cpp
+reporter_func
 trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
                                              char const *file,
                                              unsigned long line,
                                              const std::string& msg)>)
 ```
 
+The return value is the previous reporter function.
+
+```Cpp
+std::pair<reporter_func, ok_reporter_func>
+trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
+                                             char const *file,
+                                             unsigned long line,
+                                             const std::string& msg)> reporter,
+                          std::function<void(char const* msg> ok_reporter)
+)
+```
+
+The return value is the previous `reporter` and `ok_reporter`. An `ok_reporter`
+is called for every call to a [mock function](#mock_function) that is not reported as a
+violation. By default OK reports are ignored.
+
 See [`trompeloeil::severity`](#severity_type) for the rules that it
 dictates.
+
+See [`trompeloeil::reporter_func`](#reporter_func) and
+[`trompeloeil::ok_reporter_func`](#ok_reporter_func) for details.
 
 The [Cook Book](CookBook.md) lists
 [adapter code](CookBook.md/#unit_test_frameworks) for a number of popular
