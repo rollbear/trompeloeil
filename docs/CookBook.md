@@ -157,12 +157,14 @@ using reporter_func = std::function<void(
 using ok_reporter_func = std::function<void(char const *msg)>;
 
 reporter_func trompeloeil::set_reporter(reporter_func new_reporter);
-reporter_func trompeloeil::set_reporter(
+std::pair<reporter_func, ok_reporter_func> trompeloeil::set_reporter(
   reporter_func new_reporter, ok_reporter_func new_ok_reporter)
 ```
 
 Call it with the adapter to your test frame work. The return value is the old
-adapter. The overload is provided to allow you to also set an 'OK reporter' at the same time. See the next section for details.
+adapter. The overload is provided to allow you to also set an 'OK reporter' at
+the same time (it also returns the old 'OK reporter') See the next section for
+details.
 
 It is important to understand the first parameter
 `trompeloeil::severity`. It is an enum with the values
@@ -187,7 +189,9 @@ from the testing framework. Negative expectations like `FORBID_CALL` and
 `.TIMES(0)` are not counted. 
 
 Either provide your adapter as an inline specialization of the
-`trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function at compile time or as the second argument to `trompeloeil::set_reporter(new_reporter, new_ok_reporter)` at runtime.
+`trompeloeil::reporter<trompeloeil::specialized>::sendOk()` function at
+compile time or as the second argument to
+`trompeloeil::set_reporter(new_reporter, new_ok_reporter)` at runtime.
 The function should call a matcher in the testing framework that always
 yields true.
 

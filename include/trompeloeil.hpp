@@ -819,13 +819,15 @@ namespace trompeloeil
   }
 
   inline
-  reporter_func
+  std::pair<reporter_func, ok_reporter_func>
   set_reporter(
     reporter_func rf,
     ok_reporter_func orf)
   {
-    detail::exchange(ok_reporter_obj(), std::move(orf));
-    return set_reporter(rf);
+    return {
+      set_reporter(rf),
+      detail::exchange(ok_reporter_obj(), std::move(orf))
+    };
   }
 
   class tracer;
