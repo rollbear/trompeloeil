@@ -229,7 +229,7 @@ struct mi : trompeloeil::mock_interface<interface>
   IMPLEMENT_MOCK1(func);
   IMPLEMENT_CONST_MOCK1(cfunc);
   IMPLEMENT_MOCK3(func3);
-  IMPLEMENT_CONST_MOCK3(func3);
+  IMPLEMENT_CONST_MOCK3(func3, noexcept);
 };
 
 struct uncomparable { };
