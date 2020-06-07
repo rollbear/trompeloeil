@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(trompeloeil)
 
+option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ON)
+
 include(GNUInstallDirs)
 include(ExternalProject)
 include(CMakePackageConfigHelpers)
@@ -277,16 +279,18 @@ install(
     ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(
-  FILES
-    LICENSE_1_0.txt
-  DESTINATION
-    ${CMAKE_INSTALL_DOCDIR}
-)
+if(TROMPELOEIL_INSTALL_DOCS)
+  install(
+    FILES
+      LICENSE_1_0.txt
+    DESTINATION
+      ${CMAKE_INSTALL_DOCDIR}
+  )
 
-install(
-  DIRECTORY
-    docs
-  DESTINATION
-    ${CMAKE_INSTALL_DOCDIR}
-)
+  install(
+    DIRECTORY
+      docs
+    DESTINATION
+      ${CMAKE_INSTALL_DOCDIR}
+  )
+endif()
