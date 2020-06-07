@@ -11,7 +11,7 @@
 # Project home: https://github.com/rollbear/trompeloeil
 #
 
-from conans import ConanFile
+from conans import ConanFile, CMake
 
 
 class TrompeloelConan(ConanFile):
@@ -20,7 +20,7 @@ class TrompeloelConan(ConanFile):
     license = "Boost Software License - Version 1.0 - August 17th, 2003"
     url = "https://github.com/rollbear/trompeloeil.git"
     description = "Header only C++14 mocking framework"
-    exports_sources = "include/*", "LICENCE*.txt"
+    exports_sources = "include/*", "LICENSE*.txt", "CMakeLists.txt", "*.cmake", "docs/*"
     no_copy_source = True
     # No settings/options are necessary, this is header only
 
@@ -28,5 +28,8 @@ class TrompeloelConan(ConanFile):
         self.info.header_only()
 
     def package(self):
-        self.copy("include/*")
+        cmake = CMake(self)
+        cmake.definitions["TROMPELOEIL_INSTALL_DOCS"] = "OFF"
+        cmake.configure(build_folder='build')
+        cmake.install()
         self.copy("LICENSE*.txt", dst="licenses")
