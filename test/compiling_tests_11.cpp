@@ -379,6 +379,56 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
+    Fixture,
+    "C++11: ALLOW_CALL in sequence may be skipped",
+    "[C++11][C++14][sequences]")
+{
+  {
+    int count = 0;
+
+    mock_c obj1;
+    trompeloeil::sequence seq1;
+
+    ALLOW_CALL_V(obj1, count(),
+                 .IN_SEQUENCE(seq1)
+                 .RETURN(1));
+
+    REQUIRE_CALL_V(obj1, func(_, _),
+                  .IN_SEQUENCE(seq1));
+
+    std::string s = "apa";
+    obj1.func(count, s);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++11: ALLOW_CALL in sequence may be called",
+    "[C++11][C++14][sequences]")
+{
+  {
+    int count = 0;
+
+    mock_c obj1;
+    trompeloeil::sequence seq1;
+
+    ALLOW_CALL_V(obj1, count(),
+                 .IN_SEQUENCE(seq1)
+                 .RETURN(1));
+
+    REQUIRE_CALL_V(obj1, func(_, _),
+                   .IN_SEQUENCE(seq1));
+
+    obj1.count();
+    std::string s = "apa";
+    obj1.func(count, s);
+  }
+  REQUIRE(reports.empty());
+}
+
+
+TEST_CASE_METHOD(
   Fixture,
   "C++11: calling a sequenced match after seq retires is allowed",
   "[C++11][C++14][sequences]")
