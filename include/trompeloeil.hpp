@@ -1527,7 +1527,7 @@ template <typename T>
     list(const list&) = delete;
     list& operator=(list&&) noexcept;
     list& operator=(const list&) = delete;
-    ~list();
+    ~list() override;
     class iterator;
     iterator begin() const noexcept;
     iterator end() const noexcept;
@@ -2560,7 +2560,7 @@ template <typename T>
       : T(std::forward<U>(u)...)
     {}
 
-    ~deathwatched();
+    ~deathwatched() override;
 
     trompeloeil::lifetime_monitor*&
     trompeloeil_expect_death(
@@ -2765,8 +2765,7 @@ template <typename T>
 
     call_matcher_base(call_matcher_base&&) = delete;
 
-    virtual
-    ~call_matcher_base() = default;
+    ~call_matcher_base() override = default;
 
     virtual
     void
@@ -3207,8 +3206,7 @@ template <typename T>
       : id(n)
     {}
 
-    virtual
-    ~condition_base() = default;
+    ~condition_base() override = default;
 
     virtual
     bool
@@ -3256,8 +3254,7 @@ template <typename T>
   template <typename Sig>
   struct side_effect_base : public list_elem<side_effect_base<Sig>>
   {
-    virtual
-    ~side_effect_base() = default;
+    ~side_effect_base() override = default;
 
     virtual
     void
