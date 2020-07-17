@@ -13,6 +13,8 @@
   - [Glibc 2.26 no longer supplies `xlocale.h`](#defect_xlocale)
   - [Glibc 2.26 `std::signbit()` broken for GCC compilers < 6](#defect_signbit)
   - [Conclusion](#artful_conclusion)
+- [Support platforms without std::recursive_mutex](#custom_recursive_mutex)  
+
 
 ## <A name="using_libcxx"/> Using libc\+\+ with Trompeloeil
 
@@ -521,3 +523,10 @@ A better strategy may be to build GLIBC, GCC 4.8, GCC 5.x, and `libc++`
 from source and use these to build your software.  Then consider
 contributing your build to the Ubuntu Community; you just might be the
 "support" in "community supported".
+
+## <A name="custom_recursive_mutex"/> Support platforms without std::recursive_mutex
+
+Some platforms, especially MCUs with RTOS, don't have native support for std::recursive_mutex.
+To use your own recursive mutex, define `TROMPELOEIL_RECURSIVE_MUTEX` either before including the Trompeloeil header
+(e.g. `#define TROMPELOEIL_RECURSIVE_MUTEX MyRecursiveMutexClass`) or as preprocessor definition
+(e.g. GCC: `-DTROMPELOEIL_RECURSIVE_MUTEX=MyRecursiveMutexClass`).
