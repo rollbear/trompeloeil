@@ -427,7 +427,6 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
-
 TEST_CASE_METHOD(
   Fixture,
   "C++11: calling a sequenced match after seq retires is allowed",
