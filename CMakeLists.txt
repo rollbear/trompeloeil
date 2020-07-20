@@ -203,6 +203,30 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     )
   endif()
 
+  add_executable(
+    custom_recursive_mutex
+    EXCLUDE_FROM_ALL
+    test/custom_recursive_mutex.cpp
+  )
+
+  target_link_libraries(
+    custom_recursive_mutex
+    PUBLIC
+    trompeloeil
+    pthread
+  )
+
+  if (SANITIZE)
+    set_target_properties(
+      custom_recursive_mutex
+      PROPERTIES
+        LINK_FLAGS
+          "${SSAN} -fuse-ld=gold"
+        COMPILE_FLAGS
+          ${SSAN}
+      )
+  endif()
+
   # Shameless hack to get target to work on Windows.
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 

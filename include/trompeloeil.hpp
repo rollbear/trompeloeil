@@ -705,14 +705,10 @@ namespace trompeloeil
   using aligned_storage_for =
     typename std::aligned_storage<sizeof(T), alignof(T)>::type;
 
-# ifndef TROMPELOEIL_RECURSIVE_MUTEX
-#   define TROMPELOEIL_RECURSIVE_MUTEX std::recursive_mutex
-# endif
-
-  using recursive_mutex = TROMPELOEIL_RECURSIVE_MUTEX;
+#ifndef TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX
 
   template <typename T = void>
-  std::unique_lock<recursive_mutex> get_lock()
+  std::unique_lock<std::recursive_mutex> get_lock()
   {
     // Ugly hack for lifetime of mutex. The statically allocated
     // recursive_mutex is intentionally leaked, to ensure that the
@@ -720,10 +716,31 @@ namespace trompeloeil
     // the destructor of a global object in a translation unit
     // without #include <trompeloeil.hpp>
 
-    static aligned_storage_for<recursive_mutex> buffer;
-    static auto mutex = new (&buffer) recursive_mutex;
-    return std::unique_lock<recursive_mutex>{*mutex};
+    static aligned_storage_for<std::recursive_mutex> buffer;
+    static auto mutex = new (&buffer) std::recursive_mutex;
+    return std::unique_lock<std::recursive_mutex>{*mutex};
   }
+
+#else
+
+  class custom_recursive_mutex {
+  public:
+    virtual ~custom_recursive_mutex() = default;
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+  };
+
+  // User has to provide an own recursive mutex.
+  std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex();
+
+  template <typename T = void>
+  std::unique_lock<custom_recursive_mutex> get_lock() {
+    static std::unique_ptr<custom_recursive_mutex> mtx =
+        create_custom_recursive_mutex();
+    return std::unique_lock<custom_recursive_mutex>{*mtx};
+  }
+
+#endif
 
   template <size_t N, typename T>
   using conditional_tuple_element
