@@ -427,6 +427,7 @@ before_script:
   - mkdir build && cd build
   - CXX=${COMPILER} cmake -DCXX_STANDARD="${CXX_STANDARD}" -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
   - make VERBOSE=1 self_test
+  - make VERBOSE=1 custom_recursive_mutex
 
 script:
   make run_self_test

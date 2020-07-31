@@ -705,6 +705,8 @@ namespace trompeloeil
   using aligned_storage_for =
     typename std::aligned_storage<sizeof(T), alignof(T)>::type;
 
+#ifndef TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX
+
   template <typename T = void>
   std::unique_lock<std::recursive_mutex> get_lock()
   {
@@ -718,6 +720,27 @@ namespace trompeloeil
     static auto mutex = new (&buffer) std::recursive_mutex;
     return std::unique_lock<std::recursive_mutex>{*mutex};
   }
+
+#else
+
+  class custom_recursive_mutex {
+  public:
+    virtual ~custom_recursive_mutex() = default;
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+  };
+
+  // User has to provide an own recursive mutex.
+  std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex();
+
+  template <typename T = void>
+  std::unique_lock<custom_recursive_mutex> get_lock() {
+    static std::unique_ptr<custom_recursive_mutex> mtx =
+        create_custom_recursive_mutex();
+    return std::unique_lock<custom_recursive_mutex>{*mtx};
+  }
+
+#endif
 
   template <size_t N, typename T>
   using conditional_tuple_element
@@ -3290,7 +3313,7 @@ template <typename T>
     Action a;
   };
 
-  template <unsigned long long L, unsigned long long H = L>
+  template <size_t L, size_t H = L>
   struct multiplicity { };
 
   template <typename R, typename Parent>
@@ -3311,18 +3334,18 @@ template <typename T>
     static bool const side_effects = true;
   };
 
-  template <typename Parent, unsigned long long H>
+  template <typename Parent, size_t H>
   struct call_limit_injector : Parent
   {
-    static bool               const call_limit_set = true;
-    static unsigned long long const upper_call_limit = H;
+    static bool   const call_limit_set = true;
+    static size_t const upper_call_limit = H;
   };
 
   template <typename Parent>
-  struct call_limit_injector<Parent, 0ULL> : Parent
+  struct call_limit_injector<Parent, 0> : Parent
   {
-    static bool const call_limit_set = true;
-    static unsigned long long const upper_call_limit = 0ULL;
+    static bool   const call_limit_set = true;
+    static size_t const upper_call_limit = 0;
   };
 
   template <typename Parent>
@@ -3418,10 +3441,10 @@ template <typename T>
                     "Multiple RETURN does not make sense");
       static_assert(!throws || upper_call_limit == 0,
                     "THROW and RETURN does not make sense");
-      static_assert(upper_call_limit > 0ULL,
+      static_assert(upper_call_limit > 0,
                     "RETURN for forbidden call does not make sense");
 
-      constexpr bool valid = !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0ULL;
+      constexpr bool valid = !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, std::forward<H>(h));
       return {matcher};
@@ -3490,8 +3513,8 @@ template <typename T>
       return {matcher};
     }
 
-    template <unsigned long long L,
-              unsigned long long H,
+    template <size_t L,
+              size_t H,
               bool               times_set = call_limit_set>
     call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, H>>
     times(
@@ -3530,7 +3553,7 @@ template <typename T>
                     "Multiple IN_SEQUENCE does not make sense."
                     " You can list several sequence objects at once");
 
-      static_assert(upper_call_limit > 0ULL,
+      static_assert(upper_call_limit > 0,
                     "IN_SEQUENCE for forbidden call does not make sense");
 
       matcher->set_sequence(std::forward<T>(t)...);
@@ -3545,8 +3568,8 @@ template <typename T>
     const char* reason,
     char const        *name,
     std::string const &values,
-    unsigned long long min_calls,
-    unsigned long long call_count,
+    size_t min_calls,
+    size_t call_count,
     location           loc)
   {
     std::ostringstream os;
@@ -3588,7 +3611,7 @@ template <typename T>
   {
     using signature = Sig;
     using return_type = void;
-    static unsigned long long const upper_call_limit = 1;
+    static size_t const upper_call_limit = 1;
     static bool const throws = false;
     static bool const call_limit_set = false;
     static bool const sequence_set = false;
@@ -3846,9 +3869,9 @@ template <typename T>
     side_effect_list<Sig>                  actions;
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
-    unsigned long long                     call_count = 0;
-    std::atomic<unsigned long long>        min_calls{1};
-    std::atomic<unsigned long long>        max_calls{1};
+    size_t                                 call_count = 0;
+    std::atomic<size_t>                    min_calls{1};
+    std::atomic<size_t>                    max_calls{1};
     Value                                  val;
     bool                                   reported = false;
   };
@@ -3934,7 +3957,7 @@ template <typename T>
       using sigret = return_of_t<typename call::signature>;
       using ret = typename call::return_type;
       constexpr bool retmatch = std::is_same<ret, sigret>::value;
-      constexpr bool forbidden = call::upper_call_limit == 0ULL;
+      constexpr bool forbidden = call::upper_call_limit == 0;
       constexpr bool valid_return_type = call::throws || retmatch || forbidden;
       static_assert(valid_return_type, "RETURN missing for non-void function");
       auto tag = std::integral_constant<bool, valid_return_type>{};
@@ -4534,13 +4557,13 @@ template <typename T>
 
 // Accept only two arguments
 #define TROMPELOEIL_ALLOW_CALL_F(obj, func)                                    \
-  TROMPELOEIL_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_TIMES(0, ~0ULL))
+  TROMPELOEIL_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_INFINITY_TIMES())
 
 // Accept three or more arguments.
 #define TROMPELOEIL_ALLOW_CALL_T(obj, func, ...)                               \
   TROMPELOEIL_REQUIRE_CALL_T(obj,                                              \
                              func,                                             \
-                             .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
+                             .TROMPELOEIL_INFINITY_TIMES() __VA_ARGS__)
 
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_V(...)                                    \
@@ -4554,13 +4577,14 @@ template <typename T>
 
 // Accept only two arguments
 #define TROMPELOEIL_NAMED_ALLOW_CALL_F(obj, func)                              \
-  TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_TIMES(0, ~0ULL))
+  TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj, func, .TROMPELOEIL_INFINITY_TIMES())
 
 // Accept three or more arguments.
 #define TROMPELOEIL_NAMED_ALLOW_CALL_T(obj, func, ...)                         \
   TROMPELOEIL_NAMED_REQUIRE_CALL_T(obj,                                        \
                                    func,                                       \
-                                   .TROMPELOEIL_TIMES(0, ~0ULL) __VA_ARGS__)
+                                   .TROMPELOEIL_INFINITY_TIMES()               \
+                                   __VA_ARGS__)
 
 
 #define TROMPELOEIL_FORBID_CALL_V(...)                                         \
@@ -4632,7 +4656,7 @@ template <typename T>
 
 #define TROMPELOEIL_ALLOW_CALL_(obj, func, obj_s, func_s)                      \
   TROMPELOEIL_REQUIRE_CALL_(obj, func, obj_s, func_s)                          \
-    .TROMPELOEIL_TIMES(0, ~0ULL)
+    .TROMPELOEIL_INFINITY_TIMES()
 
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL(obj, func)                                \
@@ -4640,7 +4664,7 @@ template <typename T>
 
 #define TROMPELOEIL_NAMED_ALLOW_CALL_(obj, func, obj_s, func_s)                \
   TROMPELOEIL_NAMED_REQUIRE_CALL_(obj, func, obj_s, func_s)                    \
-    .TROMPELOEIL_TIMES(0, ~0ULL)
+    .TROMPELOEIL_INFINITY_TIMES()
 
 
 #define TROMPELOEIL_FORBID_CALL(obj, func)                                     \
@@ -4887,13 +4911,14 @@ template <typename T>
 
 
 #define TROMPELOEIL_TIMES(...) times(::trompeloeil::multiplicity<__VA_ARGS__>{})
+#define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
 
 #define TROMPELOEIL_IN_SEQUENCE(...)                                           \
   in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))
 
 #define TROMPELOEIL_ANY(type) ::trompeloeil::any_matcher<type>(#type)
 
-#define TROMPELOEIL_AT_LEAST(num) num, ~0ULL
+#define TROMPELOEIL_AT_LEAST(num) num, ~static_cast<size_t>(0)
 #define TROMPELOEIL_AT_MOST(num) 0, num
 
 #define TROMPELOEIL_REQUIRE_DESTRUCTION(obj)                                   \
