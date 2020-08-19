@@ -1048,7 +1048,7 @@ namespace trompeloeil
     }
   };
 
-  static constexpr wildcard const _{};
+  static wildcard _{};
 
 
 template <typename T>

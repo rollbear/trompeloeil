@@ -1423,6 +1423,72 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
+  "C++11: wildcard matches tuple<int> by value",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tupv(_));
+    u.func_tupv({1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by lvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    std::tuple<int> tup{1};
+    REQUIRE_CALL_V(u, func_tupr(_));
+    u.func_tupr(tup);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by rvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tuprr(_));
+    u.func_tuprr({1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by const lvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tupcr(_));
+    u.func_tupcr({1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by const rvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tupcrr(_));
+    u.func_tupcrr({1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
   "C++11: ANY can match unique_ptr<> by value",
   "[C++11][C++14][matching]")
 {
