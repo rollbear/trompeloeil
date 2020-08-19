@@ -1,11 +1,8 @@
-language: cpp
+
+language: python
+python:
+  - 3.7
 dist: xenial
-
-env:
-  global:
-    - PYENV_VERSION=3.7
-    - PATH=$PATH:~/Library/Python/3.7/bin HOMEBREW_NO_INSTALL_CLEANUP=1
-
 matrix:
   include:
     - os: linux
@@ -329,8 +326,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        # - COMPILER="g++-9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=9.2
-        - COMPILER="g++-9" SANITIZE=true
+        - COMPILER="g++-9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=9.3
 
     - os: linux
       addons:
@@ -359,30 +355,35 @@ matrix:
         - COMPILER="g++-9" SANITIZE=true  CXX_STANDARD="20"
 
     - os: osx
+      language: c++
       osx_image: xcode11
       compiler: clang
       env:
         - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=11.0 CC_LIBCXX=libc++
 
     - os: osx
+      language: c++
       osx_image: xcode10.3
       compiler: clang
       env:
         - COMPILER="clang++" SANITIZE=false
 
     - os: osx
+      language: c++
       osx_image: xcode9
       compiler: clang
       env:
         - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=9.0 CC_LIBCXX=libc++
 
     - os: osx
+      language: c++
       osx_image: xcode8
       compiler: clang
       env:
         - COMPILER="clang++" SANITIZE=false
 
     - os: osx
+      language: c++
       osx_image: xcode7.3
       compiler: clang
       env:
@@ -394,10 +395,7 @@ install:
       which cmake || brew install cmake
       which pip3 || brew upgrade python@3 || brew upgrade python@3 || true
     fi
-  - |
-    if [[ ! -z "${CONAN_COMPILER}" ]]; then
-      pip3 -v install --user conan
-    fi
+    pip3 install conan
 
 before_script:
   - CXX=${COMPILER} CXXFLAGS=${CXXFLAGS} ./check_errors.sh ||
