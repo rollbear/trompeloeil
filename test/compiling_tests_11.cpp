@@ -1429,7 +1429,7 @@ TEST_CASE_METHOD(
   {
     U u;
     REQUIRE_CALL_V(u, func_tupv(_));
-    u.func_tupv({1});
+    u.func_tupv(std::tuple<int>{1});
   }
   REQUIRE(reports.empty());
 }
@@ -1456,7 +1456,7 @@ TEST_CASE_METHOD(
   {
     U u;
     REQUIRE_CALL_V(u, func_tuprr(_));
-    u.func_tuprr({1});
+    u.func_tuprr(std::tuple<int>{1});
   }
   REQUIRE(reports.empty());
 }
@@ -1469,7 +1469,7 @@ TEST_CASE_METHOD(
   {
     U u;
     REQUIRE_CALL_V(u, func_tupcr(_));
-    u.func_tupcr({1});
+    u.func_tupcr(std::tuple<int>{1});
   }
   REQUIRE(reports.empty());
 }
@@ -1482,7 +1482,7 @@ TEST_CASE_METHOD(
   {
     U u;
     REQUIRE_CALL_V(u, func_tupcrr(_));
-    u.func_tupcrr({1});
+    u.func_tupcrr(std::tuple<int>{1});
   }
   REQUIRE(reports.empty());
 }
