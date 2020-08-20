@@ -341,6 +341,11 @@
   /**/
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
+#if TROMPELOEIL_CPLUSPLUS > 201403L
+#  define TROMPELOEIL_INLINE_VAR inline
+#else
+#  define TROMPELOEIL_INLINE_VAR static
+#endif
 
 static constexpr bool trompeloeil_movable_mock = false;
 
@@ -1048,8 +1053,7 @@ namespace trompeloeil
     }
   };
 
-  static wildcard _{};
-  constexpr const void* wildcard_warning_avoider = &_;
+  TROMPELOEIL_INLINE_VAR wildcard _{};
 
 template <typename T>
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
