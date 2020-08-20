@@ -382,19 +382,6 @@ matrix:
       env:
         - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=9.1 CC_LIBCXX=libc++
 
-    - os: osx
-      language: c++
-      osx_image: xcode8.3
-      compiler: clang
-      env:
-        - COMPILER="clang++" SANITIZE=false
-
-    - os: osx
-      language: c++
-      osx_image: xcode7.3
-      compiler: clang
-      env:
-        - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=7.3 CC_LIBCXX=libc++
 
 install:
   - |
