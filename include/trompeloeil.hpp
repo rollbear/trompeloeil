@@ -1024,7 +1024,7 @@ namespace trompeloeil
 
     template <typename T>
     operator T&()
-    const volatile; // less preferred than T&& above
+    volatile const; // less preferred than T&& above
 
     template <typename T>
     constexpr
@@ -1049,7 +1049,7 @@ namespace trompeloeil
   };
 
   static wildcard _{};
-
+  constexpr const void* wildcard_warning_avoider = &_;
 
 template <typename T>
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
