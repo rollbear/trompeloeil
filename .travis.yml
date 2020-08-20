@@ -356,6 +356,13 @@ matrix:
 
     - os: osx
       language: c++
+      osx_image: xcode12
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANITIZE=false
+
+    - os: osx
+      language: c++
       osx_image: xcode11
       compiler: clang
       env:
