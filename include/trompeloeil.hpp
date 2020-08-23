@@ -341,8 +341,8 @@
   /**/
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
-#if TROMPELOEIL_CPLUSPLUS > 201403L
-#  define TROMPELOEIL_INLINE_VAR static inline
+#if TROMPELOEIL_CPLUSPLUS > 201403L && (!TROMPELOEIL_GCC || TROMPELOEIL_GCC_VERSION >= 70000)
+#  define TROMPELOEIL_INLINE_VAR [[maybe_unused]] static inline
 #else
 #  define TROMPELOEIL_INLINE_VAR static
 #endif
