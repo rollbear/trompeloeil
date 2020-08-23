@@ -342,7 +342,7 @@
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 #if TROMPELOEIL_CPLUSPLUS > 201403L
-#  define TROMPELOEIL_INLINE_VAR inline
+#  define TROMPELOEIL_INLINE_VAR static inline
 #else
 #  define TROMPELOEIL_INLINE_VAR static
 #endif
