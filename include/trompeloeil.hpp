@@ -1023,11 +1023,13 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    template <typename T>
+    template <typename T,
+             detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr>
     operator T&&()
     const;
 
-    template <typename T>
+    template <typename T,
+              detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr>
     operator T&()
     volatile const; // less preferred than T&& above
 
