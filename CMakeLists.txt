@@ -93,8 +93,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -Wno-padded"
              " -Wno-weak-vtables"
              " -Wno-exit-time-destructors"
-             " -Wno-global-constructors"
-             " -Wconversion")
+             " -Wno-global-constructors")
       check_cxx_compiler_flag("-Wno-extra-semi-stmt" WARN_SEMI_STMT)
 
       if (WARN_SEMI_STMT)
