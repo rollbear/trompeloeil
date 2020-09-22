@@ -129,11 +129,17 @@
 #include <cstring>
 #include <regex>
 #include <mutex>
-#include <atomic>
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
 
+
+#ifndef TROMPELOEIL_CUSTOM_ATOMIC
+#include <atomic>
+namespace trompeloeil { using std::atomic; }
+#else
+#include <trompeloeil/custom_atomic.hpp>
+#endif
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -2666,7 +2672,7 @@ template <typename T>
       sequences.reset(seq);
     }
   private:
-    std::atomic<bool>  died{false};
+    atomic<bool>       died{false};
     lifetime_monitor *&object_monitor;
     location           loc;
     char const        *object_name;
@@ -3870,8 +3876,8 @@ template <typename T>
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
     size_t                                 call_count = 0;
-    std::atomic<size_t>                    min_calls{1};
-    std::atomic<size_t>                    max_calls{1};
+    atomic<size_t>                         min_calls{1};
+    atomic<size_t>                         max_calls{1};
     Value                                  val;
     bool                                   reported = false;
   };
