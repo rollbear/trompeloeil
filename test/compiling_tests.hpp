@@ -365,6 +365,11 @@ public:
   MAKE_MOCK1(func_ustr, void(const uncomparable_string&));
   MAKE_MOCK1(func_ustrv, void(uncomparable_string));
   MAKE_MOCK1(func_f, void(std::function<void()>));
+  MAKE_MOCK1(func_tupv, void(std::tuple<int>));
+  MAKE_MOCK1(func_tupr, void(std::tuple<int>&));
+  MAKE_MOCK1(func_tuprr, void(std::tuple<int>&&));
+  MAKE_MOCK1(func_tupcr, void(const std::tuple<int>&));
+  MAKE_MOCK1(func_tupcrr, void(const std::tuple<int>&&x));
   int m;
 };
 

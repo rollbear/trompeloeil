@@ -256,6 +256,19 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - g++-5
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-5" SANITIZE=true CXX_STANDARD="17"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
             - g++-6
             - libcurl4-openssl-dev
             - libelf-dev
@@ -269,12 +282,38 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - g++-6
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-6" SANITIZE=true CXX_STANDARD=17
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
             - g++-7
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
       env:
         - COMPILER="g++-7" SANITIZE=true
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-7" SANITIZE=true CXX_STANDARD=17
 
     - os: linux
       addons:

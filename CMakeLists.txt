@@ -107,7 +107,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              "-Wall"
              " -Wextra"
              " -pedantic"
-             " -Wshadow")
+             " -Wshadow"
+             " -Wconversion")
     endif()
 
     set(WARN_FLAGS "${WARN_FLAGS} -Werror")

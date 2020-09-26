@@ -341,6 +341,11 @@
   /**/
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
+#if TROMPELOEIL_CPLUSPLUS > 201403L && (!TROMPELOEIL_GCC || TROMPELOEIL_GCC_VERSION >= 70000)
+#  define TROMPELOEIL_INLINE_VAR [[maybe_unused]] static inline
+#else
+#  define TROMPELOEIL_INLINE_VAR static
+#endif
 
 static constexpr bool trompeloeil_movable_mock = false;
 
@@ -1018,13 +1023,21 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    template <typename T>
+    template <typename T
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
+              ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
+#endif
+              >
     operator T&&()
     const;
 
-    template <typename T>
+    template <typename T
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
+              ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
+#endif
+              >
     operator T&()
-    const volatile; // less preferred than T&& above
+    volatile const; // less preferred than T&& above
 
     template <typename T>
     constexpr
@@ -1048,8 +1061,7 @@ namespace trompeloeil
     }
   };
 
-  static constexpr wildcard const _{};
-
+  TROMPELOEIL_INLINE_VAR wildcard _{};
 
 template <typename T>
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
