@@ -398,6 +398,23 @@ namespace trompeloeil
 
   namespace detail
   {
+    template <typename T>
+    struct unwrap_type
+    {
+      using type = T;
+    };
+    template <typename T>
+    struct unwrap_type<std::reference_wrapper<T>>
+    {
+      using type = T&;
+    };
+    template <typename ... Ts>
+    std::tuple<typename unwrap_type<typename std::decay<Ts>::type>::type...>
+    make_tuple(Ts&& ... ts)
+    {
+      return { std::forward<Ts>(ts)... };
+    }
+
     /* Implement C++14 features using only C++11 entities. */
 
     /* <memory> */
@@ -4113,7 +4130,7 @@ template <typename T>
 
   template <typename ... U>
   struct param_helper {
-    using type = decltype(std::make_tuple(std::declval<U>()...));
+    using type = decltype(detail::make_tuple(std::declval<U>()...));
   };
 
   template <typename ... U>
@@ -4709,7 +4726,7 @@ template <typename T>
   with(                                                                        \
     arg_s,                                                                     \
     [capture]                                                                  \
-    (trompeloeil_e_t::trompeloeil_call_params_type_t const& trompeloeil_x)     \
+    (typename trompeloeil_e_t::trompeloeil_call_params_type_t const& trompeloeil_x)\
     {                                                                          \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
@@ -4765,7 +4782,9 @@ template <typename T>
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
   sideeffect(                                                                  \
-    [capture](trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x) {\
+    [capture]                                                                  \
+    (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
+    {                                                                          \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
       auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                       \
@@ -4820,8 +4839,9 @@ template <typename T>
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
   handle_return(                                                               \
-    [capture](trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
-      -> trompeloeil_e_t::trompeloeil_return_of_t                              \
+    [capture]                                                                  \
+    (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
+      -> typename trompeloeil_e_t::trompeloeil_return_of_t                     \
     {                                                                          \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
@@ -4877,7 +4897,9 @@ template <typename T>
 
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
   handle_throw(                                                                \
-    [capture](trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x) {\
+    [capture]                                                                  \
+    (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
+    {                                                                          \
       auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                       \
       auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                       \
       auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                       \
