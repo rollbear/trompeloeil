@@ -129,11 +129,23 @@
 #include <cstring>
 #include <regex>
 #include <mutex>
-#include <atomic>
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
 
+
+#ifndef TROMPELOEIL_CUSTOM_ATOMIC
+#include <atomic>
+namespace trompeloeil { using std::atomic; }
+#else
+#include <trompeloeil/custom_atomic.hpp>
+#endif
+
+#ifndef TROMPELOEIL_CUSTOM_UNIQUE_LOCK
+namespace trompeloeil { using std::unique_lock; }
+#else
+#include <trompeloeil/custom_unique_lock.hpp>
+#endif
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
 #include <cassert>
@@ -730,7 +742,7 @@ namespace trompeloeil
 #ifndef TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX
 
   template <typename T = void>
-  std::unique_lock<std::recursive_mutex> get_lock()
+  unique_lock<std::recursive_mutex> get_lock()
   {
     // Ugly hack for lifetime of mutex. The statically allocated
     // recursive_mutex is intentionally leaked, to ensure that the
@@ -740,7 +752,7 @@ namespace trompeloeil
 
     static aligned_storage_for<std::recursive_mutex> buffer;
     static auto mutex = new (&buffer) std::recursive_mutex;
-    return std::unique_lock<std::recursive_mutex>{*mutex};
+    return unique_lock<std::recursive_mutex>{*mutex};
   }
 
 #else
@@ -756,10 +768,11 @@ namespace trompeloeil
   std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex();
 
   template <typename T = void>
-  std::unique_lock<custom_recursive_mutex> get_lock() {
+  unique_lock<custom_recursive_mutex> get_lock()
+  {
     static std::unique_ptr<custom_recursive_mutex> mtx =
         create_custom_recursive_mutex();
-    return std::unique_lock<custom_recursive_mutex>{*mtx};
+    return unique_lock<custom_recursive_mutex>{*mtx};
   }
 
 #endif
@@ -2695,7 +2708,7 @@ template <typename T>
       sequences.reset(seq);
     }
   private:
-    std::atomic<bool>  died{false};
+    atomic<bool>       died{false};
     lifetime_monitor *&object_monitor;
     location           loc;
     char const        *object_name;
@@ -3896,8 +3909,8 @@ template <typename T>
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
     std::unique_ptr<sequence_handler_base> sequences;
     size_t                                 call_count = 0;
-    std::atomic<size_t>                    min_calls{1};
-    std::atomic<size_t>                    max_calls{1};
+    atomic<size_t>                         min_calls{1};
+    atomic<size_t>                         max_calls{1};
     Value                                  val;
     bool                                   reported = false;
   };
