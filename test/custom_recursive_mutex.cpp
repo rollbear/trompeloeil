@@ -13,7 +13,7 @@ std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex() {
     std::recursive_mutex mtx;
   };
 
-  return std::make_unique<custom>();
+  return std::unique_ptr<custom>(new custom);
 }
 
 } // namespace trompeloeil
