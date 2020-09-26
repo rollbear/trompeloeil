@@ -1,3 +1,25 @@
+	* Fix issue 129: Wildcard _ does not match pass-by-value tuple
+	  of only one type.
+
+	* Fix issue 197: Add override to virtual destructors
+	  to avoid -Wsuggest-destructor-override warnings.
+
+v38 2020-06-08
+
+	* Fixed bug where ALLOW_CALL only worked with sequences
+	  if called at least once
+
+	* Fixed bug to support IMPLEMENT_MOCKx and IMPLEMENT_CONST_MOCKx
+	  constexpr
+
+	* More fixes to Conan packaging. Thank you Kai Bernhard.
+
+	* Support OK-reporters from the runtime reporter registration
+	  API. Thank you Moritz Haase.
+
+	* Rewrites to not trigger deprecation warnings in C++17 builds.
+	  Thank you Kasper Laudrup.
+
 v37 2020-02-09
 
 	* Added adapter for the Criterion unit testing framework. Thanks you

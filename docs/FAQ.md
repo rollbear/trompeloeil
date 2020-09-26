@@ -22,6 +22,7 @@
 - Q. [Why are mock objects not move constructible?](#move_constructible)
 - Q. [Why can't I mock a function that returns a template?](#return_template)
 - Q. [Can I mock a `noexcept` function?](#mock_noexcept)
+- Q. [What does it mean that an expectation is "saturated"?](#saturated_expectation)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -661,3 +662,32 @@ which means that any call made in violation of the [expectation](
 reference.md/#expectation) for a
 `noexcept` function leads to program termination. How much information you can
 gain from such an event depends on the runtime system of your tools.
+
+### <A name="saturated_expectation"/> Q. What does it mean that an expectation is "saturated"?
+
+If you see a violation report like this:
+
+```
+[file/line unavailable]:0: FATAL ERROR: No match for call of func with signature void(int) with.
+  param  _1 == -3
+
+Matches saturated call requirement
+  object.func(trompeloeil::_) at example.cpp:240
+```
+
+What this means is that there is an expectation for the call, but that expectation is no
+longer allowed to be called, its maximum call count has been met.
+
+An example:
+```Cpp
+test_func()
+{
+    test_mock obj;
+    REQUIRE_CALL(obj, func(trompeloeil::_))
+      .TIMES(AT_MOST(2));
+ 
+   exercise(obj); // calls obj.func. OK. Expectation is alive, no prior calls, this one is accepted
+   exercise(obj); // calls obj.func. OK. Expectation is alive, one prior call, this one is accepted
+   exercise(obj); // calls obj.func. Fail. Expectation is alive, two prior calls, this one saturated 
+}
+```

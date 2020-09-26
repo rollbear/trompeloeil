@@ -341,6 +341,11 @@
   /**/
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
+#if TROMPELOEIL_CPLUSPLUS > 201403L && (!TROMPELOEIL_GCC || TROMPELOEIL_GCC_VERSION >= 70000)
+#  define TROMPELOEIL_INLINE_VAR [[maybe_unused]] static inline
+#else
+#  define TROMPELOEIL_INLINE_VAR static
+#endif
 
 static constexpr bool trompeloeil_movable_mock = false;
 
@@ -1041,13 +1046,21 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    template <typename T>
+    template <typename T
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
+              ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
+#endif
+              >
     operator T&&()
     const;
 
-    template <typename T>
+    template <typename T
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
+              ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
+#endif
+              >
     operator T&()
-    const volatile; // less preferred than T&& above
+    volatile const; // less preferred than T&& above
 
     template <typename T>
     constexpr
@@ -1071,8 +1084,7 @@ namespace trompeloeil
     }
   };
 
-  static constexpr wildcard const _{};
-
+  TROMPELOEIL_INLINE_VAR wildcard _{};
 
 template <typename T>
   using matcher_access = decltype(static_cast<matcher*>(std::declval<typename std::add_pointer<T>::type>()));
@@ -1550,7 +1562,7 @@ template <typename T>
     list(const list&) = delete;
     list& operator=(list&&) noexcept;
     list& operator=(const list&) = delete;
-    ~list();
+    ~list() override;
     class iterator;
     iterator begin() const noexcept;
     iterator end() const noexcept;
@@ -2583,7 +2595,7 @@ template <typename T>
       : T(std::forward<U>(u)...)
     {}
 
-    ~deathwatched();
+    ~deathwatched() override;
 
     trompeloeil::lifetime_monitor*&
     trompeloeil_expect_death(
@@ -2788,8 +2800,7 @@ template <typename T>
 
     call_matcher_base(call_matcher_base&&) = delete;
 
-    virtual
-    ~call_matcher_base() = default;
+    ~call_matcher_base() override = default;
 
     virtual
     void
@@ -3230,8 +3241,7 @@ template <typename T>
       : id(n)
     {}
 
-    virtual
-    ~condition_base() = default;
+    ~condition_base() override = default;
 
     virtual
     bool
@@ -3279,8 +3289,7 @@ template <typename T>
   template <typename Sig>
   struct side_effect_base : public list_elem<side_effect_base<Sig>>
   {
-    virtual
-    ~side_effect_base() = default;
+    ~side_effect_base() override = default;
 
     virtual
     void
@@ -3936,6 +3945,11 @@ template <typename T>
     {
       auto lock = get_lock();
       m.matcher->hook_last(obj.trompeloeil_matcher_list(static_cast<Tag*>(nullptr)));
+      if (m.matcher->min_calls == 0 && m.matcher->sequences)
+      {
+        m.matcher->sequences->retire();
+      }
+
       return std::unique_ptr<expectation>(m.matcher);
     }
 

@@ -379,6 +379,56 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
+    Fixture,
+    "C++11: ALLOW_CALL in sequence may be skipped",
+    "[C++11][C++14][sequences]")
+{
+  {
+    int count = 0;
+
+    mock_c obj1;
+    trompeloeil::sequence seq1;
+
+    ALLOW_CALL_V(obj1, count(),
+                 .IN_SEQUENCE(seq1)
+                 .RETURN(1));
+
+    REQUIRE_CALL_V(obj1, func(_, _),
+                  .IN_SEQUENCE(seq1));
+
+    std::string s = "apa";
+    obj1.func(count, s);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++11: ALLOW_CALL in sequence may be called",
+    "[C++11][C++14][sequences]")
+{
+  {
+    int count = 0;
+
+    mock_c obj1;
+    trompeloeil::sequence seq1;
+
+    ALLOW_CALL_V(obj1, count(),
+                 .IN_SEQUENCE(seq1)
+                 .RETURN(1));
+
+    REQUIRE_CALL_V(obj1, func(_, _),
+                   .IN_SEQUENCE(seq1));
+
+    obj1.count();
+    std::string s = "apa";
+    obj1.func(count, s);
+  }
+  REQUIRE(reports.empty());
+}
+
+
+TEST_CASE_METHOD(
   Fixture,
   "C++11: calling a sequenced match after seq retires is allowed",
   "[C++11][C++14][sequences]")
@@ -1367,6 +1417,72 @@ TEST_CASE_METHOD(
     U u;
     REQUIRE_CALL_V(u, func_crr(_));
     u.func_crr(1);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by value",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tupv(_));
+    u.func_tupv(std::tuple<int>{1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by lvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    std::tuple<int> tup{1};
+    REQUIRE_CALL_V(u, func_tupr(_));
+    u.func_tupr(tup);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by rvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tuprr(_));
+    u.func_tuprr(std::tuple<int>{1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by const lvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tupcr(_));
+    u.func_tupcr(std::tuple<int>{1});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: wildcard matches tuple<int> by const rvalue reference",
+  "[C++11][C++14][matching]")
+{
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_tupcrr(_));
+    u.func_tupcrr(std::tuple<int>{1});
   }
   REQUIRE(reports.empty());
 }

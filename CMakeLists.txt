@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(trompeloeil)
 
+option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ON)
+
 include(GNUInstallDirs)
 include(ExternalProject)
 include(CMakePackageConfigHelpers)
@@ -8,7 +10,7 @@ include(CheckCXXCompilerFlag)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
-  VERSION 37
+  VERSION 38
   COMPATIBILITY AnyNewerVersion)
 
 add_library(trompeloeil INTERFACE)
@@ -105,7 +107,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              "-Wall"
              " -Wextra"
              " -pedantic"
-             " -Wshadow")
+             " -Wshadow"
+             " -Wconversion")
     endif()
 
     set(WARN_FLAGS "${WARN_FLAGS} -Werror")
@@ -301,16 +304,18 @@ install(
     ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(
-  FILES
-    LICENSE_1_0.txt
-  DESTINATION
-    ${CMAKE_INSTALL_DOCDIR}
-)
+if(TROMPELOEIL_INSTALL_DOCS)
+  install(
+    FILES
+      LICENSE_1_0.txt
+    DESTINATION
+      ${CMAKE_INSTALL_DOCDIR}
+  )
 
-install(
-  DIRECTORY
-    docs
-  DESTINATION
-    ${CMAKE_INSTALL_DOCDIR}
-)
+  install(
+    DIRECTORY
+      docs
+    DESTINATION
+      ${CMAKE_INSTALL_DOCDIR}
+  )
+endif()
