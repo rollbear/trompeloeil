@@ -427,6 +427,33 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: ALLOW_CALL sequenced after REQUIRE_CALL is reported if require is not satisfied",
+  "[C++11][C++14][sequences]")
+{
+  try {
+    mock_c obj;
+    trompeloeil::sequence seq;
+
+    REQUIRE_CALL_V(obj, func(_, _),
+                   .IN_SEQUENCE(seq));
+
+    ALLOW_CALL_V(obj, count(),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+    obj.count();
+    FAIL("did not report out of sequence call");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto re = R":(Sequence mismatch.*seq.*of obj\.count\(\).*has obj\.func\(_, _\).*first):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(is_match(reports.front().msg,  re));
+  }
+}
 
 TEST_CASE_METHOD(
   Fixture,
