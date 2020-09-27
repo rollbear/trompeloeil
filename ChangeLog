@@ -1,3 +1,5 @@
+	* Issue 207: Extend cmake script to allow use of libc++ with g++
+
 	* Fix issue 129: Wildcard _ does not match pass-by-value tuple
 	  of only one type.
 
