@@ -391,7 +391,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-9" SANITIZE=true  CXX_STANDARD="17" CXX_STDLIB="libc++"
+        - COMPILER="g++-9" SANITIZE=false  CXX_STANDARD="17" CXX_STDLIB="libc++"
 
     - os: linux
       addons:

@@ -313,10 +313,11 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
           "-lgcc"
         )
 
-        target_link_options(
+        set_target_properties(
           self_test
-          PUBLIC
-            ${STDLIB_LINK_FLAGS}
+          PROPERTIES
+            LINK_FLAGS
+              ${STDLIB_LINK_FLAGS}
         )
 
         target_link_libraries(
@@ -325,10 +326,11 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
             ${STDLIB_LINK_LIBRARIES}
         )
 
-        target_link_options(
+        set_target_properties(
           thread_terror
-          PUBLIC
-            ${STDLIB_LINK_FLAGS}
+          PROPERTIES
+            LINK_FLAGS
+              ${STDLIB_LINK_FLAGS}
         )
 
         target_link_libraries(
@@ -337,10 +339,11 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
             ${STDLIB_LINK_LIBRARIES}
         )
 
-        target_link_options(
+        set_target_properties(
           custom_recursive_mutex
-          PUBLIC
-            ${STDLIB_LINK_FLAGS}
+          PROPERTIES
+            LINK_FLAGS
+              ${STDLIB_LINK_FLAGS}
         )
 
         target_link_libraries(
