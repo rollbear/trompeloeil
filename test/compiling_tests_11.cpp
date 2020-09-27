@@ -457,6 +457,41 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
+  "C++11: Several ALLOW_CALL and REQUIRE_CALL can be interleaved in a sequence",
+  "[C++11][C++14][sequences]")
+{
+  {
+    mock_c obj;
+    trompeloeil::sequence seq;
+
+    REQUIRE_CALL_V(obj, func(1, _),
+                   .IN_SEQUENCE(seq));
+
+    ALLOW_CALL_V(obj, count(),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+    REQUIRE_CALL_V(obj, func(2, _),
+                   .IN_SEQUENCE(seq));
+
+    ALLOW_CALL_V(obj, count(),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(2));
+
+    std::string foo = "foo";
+
+    obj.func(1, foo);
+    REQUIRE(obj.count() == 1);
+    REQUIRE(obj.count() == 1);
+    obj.func(2, foo);
+    REQUIRE(obj.count() == 2);
+    REQUIRE(obj.count() == 2);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
   "C++11: calling a sequenced match after seq retires is allowed",
   "[C++11][C++14][sequences]")
 {
