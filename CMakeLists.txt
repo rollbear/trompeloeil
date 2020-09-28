@@ -85,6 +85,14 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
 	  )
 
+    set(
+      LIBCXX_PREFIX_PATH
+      "/usr/lib/llvm-8"
+      CACHE
+      PATH
+      "Path prefix to libc++"
+    )
+
     # Interpret CXX_STDLIB, if specified
     if (NOT "${CXX_STDLIB}" STREQUAL "")
 
@@ -95,7 +103,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
           # Disable standard library and
           # set include path to appropriate libc++ headers
-          set(LIBCXX_PREFIX_PATH "/usr/lib/llvm-8")
           string(CONCAT
                  LIBCXX_INCLUDE_PATH
                  "-isystem"
