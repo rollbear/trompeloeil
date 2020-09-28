@@ -13,6 +13,11 @@
   - [Glibc 2.26 no longer supplies `xlocale.h`](#defect_xlocale)
   - [Glibc 2.26 `std::signbit()` broken for GCC compilers < 6](#defect_signbit)
   - [Conclusion](#artful_conclusion)
+- [<A name="incomplete_stdlib"/> Supporting incomplete standard libraries](#a-nameincomplete_stdlib-supporting-incomplete-standard-libraries)
+  - [<A name="custom_recursive_mutex"/> Replacing std::recursive_mutex](#a-namecustom_recursive_mutex-replacing-stdrecursive_mutex)
+  - [<A name="custom_std_atomic"/> Replacing std::atomic\<T\>](#a-namecustom_std_atomic-replacing-stdatomict)
+  - [<A name="custom_std_unique_lock"/> Replacing std::unique_lock\<T\>](#a-namecustom_std_unique_lock-replacing-stdunique_lockt)
+
 
 ## <A name="using_libcxx"/> Using libc\+\+ with Trompeloeil
 
@@ -521,3 +526,126 @@ A better strategy may be to build GLIBC, GCC 4.8, GCC 5.x, and `libc++`
 from source and use these to build your software.  Then consider
 contributing your build to the Ubuntu Community; you just might be the
 "support" in "community supported".
+
+## <A name="incomplete_stdlib"/> Supporting incomplete standard libraries
+
+Some platforms, especially MCUs with RTOS, only have partial support for the standard library `<atomic>` and `<mutex>` headers used by trompeloeil. In many cases, it is possible to provide shims or custom implementations of the necessary parts.
+
+### <A name="custom_recursive_mutex"/> Replacing std::recursive_mutex
+
+To use your own recursive mutex, define `TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX` either before including
+the Trompeloeil header (e.g. `#define TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`) or as preprocessor
+definition (e.g. GCC: `-DTROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`).
+
+Now define in one translation unit your custom recursive mutex for trompeloeil.
+
+```cpp
+
+namespace trompeloeil {
+
+std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex() {
+
+	class custom : public custom_recursive_mutex {
+		void lock() override { mtx.lock(); }
+		void unlock() override { mtx.unlock(); }
+
+	private:
+		mylib::recursive_mutex mtx;
+	};
+
+	return std::make_unique<custom>();
+}
+
+}
+
+```
+
+### <A name="custom_std_atomic"/> Replacing std::atomic\<T\>
+
+To use your own implementation of std::atomic\<T\>, define `TROMPELOEIL_CUSTOM_ATOMIC` and make sure there is a header `trompeloeil/custom_atomic.hpp` somewhere in the include search path.
+
+This header should contain a class template `trompeloeil::atomic<T>` that implements (part of) the interface of `std::atomic<T>`:
+
+```cpp
+
+namespace trompeloeil
+{
+template <typename T>
+class atomic
+{
+public:
+  atomic() : m_atomic()
+  {
+  }
+
+  explicit atomic(const T initial) : m_atomic(initial)
+  {
+  }
+
+  T operator=(T desired)
+  {
+    m_atomic.store(desired);
+    return m_atomic.load();
+  }
+
+  operator T() const
+  {
+    return m_atomic.load();
+  }
+
+private:
+  mylib::atomic<T> m_atomic;
+};
+}
+
+```
+
+### <A name="custom_std_unique_lock"/> Replacing std::unique_lock\<T\>
+
+To use your own implementation of std::unique_lock\<T\>, define `TROMPELOEIL_CUSTOM_UNIQUE_LOCK` and make sure there is a header `trompeloeil/custom_unique_lock.hpp` somewhere in the include search path.
+
+This header should contain a class template `trompeloeil::unique_lock<T>` that implements (part of) the interface of `std::unique_lock<T>`:
+
+```cpp
+
+namespace trompeloeil
+{
+template <typename Mutex>
+class unique_lock
+{
+public:
+  unique_lock() noexcept : m_mutex(nullptr)
+  {
+  }
+
+  explicit unique_lock(Mutex& mutex) : m_mutex(&mutex)
+  {
+    m_mutex->lock();
+  }
+
+  unique_lock(const unique_lock&) = delete;
+  unique_lock(unique_lock&& other) noexcept : m_mutex(nullptr)
+  {
+    std::swap(other.m_mutex, m_mutex);
+  }
+
+  unique_lock& operator=(const unique_lock&) = delete;
+  unique_lock& operator=(unique_lock&& other) noexcept
+  {
+    std::swap(other.m_mutex, m_mutex);
+  }
+
+  ~unique_lock()
+  {
+    if (m_mutex)
+    {
+      m_mutex->unlock();
+    }
+  }
+
+private:
+  Mutex* m_mutex;
+};
+}
+
+```

@@ -85,6 +85,74 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
 	  )
 
+    set(
+      LIBCXX_PREFIX_PATH
+      "/usr/lib/llvm-8"
+      CACHE
+      PATH
+      "Path prefix to libc++"
+    )
+
+    # Interpret CXX_STDLIB, if specified
+    if (NOT "${CXX_STDLIB}" STREQUAL "")
+
+      if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+        # Emulate -stdlib for g++
+        if ("${CXX_STDLIB}" STREQUAL "libc++")
+
+          # Disable standard library and
+          # set include path to appropriate libc++ headers
+          string(CONCAT
+                 LIBCXX_INCLUDE_PATH
+                 "-isystem"
+                 "${LIBCXX_PREFIX_PATH}"
+                 "/include/c++/v1")
+          string(CONCAT
+                 STDLIB_COMPILE_FLAGS
+                 "-nostdinc++"
+                 " "
+                 "${LIBCXX_INCLUDE_PATH}")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STDLIB_COMPILE_FLAGS}")
+
+        elseif ("${CXX_STDLIB}" STREQUAL "libstdc++")
+
+          # This is the default library for g++, nothing to do.
+
+        else()
+
+          # Unknown CXX_STDLIB option
+          message(FATAL_ERROR
+                  "CXX_STDLIB only understands libc++ and libstdc++, not "
+                  "'${CXX_STDLIB}'")
+
+        endif()
+
+      elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+        if (("${CXX_STDLIB}" STREQUAL "libc++") OR
+            ("${CXX_STDLIB}" STREQUAL "libstdc++"))
+
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=${CXX_STDLIB}")
+
+        else()
+
+          # Unknown CXX_STDLIB option
+          message(FATAL_ERROR
+                  "CXX_STDLIB only understands libc++ and libstdc++, not "
+                  "'${CXX_STDLIB}'")
+
+        endif()
+
+      else()
+
+        message(FATAL_ERROR
+                "Only g++ and Clang++ compilers support CXX_STDLIB")
+
+      endif()
+
+    endif()
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       string(CONCAT
              WARN_FLAGS
@@ -204,6 +272,97 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
         COMPILE_FLAGS
           ${TSAN}
     )
+  endif()
+
+  add_executable(
+    custom_recursive_mutex
+    EXCLUDE_FROM_ALL
+    test/custom_recursive_mutex.cpp
+  )
+
+  target_link_libraries(
+    custom_recursive_mutex
+    PUBLIC
+    trompeloeil
+    pthread
+  )
+
+  if (SANITIZE)
+    set_target_properties(
+      custom_recursive_mutex
+      PROPERTIES
+        LINK_FLAGS
+          "${SSAN} -fuse-ld=gold"
+        COMPILE_FLAGS
+          ${SSAN}
+      )
+  endif()
+
+  # Linker support for CXX_STDLIB argument
+  if (NOT ("${CXX_STDLIB}" STREQUAL ""))
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+      if ("${CXX_STDLIB}" STREQUAL "libc++")
+
+        set(LIBCXX_LIBRARY_PATH "${LIBCXX_PREFIX_PATH}/lib")
+        set(STDLIB_LINK_FLAGS
+          -nodefaultlibs
+          -L${LIBCXX_LIBRARY_PATH}
+          -Wl,-rpath,${LIBCXX_LIBRARY_PATH}
+        )
+        set(STDLIB_LINK_LIBRARIES
+          "-lc++"
+          "-lc++abi"
+          "-lm"
+          "-lc"
+          "-lgcc_s"
+          "-lgcc"
+        )
+
+        set_target_properties(
+          self_test
+          PROPERTIES
+            LINK_FLAGS
+              ${STDLIB_LINK_FLAGS}
+        )
+
+        target_link_libraries(
+          self_test
+          PUBLIC
+            ${STDLIB_LINK_LIBRARIES}
+        )
+
+        set_target_properties(
+          thread_terror
+          PROPERTIES
+            LINK_FLAGS
+              ${STDLIB_LINK_FLAGS}
+        )
+
+        target_link_libraries(
+          thread_terror
+          PUBLIC
+            ${STDLIB_LINK_LIBRARIES}
+        )
+
+        set_target_properties(
+          custom_recursive_mutex
+          PROPERTIES
+            LINK_FLAGS
+              ${STDLIB_LINK_FLAGS}
+        )
+
+        target_link_libraries(
+          custom_recursive_mutex
+          PUBLIC
+            ${STDLIB_LINK_LIBRARIES}
+        )
+
+      endif()
+
+    endif()
+
   endif()
 
   # Shameless hack to get target to work on Windows.

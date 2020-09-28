@@ -175,7 +175,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++"
+        - COMPILER="clang++-8" SANITIZE=false CXX_STDLIB="libc++"
 
     - os: linux
       addons:
@@ -192,7 +192,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++" CXX_STANDARD="17" CONAN_COMPILER=clang CC_VERSION=8
+        - COMPILER="clang++-8" SANITIZE=false CXX_STDLIB="libc++" CXX_STANDARD="17" CONAN_COMPILER=clang CC_VERSION=8
 
     - os: linux
       addons:
@@ -209,7 +209,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXXFLAGS="-stdlib=libc++" CXX_STANDARD="20"
+        - COMPILER="clang++-8" SANITIZE=false CXX_STDLIB="libc++" CXX_STANDARD="20"
 
     - os: linux
       addons:
@@ -387,6 +387,21 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-9
+            - libc++-8-dev
+            - libc++abi-8-dev
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+      env:
+        - COMPILER="g++-9" SANITIZE=false  CXX_STANDARD="17" CXX_STDLIB="libc++"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
@@ -456,8 +471,9 @@ before_script:
         . testuser/testchannel
     fi
   - mkdir build && cd build
-  - CXX=${COMPILER} cmake -DCXX_STANDARD="${CXX_STANDARD}" -DCMAKE_BUILD_TYPE=Debug -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
+  - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DCXX_STANDARD="${CXX_STANDARD}" -DCXX_STDLIB="${CXX_STDLIB}" -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
   - make VERBOSE=1 self_test
+  - make VERBOSE=1 custom_recursive_mutex
 
 script:
   make run_self_test
