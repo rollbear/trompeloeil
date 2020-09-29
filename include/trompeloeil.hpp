@@ -534,7 +534,7 @@ namespace trompeloeil
       return old_value;
     }
 
-    /* integer_sequence and index_sequence implemenations are from
+    /* integer_sequence and index_sequence implementations are from
      *
      * Jonathan Wakely, "Compile-time integer sequences,"
      * ISO/IEC JTC1 SC22 WG21 N3658, 18 April 2013.

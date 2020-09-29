@@ -1,72 +1,75 @@
 # Reference
 
-- [Notions](#notions)
-  - [Mock function](#mock_function)
-  - [Mock object](#mock_object)
-  - [Expectation](#expectation)
-  - [Matcher](#matcher)
-    - [_](#wildcard)
-    - [**`ANY(`** *type* **`)`**](#ANY)
-    - [**`eq(`** *value* **`)`**](#eq)
-    - [**`ne(`** *value* **`)`**](#ne)
-    - [**`gt(`** *value* **`)`**](#gt)
-    - [**`ge(`** *value* **`)`**](#ge)
-    - [**`lt(`** *value* **`)`**](#lt)
-    - [**`le(`** *value* **`)`**](#le)
-    - [**`re(`** *string* **`)`**](#re)
-    - [**`*`** *matcher*](#deref_matcher)
-    - [**`!`** *matcher*](#negate_matcher)
-- [Macros](#macros) (alphabetical order)
-  - [**`ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#ALLOW_CALL)
-  - [**`ANY(`** *type* **`)`**](#ANY_MACRO)
-  - [**`AT_LEAST(`** *number* **`)`**](#AT_LEAST)
-  - [**`AT_MOST(`** *number* **`)`**](#AT_MOST)
-  - [**`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#FORBID_CALL)
-  - [**`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_CONST_MOCKn)
-  - [**`IMPLEMENT_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_MOCKn)
-  - [**`IN_SEQUENCE(`** *seq...* **`)`**](#IN_SEQUENCE)
-  - [**`LR_RETURN(`** *expr* **`)`**](#LR_RETURN)
-  - [**`LR_SIDE_EFFECT(`** *expr* **`)`**](#LR_SIDE_EFFECT)
-  - [**`LR_THROW(`** *expr* **`)`**](#LR_THROW)
-  - [**`LR_WITH(`** *expr* **`)`**](#LR_WITH)
-  - [**`MAKE_CONST_MOCKn(`** *func_name*, *signature* **`)`**](#MAKE_CONST_MOCKn)
-  - [**`MAKE_MOCKn(`** *name*, *signature* **`)`**](#MAKE_MOCKn)
-  - [**`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_ALLOW_CALL)
-  - [**`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_FORBID_CALL)
-  - [**`NAMED_REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_REQUIRE_CALL)
-  - [**`NAMED_REQUIRE_DESTRUCTION(`** *mock_object* **`)`**](#NAMED_REQUIRE_DESTRUCTION)
-  - [**`REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#REQUIRE_CALL)
-  - [**`REQUIRE_DESTRUCTION(`** *mock_object* **`)`**](#REQUIRE_DESTRUCTION)
-  - [**`RETURN(`** *expr* **`)`**](#RETURN)
-  - [**`SIDE_EFFECT(`** *expr* **`)`**](#SIDE_EFFECT)
-  - [**`THROW(`** *expr* **`)`**](#THROW)
-  - [**`TIMES(`** *limit* **`)`**](#TIMES)
-  - [**`WITH(`** *expr* **`)`**](#WITH)
-- [Types and Type Templates](#types_and_templates) (alphabetical order)
-  - [`trompeloeil::deadhwatched<T>`](#deathwatched_type)
-  - [`trompeloeil::expectation`](#expectation_type)
-  - [`trompeloeil::expectation_violation`](#expectation_violation_type)
-  - [`trompeloeil::lifetime_monitor`](#lifetime_monitor_type)
-  - [`trompeloeil::matcher`](#matcher_type)
-  - [`trompeloeil::mock_interface<T>`](#mock_interface)
-  - [`trompeloeil::ok_reporter_func`](#ok_reporter_func)
-  - [`trompeloeil::reporter_func`](#reporter_func)
-  - [`trompeloeil::sequence`](#sequence_type)
-  - [`trompeloeil::severity`](#severity_type)
-  - [`trompeloeil::stream_tracer`](#stream_tracer)
-  - [`tropmeloeil::tracer`](#tracer_type)
-  - [`trompeloeil::typed_matcher<T>`](#typed_matcher)
-- [Functions and Function Templates](#functions)
-  - [`trompeloeil::expectation::is_satisfied()`](#is_satisfied)
-  - [`trompeloeil::expectation::is_saturated()`](#is_saturated)
-  - [`trompeloeil::get_lock()`](#get_lock)
-  - [`trompeloeil::is_null(T const &)`](#is_null)
-  - [`trompeloeil::make_matcher<Type>(...)`](#make_matcher)
-  - [`trompeloeil::print(std::ostream&, T const&)`](#print)
-  - [`trompeloeil::set_reporter(...)`](#set_reporter)
-  - [`trompeloeil::sequence::is_completed()`](#is_completed)
-- [Constants](#constants)  
-  - [`trompeloeil_movable_mock`](#movable_mock)
+<!-- spell-checker:disable -->
+- [Reference](#reference)
+  - [<A name="notions"/>Notions](#a-namenotionsnotions)
+    - [<A name="mock_function"/>Mock function](#a-namemock_functionmock-function)
+    - [<A name="mock_object"/>Mock object](#a-namemock_objectmock-object)
+    - [<A name="expectation"/>Expectation](#a-nameexpectationexpectation)
+    - [<A name="matcher"/>Matcher](#a-namematchermatcher)
+      - [<A name="wildcard"/>**`_`**](#a-namewildcard_)
+      - [<A name="ANY"/>**`ANY(`** *type* **`)`**](#a-nameanyany-type-)
+      - [<A name="eq"/>**`eq(`** *value* **`)`**](#a-nameeqeq-value-)
+      - [<A name="ne"/>**`ne(`** *value* **`)`**](#a-namenene-value-)
+      - [<A name="gt"/>**`gt(`** *value* **`)`**](#a-namegtgt-value-)
+      - [<A name="ge"/>**`ge(`** *value* **`)`**](#a-namegege-value-)
+      - [<A name="lt"/>**`lt(`** *value* **`)`**](#a-nameltlt-value-)
+      - [<A name="le"/>**`le(`** *value* **`)`**](#a-namelele-value-)
+      - [<A name="re"/>**`re(`** *string* **`)`**](#a-namerere-string-)
+      - [<A name="deref_matcher"/>**`*`** *matcher*](#a-namederef_matcher-matcher)
+      - [<A name="negate_matcher"/>**`!`** *matcher*](#a-namenegate_matcher-matcher)
+  - [<A name="macros"/>Macros](#a-namemacrosmacros)
+    - [**`ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#allow_call-mock_object-func_nameparameter_list)
+    - [**`ANY(`** *type* **`)`**](#any-type-)
+    - [**`AT_LEAST(`** *number* **`)`**](#at_least-number-)
+    - [**`AT_MOST(`** *number* **`)`**](#at_most-number-)
+    - [**`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#forbid_call-mock_object-func_nameparameter_list)
+    - [**`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**](#implement_const_mockn-func_name-)
+    - [**`IMPLEMENT_MOCKn(`** *func_name* **`)`**](#implement_mockn-func_name-)
+    - [**`IN_SEQUENCE(`** *seq...* **`)`**](#in_sequence-seq-)
+    - [**`LR_RETURN(`** *expr* **`)`**](#lr_return-expr-)
+    - [**`LR_SIDE_EFFECT(`** *expr* **`)`**](#lr_side_effect-expr-)
+    - [**`LR_THROW(`** *expr* **`)`**](#lr_throw-expr-)
+    - [**`LR_WITH(`** *expr* **`)`**](#lr_with-expr-)
+    - [**`MAKE_CONST_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**](#make_const_mockn-func_name-signature--specifiers--)
+    - [**`MAKE_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**](#make_mockn-func_name-signature--specifiers--)
+    - [**`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#named_allow_call-mock_object-func_nameparameter_list)
+    - [**`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#named_forbid_call-mock_object-func_nameparameter_list)
+    - [**`NAMED_REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#named_require_call-mock_object-func_nameparameter_list)
+    - [**`NAMED_REQUIRE_DESTRUCTION(`** *mock_object* **`)`**](#named_require_destruction-mock_object-)
+    - [**`REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#require_call-mock_object-func_nameparameter_list)
+    - [**`REQUIRE_DESTRUCTION(`** *mock_object* **`)`**](#require_destruction-mock_object-)
+    - [**`RETURN(`** *expr* **`)`**](#return-expr-)
+    - [**`SIDE_EFFECT(`** *expr* **`)`**](#side_effect-expr-)
+    - [**`THROW(`** *expr* **`)`**](#throw-expr-)
+    - [**`TIMES(`** *limits* **`)`**](#times-limits-)
+    - [**`WITH(`** *expr* **`)`**](#with-expr-)
+  - [<A name="types_and_templates"/>Types and Templates (alphabetical order)](#a-nametypes_and_templatestypes-and-templates-alphabetical-order)
+    - [<A name="deathwatched_type"/>`trompeloeil::deathwatched<T>`](#a-namedeathwatched_typetrompeloeildeathwatchedt)
+    - [<A name="expectation_type"/>`trompeloeil::expectation`](#a-nameexpectation_typetrompeloeilexpectation)
+    - [<A name="expectation_violation_type"/>`trompeloeil::expectation_violation`](#a-nameexpectation_violation_typetrompeloeilexpectation_violation)
+    - [<A name="lifetime_monitor_type"/>`trompeloeil::lifetime_monitor`](#a-namelifetime_monitor_typetrompeloeillifetime_monitor)
+    - [<A name="matcher_type"/>`trompeloeil::matcher`](#a-namematcher_typetrompeloeilmatcher)
+    - [<A name="mock_interface"/>`trompeloeil::mock_interface<T>`](#a-namemock_interfacetrompeloeilmock_interfacet)
+    - [<A name="ok_reporter_func"/>`trompeloeil::ok_reporter_func`](#a-nameok_reporter_functrompeloeilok_reporter_func)
+    - [<A name="reporter_func"/>`trompeloeil::reporter_func`](#a-namereporter_functrompeloeilreporter_func)
+    - [<A name="sequence_type"/>`trompeloeil::sequence`](#a-namesequence_typetrompeloeilsequence)
+    - [<A name="severity_type"/> `trompeloeil::severity`](#a-nameseverity_type-trompeloeilseverity)
+    - [<A name="stream_tracer"/>`trompeloeil::stream_tracer`](#a-namestream_tracertrompeloeilstream_tracer)
+    - [<A name="tracer_type"/>`trompeloeil::tracer`](#a-nametracer_typetrompeloeiltracer)
+    - [<A name="typed_matcher"/> `trompeloeil::typed_matcher<T>`](#a-nametyped_matcher-trompeloeiltyped_matchert)
+  - [<A name="functions"/>Functions](#a-namefunctionsfunctions)
+    - [<A name="is_satisfied"/> `trompeloeil::expectation::is_satisfied() const`](#a-nameis_satisfied-trompeloeilexpectationis_satisfied-const)
+    - [<A name="is_saturated"/> `trompeloeil::expectation::is_saturated() const`](#a-nameis_saturated-trompeloeilexpectationis_saturated-const)
+    - [<A name="get_lock"/> `trompeloeil::get_lock()`](#a-nameget_lock-trompeloeilget_lock)
+    - [<A name="print"/>`trompeloeil::print(std::ostream& os, T const& t)`](#a-nameprinttrompeloeilprintstdostream-os-t-const-t)
+    - [<A name="is_null"/>`trompeloeil::is_null(T const&)`](#a-nameis_nulltrompeloeilis_nullt-const)
+    - [<A name="make_matcher"/>`trompeloeil::make_matcher<Type>(...)`](#a-namemake_matchertrompeloeilmake_matchertype)
+    - [<A name="set_reporter"/>`trompeloeil::set_reporter(...)`](#a-nameset_reportertrompeloeilset_reporter)
+    - [<A name="is_completed"/> `bool trompeloeil::sequence::is_completed() const`](#a-nameis_completed-bool-trompeloeilsequenceis_completed-const)
+  - [<A name="constants"/>Constants](#a-nameconstantsconstants)
+    - [<A name="movable_mock"/> `trompeloeil_movable_mock`](#a-namemovable_mock-trompeloeil_movable_mock)
+<!-- spell-checker:enable -->
 
 ## <A name="notions"/>Notions
 
@@ -604,7 +607,7 @@ TEST(atest)
 }
 ```
 
-Above, `test_funciton(&mock_obj)` must call `mock_obj.func()` with a pointer
+Above, `test_function(&mock_obj)` must call `mock_obj.func()` with a pointer
 to the value `3`.
 
 #### <A name="negate_matcher"/>**`!`** *matcher*
@@ -630,7 +633,7 @@ TEST(atest)
 }
 ```
 
-Above, `test_funciton(&mock_obj)` must call `mock_obj.func()` with a string
+Above, `test_function(&mock_obj)` must call `mock_obj.func()` with a string
 that does not begin with `"foo"`.
 
 ## <A name="macros"/>Macros
@@ -908,7 +911,6 @@ See also [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) for `const` 
 See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
 member functions.
 
-
 <A name="IN_SEQUENCE"/>
 
 ### **`IN_SEQUENCE(`** *seq...* **`)`**
@@ -966,7 +968,7 @@ All sequence objects are listed in the first [**`REQUIRE_CALL(...)`**](#REQUIRE_
 thus it must be the first [expectation](#expectation) matched. Likewise all
 sequences are listed in the last
 [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL), so it must be last
-[expectaiton](#expectation) matched. The intermediate
+[expectation](#expectation) matched. The intermediate
 [expectations](#expectation) has one sequence object each, thus they have no
 matching order imposed between them. Last of all is the
 [**`REQUIRE_DESTRUCTION(...)`**](#REQUIRE_DESTRUCTION), which also lists
@@ -1895,7 +1897,7 @@ void test_func()
 
 Above, `func1(p)` must not destroy `p`, or a violation is reported, and
 `func2(p)` may not call the [mock function](#mock_function) on `p`, but
-is required to destroy the [mock objeck](#mock_object), or a violation will
+is required to destroy the [mock object](#mock_object), or a violation will
 be reported.
 
 `trompeloeil::deathwatched<T>` inherits from `T`, and the constructor
@@ -1932,7 +1934,7 @@ The `what()` string contains the violation report message.
 The macro [**`NAMED_REQUIRE_DESTRUCTION(...)`**](#NAMED_REQUIRE_DESTRUCTION)
 results in a
 [`std::unique_ptr<trompeloeil::lifetime_monitor>`](http://en.cppreference.com/w/cpp/memory/unique_ptr)
-which you can hold in a varaible. `trompeloeil::lifetime_monitor` inherits from
+which you can hold in a variable. `trompeloeil::lifetime_monitor` inherits from
 [`trompeloeil::expectation`](#expectation_type).
 
 Example:
@@ -2017,7 +2019,7 @@ void test()
 ### <A name="ok_reporter_func"/>`trompeloeil::ok_reporter_func`
 
 A type used to pass information to the unit testing frame work that a call to a
-[mock function](#mock_function) has not been reprted as a violation.
+[mock function](#mock_function) has not been reported as a violation.
 
 ```Cpp
 using trompeloeil::ok_reporter_func = std::function<const char*>;
@@ -2055,7 +2057,7 @@ using trompeloeil::reporter_func = std::function<void(trompeloeil::severity,
 See [`trompeloeil::severity`](#severity_type).
 
 The parameter `msg` contains detailed information about the violation and
-which (if any) [expectations](#expecation) there are on the
+which (if any) [expectations](#expectation) there are on the
 [mock function](#mock_function).
 
 ### <A name="sequence_type"/>`trompeloeil::sequence`
@@ -2150,7 +2152,7 @@ public:
 See "[Using `trompeloeil::stream_tracer`](CookBook.md/#stream_tracer)" in the
 [Cook Book](CookBook.md).
 
-### <A name="tracer_type"/>`tropmeloeil::tracer`
+### <A name="tracer_type"/>`trompeloeil::tracer`
 
 Base class for tracers. Inherit from it when writing custom tracers.
 
@@ -2179,7 +2181,6 @@ type. It inherits from [`trompeloeil::matcher`](#matcher_type).
 
 See "[Writing custom matchers](CookBook.md/#custom_matchers)" in the
 [Cook Book](CookBook.md) for examples.
-
 
 ## <A name="functions"/>Functions
 
@@ -2364,7 +2365,6 @@ created lambdas associated with
 [**`.THROW()`**](reference.md/#THROW) and their `**LR_**` counter parts, refers
 to member variables in the mock objects, they will continue to refer the old
 moved from object.
- 
 
 ```Cpp
 class immobile
@@ -2377,10 +2377,10 @@ class movable
 {
 public:
   int i = 0;
-  
+
   static constexpr bool trompeloeil_movable_mock = true;
   // allow move construction
-  
+
   MAKE_MOCK1(func, void(int));
 };
 
@@ -2411,19 +2411,19 @@ test(...)
   auto mm = transfer(std::move(m)); // Danger! e still refers to m.i.
   ...
 }
-``` 
+```
 
 Also, keep in mind the lifetime of expectations. If the lifetime of an
 expectation is associated with the life of the moved-from object, your test
 will likely fail, since the expectation object would then be destroyed before it
 has been satisfied. Example:
- 
+
 ```Cpp
 class movable
 {
 public:
   static constexpr bool trompeloeil_movable_mock = true;
-  
+
   MAKE_MOCK0(func, void());
 };
 
@@ -2440,7 +2440,7 @@ test(...)
   movable obj = setup(); // test fails when returning from setup()
   ...
 }
-``` 
+```
 
  Using
 [**`NAMED_REQUIRE_CALL()`**](reference.md/#NAMED_REQUIRE_CALL),

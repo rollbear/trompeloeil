@@ -462,7 +462,7 @@ integration tests, especially when threading is involved.
 ## <A name="sequence_times"/>Q. What does it mean to mix **`IN_SEQUENCE`** and **`TIMES`**?
 
 **A.** Using [**`.TIMES()`**](reference.md/#TIMES) with
-[**`.IN_SEQUENCE()`**](refecence.md/#IN_SEQUENCE) is confusing at best, and
+[**`.IN_SEQUENCE()`**](reference.md/#IN_SEQUENCE) is confusing at best, and
 especially when you have a (possibly open) interval for **`.TIMES()`**.
 
 Trompeloeil always sees sequences as observed from a sequence object, and a
@@ -523,9 +523,9 @@ cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../../my_proj/toolkits
 cmake --build . --target install
 ```
 
-This will create a directory structure inside `toolkits` that has `include/trompeoeil.hpp`
-and the CMake find modules in `lib/cmake/trompeoeil`. Whether you add the entire *Trompeoeil*
-repo to your source control is up to you, but the minimal set of files for proper CMake 
+This will create a directory structure inside `toolkits` that has `include/trompeloeil.hpp`
+and the CMake find modules in `lib/cmake/trompeloeil`. Whether you add the entire *Trompeloeil*
+repo to your source control is up to you, but the minimal set of files for proper CMake
 support in is in the `toolkits` directory.
 
 Second, you could install it globally on your system by cloning the repo and installing with
@@ -556,7 +556,7 @@ target_link_libraries( my_unit_tests
 
     # Nothing to link since both of these libs are header-only,
     # but this sets up the include path correctly too
-    Catch2::Catch2 
+    Catch2::Catch2
     trompeloeil
 )
 
@@ -575,7 +575,6 @@ Finally, you can add *Trompeloeil* to your project and then either (a) use CMake
 `include_directories()`; or (b) use `add_subdirectory()` (one or two argument
 version) to add its path to your project.
 
-
 ### <A name="move_constructible"/> Q. Why are mock objects not move constructible?
 
 **A.** Because a move is potentially dangerous in non-obvious ways. If a mock object is
@@ -588,11 +587,9 @@ moved, the actions associated with an expectation
  moved mock object, they will refer to dead data. This is an accepted cost
  in normal C++ code, but since the effect is hidden under the macros,
  it is better to play safe.
- 
+
 With that said, you can explicitly make mock objects movable, if you want to.
 See: [**`trompeloeil_movable_mock`**](reference.md/#movable_mock).
-
-
 
 ### <A name="return_template"/> Q. Why can't I mock a function that returns a template?
 
@@ -667,7 +664,7 @@ gain from such an event depends on the runtime system of your tools.
 
 If you see a violation report like this:
 
-```
+```text
 [file/line unavailable]:0: FATAL ERROR: No match for call of func with signature void(int) with.
   param  _1 == -3
 
@@ -679,15 +676,16 @@ What this means is that there is an expectation for the call, but that expectati
 longer allowed to be called, its maximum call count has been met.
 
 An example:
+
 ```Cpp
 test_func()
 {
     test_mock obj;
     REQUIRE_CALL(obj, func(trompeloeil::_))
       .TIMES(AT_MOST(2));
- 
+
    exercise(obj); // calls obj.func. OK. Expectation is alive, no prior calls, this one is accepted
    exercise(obj); // calls obj.func. OK. Expectation is alive, one prior call, this one is accepted
-   exercise(obj); // calls obj.func. Fail. Expectation is alive, two prior calls, this one saturated 
+   exercise(obj); // calls obj.func. Fail. Expectation is alive, two prior calls, this one saturated
 }
 ```

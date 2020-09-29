@@ -1,23 +1,28 @@
 # Platform and library support for Trompeloeil
 
-- [Using libc\+\+ with Trompeloeil](#using_libcxx)
-- [Using sanitizers with Trompeloeil](#using_sanitizers)
-- [Compiler versions in sample Linux distributions](#compilers_in_distributions)
-  - [Ubuntu](#compilers_in_ubuntu)
-    - [In summary](#ubuntu_summary)
-    - [In detail](#ubuntu_detail)
-  - [Fedora](#compilers_in_fedora)
-- [Tested configurations](#tested_configurations)
-- [Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)](#testing_on_artful)
-  - [`std::to_string()` is not defined for some versions of `libstd++-v3`](#defect_to_string)
-  - [Glibc 2.26 no longer supplies `xlocale.h`](#defect_xlocale)
-  - [Glibc 2.26 `std::signbit()` broken for GCC compilers < 6](#defect_signbit)
-  - [Conclusion](#artful_conclusion)
-- [<A name="incomplete_stdlib"/> Supporting incomplete standard libraries](#a-nameincomplete_stdlib-supporting-incomplete-standard-libraries)
-  - [<A name="custom_recursive_mutex"/> Replacing std::recursive_mutex](#a-namecustom_recursive_mutex-replacing-stdrecursive_mutex)
-  - [<A name="custom_std_atomic"/> Replacing std::atomic\<T\>](#a-namecustom_std_atomic-replacing-stdatomict)
-  - [<A name="custom_std_unique_lock"/> Replacing std::unique_lock\<T\>](#a-namecustom_std_unique_lock-replacing-stdunique_lockt)
-
+<!-- spell-checker:disable -->
+- [Platform and library support for Trompeloeil](#platform-and-library-support-for-trompeloeil)
+  - [<A name="using_libcxx"/> Using libc\+\+ with Trompeloeil](#a-nameusing_libcxx-using-libc-with-trompeloeil)
+  - [<A name="using_sanitizers"/> Using sanitizers with Trompeloeil](#a-nameusing_sanitizers-using-sanitizers-with-trompeloeil)
+  - [<A name="compilers_in_distributions"/> Compiler versions in sample Linux distributions](#a-namecompilers_in_distributions-compiler-versions-in-sample-linux-distributions)
+    - [<A name="compilers_in_ubuntu"/> Ubuntu](#a-namecompilers_in_ubuntu-ubuntu)
+      - [<A name="ubuntu_summary"/> In summary](#a-nameubuntu_summary-in-summary)
+      - [<A name="ubuntu_detail"/> In detail](#a-nameubuntu_detail-in-detail)
+    - [<A name="compilers_in_fedora"/> Fedora](#a-namecompilers_in_fedora-fedora)
+  - [<A name="tested_configurations"/> Tested configurations](#a-nametested_configurations-tested-configurations)
+    - [GCC](#gcc)
+    - [Clang](#clang)
+    - [Microsoft Visual Studio](#microsoft-visual-studio)
+  - [<A name="testing_on_artful"/> Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)](#a-nametesting_on_artful-testing-trompeloeil-on-artful-aardvark-ubuntu-1710)
+    - [<A name="defect_to_string"/> `std::to_string()` is not defined for some versions of `libstdc++-v3`](#a-namedefect_to_string-stdto_string-is-not-defined-for-some-versions-of-libstdc-v3)
+    - [<A name="defect_xlocale"/> Glibc 2.26 no longer supplies `xlocale.h`](#a-namedefect_xlocale-glibc-226-no-longer-supplies-xlocaleh)
+    - [<A name="defect_signbit"/> Glibc 2.26 `std::signbit()` broken for GCC compilers < 6](#a-namedefect_signbit-glibc-226-stdsignbit-broken-for-gcc-compilers--6)
+    - [<A name="artful_conclusion"/> Conclusion](#a-nameartful_conclusion-conclusion)
+  - [<A name="incomplete_stdlib"/> Supporting incomplete standard libraries](#a-nameincomplete_stdlib-supporting-incomplete-standard-libraries)
+    - [<A name="custom_recursive_mutex"/> Replacing std::recursive_mutex](#a-namecustom_recursive_mutex-replacing-stdrecursive_mutex)
+    - [<A name="custom_std_atomic"/> Replacing std::atomic\<T\>](#a-namecustom_std_atomic-replacing-stdatomict)
+    - [<A name="custom_std_unique_lock"/> Replacing std::unique_lock\<T\>](#a-namecustom_std_unique_lock-replacing-stdunique_lockt)
+<!-- spell-checker:enable-->
 
 ## <A name="using_libcxx"/> Using libc\+\+ with Trompeloeil
 
@@ -156,10 +161,10 @@ g++-6           main                        main                        ports   
 g++-7           main                        main                        main                main                TODO
                 N/A                         N/A                         N/A                 7.2.0-8ubuntu3      TODO
 
-                trusty-updates              xenial-updates              zenial-updates                          TODO
+                trusty-updates              xenial-updates              xenial-updates                          TODO
                 N/A                         N/A                         N/A                                     TODO
 
-                trusty-backports            xenial-backports            zenial-backports                        TODO
+                trusty-backports            xenial-backports            xenial-backports                        TODO
                 N/A                         N/A                         N/A                                     TODO
 
 
@@ -461,7 +466,7 @@ just `g++-7` with `libstdc++-v3` - do not have the issues described below,
 but this is rather a narrow list for testing Trompeloeil on its
 supported compilers and libraries.
 
-### <A name="defect_to_string"/> `std::to_string()` is not defined for some versions of `libstd++-v3`
+### <A name="defect_to_string"/> `std::to_string()` is not defined for some versions of `libstdc++-v3`
 
 Affects: `libstdc++-v3` from these packages
 
@@ -545,15 +550,15 @@ namespace trompeloeil {
 
 std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex() {
 
-	class custom : public custom_recursive_mutex {
-		void lock() override { mtx.lock(); }
-		void unlock() override { mtx.unlock(); }
+  class custom : public custom_recursive_mutex {
+    void lock() override { mtx.lock(); }
+    void unlock() override { mtx.unlock(); }
 
-	private:
-		mylib::recursive_mutex mtx;
-	};
+  private:
+    mylib::recursive_mutex mtx;
+  };
 
-	return std::make_unique<custom>();
+  return std::make_unique<custom>();
 }
 
 }
