@@ -1,3 +1,5 @@
+	* Fix minor spelling errors and markdownlint warnings.
+
 	* Issue 207: Extend cmake script to allow use of libc++ with g++
 
 	* Fix issue 129: Wildcard _ does not match pass-by-value tuple
@@ -41,7 +43,7 @@ v37 2020-02-09
 
 v36 2019-12-29
 
-	* Status reporting of passed expectation calls as sucessful assertions in
+	* Status reporting of passed expectation calls as successful assertions in
 	  DOCTEST and Catch2. Thanks to:
 
 	    Tore Martin Hagen <tore@instanes.name> for Catch2
@@ -223,7 +225,7 @@ v29 2017-07-23
 	* Fix Issue #48: Move "re" in lambda capture list in "regex_check".
 	* Fix Issue #55: Restore warnings for Clang builds.
 	* Correct spelling of SANITIZE for clang Xcode builds.
-	* Fix Issue #57: Avoid uneeded-member-function warning from Clang.
+	* Fix Issue #57: Avoid unneeded-member-function warning from Clang.
 	* Allow only standard C++ dialects in Trompeloeil test programs.
 	* Lightly edited documentation.
 
@@ -460,7 +462,7 @@ v13 2016-03-07
 
 v12 2016-02-01
 
-	* Built in matchers are duck tuped by default, i.e. eq, ne, gt, ge,
+	* Built in matchers are duck typed by default, i.e. eq, ne, gt, ge,
 	  lt, le do by default match any parameter that supports operators
 	  ==, !=, >, >=, <, <= with the value provided. If needed for
 	  disambiguation of overloads an explicit type can be provided. Example:
@@ -482,7 +484,7 @@ v12 2016-02-01
 	  comparison with nullptr was allowed.
 
 	* Reluctantly reverted use of std::tuple_element_t<> for
-	  typename tuppe_element<>::type, to support g++ 4.9.0 (4.9.1 does have
+	  typename tuple_element<>::type, to support g++ 4.9.0 (4.9.1 does have
 	  std::tuple_element_t<>.)
 
 v11 2016-01-04
@@ -535,7 +537,7 @@ v9  2015-11-29
 v8  2015-10-30
 
 	* Fixed bug when mock object was destroyed with a saturated
-	  expecation in scope.
+	  expectation in scope.
 
 	* Further improved compilation error messages.
 

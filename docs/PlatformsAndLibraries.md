@@ -1,5 +1,6 @@
 # Platform and library support for Trompeloeil
 
+<!-- no toc -->
 - [Using libc\+\+ with Trompeloeil](#using_libcxx)
 - [Using sanitizers with Trompeloeil](#using_sanitizers)
 - [Compiler versions in sample Linux distributions](#compilers_in_distributions)
@@ -9,15 +10,14 @@
   - [Fedora](#compilers_in_fedora)
 - [Tested configurations](#tested_configurations)
 - [Testing Trompeloeil on Artful Aardvark (Ubuntu 17.10)](#testing_on_artful)
-  - [`std::to_string()` is not defined for some versions of `libstd++-v3`](#defect_to_string)
+  - [`std::to_string()` is not defined for some versions of `libstdc++-v3`](#defect_to_string)
   - [Glibc 2.26 no longer supplies `xlocale.h`](#defect_xlocale)
   - [Glibc 2.26 `std::signbit()` broken for GCC compilers < 6](#defect_signbit)
   - [Conclusion](#artful_conclusion)
-- [<A name="incomplete_stdlib"/> Supporting incomplete standard libraries](#a-nameincomplete_stdlib-supporting-incomplete-standard-libraries)
-  - [<A name="custom_recursive_mutex"/> Replacing std::recursive_mutex](#a-namecustom_recursive_mutex-replacing-stdrecursive_mutex)
-  - [<A name="custom_std_atomic"/> Replacing std::atomic\<T\>](#a-namecustom_std_atomic-replacing-stdatomict)
-  - [<A name="custom_std_unique_lock"/> Replacing std::unique_lock\<T\>](#a-namecustom_std_unique_lock-replacing-stdunique_lockt)
-
+- [Supporting incomplete standard libraries](#incomplete_stdlib)
+  - [Replacing `std::recursive_mutex`](#custom_recursive_mutex)
+  - [Replacing `std::atomic<T>`](#custom_std_atomic)
+  - [Replacing `std::unique_lock<T>`](#custom_std_unique_lock)
 
 ## <A name="using_libcxx"/> Using libc\+\+ with Trompeloeil
 
@@ -156,10 +156,10 @@ g++-6           main                        main                        ports   
 g++-7           main                        main                        main                main                TODO
                 N/A                         N/A                         N/A                 7.2.0-8ubuntu3      TODO
 
-                trusty-updates              xenial-updates              zenial-updates                          TODO
+                trusty-updates              xenial-updates              xenial-updates                          TODO
                 N/A                         N/A                         N/A                                     TODO
 
-                trusty-backports            xenial-backports            zenial-backports                        TODO
+                trusty-backports            xenial-backports            xenial-backports                        TODO
                 N/A                         N/A                         N/A                                     TODO
 
 
@@ -461,7 +461,7 @@ just `g++-7` with `libstdc++-v3` - do not have the issues described below,
 but this is rather a narrow list for testing Trompeloeil on its
 supported compilers and libraries.
 
-### <A name="defect_to_string"/> `std::to_string()` is not defined for some versions of `libstd++-v3`
+### <A name="defect_to_string"/> `std::to_string()` is not defined for some versions of `libstdc++-v3`
 
 Affects: `libstdc++-v3` from these packages
 
@@ -529,12 +529,16 @@ contributing your build to the Ubuntu Community; you just might be the
 
 ## <A name="incomplete_stdlib"/> Supporting incomplete standard libraries
 
-Some platforms, especially MCUs with RTOS, only have partial support for the standard library `<atomic>` and `<mutex>` headers used by trompeloeil. In many cases, it is possible to provide shims or custom implementations of the necessary parts.
+Some platforms, especially MCUs with RTOS, only have partial support for the
+standard library `<atomic>` and `<mutex>` headers used by trompeloeil.
+In many cases, it is possible to provide shims or custom implementations
+of the necessary parts.
 
-### <A name="custom_recursive_mutex"/> Replacing std::recursive_mutex
+### <A name="custom_recursive_mutex"/> Replacing `std::recursive_mutex`
 
-To use your own recursive mutex, define `TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX` either before including
-the Trompeloeil header (e.g. `#define TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`) or as preprocessor
+To use your own recursive mutex, define `TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`
+either before including the Trompeloeil header
+(e.g. `#define TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`) or as preprocessor
 definition (e.g. GCC: `-DTROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`).
 
 Now define in one translation unit your custom recursive mutex for trompeloeil.
@@ -545,26 +549,29 @@ namespace trompeloeil {
 
 std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex() {
 
-	class custom : public custom_recursive_mutex {
-		void lock() override { mtx.lock(); }
-		void unlock() override { mtx.unlock(); }
+  class custom : public custom_recursive_mutex {
+    void lock() override { mtx.lock(); }
+    void unlock() override { mtx.unlock(); }
 
-	private:
-		mylib::recursive_mutex mtx;
-	};
+  private:
+    mylib::recursive_mutex mtx;
+  };
 
-	return std::make_unique<custom>();
+  return std::make_unique<custom>();
 }
 
 }
 
 ```
 
-### <A name="custom_std_atomic"/> Replacing std::atomic\<T\>
+### <A name="custom_std_atomic"/> Replacing `std::atomic<T>`
 
-To use your own implementation of std::atomic\<T\>, define `TROMPELOEIL_CUSTOM_ATOMIC` and make sure there is a header `trompeloeil/custom_atomic.hpp` somewhere in the include search path.
+To use your own implementation of `std::atomic<T>`,
+define `TROMPELOEIL_CUSTOM_ATOMIC` and make sure there is a header
+`trompeloeil/custom_atomic.hpp` somewhere in the include search path.
 
-This header should contain a class template `trompeloeil::atomic<T>` that implements (part of) the interface of `std::atomic<T>`:
+This header should contain a class template `trompeloeil::atomic<T>`
+that implements (part of) the interface of `std::atomic<T>`:
 
 ```cpp
 
@@ -600,11 +607,14 @@ private:
 
 ```
 
-### <A name="custom_std_unique_lock"/> Replacing std::unique_lock\<T\>
+### <A name="custom_std_unique_lock"/> Replacing `std::unique_lock<T>`
 
-To use your own implementation of std::unique_lock\<T\>, define `TROMPELOEIL_CUSTOM_UNIQUE_LOCK` and make sure there is a header `trompeloeil/custom_unique_lock.hpp` somewhere in the include search path.
+To use your own implementation of `std::unique_lock<T>`,
+define `TROMPELOEIL_CUSTOM_UNIQUE_LOCK` and make sure there is a header
+`trompeloeil/custom_unique_lock.hpp` somewhere in the include search path.
 
-This header should contain a class template `trompeloeil::unique_lock<T>` that implements (part of) the interface of `std::unique_lock<T>`:
+This header should contain a class template `trompeloeil::unique_lock<T>`
+that implements (part of) the interface of `std::unique_lock<T>`:
 
 ```cpp
 

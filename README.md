@@ -1,7 +1,8 @@
-## *Trompeloeil*
+# *Trompeloeil*
 
 ![trompeloeil logo](trompeloeil-logo.png)
 
+<!-- markdownlint-disable no-space-in-links -->
 CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=master)](https://travis-ci.org/rollbear/trompeloeil)
 [ ![AppVeyor Build Status](
   https://ci.appveyor.com/api/projects/status/mbmjd9sl4n73qxm2/branch/master?svg=true)](
@@ -12,18 +13,15 @@ CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=mast
 
 [![HitCount](http://hits.dwyl.io/rollbear/trompeloeil.svg)](http://hits.dwyl.io/rollbear/trompeloeil)
 
-> *trompe l'oeil* noun    (Concise Encyclopedia)  
+> *trompe l'oeil* noun    (Concise Encyclopedia)
 > Style of representation in which a painted object is intended
 > to deceive the viewer into believing it is the object itself...
 
-
-What is it?
------------
+# What is it?
 
 A thread-safe header-only mocking framework for C++11/14 using the Boost Software License 1.0
 
-Documentation
--------------
+# Documentation
 
 - [Integrating with unit test frame works](docs/CookBook.md/#unit_test_frameworks)
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
@@ -38,10 +36,13 @@ Documentation
 - [Platform and library support for Trompeloeil](docs/PlatformsAndLibraries.md)
 - [Reference](docs/reference.md)
 
-Also, follow up with the post on [sequencing](https://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html) for examples on how to restrict or relax allowed sequences of matching calls.  
+Also, follow up with the post on
+[sequencing](
+  https://playfulprogramming.blogspot.se/2015/01/sequence-control-with-trompeloeil-c.html
+) for examples on how to restrict or relax allowed sequences of matching calls.
 
-Teaser
-------
+# Teaser
+
 ```Cpp
 #include <trompeloeil.hpp>
 
@@ -100,8 +101,7 @@ TEST(exercise_interface_func)
 }
 ```
 
-<A name="contribute"/> How to contribute
------------------
+# <A name="contribute"/> How to contribute
 
 Contributions are most welcome. For new functionality, please file an issue as
 an enhancement request first, to get a discussion going about how to best
@@ -111,7 +111,6 @@ mentioned in the ChangeLog - it should typically reflect what a user can see
 (however, performance improvements and silencing warnings are visible for
 users.) Feel free to add your name to the copyright blurb.
 
-
 |Change                       | PR to          |
 |-----------------------------|----------------|
 |Documentation                |master branch   |
@@ -120,26 +119,23 @@ users.) Feel free to add your name to the copyright blurb.
 |Simple new functionality     |develop branch  |
 |Non-trivial new functionality|new topic branch|
 
-
-
-<A name="compilers"/> Compiler compatibility
-----------------------
+# <A name="compilers"/> Compiler compatibility
 
 Trompeloeil is known to work with:
 
-* GCC [4.8.4](docs/Backward.md#gxx48x_limitations)+, 4.9.3+, 5, 6, 7, 8, 9
-* Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5, 6, 7, 8, 9
-* Visual Studio 2015, 2017, 2019
+- GCC [4.8.4](docs/Backward.md#gxx48x_limitations)+, 4.9.3+, 5, 6, 7, 8, 9
+- Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5, 6, 7, 8, 9
+- Visual Studio 2015, 2017, 2019
 
 Latest patch level releases are assumed in the versions listed above.
 
 Further details on C++11 support, platform and library limitations, may
 be found in
+
 - [Backward compatibility with earlier versions of C++](docs/Backward.md)
 - [Platform and library support for Trompeloeil](docs/PlatformsAndLibraries.md)
 
-<A name="videos"/> Videos
-------
+# <A name="videos"/> Videos
 
 - Intro presentation from Stockholm C++ UG [(YouTube 34m)](https://www.youtube.com/watch?v=mPYNsARvTDk) [(Slides)](https://speakerdeck.com/rollbear/mocking-modern-c-plus-plus-with-trompeloeil)
 - Presentation from NDC{Oslo} [(YouTube 52m)](https://www.youtube.com/watch?v=vvQ-kK4coYM&t=1122s) [(Slides)](https://speakerdeck.com/rollbear/ndc-oslo-using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)

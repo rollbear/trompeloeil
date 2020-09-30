@@ -968,7 +968,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: An uncomparable but constructible type by reference mmismatch is reported",
+  "C++14: An uncomparable but constructible type by reference mismatch is reported",
   "[C++14][matching]")
 {
   try
@@ -2918,7 +2918,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: ptr to equal nullptr matrches deref",
+  "C++14: ptr to equal nullptr matches deref",
   "[C++14][matching][matchers][eq]")
 {
   {
@@ -3469,7 +3469,7 @@ TEST_CASE_METHOD(
     mock_c obj;
     REQUIRE_CALL(obj, foo(is_clamped("b", "d")));
     obj.foo(std::string("a"));
-    FAIL("din't report");
+    FAIL("didn't report");
   }
   catch(reported)
   {
