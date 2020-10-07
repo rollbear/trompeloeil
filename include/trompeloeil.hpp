@@ -1196,11 +1196,11 @@ template <typename T>
 #if !TROMPELOEIL_CLANG
     template <
       typename T,
-      typename = detail::enable_if_t<!std::is_constructible<T, std::nullptr_t>::value>
+      typename = detail::enable_if_t<std::is_convertible<std::nullptr_t, T>::value>
     >
     operator T&&() const = delete;
 #endif
-#if TROMPELOEIL_GCC
+#if TROMPELOEIL_GCC || TROMPELOEIL_MSVC
 
     template <typename T, typename C, typename ... As>
     using memfunptr = T (C::*)(As...);
@@ -1231,7 +1231,7 @@ template <typename T>
   using is_null_comparable = is_equal_comparable<T, indirect_null>;
 #endif
 
-  template <typename T>
+  template <typename T, typename = decltype(std::declval<T const&>() == nullptr)>
   inline
   constexpr
   auto
@@ -1242,6 +1242,17 @@ template <typename T>
   -> decltype(t == nullptr)
   {
     return t == nullptr;
+  }
+  template <typename T, typename V>
+  inline
+  constexpr
+  bool
+  is_null(
+    T const &,
+    V)
+  noexcept
+  {
+    return false;
   }
 
   template <typename T>

@@ -12,8 +12,8 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-#define TROMPELOEIL_SANITY_CHECKS
-#include <trompeloeil.hpp>
+#include "compiling_tests.hpp"
+
 #include <catch.hpp>
 
 #include <algorithm>
@@ -27,7 +27,6 @@
 #include <utility>
 #include <vector>
 
-#include "compiling_tests.hpp"
 
 /*
  * Used in combination with escape_parens() (below) to work around

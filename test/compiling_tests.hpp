@@ -15,6 +15,14 @@
 #ifndef COMPILING_TESTS_HPP_
 #define COMPILING_TESTS_HPP_
 
+#include <cstddef>
+struct QCharIsh {
+  constexpr QCharIsh(int) noexcept;
+};
+
+constexpr bool operator==(std::nullptr_t,QCharIsh) noexcept;
+constexpr bool operator==(QCharIsh,std::nullptr_t) noexcept;
+
 #define TROMPELOEIL_SANITY_CHECKS
 #include <trompeloeil.hpp>
 
@@ -175,15 +183,6 @@ struct not_default_constructible
 {
   not_default_constructible(int) {}
 };
-
-struct QCharIsh {
-  QCharIsh();
-  QCharIsh(int);
-};
-
-bool operator==(QCharIsh,QCharIsh);
-bool operator==(std::nullptr_t,QCharIsh);
-bool operator==(QCharIsh,std::nullptr_t);
 
 struct uncopyable
 {

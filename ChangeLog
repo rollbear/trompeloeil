@@ -1,3 +1,6 @@
+	* Fix issue 211: #include <QtCore/QChar> before #include <trompeloeil.hpp>
+	  caused compilation failure for all expectations.
+
 	* Fix minor spelling errors and markdownlint warnings.
 
 	* Issue 207: Extend cmake script to allow use of libc++ with g++
