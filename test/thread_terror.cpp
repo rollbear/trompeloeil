@@ -12,13 +12,13 @@ public:
   std::unique_ptr<trompeloeil::expectation> allow;
 };
 
-std::mutex ptr_mutex;
+static std::mutex ptr_mutex;
 inline auto get_lock()
 {
   return std::unique_lock<std::mutex>{ ptr_mutex };
 }
 
-std::shared_ptr<C> obj;
+static std::shared_ptr<C> obj;
 
 inline std::shared_ptr<C> get_obj()
 {
@@ -26,10 +26,10 @@ inline std::shared_ptr<C> get_obj()
   return obj;
 }
 
-std::atomic<std::size_t> call_count[7];
-std::atomic<std::size_t> ret_count[7];
+static std::atomic<std::size_t> call_count[7];
+static std::atomic<std::size_t> ret_count[7];
 
-void init_obj()
+static void init_obj()
 {
   auto m = std::make_shared<C>();
   m->allow = NAMED_ALLOW_CALL(*m, func())
@@ -39,7 +39,7 @@ void init_obj()
   obj = m;
 }
 
-void make(size_t count)
+static void make(size_t count)
 {
   while (count--)
   {
@@ -47,7 +47,7 @@ void make(size_t count)
   }
 }
 
-void call(size_t count)
+static void call(size_t count)
 {
   while (count--)
   {
@@ -58,7 +58,7 @@ void call(size_t count)
   }
 }
 
-void allow(size_t count, int id)
+static void allow(size_t count, int id)
 {
   std::unique_ptr<trompeloeil::expectation> exp;
   while (count--)
