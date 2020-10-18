@@ -1753,6 +1753,8 @@ template <typename T>
     std::unique_ptr<sequence_type> obj;
   };
 
+  struct sequence_handler_base;
+
   class sequence_matcher : public list_elem<sequence_matcher>
   {
   public:
@@ -1760,13 +1762,16 @@ template <typename T>
     sequence_matcher(
       char const *exp,
       location loc,
+      const sequence_handler_base& handler,
       init_type i)
     noexcept
     : seq_name(i.first)
     , exp_name(exp)
     , exp_loc(loc)
+    , sequence_handler(handler)
     , seq(*i.second)
     {
+      (void)(sequence_handler);
       auto lock = get_lock();
       seq.add_last(this);
     }
@@ -1813,6 +1818,7 @@ template <typename T>
     char const *seq_name;
     char const *exp_name;
     location    exp_loc;
+    const sequence_handler_base& sequence_handler;
     sequence_type& seq;
   };
 
@@ -2481,9 +2487,69 @@ template <typename T>
 
   struct sequence_handler_base
   {
+  private:
+    unsigned long long min_calls{1};
+    unsigned long long max_calls{1};
+    unsigned long long call_count{0};
+  public:
+
     virtual
     ~sequence_handler_base()
     noexcept = default;
+
+    void
+      increment_call()
+      noexcept
+    {
+      ++call_count;
+    }
+    bool
+      is_satisfied()
+      const
+      noexcept
+    {
+      return call_count >= min_calls;
+    }
+
+    bool
+      is_saturated()
+      const
+      noexcept
+    {
+      return call_count == max_calls;
+    }
+
+    bool
+      is_forbidden()
+      const
+      noexcept
+    {
+      return max_calls == 0ULL;
+    }
+
+    void
+    set_limits(unsigned long long L, unsigned long long H)
+      noexcept
+    {
+      min_calls = L;
+      max_calls = H;
+    }
+
+    unsigned long long
+    get_min_calls()
+      const
+      noexcept
+    {
+      return min_calls;
+    }
+
+    unsigned long long
+      get_calls()
+      const
+      noexcept
+    {
+      return call_count;
+    }
 
     virtual
     void
@@ -2505,13 +2571,20 @@ template <typename T>
   struct sequence_handler : public sequence_handler_base
   {
   public:
+    template <size_t M = N, typename detail::enable_if_t<M == 0>* = nullptr>
+    sequence_handler()
+      noexcept
+    {}
+
     template <typename ... S>
     sequence_handler(
+      const sequence_handler_base& base,
       char const *name,
       location loc,
       S&& ... s)
     noexcept
-      : matchers{{sequence_matcher{name, loc, std::forward<S>(s)}...}}
+      : sequence_handler_base(base)
+      , matchers{{sequence_matcher{name, loc, *this, std::forward<S>(s)}...}}
     {
     }
 
@@ -2643,7 +2716,7 @@ template <typename T>
     noexcept
     {
       died = true;
-      if (sequences) sequences->validate(severity::nonfatal, call_name, loc);
+      sequences->validate(severity::nonfatal, call_name, loc);
     }
 
     template <typename ... T>
@@ -2651,10 +2724,12 @@ template <typename T>
     set_sequence(
       T&& ... t)
     {
-      auto seq = new sequence_handler<sizeof...(T)>(invocation_name,
-                                                    loc,
-                                                    std::forward<T>(t)...);
-      sequences.reset(seq);
+      using handler = sequence_handler<sizeof...(T)>;
+      auto seq = detail::make_unique<handler>(*sequences,
+                                              invocation_name,
+                                              loc,
+                                              std::forward<T>(t)...);
+      sequences = std::move(seq);
     }
   private:
     std::atomic<bool>  died{false};
@@ -2663,7 +2738,7 @@ template <typename T>
     char const        *object_name;
     char const        *invocation_name;
     char const        *call_name;
-    std::unique_ptr<sequence_handler_base>  sequences;
+    std::unique_ptr<sequence_handler_base>  sequences = detail::make_unique<sequence_handler<0>>();
   };
 
   template <typename T>
@@ -3526,8 +3601,7 @@ template <typename T>
       static_assert(H > 0 || !sequence_set,
                     "IN_SEQUENCE and TIMES(0) does not make sense");
 
-      matcher->min_calls = L;
-      matcher->max_calls = H;
+      matcher->sequences->set_limits(L, H);
       return {matcher};
     }
 
@@ -3642,7 +3716,7 @@ template <typename T>
       override
     {
       auto lock = get_lock();
-      return call_count >= min_calls;
+      return sequences->is_satisfied();
     }
 
     bool
@@ -3652,14 +3726,14 @@ template <typename T>
       override
     {
       auto lock = get_lock();
-      return call_count >= max_calls;
+      return sequences->is_saturated();
     }
     bool
     is_unfulfilled()
     const
     noexcept
     {
-      return !reported && this->is_linked() && call_count < min_calls;
+      return !reported && this->is_linked() && !sequences->is_satisfied();
     }
 
     void
@@ -3711,7 +3785,7 @@ template <typename T>
     noexcept
     override
     {
-      return !sequences || sequences->is_first();
+      return sequences->is_first();
     }
 
     return_of_t<Sig>
@@ -3730,22 +3804,23 @@ template <typename T>
       call_matcher_list<Sig> &saturated_list)
     override
     {
-      if (max_calls == 0)
+      if (sequences->is_forbidden())
       {
         reported = true;
         report_forbidden_call(name, loc, params_string(params));
       }
       auto lock = get_lock();
       {
-        if (call_count < min_calls && sequences)
+        if (!sequences->is_satisfied())
         {
           sequences->validate(severity::fatal, name, loc);
         }
-        if (++call_count == min_calls && sequences)
+        sequences->increment_call();
+        if (sequences->is_satisfied())
         {
           sequences->retire();
         }
-        if (call_count == max_calls)
+        if (sequences->is_saturated())
         {
           this->unlink();
           saturated_list.push_back(this);
@@ -3798,8 +3873,8 @@ template <typename T>
         reason,
         name,
         params_string(val),
-        min_calls,
-        call_count,
+        sequences->get_min_calls(),
+        sequences->get_calls(),
         loc);
     }
 
@@ -3827,10 +3902,12 @@ template <typename T>
     set_sequence(
       T&& ... t)
     {
-      auto seq = new sequence_handler<sizeof...(T)>(name,
-                                                    loc,
-                                                    std::forward<T>(t)...);
-      sequences.reset(seq);
+      using handler = sequence_handler<sizeof...(T)>;
+      auto seq = detail::make_unique<handler>(*sequences,
+                                              name,
+                                              loc,
+                                              std::forward<T>(t)...);
+      sequences = std::move(seq);
     }
 
     template <typename T>
@@ -3855,10 +3932,7 @@ template <typename T>
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
-    std::unique_ptr<sequence_handler_base> sequences;
-    unsigned long long                     call_count = 0;
-    std::atomic<unsigned long long>        min_calls{1};
-    std::atomic<unsigned long long>        max_calls{1};
+    std::unique_ptr<sequence_handler_base> sequences = detail::make_unique<sequence_handler<0>>();
     Value                                  val;
     bool                                   reported = false;
   };
