@@ -130,6 +130,8 @@
 #include <regex>
 #include <mutex>
 #include <atomic>
+#include <array>
+
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
@@ -2509,7 +2511,7 @@ template <typename T>
       location loc,
       S&& ... s)
     noexcept
-      : matchers{{name, loc, std::forward<S>(s)}...}
+      : matchers{{sequence_matcher{name, loc, std::forward<S>(s)}...}}
     {
     }
 
@@ -2553,7 +2555,7 @@ template <typename T>
       }
     }
   private:
-    sequence_matcher matchers[N];
+    std::array<sequence_matcher, N> matchers;
   };
 
   struct lifetime_monitor;
