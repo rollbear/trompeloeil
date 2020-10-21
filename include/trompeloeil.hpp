@@ -1739,6 +1739,20 @@ template <typename T>
       location loc)
     const;
 
+    void
+    retire(
+      sequence_matcher* m)
+    noexcept;
+
+    void
+    retire_until(
+      sequence_matcher* m)
+    noexcept;
+
+    bool
+    can_retire(
+      sequence_matcher* m)
+    noexcept;
   private:
     list<sequence_matcher> matchers;
   };
@@ -1794,11 +1808,23 @@ template <typename T>
       return seq.is_first(this);
     }
 
+    bool
+    can_retire()
+      const
+      noexcept;
+
     void
     retire()
     noexcept
     {
-      this->unlink();
+      seq.retire(this);
+    }
+
+    void
+    retire_predecessors()
+      noexcept
+    {
+      seq.retire_until(this);
     }
 
     void
@@ -1832,13 +1858,26 @@ template <typename T>
   }
 
   inline
-  bool
-  sequence_type::is_first(
-    sequence_matcher const *m)
-  const
+  void
+  sequence_type::retire(
+    sequence_matcher* m)
   noexcept
   {
-    return !matchers.empty() && &*matchers.begin() == m;
+    m->unlink();
+  }
+
+  inline
+  void
+  sequence_type::retire_until(
+    sequence_matcher* m)
+  noexcept
+  {
+    while (!matchers.empty())
+    {
+      auto n = matchers.begin();
+      if (&*n == m) break;
+      n->unlink();
+    }
   }
 
   inline
@@ -2562,8 +2601,18 @@ template <typename T>
       noexcept = 0;
 
     virtual
+    bool
+    can_be_first()
+      const
+      noexcept = 0;
+    virtual
     void
       retire()
+      noexcept = 0;
+
+    virtual
+    void
+    retire_predecessors()
       noexcept = 0;
   };
 
@@ -2617,6 +2666,21 @@ template <typename T>
       return true;
     }
 
+    bool
+    can_be_first()
+      const
+      noexcept
+      override
+    {
+      for (auto& m : matchers)
+      {
+        if (!m.can_retire())
+        {
+          return false;
+        }
+      }
+      return true;
+    }
     void
     retire()
     noexcept
@@ -2627,9 +2691,44 @@ template <typename T>
         e.retire();
       }
     }
+
+    void
+    retire_predecessors()
+      noexcept
+      override
+    {
+      for (auto& e : matchers)
+      {
+        e.retire_predecessors();
+      }
+    }
   private:
     std::array<sequence_matcher, N> matchers;
   };
+
+    inline
+  bool
+  sequence_type::is_first(
+    sequence_matcher const *m)
+  const
+  noexcept
+  {
+    for (auto& e : matchers)
+    {
+      if (&e == m) return true;
+      if (!e.can_retire()) return false;
+    }
+    return false;
+  }
+
+  inline
+  bool
+  sequence_matcher::can_retire()
+    const
+    noexcept
+  {
+    return sequence_handler.is_first() && sequence_handler.is_satisfied();
+  }
 
   struct lifetime_monitor;
 
@@ -3811,17 +3910,14 @@ template <typename T>
       }
       auto lock = get_lock();
       {
-        if (!sequences->is_satisfied())
-        {
-          sequences->validate(severity::fatal, name, loc);
+        sequences->validate(severity::fatal, name, loc);
+        if (sequences->is_first()) {
+          sequences->retire_predecessors();
         }
         sequences->increment_call();
-        if (sequences->is_satisfied())
-        {
-          sequences->retire();
-        }
         if (sequences->is_saturated())
         {
+          sequences->retire();
           this->unlink();
           saturated_list.push_back(this);
         }
