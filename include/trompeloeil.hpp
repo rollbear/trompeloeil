@@ -2647,6 +2647,9 @@ template <typename T>
     void
     retire_predecessors()
     noexcept = 0;
+  protected:
+    sequence_handler_base() = default;
+    sequence_handler_base(const sequence_handler_base&) = default;
   };
 
   inline
