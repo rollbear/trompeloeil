@@ -1770,6 +1770,7 @@ template <typename T>
   {
   public:
     using init_type = std::pair<char const*, sequence&>;
+
     sequence_matcher(
       char const *exp,
       location loc,
@@ -2760,7 +2761,11 @@ template <typename T>
       }
     }
   private:
-    std::array<sequence_matcher, N> matchers;
+    // work around for MS STL ossue 942
+    // https://github.com/microsoft/STL/issues/942
+    detail::conditional_t<N == 0,
+                          std::vector<sequence_matcher>,
+                          std::array<sequence_matcher, N>> matchers;
   };
 
   struct lifetime_monitor;
