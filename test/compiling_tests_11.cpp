@@ -448,7 +448,7 @@ TEST_CASE_METHOD(
   }
   catch (reported)
   {
-    REQUIRE(reports.size() == 1U);
+    REQUIRE(reports.size() >= 1U);
     auto re = R":(Sequence mismatch.*seq.*of obj\.count\(\).*has obj\.func\(_, _\).*first):";
     INFO("report=" << reports.front().msg);
     REQUIRE(is_match(reports.front().msg,  re));

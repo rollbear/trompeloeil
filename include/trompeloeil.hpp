@@ -1732,6 +1732,11 @@ template <typename T>
     noexcept;
 
     void
+    retire_until(
+      sequence_matcher const* m)
+    noexcept;
+
+    void
     add_last(
       sequence_matcher *m)
     noexcept;
@@ -1821,6 +1826,13 @@ template <typename T>
     }
 
     void
+    retire_predecessors()
+    noexcept
+    {
+      seq.retire_until(this);
+    }
+
+    void
     print_expectation(std::ostream& os)
     const
     {
@@ -1878,6 +1890,20 @@ template <typename T>
       ++sequence_cost;
     }
     return sequence_cost;
+  }
+
+  inline
+  void
+  sequence_type::retire_until(
+    sequence_matcher const* m)
+  noexcept
+  {
+    while (!matchers.empty())
+    {
+      auto first = &*matchers.begin();
+      if (first == m) return;
+      first->unlink();
+    }
   }
 
   inline
@@ -2596,6 +2622,12 @@ template <typename T>
 
     virtual
     bool
+    can_be_called()
+    const
+    noexcept = 0;
+
+    virtual
+    bool
       is_first()
       const
       noexcept = 0;
@@ -2610,6 +2642,11 @@ template <typename T>
     void
       retire()
       noexcept = 0;
+
+    virtual
+    void
+    retire_predecessors()
+    noexcept = 0;
   };
 
   inline
@@ -2689,6 +2726,15 @@ template <typename T>
       return true;
     }
 
+    bool
+    can_be_called()
+    const
+    noexcept
+    override
+    {
+      return order() != ~0U;
+    }
+
     void
     retire()
     noexcept
@@ -2697,6 +2743,17 @@ template <typename T>
       for (auto& e : matchers)
       {
         e.retire();
+      }
+    }
+
+    void
+    retire_predecessors()
+    noexcept
+      override
+    {
+      for (auto& e : matchers)
+      {
+        e.retire_predecessors();
       }
     }
   private:
@@ -3901,17 +3958,18 @@ template <typename T>
       }
       auto lock = get_lock();
       {
-        if (!sequences->is_satisfied())
+        if (!sequences->can_be_called())
         {
           sequences->validate(severity::fatal, name, loc);
         }
         sequences->increment_call();
         if (sequences->is_satisfied())
         {
-          sequences->retire();
+          sequences->retire_predecessors();
         }
         if (sequences->is_saturated())
         {
+          sequences->retire();
           this->unlink();
           saturated_list.push_back(this);
         }
