@@ -1725,6 +1725,12 @@ template <typename T>
     const
     noexcept;
 
+    unsigned
+    cost(
+      sequence_matcher const *m)
+    const
+    noexcept;
+
     void
     add_last(
       sequence_matcher *m)
@@ -1794,6 +1800,19 @@ template <typename T>
       return seq.is_first(this);
     }
 
+    unsigned
+    cost()
+    const
+    noexcept
+    {
+      return seq.cost(this);
+    }
+
+    bool
+    is_satisfied()
+      const
+      noexcept;
+
     void
     retire()
     noexcept
@@ -1839,6 +1858,26 @@ template <typename T>
   noexcept
   {
     return !matchers.empty() && &*matchers.begin() == m;
+  }
+
+  inline
+  unsigned
+  sequence_type::cost(
+    sequence_matcher const* m)
+  const
+  noexcept
+  {
+    unsigned sequence_cost = 0U;
+    for (auto& e : matchers)
+    {
+      if (&e == m) break;
+      if (!e.is_satisfied())
+      {
+        return ~0U;
+      }
+      ++sequence_cost;
+    }
+    return sequence_cost;
   }
 
   inline
@@ -2562,10 +2601,25 @@ template <typename T>
       noexcept = 0;
 
     virtual
+    unsigned
+    order()
+    const
+    noexcept = 0;
+
+    virtual
     void
       retire()
       noexcept = 0;
   };
+
+  inline
+  bool
+  sequence_matcher::is_satisfied()
+  const
+  noexcept
+  {
+    return sequence_handler.is_satisfied();
+  }
 
   template <size_t N>
   struct sequence_handler : public sequence_handler_base
@@ -2599,6 +2653,24 @@ template <typename T>
       {
         e.validate_match(s, match_name, loc);
       }
+    }
+
+    unsigned
+    order()
+    const
+    noexcept
+    override
+    {
+      unsigned highest_order = 0U;
+      for (auto& m : matchers)
+      {
+        auto cost = m.cost();
+        if (cost > highest_order)
+        {
+          highest_order = cost;
+        }
+      }
+      return highest_order;
     }
 
     bool
@@ -2865,6 +2937,12 @@ template <typename T>
     matches(
       call_params_type_t<Sig> const&)
     const = 0;
+
+    virtual
+    unsigned
+    sequence_cost()
+    const
+    noexcept = 0;
 
     virtual
     bool
@@ -3151,17 +3229,20 @@ template <typename T>
   noexcept
   {
     call_matcher_base<Sig>* first_match = nullptr;
+    unsigned lowest_cost = ~0U;
     for (auto& i : list)
     {
       if (i.matches(p))
       {
-        if (i.first_in_sequence())
+        unsigned cost = i.sequence_cost();
+        if (cost == 0)
         {
           return &i;
         }
-        if (!first_match)
+        if (!first_match || cost < lowest_cost)
         {
           first_match = &i;
+          lowest_cost = cost;
         }
       }
     }
@@ -3777,6 +3858,15 @@ template <typename T>
         if (!c.check(params)) return false;
       }
       return true;
+    }
+
+    unsigned
+    sequence_cost()
+      const
+      noexcept
+      override
+    {
+      return sequences->order();
     }
 
     bool
