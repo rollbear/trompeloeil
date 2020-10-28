@@ -1883,14 +1883,14 @@ template <typename T>
     unsigned sequence_cost = 0U;
     for (auto& e : matchers)
     {
-      if (&e == m) break;
+      if (&e == m) return sequence_cost;
       if (!e.is_satisfied())
       {
         return ~0U;
       }
       ++sequence_cost;
     }
-    return sequence_cost;
+    return ~0U;
   }
 
   inline
@@ -1903,7 +1903,7 @@ template <typename T>
     {
       auto first = &*matchers.begin();
       if (first == m) return;
-      first->unlink();
+      first->retire();
     }
   }
 
