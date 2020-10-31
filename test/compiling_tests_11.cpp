@@ -426,6 +426,204 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: ALLOW_CALL sequenced after REQUIRE_CALL is reported if require is not satisfied",
+  "[C++11][C++14][sequences]")
+{
+  try {
+    mock_c obj;
+    trompeloeil::sequence seq;
+
+    REQUIRE_CALL_V(obj, func(_, _),
+                   .IN_SEQUENCE(seq));
+
+    ALLOW_CALL_V(obj, count(),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+    obj.count();
+    FAIL("did not report out of sequence call");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() >= 1U);
+    auto re = R":(Sequence mismatch.*seq.*of obj\.count\(\).*has obj\.func\(_, _\).*first):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(is_match(reports.front().msg,  re));
+  }
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: Several ALLOW_CALL and REQUIRE_CALL can be interleaved in a sequence",
+  "[C++11][C++14][sequences]")
+{
+  {
+    mock_c obj;
+    trompeloeil::sequence seq;
+
+    REQUIRE_CALL_V(obj, func(1, _),
+                   .IN_SEQUENCE(seq));
+
+    ALLOW_CALL_V(obj, count(),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+    REQUIRE_CALL_V(obj, func(2, _),
+                   .IN_SEQUENCE(seq));
+
+    ALLOW_CALL_V(obj, count(),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(2));
+
+    std::string foo = "foo";
+
+    obj.func(1, foo);
+    REQUIRE(obj.count() == 1);
+    REQUIRE(obj.count() == 1);
+    obj.func(2, foo);
+    REQUIRE(obj.count() == 2);
+    REQUIRE(obj.count() == 2);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: Calling 3 sequenced allow call in seq is allowed"
+  "[C++11][C++14][sequences]")
+{
+  {
+    mock_c obj;
+    trompeloeil::sequence seq;
+
+    ALLOW_CALL_V(obj, getter(1),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(1));
+
+    ALLOW_CALL_V(obj, getter(2),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(2));
+
+    ALLOW_CALL_V(obj, getter(3),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(3));
+
+    REQUIRE(obj.getter(1) == 1);
+    REQUIRE(obj.getter(1) == 1);
+    REQUIRE(obj.getter(2) == 2);
+    REQUIRE(obj.getter(2) == 2);
+    REQUIRE(obj.getter(3) == 3);
+    REQUIRE(obj.getter(3) == 3);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: Calling the 1st and 3rd sequenced allow call in seq is allowed"
+  "[C++11][C++14][sequences]")
+{
+  {
+    mock_c obj;
+    trompeloeil::sequence seq;
+
+    ALLOW_CALL_V(obj, getter(1),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(1));
+
+    ALLOW_CALL_V(obj, getter(2),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(2));
+
+    ALLOW_CALL_V(obj, getter(3),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(3));
+
+    REQUIRE(obj.getter(1) == 1);
+    REQUIRE(obj.getter(1) == 1);
+    REQUIRE(obj.getter(3) == 3);
+    REQUIRE(obj.getter(3) == 3);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: Calling the 3nd after 1st and 3rd sequenced allow call in seq is illegal",
+  "[C++11][C++14][sequences]")
+{
+  mock_c obj;
+  trompeloeil::sequence seq;
+
+  ALLOW_CALL_V(obj, getter(1),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+  ALLOW_CALL_V(obj, getter(2),
+               .IN_SEQUENCE(seq)
+               .RETURN(2));
+
+  ALLOW_CALL_V(obj, getter(3),
+               .IN_SEQUENCE(seq)
+               .RETURN(3));
+
+  REQUIRE(obj.getter(1) == 1);
+  REQUIRE(obj.getter(1) == 1);
+  REQUIRE(obj.getter(3) == 3);
+  REQUIRE(obj.getter(3) == 3);
+
+  try {
+    obj.getter(2);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    auto re = R":(Sequence mismatch.*seq.*of obj\.getter\(2\).*has obj\.getter\(3\).*first):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(is_match(reports.front().msg,  re));
+    auto& first = reports.front();
+    INFO(first.file << ':' << first.line << "\n" << first.msg);
+  }
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: Calling the 1nd after 3rd sequenced allow call in seq is illegal",
+  "[C++11][C++14][sequences]")
+{
+  mock_c obj;
+  trompeloeil::sequence seq;
+
+  ALLOW_CALL_V(obj, getter(1),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+  ALLOW_CALL_V(obj, getter(2),
+               .IN_SEQUENCE(seq)
+               .RETURN(2));
+
+  ALLOW_CALL_V(obj, getter(3),
+               .IN_SEQUENCE(seq)
+               .RETURN(3));
+
+  REQUIRE(obj.getter(3) == 3);
+  REQUIRE(obj.getter(3) == 3);
+
+  try {
+    obj.getter(1);
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    auto re = R":(Sequence mismatch.*seq.*of obj\.getter\(1\).*has obj\.getter\(3\).*first):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(is_match(reports.front().msg,  re));
+    auto& first = reports.front();
+    INFO(first.file << ':' << first.line << "\n" << first.msg);
+  }
+}
 
 TEST_CASE_METHOD(
   Fixture,

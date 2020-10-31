@@ -917,8 +917,10 @@ Where *seq...* is one or more instances of `trompeloeil::sequence`. Impose an
 order in which [expectations](#expectation) and destruction of
 [**`deathwatched_type`**](#deathwatched_type) objects must match.
 Several sequences can be parallel and interleaved. A sequence for an
-[expectation](#expectation) is no longer monitored
-once the lower limit from [**`TIMES(...)`**](#TIMES) is reached.
+[expectation](#expectation) can move forward to the next once the lower
+limit from [**`TIMES(...)`**](#TIMES) is reached (defaults to 1). This means
+that if the lower limit is 0 (see [**`ALLOW_CALL(...)`**](#ALLOW_CALL)), the
+the expectation may be skipped in the sequence.
 
 Example:
 
