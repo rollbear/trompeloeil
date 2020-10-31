@@ -1,3 +1,8 @@
+	* Fix issue 204: ALLOW_CALL was not respected in sequences.
+	  Now ALLOW_CALL in sequence may be skipped, but making a
+	  call out of sequence is a violation. NOTE! This fix is likely
+	  to break some existing test code!
+
 	* Fix issue 129: Wildcard _ does not match pass-by-value tuple
 	  of only one type.
 
