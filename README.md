@@ -9,7 +9,7 @@ CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=mast
     https://ci.appveyor.com/project/rollbear/trompeloeil)
 [![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
 
-[conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v38%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v38%3Astable/link)
+[conan.io](https://conan.io) [ ![Download](https://api.bintray.com/packages/trompeloeil/trompeloeil/trompeloeil%3Arollbear/images/download.svg?version=v39%3Astable) ](https://bintray.com/trompeloeil/trompeloeil/trompeloeil%3Arollbear/v39%3Astable/link)
 
 [![HitCount](http://hits.dwyl.io/rollbear/trompeloeil.svg)](http://hits.dwyl.io/rollbear/trompeloeil)
 

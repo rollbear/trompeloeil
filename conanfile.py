@@ -16,7 +16,7 @@ from conans import ConanFile, CMake
 
 class TrompeloelConan(ConanFile):
     name = "trompeloeil"
-    version = "v38"
+    version = "v39"
     license = "Boost Software License - Version 1.0 - August 17th, 2003"
     url = "https://github.com/rollbear/trompeloeil.git"
     description = "Header only C++14 mocking framework"
