@@ -2362,7 +2362,7 @@ created lambdas associated with
 [**`.WITH()`**](reference.md/#WITH),
 [**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT),
 [**`.RETURN()`**](reference.md/#RETURN) and
-[**`.THROW()`**](reference.md/#THROW) and their `**LR_**` counter parts, refers
+[**`.THROW()`**](reference.md/#THROW) and their **`LR_`** counter parts, refers
 to member variables in the mock objects, they will continue to refer the old
 moved from object.
 
