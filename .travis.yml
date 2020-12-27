@@ -192,7 +192,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="clang++-8" SANITIZE=false CXX_STDLIB="libc++" CXX_STANDARD="17" CONAN_COMPILER=clang CC_VERSION=8
+        - COMPILER="clang++-8" SANITIZE=false CXX_STDLIB="libc++" CXX_STANDARD="17"
 
     - os: linux
       addons:
@@ -235,7 +235,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-4.9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=4.9
+        - COMPILER="g++-4.9" SANITIZE=true
 
     - os: linux
       addons:
@@ -365,7 +365,7 @@ matrix:
             - libelf-dev
             - libdw-dev
       env:
-        - COMPILER="g++-9" SANITIZE=true CONAN_COMPILER=gcc CC_VERSION=9.3
+        - COMPILER="g++-9" SANITIZE=true
 
     - os: linux
       addons:
@@ -420,7 +420,7 @@ matrix:
       osx_image: xcode11
       compiler: clang
       env:
-        - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=11.0 CC_LIBCXX=libc++
+        - COMPILER="clang++" SANITIZE=false
 
     - os: osx
       language: c++
@@ -434,7 +434,7 @@ matrix:
       osx_image: xcode9.3
       compiler: clang
       env:
-        - COMPILER="clang++" SANITIZE=false CONAN_COMPILER=apple-clang CC_VERSION=9.1 CC_LIBCXX=libc++
+        - COMPILER="clang++" SANITIZE=false
 
 
 install:
@@ -443,7 +443,6 @@ install:
       which cmake || brew install cmake
       which pip3 || brew upgrade python@3 || brew upgrade python@3 || true
     fi
-    pip3 install conan
 
 before_script:
   - CXX=${COMPILER} CXXFLAGS=${CXXFLAGS} ./check_errors.sh ||
@@ -459,17 +458,6 @@ before_script:
         exit 1 ;
       fi ;
     }
-  - |
-    if [[ ! -z "${CONAN_COMPILER}" ]]; then
-      conan --version
-      export CC_LIBCXX=${CC_LIBCXX:-libstdc++11} # Default to GCC
-      conan create \
-        -e CXX=${COMPILER} \
-        -s compiler=${CONAN_COMPILER} \
-        -s compiler.version=${CC_VERSION} \
-        -s compiler.libcxx=${CC_LIBCXX} \
-        . testuser/testchannel
-    fi
   - mkdir build && cd build
   - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=Debug -DCXX_STANDARD="${CXX_STANDARD}" -DCXX_STDLIB="${CXX_STDLIB}" -DTRAVIS_JOB_ID='${TRAVIS_JOB_ID}' -DSANITIZE=${SANITIZE} ..
   - make VERBOSE=1 self_test
