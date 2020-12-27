@@ -1,3 +1,6 @@
+	* Conan recipe is now on https://conan.io/center/trompeloeil
+	  the old rollbea/stable channel is defunct.
+
 v39 2020-10-31
 
 	* Fix issue 204: ALLOW_CALL was not respected in sequences.
