@@ -72,19 +72,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
-    # kcov is only available on Linux platforms.
-	ExternalProject_Add(
-	  kcov
-	  GIT_REPOSITORY
-		https://github.com/simonkagstrom/kcov
-	  GIT_TAG
-		v34
-	  INSTALL_DIR
-		${CMAKE_CURRENT_BINARY_DIR}/kcov
-	  CMAKE_ARGS
-		"-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/kcov"
-	  )
-
     set(
       LIBCXX_PREFIX_PATH
       "/usr/lib/llvm-8"
@@ -397,10 +384,9 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     add_custom_target(
       run_coverage
       COMMAND
-        ${CMAKE_CURRENT_BINARY_DIR}/kcov/bin/kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
+        kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
       DEPENDS
         self_test
-        kcov
     )
 
   endif()

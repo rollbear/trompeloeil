@@ -1,0 +1,321 @@
+name: CI
+
+# Trigger on pushes to all branches and for all pull-requests
+on: [push, pull_request]
+
+env:
+  CMAKE_VERSION: 3.16.2
+  NINJA_VERSION: 1.9.0
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # GCC-6
+          - {
+            name: "Linux GCC 6 Debug C++11",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-6", cxx: "g++-6",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 6 Debug C++14",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-6", cxx: "g++-6",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 6 Debug C++17",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-6", cxx: "g++-6",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+
+          # GCC-7
+          - {
+            name: "Linux GCC 7 Debug C++11",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-7", cxx: "g++-7",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 7 Debug C++14",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-7", cxx: "g++-7",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 7 Debug C++17",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-7", cxx: "g++-7",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+
+          # GCC-8
+          - {
+            name: "Linux GCC 8 Debug C++11",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-8", cxx: "g++-8",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 8 Debug C++14",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-8", cxx: "g++-8",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 8 Debug C++17",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-8", cxx: "g++-8",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 8 Debug C++20",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-8", cxx: "g++-8",
+            cxx_standard: 20,
+            cxx_asan: true
+          }
+
+          # GCC-9
+          - {
+            name: "Linux GCC 9 Debug C++11",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-9", cxx: "g++-9",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 9 Debug C++14",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-9", cxx: "g++-9",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 9 Debug C++17",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-9", cxx: "g++-9",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 9 Debug C++20",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-9", cxx: "g++-9",
+            cxx_standard: 20,
+            cxx_asan: true
+          }
+
+          # Clang-5.0
+          - {
+            name: "Linux Clang 5.0 Debug C++11 / libc++ / ASAN)",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "clang-5.0", cxx: "clang++-5.0",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 5.0 Debug C++14 / libc++ / ASAN)",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "clang-5.0", cxx: "clang++-5.0",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 5.0 Debug C++17 / libc++ / ASAN)",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "clang-5.0", cxx: "clang++-5.0",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: true
+          }
+
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Ninja and CMake
+        id: cmake_and_ninja
+        shell: cmake -P {0}
+        run: |
+          set(cmake_version $ENV{CMAKE_VERSION})
+          set(ninja_version $ENV{NINJA_VERSION})
+
+          message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(ninja_suffix "win.zip")
+            set(cmake_suffix "win64-x64.zip")
+            set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
+          elseif ("${{ runner.os }}" STREQUAL "Linux")
+            set(ninja_suffix "linux.zip")
+            set(cmake_suffix "Linux-x86_64.tar.gz")
+            set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
+          elseif ("${{ runner.os }}" STREQUAL "macOS")
+            set(ninja_suffix "mac.zip")
+            set(cmake_suffix "Darwin-x86_64.tar.gz")
+            set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
+          endif()
+
+          set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
+          file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
+
+          set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
+          file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
+
+          # Save the path for other steps
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
+          message("::set-output name=cmake_dir::${cmake_dir}")
+
+          if (NOT "${{ runner.os }}" STREQUAL "Windows")
+            execute_process(
+              COMMAND chmod +x ninja
+              COMMAND chmod +x ${cmake_dir}/cmake
+            )
+          endif()
+
+      - name: Install GCC 6
+        id: install_gcc_6
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'g++-6' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          sudo apt-get install -y gcc-6 g++-6
+
+      - name: Install Clang 5
+        id: install_clang_5
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-5.0' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
+          sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-5.0 main' -y
+          sudo apt-get update -q
+          sudo apt-get install -y clang-5.0
+
+      - name: Install Clang 10
+        id: install_clang_10
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-10' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 10
+
+      - name: Install libc++
+        id: install_libcxx
+        if: matrix.config.libcxx
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        env:
+          CC: ${{ matrix.config.cc }}
+          CXX: ${{ matrix.config.cxx }}
+        run: |
+          $GITHUB_WORKSPACE/install_libcxx.sh
+
+      - name: Configure
+        shell: cmake -P {0}
+        run: |
+          set(ENV{CC} ${{ matrix.config.cc }})
+          set(ENV{CXX} ${{ matrix.config.cxx }})
+
+          if ("x${{ matrix.config.libcxx }}" STREQUAL "xtrue")
+            set(cxx_flags "${cxx_flags} -stdlib=libc++ -nostdinc++ -cxx-isystem $ENV{GITHUB_WORKSPACE}/llvm/include/c++/v1/ -Wno-unused-command-line-argument")
+            set(link_flags "${link_flags} -L $ENV{GITHUB_WORKSPACE}/llvm/lib -Wl,-rpath,$ENV{GITHUB_WORKSPACE}/llvm/lib -lc++abi")
+          endif()
+
+          if ("x${{ matrix.config.cxx_asan }}" STREQUAL "xtrue")
+            set(cxx_flags "${cxx_flags} -fno-omit-frame-pointer")
+          endif()
+
+          execute_process(
+            COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
+              -S .
+              -B build
+              -G Ninja
+              -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
+              -D CMAKE_MAKE_PROGRAM:STRING=ninja
+              -D CMAKE_CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }}
+              -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}"
+              -D "CMAKE_EXE_LINKER_FLAGS:STRING=${link_flags}"
+              ${{ matrix.config.cmake_args }}
+              ${extra_cmake_args}
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
+
+      - name: Build
+        shell: cmake -P {0}
+        continue-on-error: ${{ matrix.config.experimental || false }}
+        run: |
+          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+
+          set(path_separator ":")
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(path_separator ";")
+          endif()
+          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
+
+          execute_process(
+            COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build --target self_test
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
+
+      - name: Run tests
+        shell: cmake -P {0}
+        continue-on-error: ${{ matrix.config.experimental || false }}
+        run: |
+          set(path_separator ":")
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(path_separator ";")
+          endif()
+          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
+          execute_process(
+            COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build --target run_self_test
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Running tests failed!")
+          endif()
