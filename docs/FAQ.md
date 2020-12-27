@@ -575,6 +575,9 @@ Finally, you can add *Trompeloeil* to your project and then either (a) use CMake
 `include_directories()`; or (b) use `add_subdirectory()` (one or two argument
 version) to add its path to your project.
 
+If you want to specify a version of *Trompeloeil*, drop the 'v' from the version name
+ih `find_packege`. E.g. `find_package( trompeloeil 39 EXACT)`.
+
 ### <A name="move_constructible"/> Q. Why are mock objects not move constructible?
 
 **A.** Because a move is potentially dangerous in non-obvious ways. If a mock object is
