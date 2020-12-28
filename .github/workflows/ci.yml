@@ -170,7 +170,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 5.0 C++17 / libstc++",
+            name: "Linux Clang 5.0 C++17 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
@@ -226,7 +226,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 6.0 C++17 / libstc++",
+            name: "Linux Clang 6.0 C++17 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
@@ -282,7 +282,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 8 C++17 / libstc++",
+            name: "Linux Clang 8 C++17 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
@@ -338,7 +338,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 9 C++17 / libstc++",
+            name: "Linux Clang 9 C++17 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
@@ -394,7 +394,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 10 C++17 / libstc++",
+            name: "Linux Clang 10 C++17 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
@@ -403,7 +403,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 10 C++20 / libstc++",
+            name: "Linux Clang 10 C++20 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
@@ -468,7 +468,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 11 C++17 / libstc++",
+            name: "Linux Clang 11 C++17 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-11", cxx: "clang++-11",
@@ -477,7 +477,7 @@ jobs:
             libcxx: false
           }
           - {
-            name: "Linux Clang 11 C++20 / libstc++",
+            name: "Linux Clang 11 C++20 / libstdc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-11", cxx: "clang++-11",
