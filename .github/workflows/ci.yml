@@ -309,7 +309,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
               -D CMAKE_MAKE_PROGRAM:STRING=ninja
               -D CMAKE_VERBOSE_MAKEFILE=ON
-              -D CMAKE_CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }}
+              -D CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }}
               -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}"
               -D "CMAKE_EXE_LINKER_FLAGS:STRING=${link_flags}"
               -D SANITIZE=${{matrix.config.cxx_asan}}
