@@ -15,7 +15,6 @@ jobs:
           - {
             name: "Linux GCC 6 C++11",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 11,
             cxx_asan: true
@@ -23,7 +22,6 @@ jobs:
           - {
             name: "Linux GCC 6 C++14",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 14,
             cxx_asan: true
@@ -31,7 +29,6 @@ jobs:
           - {
             name: "Linux GCC 6 C++17",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 17,
             cxx_asan: true
@@ -41,7 +38,6 @@ jobs:
           - {
             name: "Linux GCC 7 C++11",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-7", cxx: "g++-7",
             cxx_standard: 11,
             cxx_asan: true
@@ -49,7 +45,6 @@ jobs:
           - {
             name: "Linux GCC 7 C++14",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-7", cxx: "g++-7",
             cxx_standard: 14,
             cxx_asan: true
@@ -57,7 +52,6 @@ jobs:
           - {
             name: "Linux GCC 7 C++17",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-7", cxx: "g++-7",
             cxx_standard: 17,
             cxx_asan: true
@@ -67,7 +61,6 @@ jobs:
           - {
             name: "Linux GCC 8 C++11",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-8", cxx: "g++-8",
             cxx_standard: 11,
             cxx_asan: true
@@ -75,7 +68,6 @@ jobs:
           - {
             name: "Linux GCC 8 C++14",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-8", cxx: "g++-8",
             cxx_standard: 14,
             cxx_asan: true
@@ -83,7 +75,6 @@ jobs:
           - {
             name: "Linux GCC 8 C++17",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-8", cxx: "g++-8",
             cxx_standard: 17,
             cxx_asan: true
@@ -93,7 +84,6 @@ jobs:
           - {
             name: "Linux GCC 9 C++11",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 11,
             cxx_asan: true
@@ -101,7 +91,6 @@ jobs:
           - {
             name: "Linux GCC 9 C++14",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 14,
             cxx_asan: true
@@ -109,7 +98,6 @@ jobs:
           - {
             name: "Linux GCC 9 C++17",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 17,
             cxx_asan: true
@@ -119,7 +107,6 @@ jobs:
           - {
             name: "Linux GCC 10 C++11",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 11,
             cxx_asan: true
@@ -127,7 +114,6 @@ jobs:
           - {
             name: "Linux GCC 10 C++14",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 14,
             cxx_asan: true
@@ -135,7 +121,6 @@ jobs:
           - {
             name: "Linux GCC 10 C++17",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 17,
             cxx_asan: true
@@ -143,7 +128,6 @@ jobs:
           - {
             name: "Linux GCC 10 C++20",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 20,
             cxx_asan: true
@@ -154,7 +138,6 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -163,7 +146,6 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -172,7 +154,6 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -181,7 +162,6 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -190,7 +170,6 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -199,7 +178,6 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -210,7 +188,6 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++11 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -219,7 +196,6 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -228,7 +204,6 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -237,7 +212,6 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -246,7 +220,6 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -255,7 +228,6 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -266,7 +238,6 @@ jobs:
           - {
             name: "Linux Clang 8 C++11 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 11,
             cxx_asan: false,
@@ -275,7 +246,6 @@ jobs:
           - {
             name: "Linux Clang 8 C++14 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 14,
             cxx_asan: false,
@@ -284,7 +254,6 @@ jobs:
           - {
             name: "Linux Clang 8 C++17 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 17,
             cxx_asan: false,
@@ -293,7 +262,6 @@ jobs:
           - {
             name: "Linux Clang 8 C++11 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 11,
             cxx_asan: false,
@@ -302,7 +270,6 @@ jobs:
           - {
             name: "Linux Clang 8 C++14 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 14,
             cxx_asan: false,
@@ -311,7 +278,6 @@ jobs:
           - {
             name: "Linux Clang 8 C++17 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 17,
             cxx_asan: false,
@@ -322,7 +288,6 @@ jobs:
           - {
             name: "Linux Clang 9 C++11 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 11,
             cxx_asan: true,
@@ -331,7 +296,6 @@ jobs:
           - {
             name: "Linux Clang 9 C++14 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 14,
             cxx_asan: true,
@@ -340,7 +304,6 @@ jobs:
           - {
             name: "Linux Clang 9 C++17 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 17,
             cxx_asan: true,
@@ -349,7 +312,6 @@ jobs:
           - {
             name: "Linux Clang 9 C++11 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 11,
             cxx_asan: true,
@@ -358,7 +320,6 @@ jobs:
           - {
             name: "Linux Clang 9 C++14 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 14,
             cxx_asan: true,
@@ -367,7 +328,6 @@ jobs:
           - {
             name: "Linux Clang 9 C++17 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 17,
             cxx_asan: true,
@@ -378,7 +338,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++11 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 11,
             cxx_asan: true,
@@ -387,7 +346,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++14 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 14,
             cxx_asan: true,
@@ -396,7 +354,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++17 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 17,
             cxx_asan: true,
@@ -405,7 +362,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++20 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 20,
             cxx_asan: true,
@@ -414,7 +370,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++11 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 11,
             cxx_asan: true,
@@ -423,7 +378,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++14 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 14,
             cxx_asan: true,
@@ -432,7 +386,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++17 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 17,
             cxx_asan: true,
@@ -441,7 +394,6 @@ jobs:
           - {
             name: "Linux Clang 10 C++20 / libc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 20,
             cxx_asan: true,
@@ -452,7 +404,6 @@ jobs:
           - {
             name: "Linux Clang 11 C++11 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 11,
             cxx_asan: true,
@@ -461,7 +412,6 @@ jobs:
           - {
             name: "Linux Clang 11 C++14 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 14,
             cxx_asan: true,
@@ -470,7 +420,6 @@ jobs:
           - {
             name: "Linux Clang 11 C++17 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 17,
             cxx_asan: true,
@@ -479,7 +428,6 @@ jobs:
           - {
             name: "Linux Clang 11 C++20 / libstdc++",
             os: ubuntu-latest,
-            build_type: Debug,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 20,
             cxx_asan: true,
@@ -490,23 +438,20 @@ jobs:
           - {
             name: "macOS Clang C++11",
             os: macos-latest,
-            build_type: Debug,
             cc: "clang", cxx: "clang++",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "macOS Clang C++14",
-              os: macos-latest,
-            build_type: Debug,
+            os: macos-latest,
             cc: "clang", cxx: "clang++",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "macOS Clang C++17",
-              os: macos-latest,
-            build_type: Debug,
+            os: macos-latest,
             cc: "clang", cxx: "clang++",
             cxx_standard: 17,
             cxx_asan: true
@@ -516,28 +461,24 @@ jobs:
           - {
             name: "Windows MSVC 2019 C++11",
             os: windows-latest,
-            build_type: Debug,
             cc: "cl", cxx: "cl",
             cxx_standard: 11,
           }
           - {
             name: "Windows MSVC 2019 C++14",
             os: windows-latest,
-            build_type: Debug,
             cc: "cl", cxx: "cl",
             cxx_standard: 14,
           }
           - {
             name: "Windows MSVC 2019 C++17",
             os: windows-latest,
-            build_type: Debug,
             cc: "cl", cxx: "cl",
             cxx_standard: 17,
           }
           - {
             name: "Windows MSVC 2019 C++20",
             os: windows-latest,
-            build_type: Debug,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
           }
@@ -635,7 +576,7 @@ jobs:
           cmake \
               -S . \
               -B build \
-              -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }} \
+              -D CMAKE_BUILD_TYPE=Debug \
               -D CMAKE_VERBOSE_MAKEFILE=ON \
               -D CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }} \
               -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}" \
