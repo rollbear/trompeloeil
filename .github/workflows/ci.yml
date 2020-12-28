@@ -250,6 +250,24 @@ jobs:
         run: |
           $GITHUB_WORKSPACE/install_libcxx.sh
 
+      - name: Verify compilation errors
+        shell: bash
+        run: |
+          CXX=${{ matrix.config.cxx }} CXXFLAGS="-std=c++${{ matrix.config.cxx_standard }}" ./check_errors.sh ||
+          {
+            FAILURES="$?" ;
+            if [[ "${{ matrix.config.cxx_standard }}" == "11" ]]; then
+              if [[ ${FAILURES} != "4" ]]; then
+                echo "Expected four failures from C++11 check_errors.sh, got ${FAILURES}" ;
+                exit 1 ;
+              fi ;
+            else
+              echo "Expected zero failures from check_errors.sh, got ${FAILURES}" ;
+              exit 1 ;
+            fi ;
+          }
+
+
       - name: Configure
         shell: cmake -P {0}
         run: |
