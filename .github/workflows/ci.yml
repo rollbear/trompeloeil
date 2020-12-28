@@ -3,10 +3,6 @@ name: CI
 # Trigger on pushes to all branches and for all pull-requests
 on: [push, pull_request]
 
-env:
-  CMAKE_VERSION: 3.16.2
-  NINJA_VERSION: 1.9.0
-
 jobs:
   build:
     name: ${{ matrix.config.name }}
@@ -519,47 +515,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Ninja and CMake
-        id: cmake_and_ninja
-        shell: cmake -P {0}
-        run: |
-          set(cmake_version $ENV{CMAKE_VERSION})
-          set(ninja_version $ENV{NINJA_VERSION})
-
-          message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
-
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(ninja_suffix "win.zip")
-            set(cmake_suffix "win64-x64.zip")
-            set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
-          elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(ninja_suffix "linux.zip")
-            set(cmake_suffix "Linux-x86_64.tar.gz")
-            set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
-          elseif ("${{ runner.os }}" STREQUAL "macOS")
-            set(ninja_suffix "mac.zip")
-            set(cmake_suffix "Darwin-x86_64.tar.gz")
-            set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
-          endif()
-
-          set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
-          file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
-
-          set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
-          file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
-
-          # Save the path for other steps
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
-          message("::set-output name=cmake_dir::${cmake_dir}")
-
-          if (NOT "${{ runner.os }}" STREQUAL "Windows")
-            execute_process(
-              COMMAND chmod +x ninja
-              COMMAND chmod +x ${cmake_dir}/cmake
-            )
-          endif()
 
       - name: Install GCC 6
         id: install_gcc_6
@@ -645,12 +600,10 @@ jobs:
           endif()
 
           execute_process(
-            COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
+            COMMAND cmake
               -S .
               -B build
-              -G Ninja
               -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
-              -D CMAKE_MAKE_PROGRAM:STRING=ninja
               -D CMAKE_VERBOSE_MAKEFILE=ON
               -D CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }}
               -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}"
@@ -668,16 +621,8 @@ jobs:
         shell: cmake -P {0}
         continue-on-error: ${{ matrix.config.experimental || false }}
         run: |
-          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
-
           execute_process(
-            COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build --target self_test
+            COMMAND cmake --build build --target self_test
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -688,13 +633,8 @@ jobs:
         shell: cmake -P {0}
         continue-on-error: ${{ matrix.config.experimental || false }}
         run: |
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
           execute_process(
-            COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build --target run_self_test
+            COMMAND cmake --build build --target run_self_test
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
