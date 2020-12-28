@@ -119,6 +119,40 @@ jobs:
             cxx_asan: true
           }
 
+          # GCC-10
+          - {
+            name: "Linux GCC 10 Debug C++11",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-10", cxx: "g++-10",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 10 Debug C++14",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-10", cxx: "g++-10",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 10 Debug C++17",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-10", cxx: "g++-10",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 10 Debug C++20",
+            os: ubuntu-latest,
+            build_type: Debug,
+            cc: "gcc-10", cxx: "g++-10",
+            cxx_standard: 20,
+            cxx_asan: true
+          }
+
           # Clang-5.0
           - {
             name: "Linux Clang 5.0 Debug C++11 / libc++ / ASAN)",
