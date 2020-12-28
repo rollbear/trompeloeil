@@ -17,7 +17,7 @@ jobs:
         config:
           # GCC-6
           - {
-            name: "Linux GCC 6 Debug C++11",
+            name: "Linux GCC 6 C++11",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-6", cxx: "g++-6",
@@ -25,7 +25,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 6 Debug C++14",
+            name: "Linux GCC 6 C++14",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-6", cxx: "g++-6",
@@ -33,7 +33,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 6 Debug C++17",
+            name: "Linux GCC 6 C++17",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-6", cxx: "g++-6",
@@ -43,7 +43,7 @@ jobs:
 
           # GCC-7
           - {
-            name: "Linux GCC 7 Debug C++11",
+            name: "Linux GCC 7 C++11",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-7", cxx: "g++-7",
@@ -51,7 +51,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 7 Debug C++14",
+            name: "Linux GCC 7 C++14",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-7", cxx: "g++-7",
@@ -59,7 +59,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 7 Debug C++17",
+            name: "Linux GCC 7 C++17",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-7", cxx: "g++-7",
@@ -69,7 +69,7 @@ jobs:
 
           # GCC-8
           - {
-            name: "Linux GCC 8 Debug C++11",
+            name: "Linux GCC 8 C++11",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-8", cxx: "g++-8",
@@ -77,7 +77,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 8 Debug C++14",
+            name: "Linux GCC 8 C++14",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-8", cxx: "g++-8",
@@ -85,7 +85,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 8 Debug C++17",
+            name: "Linux GCC 8 C++17",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-8", cxx: "g++-8",
@@ -95,7 +95,7 @@ jobs:
 
           # GCC-9
           - {
-            name: "Linux GCC 9 Debug C++11",
+            name: "Linux GCC 9 C++11",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
@@ -103,7 +103,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 9 Debug C++14",
+            name: "Linux GCC 9 C++14",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
@@ -111,7 +111,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 9 Debug C++17",
+            name: "Linux GCC 9 C++17",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
@@ -121,7 +121,7 @@ jobs:
 
           # GCC-10
           - {
-            name: "Linux GCC 10 Debug C++11",
+            name: "Linux GCC 10 C++11",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
@@ -129,7 +129,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 10 Debug C++14",
+            name: "Linux GCC 10 C++14",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
@@ -137,7 +137,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 10 Debug C++17",
+            name: "Linux GCC 10 C++17",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
@@ -145,7 +145,7 @@ jobs:
             cxx_asan: true
           }
           - {
-            name: "Linux GCC 10 Debug C++20",
+            name: "Linux GCC 10 C++20",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "gcc-10", cxx: "g++-10",
@@ -155,7 +155,7 @@ jobs:
 
           # Clang-5.0
           - {
-            name: "Linux Clang 5.0 Debug C++11 / libc++ / ASAN)",
+            name: "Linux Clang 5.0 C++11 / libc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
@@ -164,7 +164,7 @@ jobs:
             libcxx: true
           }
           - {
-            name: "Linux Clang 5.0 Debug C++14 / libc++ / ASAN)",
+            name: "Linux Clang 5.0 C++14 / libc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
@@ -173,7 +173,7 @@ jobs:
             libcxx: true
           }
           - {
-            name: "Linux Clang 5.0 Debug C++17 / libc++ / ASAN)",
+            name: "Linux Clang 5.0 C++17 / libc++",
             os: ubuntu-latest,
             build_type: Debug,
             cc: "clang-5.0", cxx: "clang++-5.0",
