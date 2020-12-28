@@ -616,57 +616,41 @@ jobs:
 
 
       - name: Configure
-        shell: cmake -P {0}
+        shell: bash
+        env:
+          CC: ${{ matrix.config.cc }}
+          CXX: ${{ matrix.config.cxx }}
         run: |
-          set(ENV{CC} ${{ matrix.config.cc }})
-          set(ENV{CXX} ${{ matrix.config.cxx }})
+          if [ "x${{ matrix.config.libcxx }}" == "xtrue"]
+          then
+            cxx_flags="${cxx_flags} -stdlib=libc++ -nostdinc++ -cxx-isystem ${GITHUB_WORKSPACE}/llvm/include/c++/v1/ -Wno-unused-command-line-argument"
+            link_flags="${link_flags} -L ${GITHUB_WORKSPACE}/llvm/lib -Wl,-rpath,${GITHUB_WORKSPACE}/llvm/lib -lc++abi"
+          fi
 
-          if ("x${{ matrix.config.libcxx }}" STREQUAL "xtrue")
-            set(cxx_flags "${cxx_flags} -stdlib=libc++ -nostdinc++ -cxx-isystem $ENV{GITHUB_WORKSPACE}/llvm/include/c++/v1/ -Wno-unused-command-line-argument")
-            set(link_flags "${link_flags} -L $ENV{GITHUB_WORKSPACE}/llvm/lib -Wl,-rpath,$ENV{GITHUB_WORKSPACE}/llvm/lib -lc++abi")
-          endif()
+          if [ "x${{ matrix.config.cxx_asan }}" == "xtrue" ]
+          then
+            cxx_flags="${cxx_flags} -fno-omit-frame-pointer"
+          fi
 
-          if ("x${{ matrix.config.cxx_asan }}" STREQUAL "xtrue")
-            set(cxx_flags "${cxx_flags} -fno-omit-frame-pointer")
-          endif()
-
-          execute_process(
-            COMMAND cmake
-              -S .
-              -B build
-              -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
-              -D CMAKE_VERBOSE_MAKEFILE=ON
-              -D CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }}
-              -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}"
-              -D "CMAKE_EXE_LINKER_FLAGS:STRING=${link_flags}"
-              -D SANITIZE=${{matrix.config.cxx_asan}}
-              ${{ matrix.config.cmake_args }}
+          cmake \
+              -S . \
+              -B build \
+              -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }} \
+              -D CMAKE_VERBOSE_MAKEFILE=ON \
+              -D CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }} \
+              -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}" \
+              -D "CMAKE_EXE_LINKER_FLAGS:STRING=${link_flags}" \
+              -D SANITIZE=${{matrix.config.cxx_asan}} \
+              ${{ matrix.config.cmake_args }} \
               ${extra_cmake_args}
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
 
       - name: Build
-        shell: cmake -P {0}
+        shell: bash
         run: |
-          execute_process(
-            COMMAND cmake --build build --target self_test
-            COMMAND cmake --build build --target custom_recursive_mutex
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
+          cmake --parallel 2 --build build --target self_test custom_recursive_muex
 
       - name: Run tests
-        shell: cmake -P {0}
+        shell: bash
         run: |
-          execute_process(
-            COMMAND cmake --build build --target run_self_test
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Running tests failed!")
-          endif()
+          cmake --build build --target run_self_test
+
