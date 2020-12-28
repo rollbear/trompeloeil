@@ -229,7 +229,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     ${CATCH_DIR}
   )
 
-  if (SANITIZE)
+  if (SANITIZE AND NOT APPLE)
     set_target_properties(
       self_test
       PROPERTIES

@@ -490,6 +490,32 @@ jobs:
             libcxx: false
           }
 
+          # AppleClang
+          - {
+            name: "macOS Clang C++11",
+            os: macos-latest,
+            build_type: Debug,
+            cc: "clang", cxx: "clang++",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "macOS Clang C++14",
+              os: macos-latest,
+            build_type: Debug,
+            cc: "clang", cxx: "clang++",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "macOS Clang C++17",
+              os: macos-latest,
+            build_type: Debug,
+            cc: "clang", cxx: "clang++",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+
     steps:
       - uses: actions/checkout@v2
 
