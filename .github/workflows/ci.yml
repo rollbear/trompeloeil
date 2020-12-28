@@ -653,6 +653,7 @@ jobs:
         run: |
           execute_process(
             COMMAND cmake --build build --target self_test
+            COMMAND cmake --build build --target custom_recursive_mutex
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
