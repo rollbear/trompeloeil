@@ -92,14 +92,6 @@ jobs:
             cxx_standard: 17,
             cxx_asan: true
           }
-          - {
-            name: "Linux GCC 8 Debug C++20",
-            os: ubuntu-latest,
-            build_type: Debug,
-            cc: "gcc-8", cxx: "g++-8",
-            cxx_standard: 20,
-            cxx_asan: true
-          }
 
           # GCC-9
           - {
@@ -124,14 +116,6 @@ jobs:
             build_type: Debug,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 17,
-            cxx_asan: true
-          }
-          - {
-            name: "Linux GCC 9 Debug C++20",
-            os: ubuntu-latest,
-            build_type: Debug,
-            cc: "gcc-9", cxx: "g++-9",
-            cxx_standard: 20,
             cxx_asan: true
           }
 
