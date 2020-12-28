@@ -207,6 +207,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
     add_compile_options(/W4)
     add_compile_options(/bigobj)
+    add_compile_options(/EHsc)
 
     check_cxx_compiler_flag(/permissive HAS_PERMISSIVE_FLAG)
     if(HAS_PERMISSIVE_FLAG)
@@ -280,10 +281,16 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     custom_recursive_mutex
     PUBLIC
     trompeloeil
-    pthread
   )
+  if (NOT MSVC)
+      target_link_libraries(
+              custom_recursive_mutex
+              PUBLIC
+              pthread
+      )
+  endif()
 
-  if (SANITIZE)
+  if (SANITIZE AND NOT APPLE)
     set_target_properties(
       custom_recursive_mutex
       PROPERTIES

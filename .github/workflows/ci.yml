@@ -512,6 +512,36 @@ jobs:
             cxx_asan: true
           }
 
+          # MSVC 2019
+          - {
+            name: "Windows MSVC 2019 C++11",
+            os: windows-latest,
+            build_type: Debug,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 11,
+          }
+          - {
+            name: "Windows MSVC 2019 C++14",
+            os: windows-latest,
+            build_type: Debug,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 14,
+          }
+          - {
+            name: "Windows MSVC 2019 C++17",
+            os: windows-latest,
+            build_type: Debug,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 17,
+          }
+          - {
+            name: "Windows MSVC 2019 C++20",
+            os: windows-latest,
+            build_type: Debug,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 20,
+          }
+
     steps:
       - uses: actions/checkout@v2
 
@@ -567,6 +597,7 @@ jobs:
           $GITHUB_WORKSPACE/install_libcxx.sh
 
       - name: Verify compilation errors
+        if: (!startsWith(matrix.config.os, 'windows'))
         shell: bash
         run: |
           CXX=${{ matrix.config.cxx }} CXXFLAGS="-std=c++${{ matrix.config.cxx_standard }}" ./check_errors.sh ||
@@ -619,7 +650,6 @@ jobs:
 
       - name: Build
         shell: cmake -P {0}
-        continue-on-error: ${{ matrix.config.experimental || false }}
         run: |
           execute_process(
             COMMAND cmake --build build --target self_test
@@ -631,7 +661,6 @@ jobs:
 
       - name: Run tests
         shell: cmake -P {0}
-        continue-on-error: ${{ matrix.config.experimental || false }}
         run: |
           execute_process(
             COMMAND cmake --build build --target run_self_test
