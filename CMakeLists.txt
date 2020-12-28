@@ -156,6 +156,15 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
                WARN_FLAGS
                " -Wno-extra-semi-stmt")
       endif()
+
+      check_cxx_compiler_flag("-Wno-zero-as-null-pointer-constant" WARN_ZERO_NULL)
+
+      if (WARN_ZERO_NULL)
+        string(APPEND
+               WARN_FLAGS
+               " -Wno-zero-as-null-pointer-constant")
+      endif()
+
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
       string(CONCAT
              WARN_FLAGS
