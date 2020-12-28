@@ -621,7 +621,7 @@ jobs:
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: |
-          if [ "x${{ matrix.config.libcxx }}" == "xtrue"]
+          if [ "x${{ matrix.config.libcxx }}" == "xtrue" ]
           then
             cxx_flags="${cxx_flags} -stdlib=libc++ -nostdinc++ -cxx-isystem ${GITHUB_WORKSPACE}/llvm/include/c++/v1/ -Wno-unused-command-line-argument"
             link_flags="${link_flags} -L ${GITHUB_WORKSPACE}/llvm/lib -Wl,-rpath,${GITHUB_WORKSPACE}/llvm/lib -lc++abi"
@@ -647,7 +647,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          cmake --parallel 2 --build build --target self_test custom_recursive_muex
+          cmake --build build --parallel 4 --target self_test custom_recursive_mutex
 
       - name: Run tests
         shell: bash
