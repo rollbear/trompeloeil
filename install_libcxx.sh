@@ -93,7 +93,7 @@ if [[ $VERSION == *"3."* ]]; then
         ASAN_FLAGS="-fsanitize=address"
         cmake -DCMAKE_CXX_FLAGS="${ASAN_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="${ASAN_FLAGS}" ../llvm-source
     fi
-    make cxx -j2 VERBOSE=1
+    make cxx -j4 VERBOSE=1
     mkdir "${TARGET}/lib"
     mkdir "${TARGET}/include"
     cp -r lib/* "${TARGET}/lib"
@@ -104,7 +104,7 @@ else
           -DLIBCXX_ABI_UNSTABLE=ON \
           -DLLVM_USE_SANITIZER=${SANITIZER} \
           ../llvm-source
-    make cxx -j2 VERBOSE=1
+    make cxx -j4 VERBOSE=1
     make install-cxxabi install-cxx
 fi
 
