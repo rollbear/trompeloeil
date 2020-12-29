@@ -337,7 +337,7 @@ jobs:
           # Clang-10
           - {
             name: "Linux Clang 10 C++11 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 11,
             cxx_asan: true,
@@ -345,7 +345,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++14 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 14,
             cxx_asan: true,
@@ -353,7 +353,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++17 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 17,
             cxx_asan: true,
@@ -361,7 +361,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++20 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 20,
             cxx_asan: true,
@@ -369,7 +369,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++11 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 11,
             cxx_asan: true,
@@ -377,7 +377,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++14 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 14,
             cxx_asan: true,
@@ -385,7 +385,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++17 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 17,
             cxx_asan: true,
@@ -393,7 +393,7 @@ jobs:
           }
           - {
             name: "Linux Clang 10 C++20 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-10", cxx: "clang++-10",
             cxx_standard: 20,
             cxx_asan: true,
@@ -505,16 +505,6 @@ jobs:
           sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-5.0 main' -y
           sudo apt-get update -q
           sudo apt-get install -y clang-5.0
-
-      - name: Install Clang 10
-        id: install_clang_10
-        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-10' )
-        shell: bash
-        working-directory: ${{ env.HOME }}
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 10
 
       - name: Install Clang 11
         id: install_clang_11
