@@ -14,6 +14,7 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion)
 
 add_library(trompeloeil INTERFACE)
+add_library(trompeloeil::trompeloeil ALIAS trompeloeil)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
