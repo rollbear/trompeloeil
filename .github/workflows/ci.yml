@@ -505,29 +505,46 @@ jobs:
           # MSVC 2019
           - {
             name: "Windows MSVC 2019 C++11",
-            os: windows-latest,
+            os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 11,
           }
           - {
             name: "Windows MSVC 2019 C++14",
-            os: windows-latest,
+            os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 14,
           }
           - {
             name: "Windows MSVC 2019 C++17",
-            os: windows-latest,
+            os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 17,
           }
           - {
             name: "Windows MSVC 2019 C++20",
-            os: windows-latest,
+            os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
           }
-
+          - {
+              name: "Windows MSVC 2017 C++11",
+              os: windows-2016,
+              cc: "cl", cxx: "cl",
+              cxx_standard: 11,
+          }
+          - {
+            name: "Windows MSVC 2017 C++14",
+            os: windows-2016,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 14,
+          }
+          - {
+            name: "Windows MSVC 2017 C++17",
+            os: windows-2016,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 17,
+          }
     steps:
       - uses: actions/checkout@v2
 
