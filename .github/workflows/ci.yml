@@ -182,7 +182,7 @@ jobs:
           # Clang-5.0
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -190,7 +190,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -198,7 +198,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -206,7 +206,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -214,7 +214,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -222,7 +222,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -232,7 +232,7 @@ jobs:
           # Clang-6.0
           - {
             name: "Linux Clang 6.0 C++11 / libstdc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -240,7 +240,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -248,7 +248,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -256,7 +256,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -264,7 +264,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -272,7 +272,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
-            os: ubuntu-20.04,
+            os: ubuntu-16.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -561,10 +561,15 @@ jobs:
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
-          sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-5.0 main' -y
-          sudo apt-get update -q
           sudo apt-get install -y clang-5.0
+
+      - name: Install Clang 6
+        id: install_clang_6
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-6.0' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          sudo apt-get install -y clang-6.0
 
       - name: Install Clang 11
         id: install_clang_11
