@@ -59,21 +59,21 @@ jobs:
           # GCC-6
           - {
             name: "Linux GCC 6 C++11",
-            os: ubuntu-latest,
+            os: ubuntu-16.04,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 6 C++14",
-            os: ubuntu-latest,
+            os: ubuntu-16.04,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 6 C++17",
-            os: ubuntu-latest,
+            os: ubuntu-16.04,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 17,
             cxx_asan: true
@@ -82,21 +82,21 @@ jobs:
           # GCC-7
           - {
             name: "Linux GCC 7 C++11",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-7", cxx: "g++-7",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 7 C++14",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-7", cxx: "g++-7",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 7 C++17",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-7", cxx: "g++-7",
             cxx_standard: 17,
             cxx_asan: true
@@ -105,21 +105,21 @@ jobs:
           # GCC-8
           - {
             name: "Linux GCC 8 C++11",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-8", cxx: "g++-8",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 8 C++14",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-8", cxx: "g++-8",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 8 C++17",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-8", cxx: "g++-8",
             cxx_standard: 17,
             cxx_asan: true
@@ -128,21 +128,21 @@ jobs:
           # GCC-9
           - {
             name: "Linux GCC 9 C++11",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 9 C++14",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 9 C++17",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-9", cxx: "g++-9",
             cxx_standard: 17,
             cxx_asan: true
@@ -151,28 +151,28 @@ jobs:
           # GCC-10
           - {
             name: "Linux GCC 10 C++11",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 10 C++14",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 10 C++17",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 17,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 10 C++20",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "gcc-10", cxx: "g++-10",
             cxx_standard: 20,
             cxx_asan: true
@@ -182,7 +182,7 @@ jobs:
           # Clang-5.0
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -190,7 +190,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -198,7 +198,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -206,7 +206,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -214,7 +214,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -222,7 +222,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -232,7 +232,7 @@ jobs:
           # Clang-6.0
           - {
             name: "Linux Clang 6.0 C++11 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -240,7 +240,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -248,7 +248,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -256,7 +256,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -264,7 +264,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -272,7 +272,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -282,7 +282,7 @@ jobs:
           # Clang-8
           - {
             name: "Linux Clang 8 C++11 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 11,
             cxx_asan: false,
@@ -290,7 +290,7 @@ jobs:
           }
           - {
             name: "Linux Clang 8 C++14 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 14,
             cxx_asan: false,
@@ -298,7 +298,7 @@ jobs:
           }
           - {
             name: "Linux Clang 8 C++17 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 17,
             cxx_asan: false,
@@ -306,7 +306,7 @@ jobs:
           }
           - {
             name: "Linux Clang 8 C++11 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 11,
             cxx_asan: false,
@@ -314,7 +314,7 @@ jobs:
           }
           - {
             name: "Linux Clang 8 C++14 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 14,
             cxx_asan: false,
@@ -322,7 +322,7 @@ jobs:
           }
           - {
             name: "Linux Clang 8 C++17 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-8", cxx: "clang++-8",
             cxx_standard: 17,
             cxx_asan: false,
@@ -332,7 +332,7 @@ jobs:
           # Clang-9
           - {
             name: "Linux Clang 9 C++11 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 11,
             cxx_asan: true,
@@ -340,7 +340,7 @@ jobs:
           }
           - {
             name: "Linux Clang 9 C++14 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 14,
             cxx_asan: true,
@@ -348,7 +348,7 @@ jobs:
           }
           - {
             name: "Linux Clang 9 C++17 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 17,
             cxx_asan: true,
@@ -356,7 +356,7 @@ jobs:
           }
           - {
             name: "Linux Clang 9 C++11 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 11,
             cxx_asan: true,
@@ -364,7 +364,7 @@ jobs:
           }
           - {
             name: "Linux Clang 9 C++14 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 14,
             cxx_asan: true,
@@ -372,7 +372,7 @@ jobs:
           }
           - {
             name: "Linux Clang 9 C++17 / libc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-9", cxx: "clang++-9",
             cxx_standard: 17,
             cxx_asan: true,
@@ -448,7 +448,7 @@ jobs:
           # Clang-11
           - {
             name: "Linux Clang 11 C++11 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 11,
             cxx_asan: true,
@@ -456,7 +456,7 @@ jobs:
           }
           - {
             name: "Linux Clang 11 C++14 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 14,
             cxx_asan: true,
@@ -464,7 +464,7 @@ jobs:
           }
           - {
             name: "Linux Clang 11 C++17 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 17,
             cxx_asan: true,
@@ -472,7 +472,7 @@ jobs:
           }
           - {
             name: "Linux Clang 11 C++20 / libstdc++",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             cc: "clang-11", cxx: "clang++-11",
             cxx_standard: 20,
             cxx_asan: true,
@@ -587,6 +587,11 @@ jobs:
         run: |
           $GITHUB_WORKSPACE/install_libcxx.sh
 
+      - name: Install kcov
+        if: startsWith(matrix.config.os, 'ubuntu')
+        run: |
+          sudo apt-get install -y kcov
+
       - name: Verify compilation errors
         if: (!startsWith(matrix.config.os, 'windows'))
         shell: bash
@@ -611,6 +616,7 @@ jobs:
         env:
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
+          COVERALLS_ID: ${{secrets.COVERALLS_ID}}
         run: |
           if [ "x${{ matrix.config.libcxx }}" == "xtrue" ]
           then
@@ -632,6 +638,7 @@ jobs:
               -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}" \
               -D "CMAKE_EXE_LINKER_FLAGS:STRING=${link_flags}" \
               -D SANITIZE=${{matrix.config.cxx_asan}} \
+              -D COVERALLS_ID="${COVERALLS_ID}" \
               ${{ matrix.config.cmake_args }} \
               ${extra_cmake_args}
 
@@ -645,3 +652,8 @@ jobs:
         run: |
           cmake --build build --target run_self_test
 
+      - name: Collect coverage
+        if: (startsWith(matrix.config.os, 'ubuntu'))
+        shell: bash
+        run: |
+          cmake --build build --target run_coverage || true
