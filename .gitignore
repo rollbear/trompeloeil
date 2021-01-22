@@ -499,7 +499,7 @@ MigrationBackup/
 ########################################
 ## TROMPELOEIL-SPECIFIC IGNORE PATTERNS
 ########################################
-test_package/build
+
 build/
 
 # CLion
