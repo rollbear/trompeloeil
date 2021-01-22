@@ -391,16 +391,12 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   endif()
 
-  if(COVERALLS_ID)
-    set(COVERALLS_FLAG "--coveralls-id=${COVERALLS_ID}")
-  endif()
-
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
     add_custom_target(
       run_coverage
       COMMAND
-        kcov --skip-solibs --include-pattern=trompeloeil.hpp ${COVERALLS_FLAG} ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
+        kcov --skip-solibs --include-pattern=trompeloeil.hpp ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
       DEPENDS
         self_test
     )

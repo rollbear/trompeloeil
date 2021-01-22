@@ -7,7 +7,7 @@ CI: [ ![Build Status](https://travis-ci.org/rollbear/trompeloeil.svg?branch=mast
 [ ![AppVeyor Build Status](
   https://ci.appveyor.com/api/projects/status/mbmjd9sl4n73qxm2/branch/master?svg=true)](
     https://ci.appveyor.com/project/rollbear/trompeloeil)
-[![Coverage Status](https://coveralls.io/repos/rollbear/trompeloeil/badge.svg?branch=master&service=github)](https://coveralls.io/github/rollbear/trompeloeil?branch=master)
+[![codecov](https://codecov.io/gh/rollbear/trompeloeil/branch/master/graph/badge.svg?token=PCUO4knwdU)](https://codecov.io/gh/rollbear/trompeloeil)
 
 Get: [![Conan](https://img.shields.io/badge/on-conan-blue.svg)](https://conan.io/center/trompeloeil)
 
