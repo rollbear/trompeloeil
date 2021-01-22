@@ -684,5 +684,6 @@ jobs:
         with:
           directory: build/coverage
           files: self_test*/cobertura.xml
+          name: ${{ matrix.config.name }}
           fail_ci_if_error: true
           verbose: true
