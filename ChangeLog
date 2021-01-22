@@ -1,3 +1,8 @@
+	* Moved all CI builds to github actions. travis-ci and appveyor
+	  are no longer used.
+
+	* Moved CI coverage collection to codecov.io
+
 	* Conan recipe is now on https://conan.io/center/trompeloeil
 	  the old rollbea/stable channel is defunct.
 
