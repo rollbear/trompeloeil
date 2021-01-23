@@ -1861,14 +1861,6 @@ template <typename T>
       seq.validate_match(s, this, seq_name, match_name, loc);
     }
 
-    bool
-    is_first()
-    const
-    noexcept
-    {
-      return seq.is_first(this);
-    }
-
     unsigned
     cost()
     const
@@ -2691,12 +2683,6 @@ template <typename T>
     noexcept = 0;
 
     virtual
-    bool
-      is_first()
-      const
-      noexcept = 0;
-
-    virtual
     unsigned
     order()
     const
@@ -2775,22 +2761,6 @@ template <typename T>
         }
       }
       return highest_order;
-    }
-
-    bool
-    is_first()
-    const
-    noexcept
-    override
-    {
-      // std::all_of() is almost always preferable. The only reason
-      // for using a hand rolled loop is because it cuts compilation
-      // times quite noticeably (almost 10% with g++5.1)
-      for (auto& m : matchers)
-      {
-        if (!m.is_first()) return false;
-      }
-      return true;
     }
 
     bool
@@ -3069,12 +3039,6 @@ template <typename T>
     virtual
     unsigned
     sequence_cost()
-    const
-    noexcept = 0;
-
-    virtual
-    bool
-    first_in_sequence()
     const
     noexcept = 0;
 
@@ -3995,15 +3959,6 @@ template <typename T>
       override
     {
       return sequences->order();
-    }
-
-    bool
-    first_in_sequence()
-    const
-    noexcept
-    override
-    {
-      return sequences->is_first();
     }
 
     return_of_t<Sig>
