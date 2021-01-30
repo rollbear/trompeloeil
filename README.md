@@ -24,6 +24,7 @@ A thread-safe header-only mocking framework for C++11/14 using the Boost Softwar
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
 - [How to contribute](#contribute)
 - [Compiler compatibility](#compilers)
+- [External tools](#tools)
 - [Presentation videos](#videos)
 - [Trompeloeil on CppCast](http://cppcast.com/2017/02/bjorn-fahller/)
 - [Cheat Sheet (2*A4)](docs/trompeloeil_cheat_sheet.pdf)
@@ -132,6 +133,12 @@ be found in
 - [Backward compatibility with earlier versions of C++](docs/Backward.md)
 - [Platform and library support for Trompeloeil](docs/PlatformsAndLibraries.md)
 
+# <A name="tools"/> External Tools
+
+- [ReSharperC++](https://www.jetbrains.com/resharper-cpp/) extension to
+  [VisualStudio](https://visualstudio.microsoft.com/) has a mock generator for
+  *Trompeloeil* since [2016.2](https://blog.jetbrains.com/rscpp/2016/09/14/whats-new-in-resharper-c-2016-2/)
+  
 # <A name="videos"/> Videos
 
 - Intro presentation from Stockholm C++ UG [(YouTube 34m)](https://www.youtube.com/watch?v=mPYNsARvTDk) [(Slides)](https://speakerdeck.com/rollbear/mocking-modern-c-plus-plus-with-trompeloeil)
