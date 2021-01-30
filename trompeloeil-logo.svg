@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -14,8 +12,8 @@
    viewBox="0 0 741.73067 306.7169"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="drawing.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="trompeloeil-logo.svg"
    inkscape:export-filename="/home/bf/drawing.svg.png"
    inkscape:export-xdpi="39.920151"
    inkscape:export-ydpi="39.920151">
@@ -38,7 +36,7 @@
      inkscape:snap-bbox="true"
      inkscape:snap-nodes="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1016"
+     inkscape:window-height="1026"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -46,7 +44,8 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0" />
+     fit-margin-bottom="0"
+     inkscape:document-rotation="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -55,7 +54,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -67,25 +66,24 @@
      transform="translate(-1.8242414,-1.4428089)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:47.08350372px;line-height:125%;font-family:Abecedario;-inkscape-font-specification:'Abecedario, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:Abecedario;-inkscape-font-specification:'Abecedario, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#707070;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="-3.8257787"
        y="284.14713"
        id="text3336"
-       sodipodi:linespacing="125%"
        inkscape:export-xdpi="39.906509"
        inkscape:export-ydpi="39.906509"><tspan
          sodipodi:role="line"
          id="tspan3338"
          x="-3.8257787"
          y="284.14713"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:expanded;font-size:70.62525177px;line-height:125%;font-family:Pecita;-inkscape-font-specification:'Pecita, Expanded';text-align:start;writing-mode:lr-tb;text-anchor:start">Ceci n'est pas un objet.</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:expanded;font-size:70.6253px;line-height:125%;font-family:Pecita;-inkscape-font-specification:'Pecita, Expanded';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#707070;fill-opacity:1;">Ceci n'est pas un objet.</tspan></text>
     <rect
        id="rect3340"
        width="435.841"
        height="125.78915"
        x="154.7691"
        y="4.5187149"
-       style="fill:none;stroke:#000000;stroke-width:6.15181208;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#707070;stroke-width:6.15181208;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-xdpi="39.906509"
        inkscape:export-ydpi="39.906509" />
     <rect
@@ -94,26 +92,25 @@
        height="179.62669"
        x="155.36386"
        y="5.1135025"
-       style="fill:none;stroke:#000000;stroke-width:7.34130812;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#707070;stroke-width:7.34130812;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-xdpi="39.906509"
        inkscape:export-ydpi="39.906509" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:47.08350372px;line-height:125%;font-family:Courier;-inkscape-font-specification:'Courier, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.23541752;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;image-rendering:auto"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:Courier;-inkscape-font-specification:'Courier, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#707070;fill-opacity:1;stroke:#000000;stroke-width:0.235418;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;image-rendering:auto;"
        x="231.19228"
        y="80.221718"
        id="text4157"
-       sodipodi:linespacing="125%"
        inkscape:export-xdpi="39.906509"
        inkscape:export-ydpi="39.906509"><tspan
          sodipodi:role="line"
          id="tspan4159"
          x="231.19228"
          y="80.221718"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:47.08350372px;line-height:125%;font-family:Courier;-inkscape-font-specification:'Courier, Bold';text-align:start;writing-mode:lr-tb;text-anchor:start;stroke:#000000;stroke-width:0.23541752;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">obj : Mock</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:47.0835px;line-height:125%;font-family:Courier;-inkscape-font-specification:'Courier, Bold';text-align:start;writing-mode:lr-tb;text-anchor:start;stroke:#000000;stroke-width:0.235418;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill:#707070;fill-opacity:1;">obj : Mock</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:3.17813659;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 231.03623,91.503988 283.30673,0"
+       style="fill:none;fill-rule:evenodd;stroke:#707070;stroke-width:3.17814;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 231.03623,91.503988 H 514.34296"
        id="path4165"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
