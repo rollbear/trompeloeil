@@ -89,9 +89,9 @@ namespace trompeloeil
   template <>
   inline void reporter<specialized>::send(      //** 3 **//
     severity s,
-    const char* file,
+    char const* file,
     unsigned long line,
-    const char* msg)
+    std::string const& msg)
   {
     auto f = line ? file : "[file/line unavailable]";
     if (s == severity::fatal)
