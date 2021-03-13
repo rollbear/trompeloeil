@@ -173,6 +173,13 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -pedantic"
              " -Wshadow"
              " -Wconversion")
+        check_cxx_compiler_flag("-Wnonnull" WARN_NONNULL)
+
+        if (WARN_NONNULL)
+            string(APPEND
+                    WARN_FLAGS
+                    " -Wnonnull")
+        endif()
     endif()
 
     set(WARN_FLAGS "${WARN_FLAGS} -Werror")
