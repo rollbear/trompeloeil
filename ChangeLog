@@ -1,3 +1,5 @@
+v40 2021-03-14
+
 	* Silenced -Wnonnull warning from GCC 9 and newer. Thank you Tony Neubert.
 
 	* Fixed custom reported documentation bug. Thanks Matt Godbolt.
