@@ -3,7 +3,7 @@
 #
 # Trompeloeil C++ mocking framework
 #
-# Copyright Björn Fahller 2014-2017
+# Copyright Björn Fahller 2014-2021
 #
 #  Use, modification and distribution is subject to the
 #  Boost Software License, Version 1.0. (See accompanying
