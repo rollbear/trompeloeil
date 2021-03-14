@@ -1237,14 +1237,28 @@ template <typename T>
   inline
   constexpr
   auto
-  is_null(
-    T const &t,
-    std::true_type)
+  is_null_redirect(
+    T const &t)
   noexcept(noexcept(std::declval<T const&>() == nullptr))
   -> decltype(t == nullptr)
   {
     return t == nullptr;
   }
+
+  template <typename T>
+  inline
+  constexpr
+  auto
+  is_null(
+    T const &t,
+    std::true_type)
+  noexcept(noexcept(is_null_redirect(t)))
+  -> decltype(is_null_redirect(t))
+  {
+    // Redirect evaluation to supress wrong non-null warnings in g++ 9 and 10.
+    return is_null_redirect(t);
+  }
+
   template <typename T, typename V>
   inline
   constexpr
