@@ -1265,6 +1265,31 @@ void test()
 Above, each of the `func` overloads must be called once, the `int*` version with
 any pointer value at all, and the `char*` version with a non-null value.
 
+Matching overloads on constness is done by placing the expectation on
+a const or non-const object.
+
+Example:
+```c++
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+  MAKE_CONST_MOCK1(func, void(int));
+};
+
+void test()
+{
+  Mock m;
+  
+  REQUIRE_CALL(m, func(3));   // non-const overload
+  
+  const Mock& mc = m;
+  REQUIRE_CALL(mc, func(-3)); // const overload
+  
+  m.func(3); // calls non-const overlod
+  mc.func(-3); // calls const overload
+}
+```
 ### <A name="side_effects"/> Define side effects for matching calls
 
 A side effect, in *Trompeloeil* parlance, is something that is done after
