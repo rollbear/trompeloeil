@@ -1,10 +1,19 @@
+	* Silenced -Wnonnull warning from GCC 9 and newer. Thank you Tony Neubert.
+
+	* Fixed custom reported documentation bug. Thanks Matt Godbolt.
+
+	* Added CMake alias target trompeloeil::trompeloeil.
+	  Thank you Leon De Andrade.
+
+	* Documentation markdown fixes. Thank you offa.
+
 	* Moved all CI builds to github actions. travis-ci and appveyor
 	  are no longer used.
 
 	* Moved CI coverage collection to codecov.io
 
 	* Conan recipe is now on https://conan.io/center/trompeloeil
-	  the old rollbea/stable channel is defunct.
+	  the old rollbear/stable channel is defunct. Thank you Florian Berchtold.
 
 v39 2020-10-31
 
