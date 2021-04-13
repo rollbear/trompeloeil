@@ -2976,24 +2976,20 @@ template <typename T>
     }
   };
 
+#if TROMPELOEIL_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   template <typename R>
   inline
   R
   default_return()
   {
-    /* Work around VS 2017 15.7.x C4702 warning by
-     * enclosing the operation in an otherwise
-     * unnecessary try/catch block.
-     */
-    try
-    {
-      return default_return_t<R>::value();
-    }
-    catch (...)
-    {
-      throw;
-    }
+    return default_return_t<R>::value();
   }
+#if TROMPELOEIL_MSVC
+#pragma warning(pop)
+#endif
 
 
 
