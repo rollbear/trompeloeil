@@ -784,7 +784,7 @@ jobs:
           cmake --build build --target run_coverage || true
 
       - name: Upload coverage
-        if: (startsWith(matrix.config.os, 'ubuntu'))
+        if: startsWith(matrix.config.os, 'ubuntu') && github.repository == 'rollbear/trompeloeil'
         uses: codecov/codecov-action@v1
         with:
           directory: build/coverage
