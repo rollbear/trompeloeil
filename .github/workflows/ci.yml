@@ -178,6 +178,35 @@ jobs:
             cxx_asan: true
           }
 
+          # GCC-11
+          - {
+            name: "Linux GCC 11 C++11",
+            os: ubuntu-20.04,
+            cc: "gcc-11", cxx: "g++-11",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 11 C++14",
+            os: ubuntu-20.04,
+            cc: "gcc-11", cxx: "g++-11",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 11 C++17",
+            os: ubuntu-20.04,
+            cc: "gcc-11", cxx: "g++-11",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 11 C++20",
+            os: ubuntu-20.04,
+            cc: "gcc-11", cxx: "g++-11",
+            cxx_standard: 20,
+            cxx_asan: true
+          }
 
           # Clang-5.0
           - {
@@ -479,6 +508,40 @@ jobs:
             libcxx: false
           }
 
+          # Clang-12
+          - {
+            name: "Linux Clang 12 C++11 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-12", cxx: "clang++-12",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 12 C++14 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-12", cxx: "clang++-12",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 12 C++17 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-12", cxx: "clang++-12",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 12 C++20 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-12", cxx: "clang++-12",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: false
+          }
+
           # AppleClang
           - {
             name: "macOS Clang C++11",
@@ -588,6 +651,14 @@ jobs:
         run: |
           sudo apt-get install -y gcc-8 g++-8
 
+      - name: Install GCC 11
+        id: install_gcc_11
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'g++-11' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc-11 g++-11
+
       - name: Install Clang 5
         id: install_clang_5
         if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-5.0' )
@@ -621,6 +692,16 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 11
+
+      - name: Install Clang 12
+        id: install_clang_12
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-12' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 12
 
       - name: Install libc++
         id: install_libcxx
