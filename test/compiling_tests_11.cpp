@@ -4270,6 +4270,43 @@ TEST_CASE_METHOD(
   }
 }
 
+namespace trompeloeil {
+template<typename T>
+struct printer<nn::wrapped<T>>
+{
+  static void print(std::ostream &os, const nn::wrapped<T> &t)
+  {
+    os << "spec wrapped(";
+    trompeloeil::print(os, t.value);
+    os << ")";
+  }
+};
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: failure on parameter on user template type is printed with custom printer",
+  "[C++11][C++14][streaming]"
+  )
+{
+  TestOutputMock m;
+  try
+  {
+    m.func(nn::wrapped<int>{3});
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of func with signature void\(nn::wrapped<int>\) with\.
+  param  _1 == spec wrapped\(3\)):";
+    auto& msg = reports.front().msg;
+    CAPTURE(msg);
+    REQUIRE(is_match(msg, re));
+  }
+
+}
+
 TEST_CASE_METHOD(
   Fixture,
   "C++11: A null-comparable object is printed as 'nullptr' if equal",

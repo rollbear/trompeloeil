@@ -1,3 +1,9 @@
+	* Introduced type trompeloeil::printer<T> as a customization point or
+	  formatting data to strings in reports. This has the advantage of
+	  allowing partial specializations. The old technique of specializing
+	  the function template trompeloeil::print(ostream&, const T&) still
+	  works.
+
 v40 2021-03-14
 
 	* Silenced -Wnonnull warning from GCC 9 and newer. Thank you Tony Neubert.
