@@ -8,8 +8,6 @@
 
 Get: [![Conan](https://img.shields.io/badge/on-conan-blue.svg)](https://conan.io/center/trompeloeil)
 
-[![HitCount](http://hits.dwyl.io/rollbear/trompeloeil.svg)](http://hits.dwyl.io/rollbear/trompeloeil)
-
 > *trompe l'oeil* noun    (Concise Encyclopedia)
 > Style of representation in which a painted object is intended
 > to deceive the viewer into believing it is the object itself...
