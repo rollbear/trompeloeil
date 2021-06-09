@@ -502,6 +502,15 @@ namespace nn
     os << "nn::print(TestOutput{" << p.n << "}";
   }
 
+  template <typename T>
+  struct wrapped
+  {
+    T value;
+    friend std::ostream& operator<<(std::ostream& os, const wrapped<T>& w)
+    {
+      return os << "wrapped(" << w.value << ')';
+    }
+  };
 } // namespace nn
 
 namespace trompeloeil
@@ -518,6 +527,7 @@ class TestOutputMock
 {
 public:
   MAKE_MOCK1(func, void(nn::TestOutput));
+  MAKE_MOCK1(func, void(nn::wrapped<int>));
 };
 
 class none

@@ -1834,9 +1834,8 @@ the values are printed using their
 if available, or hexadecimal dumps otherwise. If this is not what you want, you
 can provide your own output formatting used solely for testing.
 
-The simple way to do this is to specialize a function template
-[`print(std::ostream&, const T&)`](reference.md/#print) in namespace
-`trompeloeil` for your type `T`.
+The simple way to do this is to specialize a template [`printer<T>`](reference.md/#printer),
+in namespace `trompeloeil`, and its static member function `print`, for your type `T`.
 
 Example:
 
@@ -1848,17 +1847,47 @@ class char_buff : public std::vector<char>
 
 namespace trompeloeil {
   template <>
-  inline void print(std::ostream& os, const char_buff& b)
+  struct printer<char_buff>
   {
-    os << b.size() << "#{ ";
-    for (auto v : b) { os << int(v) << " "; }
-    os << "}";
-  }
+    static void print(std::ostream& os, const char_buff& b)
+    {
+      os << b.size() << "#{ ";
+      for (auto v : b) { os << int(v) << " "; }
+      os << "}";
+    }
+};
 }
 ```
 
 Any reports involving the `char_buff` above will be printed using the
 `trompeloeil::print<char_buff>(...)` function, showing the size and integer values.
+
+Note that partial specializations also work. Example:
+
+```Cpp
+template <typename T>
+class buff : public std::vector<T>
+{
+  ...
+};
+
+namespace trompeloeil {
+  template <typename T>
+  struct printer<buff<T>>
+  {
+    static void print(std::ostream& os, const buff<T>& b)
+    {
+      os << b.size() << "#{ ";
+      for (auto v : b) { os << v << " "; }
+      os << "}";
+    }
+};
+}
+```
+
+**NOTE!** Older documentation refers to specializing a function
+[`trompeloeil::print(sd::ostream&, T const&)`](reference.md/#print). This still works, but has the
+disadvantage that partial specializations are not possible.
 
 ## <A name="tracing"/> Tracing mocks
 

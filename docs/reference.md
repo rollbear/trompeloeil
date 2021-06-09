@@ -51,6 +51,7 @@
   - [`trompeloeil::matcher`](#matcher_type)
   - [`trompeloeil::mock_interface<T>`](#mock_interface)
   - [`trompeloeil::ok_reporter_func`](#ok_reporter_func)
+  - [`trompeloeil::printer`](#printer)
   - [`trompeloeil::reporter_func`](#reporter_func)
   - [`trompeloeil::sequence`](#sequence_type)
   - [`trompeloeil::severity`](#severity_type)
@@ -2042,6 +2043,27 @@ TEST(...)
 }
 ```
 
+### <A name="printer"/> `trompeloeil::printer<T>`
+
+`printer<T>` is a type that formats values to strings in reports from *Trompeloeil*.
+
+```Cpp
+template <typenme T>
+struct printer
+{
+  static void print(ostream& os, const T& t);
+};
+```
+
+By default the `print` function formats using `os << t`, provided the type `T`
+can be inserted into an `ostream`, otherwise it gives a hex-dump of the bytes
+occupied by the object.
+
+The type `trompeloeil::printer<T>` is a customization point that you can use
+to define string formatting for types that do not support `os << t`, or for
+which you  want a different representation in reports from *Trompeloeil*.
+See example in the [Cook Book](CookBook.md/#custom_formatting).
+
 ### <A name="reporter_func"/>`trompeloeil::reporter_func`
 
 A type used to pass information to the unit testing frame work that a call has
@@ -2238,13 +2260,16 @@ used by *Trompeloeil*. The mutex is held until the end of the scope.
 
 ### <A name="print"/>`trompeloeil::print(std::ostream& os, T const& t)`
 
-By default `print()` uses `os << t`, provided the type `T` can be
-inserted into an `ostream`. If not, it gives a hex-dump of the bytes
-occupied by the object.
+By default `print()` uses the type [`printer<T>`](#printer) to format
+data to strings.
 
 You can write specializations of
 `trompeloeil::print(std::ostream& os, T const& t)` for your own types
-`T`. See example in the [Cook Book](CookBook.md/#custom_formatting).
+`T`, but it is preferable to write a specialization of the type
+[`printer<T>`](#printer) instead, which also works for partial
+specializations.  See example in the
+[Cook Book](CookBook.md/#custom_formatting).
+
 
 ### <A name="is_null"/>`trompeloeil::is_null(T const&)`
 

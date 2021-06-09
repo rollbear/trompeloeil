@@ -1420,6 +1420,19 @@ template <typename T>
   };
 
   template <typename T>
+  struct printer
+  {
+    static
+    void
+    print(
+      std::ostream& os,
+      T const & t)
+    {
+      streamer<T>::print(os, t);
+    }
+  };
+
+  template <typename T>
   void
   print(
     std::ostream& os,
@@ -1431,7 +1444,7 @@ template <typename T>
     }
     else
     {
-      streamer<T>::print(os, t);
+      printer<T>::print(os, t);
     }
   }
 
