@@ -1,3 +1,6 @@
+	* Silenced (again) the MSVC C4702 warning from the default_return<>()
+	  function template.
+
 	* Introduced type trompeloeil::printer<T> as a customization point or
 	  formatting data to strings in reports. This has the advantage of
 	  allowing partial specializations. The old technique of specializing
