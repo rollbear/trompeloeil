@@ -37,12 +37,21 @@ namespace trompeloeil
     auto failure = os.str();
     if (s == severity::fatal)
     {
+#ifdef CATCH_CONFIG_PREFIX_ALL
+      CATCH_FAIL(failure);
+#else
       FAIL(failure);
+#endif
     }
     else
     {
+#ifdef CATCH_CONFIG_PREFIX_ALL
+      CATCH_CAPTURE(failure);
+      CATCH_CHECK(failure.empty());
+#else
       CAPTURE(failure);
       CHECK(failure.empty());
+#endif
     }
   }
 
@@ -50,7 +59,11 @@ namespace trompeloeil
   inline void reporter<specialized>::sendOk(
     const char* trompeloeil_mock_calls_done_correctly)
   {      
+#ifdef CATCH_CONFIG_PREFIX_ALL
+      CATCH_REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+#else
       REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+#endif
   }
 }
 
