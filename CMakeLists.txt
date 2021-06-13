@@ -150,6 +150,9 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
              " -Wno-weak-vtables"
              " -Wno-exit-time-destructors"
              " -Wno-global-constructors")
+
+      # Disable for Catch2.
+      # See <https://github.com/catchorg/Catch2/issues/1456>
       check_cxx_compiler_flag("-Wno-extra-semi-stmt" WARN_SEMI_STMT)
 
       if (WARN_SEMI_STMT)
@@ -164,6 +167,16 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
         string(APPEND
                WARN_FLAGS
                " -Wno-zero-as-null-pointer-constant")
+      endif()
+
+      # Disable for Catch2.
+      # See <https://github.com/catchorg/Catch2/issues/578>
+      check_cxx_compiler_flag("-Wno-reserved-identifier" WARN_RESERVED_ID)
+
+      if (WARN_RESERVED_ID)
+        string(APPEND
+               WARN_FLAGS
+               " -Wno-reserved-identifier")
       endif()
 
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
