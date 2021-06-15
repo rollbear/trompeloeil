@@ -1,3 +1,6 @@
+	* catch2 adapter works with CATCH_CONFIG_PREFIX_ALL.
+	  thanks Christian Morales Vega
+
 	* Silenced -Wreserved-identifier from Clang "latest" (13.0.0).
 
 	* Silenced (again) the MSVC C4702 warning from the default_return<>()
