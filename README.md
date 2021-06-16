@@ -119,7 +119,7 @@ users.) Feel free to add your name to the copyright blurb.
 
 Trompeloeil is known to work with:
 
-- GCC [4.8.4](docs/Backward.md#gxx48x_limitations)+, 4.9.3+, 5, 6, 7, 8, 9, 10
+- GCC [4.8.4](docs/Backward.md#gxx48x_limitations)+, 4.9.3+, 5, 6, 7, 8, 9, 10, 11
 - Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5, 6, 7, 8, 9, 10, 11, 12
 - Visual Studio 2015, 2017, 2019
 
