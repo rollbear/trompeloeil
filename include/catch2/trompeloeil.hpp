@@ -24,6 +24,15 @@
 
 namespace trompeloeil
 {
+  struct catch2_error_message {
+      std::string s;
+      operator bool() const { return false; }
+      friend std::ostream& operator<<(std::ostream& os, const catch2_error_message& m)
+      {
+        return os << m.s;
+      }
+  };
+
   template <>
   inline void reporter<specialized>::send(
     severity s,
@@ -34,23 +43,22 @@ namespace trompeloeil
     std::ostringstream os;
     if (line) os << file << ':' << line << '\n';
     os << msg;
-    auto failure = os.str();
+
+    catch2_error_message m{os.str()};
     if (s == severity::fatal)
     {
 #ifdef CATCH_CONFIG_PREFIX_ALL
-      CATCH_FAIL(failure);
+      CATCH_FAIL(m);
 #else
-      FAIL(failure);
+      FAIL(m);
 #endif
     }
     else
     {
 #ifdef CATCH_CONFIG_PREFIX_ALL
-      CATCH_CAPTURE(failure);
-      CATCH_CHECK(failure.empty());
+      CATCH_CHECK(m);
 #else
-      CAPTURE(failure);
-      CHECK(failure.empty());
+      CHECK(m);
 #endif
     }
   }
@@ -58,7 +66,7 @@ namespace trompeloeil
   template <>
   inline void reporter<specialized>::sendOk(
     const char* trompeloeil_mock_calls_done_correctly)
-  {      
+  {
 #ifdef CATCH_CONFIG_PREFIX_ALL
       CATCH_REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
 #else
