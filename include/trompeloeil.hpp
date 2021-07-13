@@ -2916,6 +2916,12 @@ template <typename T>
     {
       died = true;
       sequences->validate(severity::nonfatal, call_name, loc);
+
+      sequences->increment_call();
+      if (sequences->is_satisfied())
+      {
+        sequences->retire_predecessors();
+      }
     }
 
     template <typename ... T>
