@@ -4185,6 +4185,23 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
+    Fixture,
+    "C++14: require destruction fulfilled in sequence with another object is not reported",
+    "[C++14][deathwatched][sequences]")
+{
+  auto obj = new trompeloeil::deathwatched<mock_c>;
+  mock_c obj2;
+  trompeloeil::sequence s;
+  REQUIRE_DESTRUCTION(*obj)
+    .IN_SEQUENCE(s);
+  REQUIRE_CALL(obj2, foo("foo"))
+    .IN_SEQUENCE(s);
+  delete obj;
+  obj2.foo("foo");
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
   Fixture,
   "C++14: named require destruction fulfilled in sequence is not reported",
   "[C++14][deathwatched][sequences]")
