@@ -438,6 +438,8 @@ install(
 install(
   EXPORT
     trompeloeil-targets
+  NAMESPACE
+    trompeloeil::
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/trompeloeil
 )
