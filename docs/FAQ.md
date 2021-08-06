@@ -557,7 +557,7 @@ target_link_libraries( my_unit_tests
     # Nothing to link since both of these libs are header-only,
     # but this sets up the include path correctly too
     Catch2::Catch2
-    trompeloeil
+    trompeloeil::trompeloeil
 )
 
 # Optional: Use CTest to manage your tests
