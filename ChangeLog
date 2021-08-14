@@ -1,3 +1,5 @@
+	* Fix issue 245: Modify cmake to build thread_terror on Windows with MSVC.
+
 v41 2021-06-15
 
 	* catch2 adapter works with CATCH_CONFIG_PREFIX_ALL.
