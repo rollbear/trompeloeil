@@ -278,8 +278,14 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     thread_terror
     PUBLIC
       trompeloeil
-      pthread
   )
+  if (NOT MSVC)
+      target_link_libraries(
+        thread_terror
+        PUBLIC
+          pthread
+      )
+  endif()
 
   if (SANITIZE)
     set_target_properties(
