@@ -1269,7 +1269,8 @@ Matching overloads on constness is done by placing the expectation on
 a const or non-const object.
 
 Example:
-```c++
+
+```Cpp
 class Mock
 {
 public:
@@ -1280,16 +1281,17 @@ public:
 void test()
 {
   Mock m;
-  
+
   REQUIRE_CALL(m, func(3));   // non-const overload
-  
+
   const Mock& mc = m;
   REQUIRE_CALL(mc, func(-3)); // const overload
-  
-  m.func(3); // calls non-const overlod
+
+  m.func(3); // calls non-const overload
   mc.func(-3); // calls const overload
 }
 ```
+
 ### <A name="side_effects"/> Define side effects for matching calls
 
 A side effect, in *Trompeloeil* parlance, is something that is done after

@@ -905,7 +905,8 @@ you can call [mock functions](#mock_function) from those.
 
 **NOTE!** **`IMPLEMENT_MOCKn(...)`** cannot handle overloaded functions.
 
-See also [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) for `const` member functions.
+See also [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) for `const`
+member functions.
 
 See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
 member functions.
@@ -2048,7 +2049,7 @@ TEST(...)
 `printer<T>` is a type that formats values to strings in reports from *Trompeloeil*.
 
 ```Cpp
-template <typenme T>
+template <typename T>
 struct printer
 {
   static void print(ostream& os, const T& t);
@@ -2270,7 +2271,6 @@ You can write specializations of
 specializations.  See example in the
 [Cook Book](CookBook.md/#custom_formatting).
 
-
 ### <A name="is_null"/>`trompeloeil::is_null(T const&)`
 
 Null check that works for all types. If `T` is not comparable with
@@ -2337,8 +2337,8 @@ trompeloeil::set_reporter(std::function<void(trompeloeil::severity,
 ```
 
 The return value is the previous `reporter` and `ok_reporter`. An `ok_reporter`
-is called for every call to a [mock function](#mock_function) that is not reported as a
-violation. By default OK reports are ignored.
+is called for every call to a [mock function](#mock_function) that is not
+reported as a violation. By default OK reports are ignored.
 
 See [`trompeloeil::severity`](#severity_type) for the rules that it
 dictates.
@@ -2467,7 +2467,7 @@ test(...)
 }
 ```
 
- Using
+Using
 [**`NAMED_REQUIRE_CALL()`**](reference.md/#NAMED_REQUIRE_CALL),
 [**`NAMED_ALLOW_CALL()`**](reference.md/#NAMED_ALLOW_CALL) or
 [**`NAMED_FORBID_CALL()`**](reference.md/#NAMED_FORBID_CALL) can help, since

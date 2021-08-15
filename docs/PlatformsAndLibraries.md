@@ -544,7 +544,6 @@ definition (e.g. GCC: `-DTROMPELOEIL_CUSTOM_RECURSIVE_MUTEX`).
 Now define in one translation unit your custom recursive mutex for trompeloeil.
 
 ```cpp
-
 namespace trompeloeil {
 
 std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex() {
@@ -561,7 +560,6 @@ std::unique_ptr<custom_recursive_mutex> create_custom_recursive_mutex() {
 }
 
 }
-
 ```
 
 ### <A name="custom_std_atomic"/> Replacing `std::atomic<T>`
@@ -574,7 +572,6 @@ This header should contain a class template `trompeloeil::atomic<T>`
 that implements (part of) the interface of `std::atomic<T>`:
 
 ```cpp
-
 namespace trompeloeil
 {
 template <typename T>
@@ -604,7 +601,6 @@ private:
   mylib::atomic<T> m_atomic;
 };
 }
-
 ```
 
 ### <A name="custom_std_unique_lock"/> Replacing `std::unique_lock<T>`
@@ -617,7 +613,6 @@ This header should contain a class template `trompeloeil::unique_lock<T>`
 that implements (part of) the interface of `std::unique_lock<T>`:
 
 ```cpp
-
 namespace trompeloeil
 {
 template <typename Mutex>
@@ -657,5 +652,4 @@ private:
   Mutex* m_mutex;
 };
 }
-
 ```

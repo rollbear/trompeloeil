@@ -1257,7 +1257,7 @@ template <typename T>
   noexcept(noexcept(is_null_redirect(t)))
   -> decltype(is_null_redirect(t))
   {
-    // Redirect evaluation to supress wrong non-null warnings in g++ 9 and 10.
+    // Redirect evaluation to suppress wrong non-null warnings in g++ 9 and 10.
     return is_null_redirect(t);
   }
 
@@ -2823,7 +2823,7 @@ template <typename T>
       }
     }
   private:
-    // work around for MS STL ossue 942
+    // work around for MS STL issue 942
     // https://github.com/microsoft/STL/issues/942
     detail::conditional_t<N == 0,
                           std::vector<sequence_matcher>,
