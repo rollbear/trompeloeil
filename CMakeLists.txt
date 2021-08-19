@@ -268,6 +268,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       trompeloeil
   )
 
+  find_package(Threads REQUIRED)
+
   add_executable(
     thread_terror
     EXCLUDE_FROM_ALL
@@ -278,14 +280,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     thread_terror
     PUBLIC
       trompeloeil
+      Threads::Threads
   )
-  if (NOT MSVC)
-      target_link_libraries(
-        thread_terror
-        PUBLIC
-          pthread
-      )
-  endif()
 
   if (SANITIZE)
     set_target_properties(
@@ -308,14 +304,8 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     custom_recursive_mutex
     PUBLIC
     trompeloeil
+    Threads::Threads
   )
-  if (NOT MSVC)
-      target_link_libraries(
-              custom_recursive_mutex
-              PUBLIC
-              pthread
-      )
-  endif()
 
   if (SANITIZE AND NOT APPLE)
     set_target_properties(
