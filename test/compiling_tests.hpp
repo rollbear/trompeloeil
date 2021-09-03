@@ -523,11 +523,17 @@ namespace trompeloeil
 
 } // namespace trompeloeil
 
+struct my_printable
+{
+    int x;
+};
+
 class TestOutputMock
 {
 public:
   MAKE_MOCK1(func, void(nn::TestOutput));
   MAKE_MOCK1(func, void(nn::wrapped<int>));
+  MAKE_MOCK1(func, void(my_printable));
 };
 
 class none

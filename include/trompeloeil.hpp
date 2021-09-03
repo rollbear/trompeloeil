@@ -1421,7 +1421,7 @@ template <typename T>
     }
   };
 
-  template <typename T>
+  template <typename T, typename = void>
   struct printer
   {
     static

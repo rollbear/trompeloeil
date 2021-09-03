@@ -4270,6 +4270,17 @@ TEST_CASE_METHOD(
   }
 }
 
+template <typename>
+struct my_printer;
+
+template <>
+struct my_printer<my_printable>
+{
+    void operator()(std::ostream& os, my_printable m)
+    {
+        os << "my_printable{" << m.x << '}';
+    }
+};
 namespace trompeloeil {
 template<typename T>
 struct printer<nn::wrapped<T>>
@@ -4280,6 +4291,16 @@ struct printer<nn::wrapped<T>>
     trompeloeil::print(os, t.value);
     os << ")";
   }
+};
+
+template <typename T>
+struct printer<T, typename std::enable_if<(sizeof(::my_printer<T>) > 0)>::type>
+{
+    static void print(std::ostream& os, const T& t)
+    {
+        my_printer<T> p;
+        p(os, t);
+    }
 };
 }
 
@@ -4304,7 +4325,28 @@ TEST_CASE_METHOD(
     CAPTURE(msg);
     REQUIRE(is_match(msg, re));
   }
+}
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: failure on parameter on user type is printed with SFINAEd custom printer",
+  "[C++11][C++14][streaming]"
+  )
+{
+  TestOutputMock m;
+  try {
+    m.func(my_printable{3});
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(!reports.empty());
+    auto re = R":(No match for call of func with signature void\(my_printable\) with\.
+  param  _1 == my_printable\{3\}):";
+    auto& msg = reports.front().msg;
+    CAPTURE(msg);
+    REQUIRE(is_match(msg, re));
+  }
 }
 
 TEST_CASE_METHOD(
