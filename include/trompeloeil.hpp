@@ -164,17 +164,17 @@ namespace trompeloeil { using std::unique_lock; }
   TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__,                          \
                                          15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
-#if defined(_MSC_VER)
+#if TROMPELOEIL_MSVC
 
 #define TROMPELOEIL_CONCAT_(x, y, ...) x ## y __VA_ARGS__
 #define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
 
-#else /* defined(_MSC_VER) */
+#else /* TROMPELOEIL_MSVC */
 
 #define TROMPELOEIL_CONCAT_(x, ...) x ## __VA_ARGS__
 #define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
 
-#endif /* !defined(_MSC_VER) */
+#endif /* !TROMPELOEIL_MSVC */
 
 #define TROMPELOEIL_SEPARATE1(p1) p1
 #define TROMPELOEIL_SEPARATE2(p1,p2) p1 p2
@@ -1215,7 +1215,7 @@ template <typename T>
     operator T C::*() const;
     template <typename T, typename C, typename ... As>
     operator memfunptr<T,C,As...>() const;
-#endif /* TROMPELOEIL_GCC */
+#endif /* TROMPELOEIL_GCC || TROMPELOEIL_MSVC */
     operator std::nullptr_t() const;
   };
 
@@ -4434,7 +4434,7 @@ template <typename T>
 #define TROMPELOEIL_COUNT_ID(name)                                       \
   TROMPELOEIL_CONCAT(trompeloeil_c_ ## name ## _, __COUNTER__)
 
-#ifdef _MSC_VER
+#if TROMPELOEIL_MSVC
 #define TROMPELOEIL_MAKE_MOCK0(name, sig, ...)                           \
   TROMPELOEIL_MAKE_MOCK_(name,,0, sig, __VA_ARGS__,,)
 #define TROMPELOEIL_MAKE_MOCK1(name, sig, ...)                           \
