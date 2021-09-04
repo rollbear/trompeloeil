@@ -1887,6 +1887,36 @@ namespace trompeloeil {
 }
 ```
 
+The full type signature for the `printer` template is
+```C++
+template <typename T, typename = void>
+struct printer
+{
+    static void print(std::ostream& os, const T&);  
+};
+```
+
+The second template parameter can be used for
+[SFINAE](https://en.cppreference.com/w/cpp/language/sfinae)
+constraints  on the `T`. As an example, every types that has a formatter for
+the  excellent [`fmt`](https://fmt.dev/latest/index.html) library, can be
+printed using a custom SFINAE:d printer like:
+
+```C++
+namespace trompeloeil {
+
+  template<typename T>
+  struct printer<T, typename std::enable_if_t<fmt::is_formattable<T>::value>>
+  {
+    static void print(std::ostream& os, const T& t) { os << fmt::format("{}", t); }
+  };
+
+}
+```
+
+Note that the result of the type expression for the 2nd type in the partial
+specialization **must** be `void`.
+
 **NOTE!** Older documentation refers to specializing a function
 [`trompeloeil::print(sd::ostream&, T const&)`](reference.md/#print). This still works, but has the
 disadvantage that partial specializations are not possible.

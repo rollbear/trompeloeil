@@ -2049,7 +2049,7 @@ TEST(...)
 `printer<T>` is a type that formats values to strings in reports from *Trompeloeil*.
 
 ```Cpp
-template <typename T>
+template <typename T, typename = void>
 struct printer
 {
   static void print(ostream& os, const T& t);
@@ -2062,7 +2062,9 @@ occupied by the object.
 
 The type `trompeloeil::printer<T>` is a customization point that you can use
 to define string formatting for types that do not support `os << t`, or for
-which you  want a different representation in reports from *Trompeloeil*.
+which you  want a different representation in reports from *Trompeloeil*. The
+second template parameter, which must be `void` if present, is a chance to add
+SFINAE constraints on the T.
 See example in the [Cook Book](CookBook.md/#custom_formatting).
 
 ### <A name="reporter_func"/>`trompeloeil::reporter_func`

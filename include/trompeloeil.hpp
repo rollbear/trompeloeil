@@ -1106,16 +1106,6 @@ namespace trompeloeil
     {
       return true;
     }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      wildcard const&)
-    noexcept
-    {
-      return os << " matching _";
-    }
   };
 
   TROMPELOEIL_INLINE_VAR wildcard _{};
@@ -1421,7 +1411,7 @@ template <typename T>
     }
   };
 
-  template <typename T>
+  template <typename T, typename = void>
   struct printer
   {
     static
@@ -1434,6 +1424,18 @@ template <typename T>
     }
   };
 
+  template <>
+  struct printer<wildcard>
+  {
+    static
+    void
+    print(
+	  std::ostream& os,
+	  wildcard const&)
+    {
+      os << " matching _";
+    }
+  };
   template <typename T>
   void
   print(
