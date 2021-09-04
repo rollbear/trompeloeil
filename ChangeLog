@@ -1,3 +1,7 @@
+	* Fix issue 251: trompeloeil::printer<> customization point now supports
+	  SFINAE expressions to constrain partial specializations. Thank you
+	  Christian Morales Vega for reporting.
+
 	* Fix issue 245: Modify cmake to build thread_terror on Windows with MSVC.
 
     * Use CMake internal Threads::Threads target where needed
