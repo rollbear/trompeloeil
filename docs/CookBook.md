@@ -1900,7 +1900,7 @@ The second template parameter can be used for
 [SFINAE](https://en.cppreference.com/w/cpp/language/sfinae)
 constraints  on the `T`. As an example, every type that has a formatter for
 the  excellent [`fmt`](https://fmt.dev/latest/index.html) library, can be
-printed using a custom SFINAE:d printer like:
+printed using a custom SFINAE printer like:
 
 ```C++
 namespace trompeloeil {
