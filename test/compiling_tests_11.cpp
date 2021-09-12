@@ -4018,11 +4018,20 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 namespace
 {
-
+  /*
+   * Prefer the expression
+   * 'x.compare(min) >= 0 && x.compare(max) <= 0'
+   * to the more natural
+   * 'x >= min && x <= max'
+   * to avoid a warning in the configuration
+   * Clang and (10.0.0 <= version < 12.0.0) and C++20 mode and
+   * libstdc++v3 released with GCC version 10.
+   * See: https://bugs.llvm.org/show_bug.cgi?id=44325 .
+   */
   auto cxx11_is_clamped_lambda =
     [](std::string x, std::string min, std::string max)
-      -> decltype(x >= min && x <= max) {
-      return x >= min && x <= max;
+      -> decltype(x.compare(min) >= 0 && x.compare(max) <= 0) {
+      return x.compare(min) >= 0 && x.compare(max) <= 0;
     };
 
   auto cxx11_is_clamped_printer =

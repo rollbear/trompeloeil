@@ -3434,11 +3434,98 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
-auto is_clamped_lambda =
-  [](auto x, auto min, auto max) ->decltype(x >= min && x <= max)
+#if !(TROMPELOEIL_CLANG &&                                                           \
+     (TROMPELOEIL_CLANG_VERSION >= 100000 && TROMPELOEIL_CLANG_VERSION < 120000) &&  \
+     (TROMPELOEIL_CPLUSPLUS > 201703L && TROMPELOEIL_CPLUSPLUS < 202100L))
+
+/*
+ * Compile for all configurations except
+ * Clang and (10.0.0 <= version < 12.0.0) and C++20 mode and
+ * libstdc++v3 released with GCC version 10 (not checked).
+ *
+ * This configuration has a defect such that
+ * operator<=>() for std::string, generates a
+ * -Wzero-as-null-pointer-constant warning with the note
+ * "while rewriting comparison as call to 'operator<=>'".
+ * See: https://bugs.llvm.org/show_bug.cgi?id=44325 .
+ */
+
+auto is_clamped_lambda_normal =
+  [](auto x, auto min, auto max) -> decltype(x >= min && x <= max)
+  {
+    return x >= min && x <= max;
+  };
+
+template <typename kind = trompeloeil::wildcard, typename T>
+auto is_clamped_normal(T min, T max)
 {
-  return x >= min && x <= max;
-};
+  using trompeloeil::make_matcher;
+  return make_matcher<kind>(
+    is_clamped_lambda_normal,
+
+    [](std::ostream& os, auto amin, auto amax) {
+      os << " in range [";
+      ::trompeloeil::print(os, amin);
+      os << ", ";
+      ::trompeloeil::print(os, amax);
+      os << "]";
+    },
+
+    min,
+    max);
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: a normal custom duck typed make_matcher-matcher that fails is reported",
+  "[C++14][matching][matchers][custom]")
+{
+  try {
+    mock_c obj;
+    REQUIRE_CALL(obj, foo(is_clamped_normal("b", "d")));
+    obj.foo(std::string("a"));
+    FAIL("didn't report");
+  }
+  catch(reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO(msg);
+    auto re = R":(No match for call of foo with signature void\(std::string\) with\.
+  param  _1 == a
+
+Tried obj\.foo\(is_clamped_normal\("b", "d"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 in range \[b, d\]):";
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: a normal custom duck typed make_matcher-matcher that succeeds is not reported",
+  "[C++14][matching][matchers][custom]")
+{
+  mock_c obj;
+  REQUIRE_CALL(obj, foo(is_clamped_normal("b", "d")));
+  obj.foo(std::string("c"));
+}
+
+#endif /* !(Clang and (10.0.0 <= version < 12.0.0) and C++20 mode) */
+
+/*
+ * Define is_clamped_lambda in terms of an expression
+ * that never uses operator<=>() for std::string, which otherwise
+ * may generate a -Wzero-as-null-pointer-constant warning.
+ *
+ * This is compiled for all configurations >= C++14.
+ */
+
+auto is_clamped_lambda =
+  [](auto x, auto min, auto max)
+  -> decltype(x.compare(min) >= 0 && x.compare(max) <= 0)
+  {
+    return x.compare(min) >= 0 && x.compare(max) <= 0;
+  };
 
 template <typename kind = trompeloeil::wildcard, typename T>
 auto is_clamped(T min, T max)
