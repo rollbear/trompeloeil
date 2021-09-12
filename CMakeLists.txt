@@ -161,14 +161,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
                " -Wno-extra-semi-stmt")
       endif()
 
-      check_cxx_compiler_flag("-Wno-zero-as-null-pointer-constant" WARN_ZERO_NULL)
-
-      if (WARN_ZERO_NULL)
-        string(APPEND
-               WARN_FLAGS
-               " -Wno-zero-as-null-pointer-constant")
-      endif()
-
       # Disable for Catch2.
       # See <https://github.com/catchorg/Catch2/issues/578>
       check_cxx_compiler_flag("-Wno-reserved-identifier" WARN_RESERVED_ID)

@@ -1,4 +1,8 @@
-	* Fix issue 250: Warnings about zero argument variadic macros with?
+	* Fix issue 253: Resolve lingering warnings in early Clang compilers and
+	  enable -Wzero-as-null-pointer-constant when compiling unit tests with
+	  GCC and Clang.
+
+	* Fix issue 250: Warnings about zero argument variadic macros with
 	  clang-msvc. Thanks u3shit for reporting and fixing.
 
 	* Fix issue 251: trompeloeil::printer<> customization point now supports
@@ -7,7 +11,7 @@
 
 	* Fix issue 245: Modify cmake to build thread_terror on Windows with MSVC.
 
-    * Use CMake internal Threads::Threads target where needed
+	* Use CMake internal Threads::Threads target where needed
 
 v41 2021-06-15
 

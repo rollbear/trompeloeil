@@ -1119,7 +1119,7 @@ template <typename T>
   template <typename T>
   struct typed_matcher : matcher
   {
-    operator T() const;
+    operator T() const { return {}; }
   };
 
   template <>
@@ -1148,7 +1148,7 @@ template <typename T>
     template <typename V,
               typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&&, T...>>
-    operator V&&() const;
+    operator V&&() const { return *this; }
 
 #endif
 
@@ -2100,7 +2100,7 @@ template <typename T>
   public:
     template <typename U,
               typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(std::declval<U>())>>(std::declval<M>()))>
-    operator U() const;
+    operator U() const { return {}; }
 
     template <typename U>
     explicit
