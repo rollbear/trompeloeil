@@ -138,7 +138,9 @@ be found in
   *Trompeloeil* since [2016.2](https://blog.jetbrains.com/rscpp/2016/09/14/whats-new-in-resharper-c-2016-2/)
   
 # <A name="videos"/> Videos
-
-- Intro presentation from Stockholm C++ UG [(YouTube 34m)](https://www.youtube.com/watch?v=mPYNsARvTDk) [(Slides)](https://speakerdeck.com/rollbear/mocking-modern-c-plus-plus-with-trompeloeil)
-- Presentation from NDC{Oslo} [(YouTube 52m)](https://www.youtube.com/watch?v=vvQ-kK4coYM&t=1122s) [(Slides)](https://speakerdeck.com/rollbear/ndc-oslo-using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)
-- Detailed presentation from ACCU 2017 [(YouTube 1h25m)](https://www.youtube.com/watch?v=HCh6cs9nXt0) [(Slides with extra material)](https://speakerdeck.com/rollbear/using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus)
+|  |  |
+|--|--|
+| [![Mocking Modern C++ with Trompeloeil](https://img.youtube.com/vi/mPYNsARvTDk/mqdefault.jpg)](https://www.youtube.com/watch?v=mPYNsARvTDk)| *Mocking Modern C++ with Trompeloeil*, introduction to Trompeloeil by Björn Fahller from from from Stockholm C++ UG (34m)| [(Slides)](https://speakerdeck.com/rollbear/mocking-modern-c-plus-plus-with-trompeloeil) |
+| [![Using Trompeloeil, a Mocking Framework for Modern C++](https://img.youtube.com/vi/vvQ-kK4coYM/mqdefault.jpg)](https://www.youtube.com/watch?v=vvQ-kK4coYM)| *Using Trompeloeil, a Mocking Framework for Modern C++*, by Björn Fahller from NDC{Oslo} 2017 (52m) [(Slides)](https://speakerdeck.com/rollbear/ndc-oslo-using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus) |
+| [![Using Trompeloeil, a Mocking Framework for Modern C++](https://img.youtube.com/vi/HCh6cs9nXt0/mqdefault.jpg)](https://www.youtube.com/watch?v=HCh6cs9nXt0) | *Using Trompeloeil, a Mocking Framework for Modern C++*, Detailed presentation by Björn Fahller from ACCU 2017 (1h25m) [(Slides with extra material)](https://speakerdeck.com/rollbear/using-trompeloeil-a-mocking-framework-for-modern-c-plus-plus) |
+| [![Packporting to the future](https://img.youtube.com/vi/KKvSVyZ4_5k/mqdefault.jpg)](https://www.youtube.com/watch?v=KKvSVyZ4_5k) | *Backporting to the Future*, Detailing the C++11 API and how it came to be, by Andrew Paxie from Pacific++ 2018 (53m) [(Slides)](https://github.com/pacificplusplus/conference/blob/master/slides-2018/backporting-to-the-future/slides.pdf) |
