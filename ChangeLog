@@ -1,3 +1,5 @@
+	* Fix issue 255: Hex dumps showed byte values <= 15(dec) wrong
+
 	* Fix issue 253: Resolve lingering warnings in early Clang compilers and
 	  enable -Wzero-as-null-pointer-constant when compiling unit tests with
 	  GCC and Clang.

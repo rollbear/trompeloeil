@@ -4107,7 +4107,7 @@ TEST_CASE_METHOD(
 {
   std::ostringstream os;
   trompeloeil::print(os, unknown{});
-  REQUIRE(os.str() == "4-byte object={ 0x10 0x11 0x12 0x13 }");
+  REQUIRE(os.str() == "4-byte object={ 0x01 0x02 0x12 0x13 }");
 }
 
 TEST_CASE_METHOD(
@@ -4119,7 +4119,7 @@ TEST_CASE_METHOD(
   trompeloeil::print(os, unknown{});
   int16_t u = 10000;
   os << u;
-  REQUIRE(os.str() == "4-byte object={ 0x10 0x11 0x12 0x13 }10000");
+  REQUIRE(os.str() == "4-byte object={ 0x01 0x02 0x12 0x13 }10000");
 }
 
 TEST_CASE_METHOD(
@@ -4131,7 +4131,7 @@ TEST_CASE_METHOD(
   os << std::oct << std::setfill('_') << std::setw(4) << std::left;
   trompeloeil::print(os, unknown{});
   os << 8;
-  REQUIRE(os.str() == "4-byte object={ 0x10 0x11 0x12 0x13 }10__");
+  REQUIRE(os.str() == "4-byte object={ 0x01 0x02 0x12 0x13 }10__");
 }
 
 TEST_CASE_METHOD(

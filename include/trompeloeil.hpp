@@ -1404,7 +1404,7 @@ template <typename T>
       auto p = reinterpret_cast<uint8_t const*>(&t);
       for (size_t i = 0; i < sizeof(T); ++i)
       {
-        os << " 0x" << std::setw(2) << unsigned(p[i]);
+        os << " 0x" << std::setw(2) << std::right << unsigned(p[i]);
         if ((i & 0xf) == 0xf) os << '\n';
       }
       os << " }";

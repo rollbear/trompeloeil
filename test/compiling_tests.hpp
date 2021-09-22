@@ -483,7 +483,7 @@ public:
 };
 
 struct unknown {
-  const char values[4] = { 0x10, 0x11, 0x12, 0x13 };
+  const char values[4] = { 0x01, 0x02, 0x12, 0x13 };
 };
 
 namespace nn
