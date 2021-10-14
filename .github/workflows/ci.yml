@@ -542,6 +542,40 @@ jobs:
             libcxx: false
           }
 
+          # Clang-13
+          - {
+            name: "Linux Clang 13 C++11 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-13", cxx: "clang++-13",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 13 C++14 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-13", cxx: "clang++-13",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 13 C++17 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-13", cxx: "clang++-13",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 13 C++20 / libstdc++",
+            os: ubuntu-20.04,
+            cc: "clang-13", cxx: "clang++-13",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: false
+          }
+
           # AppleClang
           - {
             name: "macOS Clang C++11",
@@ -710,6 +744,16 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 12
+
+      - name: Install Clang 13
+        id: install_clang_13
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'clang++-13' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 13
 
       - name: Install libc++
         id: install_libcxx
