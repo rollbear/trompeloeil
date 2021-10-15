@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(trompeloeil)
 
-option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ON)
-
 include(GNUInstallDirs)
 include(ExternalProject)
 include(CMakePackageConfigHelpers)
@@ -34,6 +32,9 @@ set(MASTER_PROJECT OFF)
 if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
   set(MASTER_PROJECT ON)
 endif()
+
+option(TROMPELOEIL_INSTALL_TARGETS "Sets whether trompeloeil should be installed" ${MASTER_PROJECT})
+option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ${TROMPELOEIL_INSTALL_TARGETS})
 
 if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
@@ -414,6 +415,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
 endif() # MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug
 
+if (TROMPELOEIL_INSTALL_TARGETS)
 install(
   TARGETS
     trompeloeil
@@ -447,6 +449,7 @@ install(
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}
 )
+endif(TROMPELOEIL_INSTALL_TARGETS)
 
 if(TROMPELOEIL_INSTALL_DOCS)
   install(

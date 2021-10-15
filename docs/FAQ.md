@@ -512,12 +512,63 @@ saturated, so the sequence object must move to the next step. The next step is
 options to make it accessible to CMake. (The commands below of for Linux, but it works
 similarly on other platforms.)
 
-First, you could build and install it locally somewhere in your project (here,
-in `./my_proj/toolkits`):
+You can include *Trompeloeil* directly or use it from an installation, which can
+be per-project, per-user, or a system-wide installation.
+
+If you aren't using *Trompeloeil* from an system-wide installed package, you can
+clone *Trompeloeil* in a subdirectory or add it as a Git submodule to your
+project (here, in `./my_proj/toolkits`). For example:
+
+```shell
+git clone https://github.com/rollbear/trompeloeil.git my_proj/toolkits/trompeloeil
+```
+
+To include *Trompeloeil* in a project, add the subdirectory that contains
+*Trompeloeil* to the project's CMakeLists.txt (or any other CMakeLists.txt that
+gets processed before the one that defines the test that use *Trompeloeil*).
 
 ```cmake
-git clone https://github.com/rollbear/trompeloeil.git
-cd trompeloeil
+add_subdirectory(toolkits/trompeloeil)
+```
+
+After that, tests can be linked with *Trompeloeil* without needing
+`find_package()` first. For example:
+
+```cmake
+add_executable( my_unit_tests
+    test1.cpp
+    test2.cpp
+    test_main.cpp
+)
+
+target_link_libraries( my_unit_tests
+    my_library_under_test # provided by an add_library() call elsewhere in your project
+
+    # Nothing to link since both of these libs are header-only,
+    # but this sets up the include path correctly too
+    Catch2::Catch2
+    trompeloeil::trompeloeil
+)
+
+# Optional: Use CTest to manage your tests
+add_test( run_my_unit_tests my_unit_tests ) # May need to call enable_testing() elsewhere also
+```
+
+Please note that *Trompeloeil* will not be installed along your project in this
+case (i.e. when *Trompeloeil* is added as a subdirectory). In most cases, this
+is the desired behavior. This behavior can be overridden by setting
+`TROMPELOEIL_INSTALL_TARGETS` CMake variable to `ON`. e.g:
+
+```shell
+cmake -DTROMPELOEIL_INSTALL_TARGETS=ON -B build .
+cmake --build build --target install
+```
+
+Adding *Trompeloeil* subdirectory and including it in a project's CMakeLists.txt
+is not the only option. Building, and installing it locally somewhere in your
+project is another option:
+
+```shshell
 mkdir build ; cd build
 cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../../my_proj/toolkits
 cmake --build . --target install
@@ -528,10 +579,10 @@ and the CMake find modules in `lib/cmake/trompeloeil`. Whether you add the entir
 repo to your source control is up to you, but the minimal set of files for proper CMake
 support in is in the `toolkits` directory.
 
-Second, you could install it globally on your system by cloning the repo and installing with
-root privileges:
+Alternatively, you could install it globally on your system by cloning the repo
+and installing with root privileges:
 
-```cmake
+```shell
 git clone https://github.com/rollbear/trompeloeil.git
 cd trompeloeil
 mkdir build ; cd build
