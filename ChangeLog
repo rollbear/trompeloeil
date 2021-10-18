@@ -1,3 +1,6 @@
+	* Updated Catch2 to version 2.13.7 to compile unit tests on systems
+	  with glibc >= 2.34.
+
 	* Fix issue 255: Hex dumps showed byte values <= 15(dec) wrong
 
 	* Fix issue 253: Resolve lingering warnings in early Clang compilers and
