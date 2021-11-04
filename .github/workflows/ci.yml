@@ -732,7 +732,14 @@ jobs:
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
-          sudo apt-get install -y clang-${{matrix.config.version}}
+          if [ "${{matrix.config.version}}" = "13" ]
+          then
+              wget https://apt.llvm.org/llvm.sh
+              chmod +x llvm.sh
+              sudo ./llvm.sh 13
+          else
+              sudo apt-get install -y clang-${{matrix.config.version}}
+          fi
           echo "CC=clang-${{matrix.config.version}}" >> $GITHUB_ENV
           echo "CXX=clang++-${{matrix.config.version}}" >> $GITHUB_ENV
 
