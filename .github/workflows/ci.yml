@@ -22,22 +22,22 @@ jobs:
             cxx_asan: true
           }
           # GCC-4.9
-          #- {
-          #  name: "Linux GCC 4.9 C++11",
-          #  os: ubuntu-18.04,
-          #  compiler: gcc,
-          #  version: "4.9",
-          #  cxx_standard: 11,
-          #  cxx_asan: true
-          #}
-          #- {
-          #  name: "Linux GCC 4.9 C++14",
-          #  os: ubuntu-18.04,
-          #  compiler: gcc,
-          #  version: "4.9",
-          #  cxx_standard: 14,
-          #  cxx_asan: true
-          #}
+          - {
+            name: "Linux GCC 4.9 C++11",
+            os: ubuntu-18.04,
+            compiler: gcc,
+            version: "4.9",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 4.9 C++14",
+            os: ubuntu-18.04,
+            compiler: gcc,
+            version: "4.9",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
           # GCC-5
           - {
             name: "Linux GCC 5 C++11",
@@ -722,6 +722,11 @@ jobs:
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
+          if [ "${{matrix.config.version}}" = "4.9" ]
+          then
+              sudo apt-add-repository ppa:ubuntu-toolchain-r/test
+          fi
+          sudo apt-get update
           sudo apt-get install -y gcc-${{matrix.config.version}} g++-${{matrix.config.version}}
           echo "CC=gcc-${{ matrix.config.version }}" >> $GITHUB_ENV
           echo "CXX=g++-${{ matrix.config.version }}" >> $GITHUB_ENV
