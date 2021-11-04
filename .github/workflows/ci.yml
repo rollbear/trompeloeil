@@ -661,6 +661,14 @@ jobs:
         run: |
           sudo apt-get install -y gcc-4.9 g++-4.9
 
+      - name: Install GCC 5
+        id: install_gcc_5
+        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'g++-5' )
+        shell: bash
+        working-directory: ${{ env.HOME }}
+        run: |
+          sudo apt-get install -y gcc-5 g++-5
+
       - name: Install GCC 6
         id: install_gcc_6
         if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.cxx == 'g++-6' )
