@@ -242,7 +242,7 @@ jobs:
             compiler: clang,
             version: "3.5",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -251,7 +251,7 @@ jobs:
             compiler: clang,
             version: "3.5",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -260,7 +260,7 @@ jobs:
             compiler: clang,
             version: "3.5",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           - {
@@ -269,7 +269,7 @@ jobs:
             compiler: clang,
             version: "3.5",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           # Clang-3.6
@@ -279,7 +279,7 @@ jobs:
             compiler: clang,
             version: "3.6",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -288,7 +288,7 @@ jobs:
             compiler: clang,
             version: "3.6",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -297,7 +297,7 @@ jobs:
             compiler: clang,
             version: "3.6",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           - {
@@ -306,7 +306,7 @@ jobs:
             compiler: clang,
             version: "3.6",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           # Clang-3.7
@@ -316,7 +316,7 @@ jobs:
             compiler: clang,
             version: "3.7",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -325,7 +325,7 @@ jobs:
             compiler: clang,
             version: "3.7",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -334,7 +334,7 @@ jobs:
             compiler: clang,
             version: "3.7",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           - {
@@ -343,17 +343,17 @@ jobs:
             compiler: clang,
             version: "3.7",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
-          # Clang-3.5
+          # Clang-3.8
           - {
-            name: "Linux Clang 3.5 C++11 / libstdc++",
+            name: "Linux Clang 3.8 C++11 / libstdc++",
             os: ubuntu-18.04,
             compiler: clang,
             version: "3.8",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -362,7 +362,7 @@ jobs:
             compiler: clang,
             version: "3.8",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: false
           }
           - {
@@ -371,7 +371,7 @@ jobs:
             compiler: clang,
             version: "3.8",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           - {
@@ -380,7 +380,7 @@ jobs:
             compiler: clang,
             version: "3.8",
             cxx_standard: 14,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           # Clang-3.9
