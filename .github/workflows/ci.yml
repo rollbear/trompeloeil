@@ -769,7 +769,17 @@ jobs:
       - name: Install kcov
         if: startsWith(matrix.config.os, 'ubuntu')
         run: |
-          sudo apt-get install -y kcov
+          sudo apt-get install -y libdw-dev libcurl4-openssl-dev
+          mkdir kcov
+          cd kcov
+          wget https://github.com/SimonKagstrom/kcov/archive/refs/tags/38.tar.gz
+          tar xf 38.tar.gz
+          mkdir build
+          cd build
+          cmake ../kcov-38
+          cmake --build .
+          sudo cmake --install .
+
 
       - name: Verify compilation errors
         if: (!startsWith(matrix.config.os, 'windows'))
