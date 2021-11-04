@@ -254,24 +254,24 @@ jobs:
             cxx_asan: false,
             libcxx: false
           }
-          - {
-            name: "Linux Clang 3.5 C++11 / libc++",
-            os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.5",
-            cxx_standard: 11,
-            cxx_asan: false,
-            libcxx: true
-          }
-          - {
-            name: "Linux Clang 3.5 C++14 / libc++",
-            os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.5",
-            cxx_standard: 14,
-            cxx_asan: false,
-            libcxx: true
-          }
+          #- {
+          #  name: "Linux Clang 3.5 C++11 / libc++",
+          #  os: ubuntu-18.04,
+          #  compiler: clang,
+          #  version: "3.5",
+          #  cxx_standard: 11,
+          #  cxx_asan: false,
+          #  libcxx: true
+          #}
+          #- {
+          #  name: "Linux Clang 3.5 C++14 / libc++",
+          #  os: ubuntu-18.04,
+          #  compiler: clang,
+          #  version: "3.5",
+          #  cxx_standard: 14,
+          #  cxx_asan: false,
+          #  libcxx: true
+          #}
           # Clang-3.6
           - {
             name: "Linux Clang 3.6 C++11 / libstdc++",
