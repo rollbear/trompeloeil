@@ -14,7 +14,7 @@ jobs:
           # GCC-4.8
           - {
             name: "Linux GCC 4.8 C++11",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-4.8", cxx: "g++-4.8",
             cxx_standard: 11,
             cxx_asan: true
@@ -22,14 +22,14 @@ jobs:
           # GCC-4.9
           - {
             name: "Linux GCC 4.9 C++11",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-4.9", cxx: "g++-4.9",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 4.9 C++14",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-4.9", cxx: "g++-4.9",
             cxx_standard: 14,
             cxx_asan: true
@@ -37,21 +37,21 @@ jobs:
           # GCC-5
           - {
             name: "Linux GCC 5 C++11",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-5", cxx: "g++-5",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 5 C++14",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-5", cxx: "g++-5",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 5 C++17",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-5", cxx: "g++-5",
             cxx_standard: 17,
             cxx_asan: true
@@ -59,21 +59,21 @@ jobs:
           # GCC-6
           - {
             name: "Linux GCC 6 C++11",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 6 C++14",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 6 C++17",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "gcc-6", cxx: "g++-6",
             cxx_standard: 17,
             cxx_asan: true
@@ -211,7 +211,7 @@ jobs:
           # Clang-5.0
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -219,7 +219,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -227,7 +227,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -235,7 +235,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -243,7 +243,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -251,7 +251,7 @@ jobs:
           }
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-5.0", cxx: "clang++-5.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -261,7 +261,7 @@ jobs:
           # Clang-6.0
           - {
             name: "Linux Clang 6.0 C++11 / libstdc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -269,7 +269,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -277,7 +277,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
@@ -285,7 +285,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 11,
             cxx_asan: true,
@@ -293,7 +293,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 14,
             cxx_asan: true,
@@ -301,7 +301,7 @@ jobs:
           }
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
-            os: ubuntu-16.04,
+            os: ubuntu-18.04,
             cc: "clang-6.0", cxx: "clang++-6.0",
             cxx_standard: 17,
             cxx_asan: true,
