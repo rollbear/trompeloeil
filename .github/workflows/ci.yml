@@ -716,17 +716,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Prep apt
+        id: prep_apt
+        if: startsWith(matrix.config.os, 'ubuntu')
+        shell: bash
+        run: |
+          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
+          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
+          sudo apt-add-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+
       - name: Install gcc
         id: install_gcc
         if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.compiler == 'gcc' )
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
-          if [ "${{matrix.config.version}}" = "4.9" ]
-          then
-              sudo apt-add-repository ppa:ubuntu-toolchain-r/test
-          fi
-          sudo apt-get update
           sudo apt-get install -y gcc-${{matrix.config.version}} g++-${{matrix.config.version}}
           echo "CC=gcc-${{ matrix.config.version }}" >> $GITHUB_ENV
           echo "CXX=g++-${{ matrix.config.version }}" >> $GITHUB_ENV
