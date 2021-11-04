@@ -748,6 +748,14 @@ jobs:
           echo "CC=clang-${{matrix.config.version}}" >> $GITHUB_ENV
           echo "CXX=clang++-${{matrix.config.version}}" >> $GITHUB_ENV
 
+      - name: Set MacOS compiler env
+        id: set_macos_cc_cxx
+        if: startsWith(matrix.config.os, 'macos')
+        shell: bash
+        run: |
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+
       - name: Install libc++
         id: install_libcxx
         if: matrix.config.libcxx
