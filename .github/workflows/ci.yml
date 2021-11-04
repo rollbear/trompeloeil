@@ -235,6 +235,228 @@ jobs:
             cxx_asan: true
           }
 
+          # Clang-3.5
+          - {
+            name: "Linux Clang 3.5 C++11 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.5",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.5 C++14 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.5",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.5 C++11 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.5",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 3.5 C++14 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.5",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          # Clang-3.6
+          - {
+            name: "Linux Clang 3.6 C++11 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.6",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.6 C++14 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.6",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.6 C++11 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.6",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 3.6 C++14 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.6",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          # Clang-3.7
+          - {
+            name: "Linux Clang 3.7 C++11 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.7",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.7 C++14 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.7",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.7 C++11 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.7",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 3.7 C++14 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.7",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          # Clang-3.5
+          - {
+            name: "Linux Clang 3.5 C++11 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.8",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.8 C++14 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.8",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.8 C++11 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.8",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 3.8 C++14 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.8",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          # Clang-3.9
+          - {
+            name: "Linux Clang 3.9 C++11 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.9",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.9 C++14 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.9",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 3.9 C++11 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.9",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 3.9 C++14 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "3.9",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          # Clang-4.0
+          - {
+            name: "Linux Clang 4.0 C++11 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "4.0",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 4.0 C++14 / libstdc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "4.0",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 4.0 C++11 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "4.0",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 4.0 C++14 / libc++",
+            os: ubuntu-18.04,
+            compiler: clang,
+            version: "4.0",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
           # Clang-5.0
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
