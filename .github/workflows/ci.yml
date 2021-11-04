@@ -20,20 +20,20 @@ jobs:
             cxx_asan: true
           }
           # GCC-4.9
-          - {
-            name: "Linux GCC 4.9 C++11",
-            os: ubuntu-18.04,
-            cc: "gcc-4.9", cxx: "g++-4.9",
-            cxx_standard: 11,
-            cxx_asan: true
-          }
-          - {
-            name: "Linux GCC 4.9 C++14",
-            os: ubuntu-18.04,
-            cc: "gcc-4.9", cxx: "g++-4.9",
-            cxx_standard: 14,
-            cxx_asan: true
-          }
+          #- {
+          #  name: "Linux GCC 4.9 C++11",
+          #  os: ubuntu-18.04,
+          #  cc: "gcc-4.9", cxx: "g++-4.9",
+          #  cxx_standard: 11,
+          #  cxx_asan: true
+          #}
+          #- {
+          #  name: "Linux GCC 4.9 C++14",
+          #  os: ubuntu-18.04,
+          #  cc: "gcc-4.9", cxx: "g++-4.9",
+          #  cxx_standard: 14,
+          #  cxx_asan: true
+          #}
           # GCC-5
           - {
             name: "Linux GCC 5 C++11",
