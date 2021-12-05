@@ -1072,6 +1072,7 @@ jobs:
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
+          sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
           if [ "${{matrix.config.version}}" = "13" ]
           then
               wget https://apt.llvm.org/llvm.sh
@@ -1091,13 +1092,20 @@ jobs:
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
 
+      - name: Cache libc++
+        id: cache-libcxx
+        if: matrix.config.libcxx
+        uses: actions/cache@v2
+        with:
+          path: llvm
+          key: ${{matrix.config.os}}-libcxx-${{matrix.config.version}}
+
       - name: Install libc++
         id: install_libcxx
-        if: matrix.config.libcxx
+        if: matrix.config.libcxx && (steps.cache-libcxx.outputs.cache-hit != 'true')
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
-          sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
           $GITHUB_WORKSPACE/install_libcxx.sh
 
       - name: Install kcov
