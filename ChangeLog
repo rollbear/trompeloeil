@@ -18,6 +18,9 @@
 
 	* Use CMake internal Threads::Threads target where needed
 
+	* For CI builds, use github actions cacheing of built libc++ to shorten
+	  build times.
+
 v41 2021-06-15
 
 	* catch2 adapter works with CATCH_CONFIG_PREFIX_ALL.

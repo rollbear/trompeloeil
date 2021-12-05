@@ -1122,7 +1122,6 @@ jobs:
           cmake --build .
           sudo cmake --install .
 
-
       - name: Verify compilation errors
         if: (!startsWith(matrix.config.os, 'windows'))
         shell: bash
