@@ -378,6 +378,25 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
+  Fixture,
+  "C++11: a sequence is completed after min calls is reached",
+  "[C++11][C++14][sequences]")
+{
+  mock_c obj1;
+  trompeloeil::sequence seq;
+
+  REQUIRE_CALL_V(obj1, count(),
+                 .IN_SEQUENCE(seq)
+                 .TIMES(AT_LEAST(3))
+                 .RETURN(1));
+
+  obj1.count();
+  obj1.count();
+  obj1.count();
+  REQUIRE(seq.is_completed());
+}
+
+TEST_CASE_METHOD(
     Fixture,
     "C++11: ALLOW_CALL in sequence may be skipped",
     "[C++11][C++14][sequences]")

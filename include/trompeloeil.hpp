@@ -1946,7 +1946,14 @@ template <typename T>
   const
   noexcept
   {
-    return matchers.empty();
+    for (const auto& matcher : matchers)
+    {
+      if (!matcher.is_satisfied())
+      {
+        return false;
+      }
+    }
+    return true;
   }
 
   inline
