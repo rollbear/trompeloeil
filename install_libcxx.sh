@@ -102,6 +102,7 @@ else
     cmake -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${TARGET}" \
           -DLIBCXX_ABI_UNSTABLE=ON \
+          -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
           -DLLVM_USE_SANITIZER=${SANITIZER} \
           ../llvm-source
     make cxx -j4 VERBOSE=1
