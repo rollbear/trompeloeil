@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TRUNK_VERSION="12.0.0"
+TRUNK_VERSION="14.0.0"
 
 set -e
 

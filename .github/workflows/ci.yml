@@ -792,6 +792,42 @@ jobs:
             cxx_asan: true,
             libcxx: false
           }
+          - {
+            name: "Linux Clang 11 C++11 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "11",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 11 C++14 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "11",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 11 C++17 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "11",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 11 C++20 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "11",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: true
+          }
 
           # Clang-12
           - {
@@ -830,6 +866,42 @@ jobs:
             cxx_asan: true,
             libcxx: false
           }
+          - {
+            name: "Linux Clang 12 C++11 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "12",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 12 C++14 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "12",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 12 C++17 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "12",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 12 C++20 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "12",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: true
+          }
 
           # Clang-13
           - {
@@ -867,6 +939,42 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false
+          }
+          - {
+            name: "Linux Clang 13 C++11 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "13",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 13 C++14 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "13",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 13 C++17 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "13",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 13 C++20 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "13",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: true
           }
 
           # AppleClang
