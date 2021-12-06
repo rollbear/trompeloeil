@@ -1,5 +1,11 @@
+v42 2021-12-06
+
 	* Fixed issue 264: Sequence objects did not correctly report is_complete()
 	  when there were living, but satisfied, expectations.
+
+	* Fixed issue 259 where CMakeFiles.txt wrongly installed trompeloeil
+	  for projects that includes it. It is now an option. See FAQ for
+	  details.
 
 	* Updated Catch2 to version 2.13.7 to compile unit tests on systems
 	  with glibc >= 2.34.
@@ -23,6 +29,11 @@
 
 	* For CI builds, use github actions cacheing of built libc++ to shorten
 	  build times.
+
+	* Added CMake install namespace. Thanks @offa
+
+	* Fixed bug where an expectation end of life was reported as an error
+	  if it was included in a satisfied sequence. Thanks Andy Saul.
 
 v41 2021-06-15
 
