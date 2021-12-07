@@ -950,15 +950,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache libc++
-        id: cache-libcxx
-        if: matrix.config.libcxx
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./llvm
-          key: ${{matrix.config.os}}-libcxx-${{matrix.config.compiler}}
-
       - name: Setup Cpp
         uses: aminya/setup-cpp@v1
         with:
@@ -966,15 +957,6 @@ jobs:
           cmake: true
           ninja: true
           kcov: ${{ startsWith(matrix.config.os, 'ubuntu') }}
-
-      - name: Install libc++
-        id: install_libcxx
-        if: matrix.config.libcxx && (steps.cache-libcxx.outputs.cache-hit != 'true')
-        shell: bash
-        working-directory: ${{ env.HOME }}
-        run: |
-          sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
-          $GITHUB_WORKSPACE/install_libcxx.sh
 
       - name: Verify compilation errors
         if: (!startsWith(matrix.config.os, 'windows'))
@@ -1000,8 +982,8 @@ jobs:
         run: |
           if [ "x${{ matrix.config.libcxx }}" == "xtrue" ]
           then
-            cxx_flags="${cxx_flags} -stdlib=libc++ -nostdinc++ -cxx-isystem ${GITHUB_WORKSPACE}/llvm/include/c++/v1/ -Wno-unused-command-line-argument"
-            link_flags="${link_flags} -L ${GITHUB_WORKSPACE}/llvm/lib -Wl,-rpath,${GITHUB_WORKSPACE}/llvm/lib -lc++abi"
+            cxx_flags="${cxx_flags} ${CPPFLAGS} -stdlib=libc++ -nostdinc++ -cxx-isystem ${LLVM_PATH}/include/c++/v1/ -Wno-unused-command-line-argument"
+            link_flags="${link_flags} ${LDFLAGS} -Wl,-rpath,${LLVM_PATH}/lib -lc++abi"
           fi
 
           if [ "x${{ matrix.config.cxx_asan }}" == "xtrue" ]
