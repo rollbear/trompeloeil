@@ -16,8 +16,7 @@ jobs:
             name: "Linux GCC 4.8 C++11",
             os: ubuntu-18.04,
             #cc: "gcc-4.8", cxx: "g++-4.8",
-            compiler: gcc,
-            version: "4.8",
+            compiler: gcc-4.8,
             cxx_standard: 11,
             cxx_asan: true
           }
@@ -25,16 +24,14 @@ jobs:
           - {
             name: "Linux GCC 4.9 C++11",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "4.9",
+            compiler: gcc-4.9,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 4.9 C++14",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "4.9",
+            compiler: gcc-4.9,
             cxx_standard: 14,
             cxx_asan: true
           }
@@ -42,24 +39,21 @@ jobs:
           - {
             name: "Linux GCC 5 C++11",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "5",
+            compiler: gcc-5,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 5 C++14",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "5",
+            compiler: gcc-5,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 5 C++17",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "5",
+            compiler: gcc-5,
             cxx_standard: 17,
             cxx_asan: true
           }
@@ -67,24 +61,21 @@ jobs:
           - {
             name: "Linux GCC 6 C++11",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "6",
+            compiler: gcc-6,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 6 C++14",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "6",
+            compiler: gcc-6,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 6 C++17",
             os: ubuntu-18.04,
-            compiler: gcc,
-            version: "6",
+            compiler: gcc-6,
             cxx_standard: 17,
             cxx_asan: true
           }
@@ -93,24 +84,21 @@ jobs:
           - {
             name: "Linux GCC 7 C++11",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "7",
+            compiler: gcc-7,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 7 C++14",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "7",
+            compiler: gcc-7,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 7 C++17",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "7",
+            compiler: gcc-7,
             cxx_standard: 17,
             cxx_asan: true
           }
@@ -119,24 +107,21 @@ jobs:
           - {
             name: "Linux GCC 8 C++11",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "8",
+            compiler: gcc-8,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 8 C++14",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "8",
+            compiler: gcc-8,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 8 C++17",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "8",
+            compiler: gcc-8,
             cxx_standard: 17,
             cxx_asan: true
           }
@@ -145,24 +130,21 @@ jobs:
           - {
             name: "Linux GCC 9 C++11",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "9",
+            compiler: gcc-9,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 9 C++14",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "9",
+            compiler: gcc-9,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 9 C++17",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "9",
+            compiler: gcc-9,
             cxx_standard: 17,
             cxx_asan: true
           }
@@ -171,32 +153,28 @@ jobs:
           - {
             name: "Linux GCC 10 C++11",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "10",
+            compiler: gcc-10,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 10 C++14",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "10",
+            compiler: gcc-10,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 10 C++17",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "10",
+            compiler: gcc-10,
             cxx_standard: 17,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 10 C++20",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "10",
+            compiler: gcc-10,
             cxx_standard: 20,
             cxx_asan: true
           }
@@ -205,32 +183,28 @@ jobs:
           - {
             name: "Linux GCC 11 C++11",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "11",
+            compiler: gcc-11,
             cxx_standard: 11,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 11 C++14",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "11",
+            compiler: gcc-11,
             cxx_standard: 14,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 11 C++17",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "11",
+            compiler: gcc-11,
             cxx_standard: 17,
             cxx_asan: true
           }
           - {
             name: "Linux GCC 11 C++20",
             os: ubuntu-20.04,
-            compiler: gcc,
-            version: "11",
+            compiler: gcc-11,
             cxx_standard: 20,
             cxx_asan: true
           }
@@ -239,8 +213,7 @@ jobs:
           - {
             name: "Linux Clang 3.5 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.5",
+            compiler: clang-3.5.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: false
@@ -248,8 +221,7 @@ jobs:
           - {
             name: "Linux Clang 3.5 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.5",
+            compiler: clang-3.5.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: false
@@ -257,8 +229,7 @@ jobs:
           #- {
           #  name: "Linux Clang 3.5 C++11 / libc++",
           #  os: ubuntu-18.04,
-          #  compiler: clang,
-          #  version: "3.5",
+          #  compiler: clang-3.5.0,
           #  cxx_standard: 11,
           #  cxx_asan: false,
           #  libcxx: true
@@ -266,8 +237,7 @@ jobs:
           #- {
           #  name: "Linux Clang 3.5 C++14 / libc++",
           #  os: ubuntu-18.04,
-          #  compiler: clang,
-          #  version: "3.5",
+          #  compiler: clang-3.5.0,
           #  cxx_standard: 14,
           #  cxx_asan: false,
           #  libcxx: true
@@ -276,8 +246,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.6",
+            compiler: clang-3.6.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: false
@@ -285,8 +254,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.6",
+            compiler: clang-3.6.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: false
@@ -294,8 +262,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.6",
+            compiler: clang-3.6.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: true
@@ -303,8 +270,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.6",
+            compiler: clang-3.6.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: true
@@ -313,8 +279,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.7",
+            compiler: clang-3.7.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: false
@@ -322,8 +287,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.7",
+            compiler: clang-3.7.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: false
@@ -331,8 +295,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.7",
+            compiler: clang-3.7.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: true
@@ -340,8 +303,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.7",
+            compiler: clang-3.7.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: true
@@ -350,8 +312,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.8",
+            compiler: clang-3.8.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: false
@@ -359,8 +320,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.8",
+            compiler: clang-3.8.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: false
@@ -368,8 +328,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.8",
+            compiler: clang-3.8.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: true
@@ -377,8 +336,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.8",
+            compiler: clang-3.8.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: true
@@ -387,8 +345,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.9",
+            compiler: clang-3.9.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -396,8 +353,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.9",
+            compiler: clang-3.9.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -405,8 +361,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.9",
+            compiler: clang-3.9.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -414,8 +369,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "3.9",
+            compiler: clang-3.9.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -424,8 +378,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "4.0",
+            compiler: clang-4.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -433,8 +386,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "4.0",
+            compiler: clang-4.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -442,8 +394,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "4.0",
+            compiler: clang-4.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -451,8 +402,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "4.0",
+            compiler: clang-4.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -461,8 +411,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "5.0",
+            compiler: clang-5.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -470,8 +419,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "5.0",
+            compiler: clang-5.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -479,8 +427,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "5.0",
+            compiler: clang-5.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -488,8 +435,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "5.0",
+            compiler: clang-5.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -497,8 +443,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "5.0",
+            compiler: clang-5.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -506,8 +451,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "5.0",
+            compiler: clang-5.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -517,8 +461,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++11 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "6.0",
+            compiler: clang-6.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -526,8 +469,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "6.0",
+            compiler: clang-6.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -535,8 +477,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "6.0",
+            compiler: clang-6.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -544,8 +485,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "6.0",
+            compiler: clang-6.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -553,8 +493,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "6.0",
+            compiler: clang-6.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -562,8 +501,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
             os: ubuntu-18.04,
-            compiler: clang,
-            version: "6.0",
+            compiler: clang-6.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -573,8 +511,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++11 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "8",
+            compiler: clang-8.0.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: false
@@ -582,8 +519,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++14 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "8",
+            compiler: clang-8.0.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: false
@@ -591,8 +527,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++17 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "8",
+            compiler: clang-8.0.0,
             cxx_standard: 17,
             cxx_asan: false,
             libcxx: false
@@ -600,8 +535,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++11 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "8",
+            compiler: clang-8.0.0,
             cxx_standard: 11,
             cxx_asan: false,
             libcxx: true
@@ -609,8 +543,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++14 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "8",
+            compiler: clang-8.0.0,
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: true
@@ -618,8 +551,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++17 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "8",
+            compiler: clang-8.0.0,
             cxx_standard: 17,
             cxx_asan: false,
             libcxx: true
@@ -629,8 +561,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++11 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "9",
+            compiler: clang-9.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -638,8 +569,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++14 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "9",
+            compiler: clang-9.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -647,8 +577,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++17 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "9",
+            compiler: clang-9.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -656,8 +585,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++11 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "9",
+            compiler: clang-9.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -665,8 +593,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++14 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "9",
+            compiler: clang-9.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -674,8 +601,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++17 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "9",
+            compiler: clang-9.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -685,8 +611,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++11 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -694,8 +619,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++14 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -703,8 +627,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++17 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -712,8 +635,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++20 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false
@@ -721,8 +643,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++11 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -730,8 +651,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++14 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -739,8 +659,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++17 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -748,8 +667,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++20 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "10",
+            compiler: clang-10.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true
@@ -759,8 +677,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++11 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -768,8 +685,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++14 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -777,8 +693,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++17 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -786,8 +701,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++20 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false
@@ -795,8 +709,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++11 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -804,8 +717,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++14 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -813,8 +725,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++17 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -822,8 +733,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++20 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "11",
+            compiler: clang-11.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true
@@ -833,8 +743,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++11 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -842,8 +751,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++14 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -851,8 +759,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++17 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -860,8 +767,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++20 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false
@@ -869,8 +775,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++11 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -878,8 +783,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++14 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -887,8 +791,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++17 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -896,8 +799,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++20 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "12",
+            compiler: clang-12.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true
@@ -907,8 +809,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++11 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: false
@@ -916,8 +817,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++14 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false
@@ -925,8 +825,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++17 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: false
@@ -934,8 +833,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++20 / libstdc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false
@@ -943,8 +841,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++11 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 11,
             cxx_asan: true,
             libcxx: true
@@ -952,8 +849,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++14 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true
@@ -961,8 +857,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++17 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 17,
             cxx_asan: true,
             libcxx: true
@@ -970,8 +865,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++20 / libc++",
             os: ubuntu-20.04,
-            compiler: clang,
-            version: "13",
+            compiler: clang-13.0.0,
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true
@@ -981,6 +875,7 @@ jobs:
           - {
             name: "macOS Clang C++11",
             os: macos-latest,
+            compiler: appleclang,
             cc: "clang", cxx: "clang++",
             cxx_standard: 11,
             cxx_asan: true
@@ -988,6 +883,7 @@ jobs:
           - {
             name: "macOS Clang C++14",
             os: macos-latest,
+            compiler: appleclang,
             cc: "clang", cxx: "clang++",
             cxx_standard: 14,
             cxx_asan: true
@@ -995,6 +891,7 @@ jobs:
           - {
             name: "macOS Clang C++17",
             os: macos-latest,
+            compiler: appleclang,
             cc: "clang", cxx: "clang++",
             cxx_standard: 17,
             cxx_asan: true
@@ -1004,101 +901,71 @@ jobs:
           - {
             name: "Windows MSVC 2019 C++11",
             os: windows-2019,
+            compiler: msvc-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 11,
           }
           - {
             name: "Windows MSVC 2019 C++14",
             os: windows-2019,
+            compiler: msvc-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 14,
           }
           - {
             name: "Windows MSVC 2019 C++17",
             os: windows-2019,
+            compiler: msvc-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 17,
           }
           - {
             name: "Windows MSVC 2019 C++20",
             os: windows-2019,
+            compiler: msvc-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
           }
           - {
               name: "Windows MSVC 2017 C++11",
               os: windows-2016,
+              compiler: msvc-2017,
               cc: "cl", cxx: "cl",
               cxx_standard: 11,
           }
           - {
             name: "Windows MSVC 2017 C++14",
             os: windows-2016,
+            compiler: msvc-2017,
             cc: "cl", cxx: "cl",
             cxx_standard: 14,
           }
           - {
             name: "Windows MSVC 2017 C++17",
             os: windows-2016,
+            compiler: msvc-2017,
             cc: "cl", cxx: "cl",
             cxx_standard: 17,
           }
     steps:
       - uses: actions/checkout@v2
 
-      - name: Prep apt
-        id: prep_apt
-        if: startsWith(matrix.config.os, 'ubuntu')
-        shell: bash
-        run: |
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
-          sudo apt-add-repository ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-
-      - name: Install gcc
-        id: install_gcc
-        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.compiler == 'gcc' )
-        shell: bash
-        working-directory: ${{ env.HOME }}
-        run: |
-          sudo apt-get install -y gcc-${{matrix.config.version}} g++-${{matrix.config.version}}
-          echo "CC=gcc-${{ matrix.config.version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.config.version }}" >> $GITHUB_ENV
-
-      - name: Install Clang
-        id: install_clang
-        if: startsWith(matrix.config.os, 'ubuntu') && ( matrix.config.compiler == 'clang' )
-        shell: bash
-        working-directory: ${{ env.HOME }}
-        run: |
-          sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
-          if [ "${{matrix.config.version}}" = "13" ]
-          then
-              wget https://apt.llvm.org/llvm.sh
-              chmod +x llvm.sh
-              sudo ./llvm.sh 13
-          else
-              sudo apt-get install -y clang-${{matrix.config.version}}
-          fi
-          echo "CC=clang-${{matrix.config.version}}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{matrix.config.version}}" >> $GITHUB_ENV
-
-      - name: Set MacOS compiler env
-        id: set_macos_cc_cxx
-        if: startsWith(matrix.config.os, 'macos')
-        shell: bash
-        run: |
-          echo "CC=clang" >> $GITHUB_ENV
-          echo "CXX=clang++" >> $GITHUB_ENV
-
       - name: Cache libc++
         id: cache-libcxx
         if: matrix.config.libcxx
         uses: actions/cache@v2
         with:
-          path: llvm
-          key: ${{matrix.config.os}}-libcxx-${{matrix.config.version}}
+          path: |
+            ./llvm
+          key: ${{matrix.config.os}}-libcxx-${{matrix.config.compiler}}
+
+      - name: Setup Cpp
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.config.compiler }}
+          cmake: true
+          ninja: true
+          kcov: ${{ startsWith(matrix.config.os, 'ubuntu') }}
 
       - name: Install libc++
         id: install_libcxx
@@ -1106,21 +973,8 @@ jobs:
         shell: bash
         working-directory: ${{ env.HOME }}
         run: |
+          sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
           $GITHUB_WORKSPACE/install_libcxx.sh
-
-      - name: Install kcov
-        if: startsWith(matrix.config.os, 'ubuntu')
-        run: |
-          sudo apt-get install -y libdw-dev libcurl4-openssl-dev
-          mkdir kcov
-          cd kcov
-          wget https://github.com/SimonKagstrom/kcov/archive/refs/tags/38.tar.gz
-          tar xf 38.tar.gz
-          mkdir build
-          cd build
-          cmake ../kcov-38
-          cmake --build .
-          sudo cmake --install .
 
       - name: Verify compilation errors
         if: (!startsWith(matrix.config.os, 'windows'))
