@@ -1,39 +1,43 @@
-v42 2021-12-06
+v42 2021-12-07
 
-	* Fixed issue 264: Sequence objects did not correctly report is_complete()
-	  when there were living, but satisfied, expectations.
+	* Fixed issue 264: Sequence objects did not correctly report
+	  is_complete() when there were living, but satisfied, expectations
+	  remaining. Thank you Václav Kubernát for reporting.
 
 	* Fixed issue 259 where CMakeFiles.txt wrongly installed trompeloeil
 	  for projects that includes it. It is now an option. See FAQ for
-	  details.
+	  details. Thank you Ismail Pazarbasi for reporting and fixing.
 
 	* Updated Catch2 to version 2.13.7 to compile unit tests on systems
 	  with glibc >= 2.34.
 
-	* Fix issue 255: Hex dumps showed byte values <= 15(dec) wrong
+	* Fixed issue 255: Hex dumps showed byte values <= 15(dec) wrong.
+	  Thank you Stuart Dootson for reporting.
 
-	* Fix issue 253: Resolve lingering warnings in early Clang compilers and
-	  enable -Wzero-as-null-pointer-constant when compiling unit tests with
-	  GCC and Clang.
+	* Fixed issue 253: Resolve lingering warnings in early Clang compilers
+	  and enable -Wzero-as-null-pointer-constant when compiling unit tests
+	  with GCC and Clang.
 
-	* Fix issue 250: Warnings about zero argument variadic macros with
-	  clang-msvc. Thanks u3shit for reporting and fixing.
+	* Fixed issue 250: Warnings about zero argument variadic macros with
+	  clang-msvc. Thank you u3shit for reporting and fixing.
 
-	* Fix issue 251: trompeloeil::printer<> customization point now supports
-	  SFINAE expressions to constrain partial specializations. Thank you
-	  Christian Morales Vega for reporting.
+	* Fixed issue 251: trompeloeil::printer<> customization point now
+	  supports SFINAE expressions to constrain partial specializations.
+	  Thank you  Christian Morales Vega for reporting.
 
-	* Fix issue 245: Modify cmake to build thread_terror on Windows with MSVC.
+	* Fixed issue 245: Modify cmake to build thread_terror on Windows with
+	  MSVC.
 
-	* Use CMake internal Threads::Threads target where needed
+	* Use CMake internal Threads::Threads target where needed. Thank you
+	  Martin Hořeňovský for reporting.
 
 	* For CI builds, use github actions cacheing of built libc++ to shorten
 	  build times.
 
-	* Added CMake install namespace. Thanks @offa
+	* Added CMake install namespace. Thank you offa
 
 	* Fixed bug where an expectation end of life was reported as an error
-	  if it was included in a satisfied sequence. Thanks Andy Saul.
+	  if it was included in a satisfied sequence. Thank you Andy Saul.
 
 v41 2021-06-15
 
