@@ -958,6 +958,11 @@ jobs:
           ninja: true
           kcov: ${{ startsWith(matrix.config.os, 'ubuntu') }}
 
+      - name: Link xlocale.h for llvm 4.0 and older
+        if: matrix.config.libcxx
+        run: |
+          sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
+
       - name: Verify compilation errors
         if: (!startsWith(matrix.config.os, 'windows'))
         shell: bash
