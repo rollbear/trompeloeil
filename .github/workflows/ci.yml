@@ -958,9 +958,12 @@ jobs:
           ninja: true
           kcov: ${{ startsWith(matrix.config.os, 'ubuntu') }}
 
-      - name: Link xlocale.h for llvm 4.0 and older
+      - name: Install dependencies for old LLVM and GCC
         if: matrix.config.libcxx
         run: |
+          # install libopcodes for collecting coverage
+          sudo apt install libbinutils
+          # link xlocale.h for llvm 4.0 and older
           sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
 
       - name: Verify compilation errors
