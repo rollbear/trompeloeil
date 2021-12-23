@@ -338,6 +338,12 @@ namespace trompeloeil { using std::unique_lock; }
 #  define TROMPELOEIL_TYPE_ID_NAME(x) "object"
 #endif
 
+#if (TROMPELOEIL_CPLUSPLUS >= 201703L)
+#define TROMPELOEIL_NODISCARD [[nodiscard]]
+#else
+#define TROMPELOEIL_NODISCARD
+#endif
+
 #if (TROMPELOEIL_CPLUSPLUS == 201103L)
 
 #define TROMPELOEIL_DECLTYPE_AUTO \
@@ -870,6 +876,7 @@ namespace trompeloeil
     /* OK reporter defaults to doing nothing. */
   }
 
+  TROMPELOEIL_NODISCARD
   inline
   reporter_func&
   reporter_obj()
@@ -878,6 +885,7 @@ namespace trompeloeil
     return obj;
   }
 
+  TROMPELOEIL_NODISCARD
   inline
   ok_reporter_func&
   ok_reporter_obj()
@@ -908,6 +916,7 @@ namespace trompeloeil
 
   class tracer;
 
+  TROMPELOEIL_NODISCARD
   inline
   tracer*&
   tracer_obj()
@@ -1101,7 +1110,6 @@ namespace trompeloeil
     bool
     matches(
       T const&)
-    const
     noexcept
     {
       return true;
@@ -1583,7 +1591,7 @@ template <typename T>
       } while (nn != this);
 #endif
     }
-
+    TROMPELOEIL_NODISCARD
     bool
     is_linked()
     const
@@ -1701,6 +1709,7 @@ template <typename T>
       return rv;
     }
 
+    TROMPELOEIL_NODISCARD
     T&
     operator*()
     noexcept
@@ -1708,6 +1717,7 @@ template <typename T>
       return static_cast<T&>(*p);
     }
 
+    TROMPELOEIL_NODISCARD
     T*
     operator->()
     noexcept
@@ -1746,6 +1756,7 @@ template <typename T>
   }
 
   template <typename T, typename Disposer>
+  TROMPELOEIL_NODISCARD
   auto
   list<T, Disposer>::begin()
   const
@@ -1756,6 +1767,7 @@ template <typename T>
   }
 
   template <typename T, typename Disposer>
+  TROMPELOEIL_NODISCARD
   auto
   list<T, Disposer>::end()
   const
@@ -1809,17 +1821,20 @@ template <typename T>
     sequence_type& operator=(const sequence_type&) = delete;
     ~sequence_type();
 
+    TROMPELOEIL_NODISCARD
     bool
     is_completed()
     const
     noexcept;
 
+    TROMPELOEIL_NODISCARD
     bool
     is_first(
       sequence_matcher const *m)
     const
     noexcept;
 
+    TROMPELOEIL_NODISCARD
     unsigned
     cost(
       sequence_matcher const *m)
@@ -1853,8 +1868,8 @@ template <typename T>
   {
   public:
     sequence() : obj(new sequence_type) {}
-    sequence_type& operator*() { return *obj; }
-    bool is_completed() const { return obj->is_completed(); }
+    TROMPELOEIL_NODISCARD sequence_type& operator*() const { return *obj; }
+    TROMPELOEIL_NODISCARD bool is_completed() const { return obj->is_completed(); }
   private:
     std::unique_ptr<sequence_type> obj;
   };
@@ -1892,6 +1907,7 @@ template <typename T>
       seq.validate_match(s, this, seq_name, match_name, loc);
     }
 
+    TROMPELOEIL_NODISCARD
     unsigned
     cost()
     const
@@ -1900,6 +1916,7 @@ template <typename T>
       return seq.cost(this);
     }
 
+    TROMPELOEIL_NODISCARD
     bool
     is_satisfied()
       const
@@ -1926,6 +1943,7 @@ template <typename T>
       os << exp_name << " at " << exp_loc;
     }
 
+    TROMPELOEIL_NODISCARD
     char const*
     sequence_name()
     noexcept
@@ -1956,6 +1974,7 @@ template <typename T>
     return true;
   }
 
+  TROMPELOEIL_NODISCARD
   inline
   bool
   sequence_type::is_first(
@@ -1966,6 +1985,7 @@ template <typename T>
     return !matchers.empty() && &*matchers.begin() == m;
   }
 
+  TROMPELOEIL_NODISCARD
   inline
   unsigned
   sequence_type::cost(
@@ -2059,10 +2079,10 @@ template <typename T>
   }
 
   template <typename T>
-  void can_match_parameter(T&);
+  void can_match_parameter(T&) {}
 
   template <typename T>
-  void can_match_parameter(T&&);
+  void can_match_parameter(T&&) {}
 
   template <typename M>
   class ptr_deref : public matcher
@@ -2080,6 +2100,7 @@ template <typename T>
     {}
 
     template <typename U>
+    TROMPELOEIL_NODISCARD
     bool
     matches(
       const U& u)
@@ -2117,6 +2138,7 @@ template <typename T>
     {}
 
     template <typename U>
+    TROMPELOEIL_NODISCARD
     bool
     matches(
       const U& u)
@@ -2156,8 +2178,8 @@ template <typename T>
 
   template <typename Predicate, typename Printer, typename MatcherType, typename ... T>
   class predicate_matcher
-    : private Predicate
-    , private Printer
+    : Predicate
+    , Printer
     , public MatcherType
   {
   public:
@@ -2203,6 +2225,7 @@ template <typename T>
     void operator()(U&&...) const = delete;
 
     template <typename V, size_t ... I>
+    TROMPELOEIL_NODISCARD
     bool matches_(V&& v, detail::index_sequence<I...>) const
     {
       return Predicate::operator()(std::forward<V>(v), std::get<I>(value)...);
@@ -2230,6 +2253,7 @@ template <typename T>
     struct any_predicate
     {
       template <typename T>
+      TROMPELOEIL_NODISCARD
       bool
       operator()(
         T&&)
@@ -2246,6 +2270,7 @@ template <typename T>
     #define TROMPELOEIL_MK_PRED_BINOP(name, op)                         \
     struct name {                                                       \
       template <typename X, typename Y>                                 \
+      TROMPELOEIL_NODISCARD                                             \
       auto operator()(X const& x, Y const& y) const -> decltype(x op y) \
       {                                                                 \
         ::trompeloeil::ignore(x,y);                                     \
@@ -2294,7 +2319,7 @@ template <typename T>
         T const& value)                                                 \
       const                                                             \
       {                                                                 \
-        os << op_string;                                                \
+        os << (op_string);                                              \
         ::trompeloeil::print(os, value);                                \
       }                                                                 \
     }
@@ -2347,7 +2372,7 @@ template <typename T>
     typename T = wildcard,
     typename V,
     typename R = make_matcher_return<T, lambdas::equal, lambdas::equal_printer, V>>
-  inline
+  TROMPELOEIL_NODISCARD
   auto
   eq(
     V&& v)
@@ -2362,7 +2387,7 @@ template <typename T>
     typename T = wildcard,
     typename V,
     typename R = make_matcher_return<T, lambdas::not_equal, lambdas::not_equal_printer, V>>
-  inline
+  TROMPELOEIL_NODISCARD
   auto
   ne(
     V&& v)
@@ -2377,7 +2402,7 @@ template <typename T>
     typename T = wildcard,
     typename V,
     typename R = make_matcher_return<T, lambdas::greater_equal, lambdas::greater_equal_printer, V>>
-  inline
+  TROMPELOEIL_NODISCARD
   auto
   ge(
     V&& v)
@@ -2392,7 +2417,7 @@ template <typename T>
     typename T = wildcard,
     typename V,
     typename R = make_matcher_return<T, lambdas::greater, lambdas::greater_printer, V>>
-  inline
+  TROMPELOEIL_NODISCARD
   auto
   gt(
     V&& v)
@@ -2407,7 +2432,7 @@ template <typename T>
     typename T = wildcard,
     typename V,
     typename R = make_matcher_return<T, lambdas::less, lambdas::less_printer, V>>
-  inline
+  TROMPELOEIL_NODISCARD
   auto
   lt(
     V&& v)
@@ -2422,7 +2447,7 @@ template <typename T>
     typename T = wildcard,
     typename V,
     typename R = make_matcher_return<T, lambdas::less_equal, lambdas::less_equal_printer,  V>>
-  inline
+  TROMPELOEIL_NODISCARD
   auto
   le(
     V&& v)
@@ -2454,6 +2479,7 @@ template <typename T>
           : str(s)
         {}
 
+        TROMPELOEIL_NODISCARD
         char const*
         c_str()
           const
@@ -2473,6 +2499,7 @@ template <typename T>
       {}
 
       template <typename T>
+      TROMPELOEIL_NODISCARD
       bool
       operator()(
         string_helper str,
@@ -2505,6 +2532,7 @@ template <typename T>
   template <
     typename Kind = wildcard,
     typename R = make_matcher_return<Kind, lambdas::regex_check, lambdas::regex_printer, std::string&&>>
+  TROMPELOEIL_NODISCARD
   auto
   re(
     std::string s,
@@ -2521,6 +2549,7 @@ template <typename T>
   template <
     typename Kind = wildcard,
     typename R = make_matcher_return<Kind, lambdas::regex_check, lambdas::regex_printer, std::string&&>>
+  TROMPELOEIL_NODISCARD
   auto
   re(
     std::string s,
@@ -2532,6 +2561,7 @@ template <typename T>
                               std::move(s));
   }
 
+  TROMPELOEIL_NODISCARD
   inline
   std::string
   param_name_prefix(
@@ -2541,6 +2571,7 @@ template <typename T>
   }
 
   template <typename M>
+  TROMPELOEIL_NODISCARD
   std::string
   param_name_prefix(
     const ptr_deref<M>*)
@@ -2549,6 +2580,7 @@ template <typename T>
   }
 
   template <typename M>
+  TROMPELOEIL_NODISCARD
   std::string
   param_name_prefix(
     const neg_matcher<M>*)
@@ -2610,6 +2642,7 @@ template <typename T>
       return *this;
     }
 
+    TROMPELOEIL_NODISCARD
     T*&
     leak()
     noexcept
@@ -2617,6 +2650,7 @@ template <typename T>
       return p;
     }
 
+    TROMPELOEIL_NODISCARD
     T&
     operator*()
     const
@@ -2625,6 +2659,7 @@ template <typename T>
       return *p;
     }
 
+    TROMPELOEIL_NODISCARD
     T*
     operator->()
     const
@@ -2662,6 +2697,8 @@ template <typename T>
     {
       ++call_count;
     }
+
+    TROMPELOEIL_NODISCARD
     bool
       is_satisfied()
       const
@@ -2670,6 +2707,7 @@ template <typename T>
       return call_count >= min_calls;
     }
 
+    TROMPELOEIL_NODISCARD
     bool
       is_saturated()
       const
@@ -2678,6 +2716,7 @@ template <typename T>
       return call_count == max_calls;
     }
 
+    TROMPELOEIL_NODISCARD
     bool
       is_forbidden()
       const
@@ -2694,6 +2733,7 @@ template <typename T>
       max_calls = H;
     }
 
+    TROMPELOEIL_NODISCARD
     size_t
     get_min_calls()
       const
@@ -2702,6 +2742,7 @@ template <typename T>
       return min_calls;
     }
 
+    TROMPELOEIL_NODISCARD
     size_t
       get_calls()
       const
@@ -2714,12 +2755,14 @@ template <typename T>
     void
       validate(severity s, char const *, location) = 0;
 
+    TROMPELOEIL_NODISCARD
     virtual
     bool
     can_be_called()
     const
     noexcept = 0;
 
+    TROMPELOEIL_NODISCARD
     virtual
     unsigned
     order()
@@ -2740,6 +2783,7 @@ template <typename T>
     sequence_handler_base(const sequence_handler_base&) = default;
   };
 
+  TROMPELOEIL_NODISCARD
   inline
   bool
   sequence_matcher::is_satisfied()
@@ -2783,6 +2827,7 @@ template <typename T>
       }
     }
 
+    TROMPELOEIL_NODISCARD
     unsigned
     order()
     const
@@ -2801,6 +2846,7 @@ template <typename T>
       return highest_order;
     }
 
+    TROMPELOEIL_NODISCARD
     bool
     can_be_called()
     const
@@ -2857,7 +2903,8 @@ template <typename T>
 
     ~deathwatched() override;
 
-    trompeloeil::lifetime_monitor*&
+    TROMPELOEIL_NODISCARD
+    lifetime_monitor*&
     trompeloeil_expect_death(
       trompeloeil::lifetime_monitor* monitor)
     const
@@ -2873,8 +2920,8 @@ template <typename T>
 
   struct expectation {
     virtual ~expectation() = default;
-    virtual bool is_satisfied() const noexcept = 0;
-    virtual bool is_saturated() const noexcept = 0;
+    TROMPELOEIL_NODISCARD virtual bool is_satisfied() const noexcept = 0;
+    TROMPELOEIL_NODISCARD virtual bool is_saturated() const noexcept = 0;
   };
 
   struct lifetime_monitor : public expectation
@@ -2895,11 +2942,13 @@ template <typename T>
     {
     }
 
+    TROMPELOEIL_NODISCARD
     bool is_satisfied() const noexcept override
     {
       return died;
     }
 
+    TROMPELOEIL_NODISCARD
     bool is_saturated() const noexcept override
     {
       return died;
@@ -3011,6 +3060,7 @@ template <typename T>
 #pragma warning(disable : 4702)
 #endif
   template <typename R>
+  TROMPELOEIL_NODISCARD
   inline
   R
   default_return()
@@ -3070,12 +3120,14 @@ template <typename T>
     void
     mock_destroyed() = 0;
 
+    TROMPELOEIL_NODISCARD
     virtual
     bool
     matches(
       call_params_type_t<Sig> const&)
     const = 0;
 
+    TROMPELOEIL_NODISCARD
     virtual
     unsigned
     sequence_cost()
@@ -3102,6 +3154,7 @@ template <typename T>
       std::ostream&,
       call_params_type_t<Sig> const &) = 0;
 
+    TROMPELOEIL_NODISCARD
     virtual
     return_of_t<Sig>
     return_value(
@@ -3113,6 +3166,7 @@ template <typename T>
   };
 
   template <typename T, typename U>
+  TROMPELOEIL_NODISCARD
   bool
   param_matches_impl(
     T const& t,
@@ -3126,6 +3180,7 @@ template <typename T>
   template <typename T,
             typename U,
             typename = detail::enable_if_t<is_equal_comparable<T, U>::value>>
+  TROMPELOEIL_NODISCARD
   inline
   U&
   identity(
@@ -3138,6 +3193,7 @@ template <typename T>
   template <typename T,
             typename U,
             typename = detail::enable_if_t<!is_equal_comparable<T, U>::value>>
+  TROMPELOEIL_NODISCARD
   inline
   T
   identity(
@@ -3148,6 +3204,7 @@ template <typename T>
   }
 
   template <typename T, typename U>
+  TROMPELOEIL_NODISCARD
   bool
   param_matches_impl(
     T const& t,
@@ -3159,6 +3216,7 @@ template <typename T>
   }
 
   template <typename T, typename U>
+  TROMPELOEIL_NODISCARD
   bool
   param_matches(
     T const& t,
@@ -3169,6 +3227,7 @@ template <typename T>
   }
 
   template <size_t ... I, typename T, typename U>
+  TROMPELOEIL_NODISCARD
   bool
   match_parameters(
     detail::index_sequence<I...>,
@@ -3183,6 +3242,7 @@ template <typename T>
   }
 
   template <typename ... T, typename ... U>
+  TROMPELOEIL_NODISCARD
   bool
   match_parameters(
     std::tuple<T...> const& t,
@@ -3260,6 +3320,7 @@ template <typename T>
   }
 
   template <typename ... T>
+  TROMPELOEIL_NODISCARD
   std::string
   params_string(
     std::tuple<T...> const& t)
@@ -3273,9 +3334,9 @@ template <typename T>
   {
   public:
     trace_agent(
-      location loc_,
-      char const* name_,
-      tracer* t_)
+      location const loc_,
+      char const* const name_,
+      tracer* const t_)
     : loc{loc_}
     , t{t_}
     {
@@ -3315,6 +3376,7 @@ template <typename T>
     }
 
     template <typename T>
+    TROMPELOEIL_NODISCARD
     auto
     trace_return(
       T&& rv)
@@ -3354,6 +3416,7 @@ template <typename T>
   };
 
   template <typename Sig>
+  TROMPELOEIL_NODISCARD
   call_matcher_base <Sig> *
   find(
     call_matcher_list <Sig> &list,
@@ -3437,6 +3500,7 @@ template <typename T>
     virtual
     ~return_handler() = default;
 
+    TROMPELOEIL_NODISCARD
     virtual
     return_of_t<Sig>
     call(
@@ -3456,6 +3520,7 @@ template <typename T>
   }
 
   template <typename Ret, typename F, typename P, typename = detail::enable_if_t<!std::is_void<Ret>::value>>
+  TROMPELOEIL_NODISCARD
   Ret
   trace_return(
     trace_agent& agent,
@@ -3510,12 +3575,14 @@ template <typename T>
 
     ~condition_base() override = default;
 
+    TROMPELOEIL_NODISCARD
     virtual
     bool
     check(
       call_params_type_t<Sig> const&)
     const = 0;
 
+    TROMPELOEIL_NODISCARD
     virtual
     char const*
     name()
@@ -3540,6 +3607,7 @@ template <typename T>
       : condition_base<Sig>(str_)
       , c(c_) {}
 
+    TROMPELOEIL_NODISCARD
     bool
     check(
       call_params_type_t<Sig> const & t)
@@ -3648,6 +3716,7 @@ template <typename T>
     {}
 
     template <typename D>
+    TROMPELOEIL_NODISCARD
     call_modifier&&
     with(
       char const* str,
@@ -3659,6 +3728,7 @@ template <typename T>
     }
 
     template <typename A>
+    TROMPELOEIL_NODISCARD
     call_modifier<Matcher, modifier_tag, sideeffect_injector<Parent>>
     sideeffect(
       A&& a)
@@ -3671,6 +3741,7 @@ template <typename T>
     }
 
     template <typename H>
+    TROMPELOEIL_NODISCARD
     call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >>
     handle_return(
       H&& h)
@@ -3726,6 +3797,7 @@ template <typename T>
       return {matcher};
     }
 
+    TROMPELOEIL_NODISCARD
     call_modifier&&
     null_modifier()
     {
@@ -3767,6 +3839,7 @@ template <typename T>
 
   public:
     template <typename H>
+    TROMPELOEIL_NODISCARD
     call_modifier<Matcher, modifier_tag, throw_injector<Parent>>
     handle_throw(
       H&& h)
@@ -3792,6 +3865,7 @@ template <typename T>
     template <size_t L,
               size_t H,
               bool               times_set = call_limit_set>
+    TROMPELOEIL_NODISCARD
     call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, H>>
     times(
       multiplicity<L, H>)
@@ -3820,6 +3894,7 @@ template <typename T>
 
     template <typename ... T,
               bool b = sequence_set>
+    TROMPELOEIL_NODISCARD
     call_modifier<Matcher, modifier_tag, sequence_injector<Parent>>
     in_sequence(
       T&& ... t)
@@ -3922,6 +3997,7 @@ template <typename T>
       this->unlink();
     }
 
+    TROMPELOEIL_NODISCARD
     bool
     is_satisfied()
       const
@@ -3932,6 +4008,7 @@ template <typename T>
       return sequences->is_satisfied();
     }
 
+    TROMPELOEIL_NODISCARD
     bool
     is_saturated()
       const
@@ -3941,6 +4018,8 @@ template <typename T>
       auto lock = get_lock();
       return sequences->is_saturated();
     }
+
+    TROMPELOEIL_NODISCARD
     bool
     is_unfulfilled()
     const
@@ -3968,6 +4047,7 @@ template <typename T>
       return this;
     }
 
+    TROMPELOEIL_NODISCARD
     bool
     matches(
       call_params_type_t<Sig> const& params)
@@ -3977,6 +4057,7 @@ template <typename T>
       return match_parameters(val, params) && match_conditions(params);
     }
 
+    TROMPELOEIL_NODISCARD
     bool
     match_conditions(
       call_params_type_t<Sig> const & params)
@@ -3992,6 +4073,7 @@ template <typename T>
       return true;
     }
 
+    TROMPELOEIL_NODISCARD
     unsigned
     sequence_cost()
       const
@@ -4001,6 +4083,7 @@ template <typename T>
       return sequences->order();
     }
 
+    TROMPELOEIL_NODISCARD
     return_of_t<Sig>
     return_value(
       trace_agent& agent,
@@ -4079,7 +4162,7 @@ template <typename T>
 
     void
     report_missed(
-      char const *reason)
+      char const * const reason)
     noexcept
     {
       reported = true;
@@ -4125,7 +4208,6 @@ template <typename T>
     }
 
     template <typename T>
-    inline
     void
     set_return(
       std::true_type,
@@ -4244,7 +4326,7 @@ template <typename T>
 
   template <typename T,
             typename = detail::enable_if_t<std::is_lvalue_reference<T&&>::value>>
-  inline
+  TROMPELOEIL_NODISCARD
   T&&
   decay_return_type(
     T&& t)
@@ -4254,7 +4336,7 @@ template <typename T>
 
   template <typename T,
             typename = detail::enable_if_t<std::is_rvalue_reference<T&&>::value>>
-  inline
+  TROMPELOEIL_NODISCARD
   T
   decay_return_type(
     T&& t)
@@ -4263,7 +4345,7 @@ template <typename T>
   }
 
   template <typename T, size_t N>
-  inline
+  TROMPELOEIL_NODISCARD
   T*
   decay_return_type(
     T (&t)[N])
@@ -4276,6 +4358,7 @@ template <typename T>
   {
     operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
     template <typename ... T, bool b = sequence_set>
+    TROMPELOEIL_NODISCARD
     lifetime_monitor_modifier<true>
     in_sequence(T&& ... t)
     {
@@ -4291,7 +4374,8 @@ template <typename T>
   struct lifetime_monitor_releaser
   {
     template <bool b>
-    std::unique_ptr<trompeloeil::lifetime_monitor>
+    TROMPELOEIL_NODISCARD
+    std::unique_ptr<lifetime_monitor>
     operator+(
       lifetime_monitor_modifier<b>&& m)
     const
@@ -4337,6 +4421,7 @@ template <typename T>
 
 
   template <bool movable, typename Sig, typename ... P>
+  TROMPELOEIL_NODISCARD
   return_of_t<Sig>
   mock_func(std::true_type,
             expectations<movable, Sig>& e,
@@ -4387,7 +4472,8 @@ template <typename T>
                                    matcher_info<sig>>;
 
   template <typename M,
-            typename = detail::enable_if_t<::trompeloeil::is_matcher<M>::value>>
+            typename = detail::enable_if_t<is_matcher<M>::value>>
+  TROMPELOEIL_NODISCARD
   inline
   ::trompeloeil::ptr_deref<detail::decay_t<M>>
   operator*(
@@ -4397,9 +4483,9 @@ template <typename T>
   }
 
   template <typename M,
-            typename = detail::enable_if_t<::trompeloeil::is_matcher<M>::value>>
-  inline
-  ::trompeloeil::neg_matcher<detail::decay_t<M>>
+            typename = detail::enable_if_t<is_matcher<M>::value>>
+  TROMPELOEIL_NODISCARD
+  neg_matcher<detail::decay_t<M>>
   operator!(
     M&& m)
   {
