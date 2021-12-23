@@ -962,6 +962,7 @@ namespace trompeloeil
   class stream_tracer final : public tracer
   {
   public:
+    explicit
     stream_tracer(
       std::ostream& stream_)
       : stream(stream_) {}
@@ -1172,7 +1173,7 @@ template <typename T>
 
   struct stream_sentry
   {
-    stream_sentry(
+    explicit stream_sentry(
       std::ostream& os_)
       : os(os_)
       , width(os.width(0))
@@ -1724,6 +1725,7 @@ template <typename T>
     }
 
   private:
+    explicit
     iterator(
       list_elem<T> const * const t)
     noexcept
@@ -1761,7 +1763,7 @@ template <typename T>
   noexcept
   -> iterator
   {
-    return {next};
+    return iterator{next};
   }
 
   template <typename T, typename Disposer>
@@ -1772,7 +1774,7 @@ template <typename T>
   noexcept
   -> iterator
   {
-    return {this};
+    return iterator{this};
   }
 
   template <typename T, typename Disposer>
@@ -1788,7 +1790,7 @@ template <typename T>
     next->prev = t;
     next = t;
     invariant_check();
-    return {t};
+    return iterator{t};
   }
 
   template <typename T, typename Disposer>
@@ -1804,7 +1806,7 @@ template <typename T>
     prev->next = t;
     prev = t;
     invariant_check();
-    return {t};
+    return iterator{t};
   }
 
   class sequence_matcher;
@@ -2596,6 +2598,7 @@ template <typename T>
       : p{nullptr}
     {}
 
+    explicit
     null_on_move(
       T* p_)
     noexcept
@@ -2894,6 +2897,7 @@ template <typename T>
   public:
     template <typename ... U,
               typename = detail::enable_if_t<std::is_constructible<T,U...>::value>>
+    explicit
     deathwatched(
       U&& ...u)
     noexcept(noexcept(T(std::declval<U>()...)))
@@ -3567,6 +3571,7 @@ template <typename T>
   class condition_base : public list_elem<condition_base<Sig>>
   {
   public:
+    explicit
     condition_base(
       char const *n)
     noexcept
@@ -3639,7 +3644,8 @@ template <typename T>
   template <typename Sig, typename Action>
   struct side_effect final : public side_effect_base<Sig>
   {
-    template <typename A>
+    template <typename A, typename = detail::enable_if_t<!std::is_same<const A&, const side_effect&>::value>>
+    explicit
     side_effect(
       A&& a_)
     : a(std::forward<A>(a_))
@@ -3709,6 +3715,7 @@ template <typename T>
     using Parent::throws;
     using Parent::side_effects;
 
+    explicit
     call_modifier(
        Matcher* const m)
     noexcept
@@ -3737,7 +3744,7 @@ template <typename T>
       static_assert(!forbidden,
                     "SIDE_EFFECT for forbidden call does not make sense");
       matcher->add_side_effect(std::forward<A>(a));
-      return {std::move(matcher)};
+      return call_modifier<Matcher, modifier_tag, sideeffect_injector<Parent>>{std::move(matcher)};
     }
 
     template <typename H>
@@ -3794,7 +3801,7 @@ template <typename T>
       constexpr bool valid = !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, std::forward<H>(h));
-      return {matcher};
+      return call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >> {matcher};
     }
 
     TROMPELOEIL_NODISCARD
@@ -3810,6 +3817,7 @@ template <typename T>
     {
       using R = decltype(default_return<return_of_t<signature>>());
 
+      explicit
       throw_handler_t(H&& h_)
         : h(std::forward<H>(h_))
       {}
@@ -3859,7 +3867,7 @@ template <typename T>
       using tag = std::integral_constant<bool, valid>;
       auto handler = throw_handler_t<H>(std::forward<H>(h));
       matcher->set_return(tag{}, std::move(handler));
-      return {matcher};
+      return call_modifier<Matcher, modifier_tag, throw_injector<Parent>>{matcher};
     }
 
     template <size_t L,
@@ -3889,7 +3897,7 @@ template <typename T>
                     "IN_SEQUENCE and TIMES(0) does not make sense");
 
       matcher->sequences->set_limits(L, H);
-      return {matcher};
+      return call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, H>>{matcher};
     }
 
     template <typename ... T,
@@ -3907,7 +3915,7 @@ template <typename T>
                     "IN_SEQUENCE for forbidden call does not make sense");
 
       matcher->set_sequence(std::forward<T>(t)...);
-      return {matcher};
+      return call_modifier<Matcher, modifier_tag, sequence_injector<Parent>>{matcher};
     }
     Matcher* matcher;
   };
@@ -4785,10 +4793,14 @@ template <typename T>
                                    TROMPELOEIL_LINE_ID(tag_type_trompeloeil),  \
                                    trompeloeil_param_type...>                  \
     {                                                                          \
+      using modifier =                                                         \
+        ::trompeloeil::modifier_t<trompeloeil_sig_t,                           \
+                                  TROMPELOEIL_LINE_ID(tag_type_trompeloeil),   \
+                                  trompeloeil_param_type...>;                  \
       using matcher = ::trompeloeil::call_matcher<                             \
                           TROMPELOEIL_REMOVE_PAREN(sig),                       \
                           ::trompeloeil::param_t<trompeloeil_param_type...>>;  \
-      return {                                                                 \
+      return modifier {                                                        \
           new matcher {                                                        \
                 trompeloeil_expectation_file,                                  \
                 trompeloeil_expectation_line,                                  \
