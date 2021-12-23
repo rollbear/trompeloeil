@@ -909,7 +909,7 @@ namespace trompeloeil
     ok_reporter_func orf)
   {
     return {
-      set_reporter(rf),
+      set_reporter(std::move(rf)),
       detail::exchange(ok_reporter_obj(), std::move(orf))
     };
   }
@@ -3600,7 +3600,7 @@ template <typename T>
       char const *str_,
       Cond c_)
       : condition_base<Sig>(str_)
-      , c(c_) {}
+      , c(std::move(c_)) {}
 
     TROMPELOEIL_NODISCARD
     bool
@@ -4413,7 +4413,7 @@ template <typename T>
   };
 
   template <typename Sig, typename ... P>
-  return_of_t<Sig> mock_func(std::false_type, P&& ...);
+  return_of_t<Sig> mock_func(std::false_type, P&& ...) = delete;
 
 
   template <bool movable, typename Sig, typename ... P>
