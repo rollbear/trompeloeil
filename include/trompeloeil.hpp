@@ -807,7 +807,7 @@ namespace trompeloeil
   template <typename Sig, size_t N>
   using param_list_t = typename param_list<Sig>::template type<N>;
 
-  class expectation_violation : public std::logic_error
+  class expectation_violation final : public std::logic_error
   {
   public:
     using std::logic_error::logic_error;
@@ -959,7 +959,7 @@ namespace trompeloeil
     tracer* previous = set_tracer(this);
   };
 
-  class stream_tracer : public tracer
+  class stream_tracer final : public tracer
   {
   public:
     stream_tracer(
@@ -1874,7 +1874,7 @@ template <typename T>
 
   struct sequence_handler_base;
 
-  class sequence_matcher : public list_elem<sequence_matcher>
+  class sequence_matcher final : public list_elem<sequence_matcher>
   {
   public:
     using init_type = std::pair<char const*, sequence&>;
@@ -2793,7 +2793,7 @@ template <typename T>
   }
 
   template <size_t N>
-  struct sequence_handler : public sequence_handler_base
+  struct sequence_handler final : public sequence_handler_base
   {
   public:
     template <size_t M = N, typename detail::enable_if_t<M == 0>* = nullptr>
@@ -2923,7 +2923,7 @@ template <typename T>
     TROMPELOEIL_NODISCARD virtual bool is_saturated() const noexcept = 0;
   };
 
-  struct lifetime_monitor : public expectation
+  struct lifetime_monitor final : public expectation
   {
     template <typename T>
     lifetime_monitor(
@@ -3083,7 +3083,7 @@ template <typename T>
   struct call_matcher_base;
 
   template <typename Sig>
-  struct call_matcher_list : public list<call_matcher_base<Sig>>
+  struct call_matcher_list final : public list<call_matcher_base<Sig>>
   {
     void decommission()
     {
@@ -3541,10 +3541,11 @@ template <typename T>
   }
 
   template <typename Sig, typename T>
-  class return_handler_t : public return_handler<Sig>
+  class return_handler_t final : public return_handler<Sig>
   {
   public:
-    template <typename U>
+    template <typename U, typename = detail::enable_if_t<!std::is_same<const U&, const return_handler_t&>::value>>
+    explicit
     return_handler_t(
       U&& u)
     : func(std::forward<U>(u))
@@ -3636,7 +3637,7 @@ template <typename T>
   using side_effect_list = list<side_effect_base<Sig>, delete_disposer>;
 
   template <typename Sig, typename Action>
-  struct side_effect : public side_effect_base<Sig>
+  struct side_effect final : public side_effect_base<Sig>
   {
     template <typename A>
     side_effect(
@@ -3969,7 +3970,7 @@ template <typename T>
 
 
   template <typename Sig, typename Value>
-  struct call_matcher : public call_matcher_base<Sig>, expectation
+  struct call_matcher final : call_matcher_base<Sig>, expectation
   {
     using call_matcher_base<Sig>::name;
     using call_matcher_base<Sig>::loc;
