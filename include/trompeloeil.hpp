@@ -799,7 +799,7 @@ namespace trompeloeil
   template <typename R, typename ... P>
   struct param_list<R(P...)>
   {
-    static size_t constexpr const size = sizeof...(P);
+    static constexpr size_t size = sizeof...(P);
     template <size_t N>
     using type = conditional_tuple_element<N, std::tuple<P...>>;
   };
@@ -950,8 +950,6 @@ namespace trompeloeil
       std::string const &call) = 0;
   protected:
     tracer() = default;
-    tracer(tracer const&) = delete;
-    tracer& operator=(tracer const&) = delete;
     virtual
     ~tracer()
     {
@@ -1628,7 +1626,6 @@ template <typename T>
     void
     dispose(
       T* t)
-    const
     {
       delete t;
     }
@@ -3671,33 +3668,33 @@ template <typename T>
   template <typename Parent>
   struct throw_injector : Parent
   {
-    static bool const throws = true;
+    static constexpr bool throws = true;
   };
 
   template <typename Parent>
   struct sideeffect_injector : Parent
   {
-    static bool const side_effects = true;
+    static constexpr bool side_effects = true;
   };
 
   template <typename Parent, size_t H>
   struct call_limit_injector : Parent
   {
-    static bool   const call_limit_set = true;
-    static size_t const upper_call_limit = H;
+    static constexpr bool call_limit_set = true;
+    static constexpr size_t upper_call_limit = H;
   };
 
   template <typename Parent>
   struct call_limit_injector<Parent, 0> : Parent
   {
-    static bool   const call_limit_set = true;
-    static size_t const upper_call_limit = 0;
+    static constexpr bool call_limit_set = true;
+    static constexpr size_t upper_call_limit = 0;
   };
 
   template <typename Parent>
   struct sequence_injector : Parent
   {
-    static bool const sequence_set = true;
+    static constexpr bool sequence_set = true;
   };
 
   template <typename Matcher, typename modifier_tag, typename Parent>
@@ -3963,11 +3960,11 @@ template <typename T>
   {
     using signature = Sig;
     using return_type = void;
-    static size_t const upper_call_limit = 1;
-    static bool const throws = false;
-    static bool const call_limit_set = false;
-    static bool const sequence_set = false;
-    static bool const side_effects = false;
+    static constexpr size_t upper_call_limit = 1;
+    static constexpr bool throws = false;
+    static constexpr bool call_limit_set = false;
+    static constexpr bool sequence_set = false;
+    static constexpr bool side_effects = false;
   };
 
 
@@ -4306,7 +4303,6 @@ template <typename T>
                                                      // function
 
     template <typename M, typename Tag, typename Info>
-    inline
     auto
     operator+(
       call_modifier<M, Tag, Info>&& t)
