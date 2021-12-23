@@ -1086,7 +1086,7 @@ namespace trompeloeil
 
   struct matcher { };
 
-  struct wildcard : public matcher
+  struct wildcard : matcher
   {
     template <typename T
 #if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
@@ -1233,7 +1233,6 @@ template <typename T>
 #endif
 
   template <typename T, typename = decltype(std::declval<T const&>() == nullptr)>
-  inline
   constexpr
   auto
   is_null_redirect(
@@ -1245,7 +1244,6 @@ template <typename T>
   }
 
   template <typename T>
-  inline
   constexpr
   auto
   is_null(
@@ -1259,7 +1257,6 @@ template <typename T>
   }
 
   template <typename T, typename V>
-  inline
   constexpr
   bool
   is_null(
@@ -1271,7 +1268,6 @@ template <typename T>
   }
 
   template <typename T>
-  inline
   constexpr
   bool
   is_null(
@@ -1283,7 +1279,6 @@ template <typename T>
   }
 
   template <typename T>
-  inline
   constexpr
   bool
   is_null(
@@ -1468,7 +1463,6 @@ template <typename T>
     os << "nullptr";
   }
 
-  inline
   constexpr
   auto
   param_compare_operator(
@@ -1478,7 +1472,6 @@ template <typename T>
     return " == ";
   }
 
-  inline
   constexpr
   auto
   param_compare_operator(
@@ -1633,7 +1626,7 @@ template <typename T>
   };
 
   template <typename T, typename Disposer = ignore_disposer>
-  class list : private list_elem<T>, private Disposer
+  class list : list_elem<T>, Disposer
   {
   public:
     list() noexcept;
@@ -2335,7 +2328,6 @@ template <typename T>
   }
 
   template <typename MatchType, typename Predicate, typename Printer, typename ... T>
-  inline
   make_matcher_return<MatchType, Predicate, Printer, T...>
   make_matcher(Predicate pred, Printer print, T&& ... t)
   {
@@ -2346,7 +2338,6 @@ template <typename T>
   template <
     typename T,
     typename R = make_matcher_return<T, lambdas::any_predicate, lambdas::any_printer>>
-  inline
   auto
   any_matcher_impl(char const* type_name, std::false_type)
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
@@ -2359,7 +2350,6 @@ template <typename T>
   any_matcher_impl(char const*, std::true_type);
 
   template <typename T>
-  inline
   auto
   any_matcher(char const* name)
   TROMPELOEIL_TRAILING_RETURN_TYPE(decltype(any_matcher_impl<T>(name, std::is_array<T>{})))
@@ -3627,7 +3617,7 @@ template <typename T>
   };
 
   template <typename Sig>
-  struct side_effect_base : public list_elem<side_effect_base<Sig>>
+  struct side_effect_base : list_elem<side_effect_base<Sig>>
   {
     ~side_effect_base() override = default;
 
@@ -4226,8 +4216,8 @@ template <typename T>
       return_handler_obj.reset(new handler(std::forward<T>(h)));
     }
 
-    template <typename T>
-    inline                           // Never called. Used to limit errmsg
+
+    template <typename T>            // Never called. Used to limit errmsg
     static                           // with RETURN of wrong type and after:
     void                             //   FORBIDDEN_CALL
     set_return(std::false_type, T&&t)//   RETURN
@@ -4261,7 +4251,6 @@ template <typename T>
   }
 
   template <int N>
-  inline
   constexpr
   illegal_argument const
   arg(
