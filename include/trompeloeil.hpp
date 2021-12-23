@@ -2086,7 +2086,7 @@ template <typename T>
               typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(*std::declval<U>())>>(std::declval<M>()))>
     operator U() const;
 
-    template <typename U>
+    template <typename U, typename = detail::enable_if_t<!std::is_same<const U&, const ptr_deref&>::value>>
     explicit
     ptr_deref(
       U&& m_)
@@ -2124,7 +2124,7 @@ template <typename T>
               typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(std::declval<U>())>>(std::declval<M>()))>
     operator U() const { return {}; }
 
-    template <typename U>
+    template <typename U, typename = detail::enable_if_t<!std::is_same<const U&, const neg_matcher&>::value>>
     explicit
     neg_matcher(
       U&& m_)
@@ -3594,7 +3594,7 @@ template <typename T>
   using condition_list = list<condition_base<Sig>, delete_disposer>;
 
   template <typename Sig, typename Cond>
-  struct condition : public condition_base<Sig>
+  struct condition final : public condition_base<Sig>
   {
     condition(
       char const *str_,
