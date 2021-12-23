@@ -4388,7 +4388,7 @@ template <typename T>
   struct expectations
   {
     expectations() = default;
-    expectations(expectations&&) = default;
+    expectations(expectations&&) noexcept = default;
     ~expectations() {
       active.decommission();
       saturated.decommission();
@@ -4401,7 +4401,7 @@ template <typename T>
   struct expectations<false, Sig>
   {
     expectations() = default;
-    expectations(expectations&&)
+    expectations(expectations&&) noexcept
     {
       static_assert(std::is_same<Sig,void>::value,
         "By default, mock objects are not movable. "
