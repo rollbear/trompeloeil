@@ -4481,7 +4481,7 @@ template <typename T>
             typename = detail::enable_if_t<is_matcher<M>::value>>
   TROMPELOEIL_NODISCARD
   inline
-  ::trompeloeil::ptr_deref<detail::decay_t<M>>
+  ptr_deref<detail::decay_t<M>>
   operator*(
     M&& m)
   {
