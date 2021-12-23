@@ -1962,6 +1962,9 @@ template <typename T>
   const
   noexcept
   {
+    // std::all_of() is almost always preferable. The only reason
+    // for using a hand rolled loop is because it cuts compilation
+    // times quite noticeably (almost 10% with g++5.1)
     for (const auto& matcher : matchers)
     {
       if (!matcher.is_satisfied())
