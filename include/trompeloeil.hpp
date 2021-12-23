@@ -948,6 +948,8 @@ namespace trompeloeil
       char const *file,
       unsigned long line,
       std::string const &call) = 0;
+    tracer(tracer const&) = delete;
+    tracer& operator=(tracer const&) = delete;
   protected:
     tracer() = default;
     virtual
@@ -1407,7 +1409,7 @@ template <typename T>
       auto const p = reinterpret_cast<uint8_t const*>(&t);
       for (size_t i = 0; i < sizeof(T); ++i)
       {
-        os << " 0x" << std::setw(2) << std::right << unsigned(p[i]);
+        os << " 0x" << std::setw(2) << std::right << static_cast<unsigned>(p[i]);
         if ((i & 0xf) == 0xf) os << '\n';
       }
       os << " }";
