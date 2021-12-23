@@ -1105,6 +1105,7 @@ namespace trompeloeil
     volatile const; // less preferred than T&& above
 
     template <typename T>
+    static
     constexpr
     bool
     matches(
@@ -1603,10 +1604,10 @@ template <typename T>
   {
   protected:
     TROMPELOEIL_NORETURN
+    static
     void
     dispose(
-      T*)
-    const
+      void const*)
     noexcept
     {
       std::abort(); // must never be called
@@ -1617,6 +1618,7 @@ template <typename T>
   {
   protected:
     template <typename T>
+    static
     void
     dispose(
       T* t)
