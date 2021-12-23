@@ -2616,10 +2616,13 @@ template <typename T>
 
     null_on_move&
     operator=(
-      const null_on_move&)
+      const null_on_move& rh)
     noexcept
     {
-      p = nullptr;
+      if (&rh != this)
+      {
+        p = nullptr;
+      }
       return *this;
     }
 
