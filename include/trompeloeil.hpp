@@ -2354,7 +2354,7 @@ template <typename T>
 
   template <typename T>
   wildcard
-  any_matcher_impl(char const*, std::true_type);
+  any_matcher_impl(char const*, std::true_type) { return {}; }
 
   template <typename T>
   auto
@@ -4230,8 +4230,8 @@ template <typename T>
     template <typename T>            // Never called. Used to limit errmsg
     static                           // with RETURN of wrong type and after:
     void                             //   FORBIDDEN_CALL
-    set_return(std::false_type, T&&t)//   RETURN
-      noexcept;                      //   THROW
+    set_return(std::false_type, T&&) //   RETURN
+      noexcept {}                    //   THROW
 
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
@@ -4307,8 +4307,8 @@ template <typename T>
     template <typename T>
     static                                           // Never called. Used to
     std::unique_ptr<expectation>                     // limit errmsg when RETURN
-    make_expectation(std::false_type, T&&) noexcept; // is missing in non-void
-                                                     // function
+    make_expectation(std::false_type, T&&) noexcept  // is missing in non-void
+    { return nullptr; }                              // function
 
     template <typename M, typename Tag, typename Info>
     auto
