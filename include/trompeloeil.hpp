@@ -475,7 +475,7 @@ namespace trompeloeil
 
     template <class T>
     typename unique_if<T>::unknown_bound
-    make_unique(size_t n)
+    make_unique(size_t const n)
     {
       typedef typename std::remove_extent<T>::type U;
       return std::unique_ptr<T>(new U[n]());
@@ -822,8 +822,8 @@ namespace trompeloeil
     {}
 
     location(
-      char const* file_,
-      unsigned long line_
+      char const* const file_,
+      unsigned long const line_
     )
     noexcept
       : file{file_}
@@ -857,8 +857,8 @@ namespace trompeloeil
   void
   default_reporter(
     severity,
-    char const *file,
-    unsigned long line,
+    char const * const file,
+    unsigned long const line,
     std::string const &msg)
   {
     if (!std::current_exception())
@@ -929,12 +929,12 @@ namespace trompeloeil
   inline
   tracer*
   set_tracer(
-    tracer* obj)
+    tracer* const obj)
   noexcept
   {
     // std::exchange would be sane here, but it costs compilation time
     auto& ptr = tracer_obj();
-    auto rv = ptr;
+    auto const rv = ptr;
     ptr = obj;
     return rv;
   }
@@ -969,8 +969,8 @@ namespace trompeloeil
       : stream(stream_) {}
     void
     trace(
-      char const *file,
-      unsigned long line,
+      char const * const file,
+      unsigned long const line,
       std::string const &call)
       override
     {
@@ -988,8 +988,8 @@ namespace trompeloeil
   template <typename T>
   void
   send_report(
-    severity s,
-    location loc,
+    severity const s,
+    location const loc,
     std::string const &msg)
   {
     reporter<T>::send(s, loc.file, loc.line, msg.c_str());
@@ -1024,17 +1024,17 @@ namespace trompeloeil
   template <typename T>
   void reporter<T>::
     send(
-      severity s,
-      char const *file,
-      unsigned long line,
-      char const *msg)
+      severity const s,
+      char const * const file,
+      unsigned long const line,
+      char const * const msg)
     {
       reporter_obj()(s, file, line, msg);
     }
 
   template <typename T>
   void reporter<T>::
-    sendOk(char const* msg)
+    sendOk(char const* const msg)
     {
       ok_reporter_obj()(msg);
     }
@@ -1348,9 +1348,9 @@ template <typename T>
     {
       os << "{ ";
       const char* sep = "";
-      std::initializer_list<const char*> v{((os << sep),
-                                            ::trompeloeil::print(os, std::get<I>(t)),
-                                            (sep = ", "))...};
+      std::initializer_list<const char*> const v{
+        ((os << sep),::trompeloeil::print(os, std::get<I>(t)),(sep = ", "))...
+      };
       ignore(v);
       os << " }";
     }
@@ -1409,7 +1409,7 @@ template <typename T>
       os << sizeof(T) << "-byte object={";
       os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warning
       os << std::setfill('0') << std::hex;
-      auto p = reinterpret_cast<uint8_t const*>(&t);
+      auto const p = reinterpret_cast<uint8_t const*>(&t);
       for (size_t i = 0; i < sizeof(T); ++i)
       {
         os << " 0x" << std::setw(2) << std::right << unsigned(p[i]);
@@ -1610,7 +1610,6 @@ template <typename T>
   class ignore_disposer
   {
   protected:
-    template <typename T>
     TROMPELOEIL_NORETURN
     void
     dispose(
@@ -1712,6 +1711,7 @@ template <typename T>
     TROMPELOEIL_NODISCARD
     T&
     operator*()
+    const
     noexcept
     {
       return static_cast<T&>(*p);
@@ -1720,6 +1720,7 @@ template <typename T>
     TROMPELOEIL_NODISCARD
     T*
     operator->()
+    const
     noexcept
     {
       return static_cast<T*>(p);
@@ -1727,7 +1728,7 @@ template <typename T>
 
   private:
     iterator(
-      list_elem<T> const *t)
+      list_elem<T> const * const t)
     noexcept
     : p{const_cast<list_elem<T>*>(t)}
     {}
@@ -1882,10 +1883,10 @@ template <typename T>
     using init_type = std::pair<char const*, sequence&>;
 
     sequence_matcher(
-      char const *exp,
-      location loc,
+      char const * const exp,
+      location const loc,
       const sequence_handler_base& handler,
-      init_type i)
+      init_type const i)
     noexcept
     : seq_name(i.first)
     , exp_name(exp)
@@ -1899,9 +1900,9 @@ template <typename T>
 
     void
     validate_match(
-      severity s,
-      char const *match_name,
-      location loc)
+      severity const s,
+      char const * const match_name,
+      location const loc)
     const
     {
       seq.validate_match(s, this, seq_name, match_name, loc);
@@ -1946,6 +1947,7 @@ template <typename T>
     TROMPELOEIL_NODISCARD
     char const*
     sequence_name()
+    const
     noexcept
     {
       return seq_name;
@@ -1978,7 +1980,7 @@ template <typename T>
   inline
   bool
   sequence_type::is_first(
-    sequence_matcher const *m)
+    sequence_matcher const * const m)
   const
   noexcept
   {
@@ -1989,7 +1991,7 @@ template <typename T>
   inline
   unsigned
   sequence_type::cost(
-    sequence_matcher const* m)
+    sequence_matcher const* const m)
   const
   noexcept
   {
@@ -2014,7 +2016,7 @@ template <typename T>
   {
     while (!matchers.empty())
     {
-      auto first = &*matchers.begin();
+      auto const first = &*matchers.begin();
       if (first == m) return;
       first->retire();
     }
@@ -2023,15 +2025,15 @@ template <typename T>
   inline
   void
   sequence_type::validate_match(
-    severity s,
-    sequence_matcher const *matcher,
-    char const* seq_name,
-    char const* match_name,
-    location loc)
+    severity const s,
+    sequence_matcher const * const matcher,
+    char const* const seq_name,
+    char const* const match_name,
+    location const loc)
   const
   {
     if (is_first(matcher)) return;
-    for (auto& m : matchers)
+    for (auto const& m : matchers)
     {
       std::ostringstream os;
       os << "Sequence mismatch for sequence \"" << seq_name
@@ -2051,7 +2053,7 @@ template <typename T>
     std::ostringstream os;
     while (!matchers.empty())
     {
-      auto m = matchers.begin();
+      auto const m = matchers.begin();
       if (!touched)
       {
         os << "Sequence expectations not met at destruction of sequence object \""
@@ -2072,7 +2074,7 @@ template <typename T>
   inline
   void
   sequence_type::add_last(
-    sequence_matcher *m)
+    sequence_matcher * const m)
   noexcept
   {
     matchers.push_back(m);
@@ -2291,7 +2293,7 @@ template <typename T>
     {
       explicit
       any_printer(
-        char const* type_name_)
+        char const* const type_name_)
         : type_name(type_name_)
       {}
 
@@ -2474,7 +2476,7 @@ template <typename T>
 
         constexpr
         string_helper(
-          char const* s)
+          char const* const s)
         noexcept
           : str(s)
         {}
@@ -2493,7 +2495,7 @@ template <typename T>
 
       regex_check(
         std::regex&& re_,
-        std::regex_constants::match_flag_type match_type_)
+        std::regex_constants::match_flag_type const match_type_)
         : re(std::move(re_)),
           match_type(match_type_)
       {}
@@ -2502,7 +2504,7 @@ template <typename T>
       TROMPELOEIL_NODISCARD
       bool
       operator()(
-        string_helper str,
+        string_helper const str,
         T const&)
       const
       {
@@ -2536,8 +2538,8 @@ template <typename T>
   auto
   re(
     std::string s,
-    std::regex_constants::syntax_option_type opt = std::regex_constants::ECMAScript,
-    std::regex_constants::match_flag_type match_type = std::regex_constants::match_default)
+    std::regex_constants::syntax_option_type const opt = std::regex_constants::ECMAScript,
+    std::regex_constants::match_flag_type const match_type = std::regex_constants::match_default)
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<Kind>(lambdas::regex_check(std::regex(s, opt),
@@ -2553,7 +2555,7 @@ template <typename T>
   auto
   re(
     std::string s,
-    std::regex_constants::match_flag_type match_type)
+    std::regex_constants::match_flag_type const match_type)
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
     return make_matcher<Kind>(lambdas::regex_check(std::regex(s), match_type),
@@ -2635,7 +2637,7 @@ template <typename T>
 
     null_on_move&
     operator=(
-      T* t)
+      T* const t)
     noexcept
     {
       p = t;
@@ -2726,7 +2728,7 @@ template <typename T>
     }
 
     void
-    set_limits(size_t L, size_t H)
+    set_limits(size_t const L, size_t const H)
       noexcept
     {
       min_calls = L;
@@ -2805,8 +2807,8 @@ template <typename T>
     template <typename ... S>
     sequence_handler(
       const sequence_handler_base& base,
-      char const *name,
-      location loc,
+      char const * const name,
+      location const loc,
       S&& ... s)
     noexcept
       : sequence_handler_base(base)
@@ -2816,12 +2818,12 @@ template <typename T>
 
     void
     validate(
-      severity s,
-      char const *match_name,
-      location loc)
+      severity const s,
+      char const * const match_name,
+      location const loc)
     override
     {
-      for (auto& e : matchers)
+      for (auto const& e : matchers)
       {
         e.validate_match(s, match_name, loc);
       }
@@ -2835,9 +2837,9 @@ template <typename T>
     override
     {
       unsigned highest_order = 0U;
-      for (auto& m : matchers)
+      for (auto const& m : matchers)
       {
-        auto cost = m.cost();
+        auto const cost = m.cost();
         if (cost > highest_order)
         {
           highest_order = cost;
@@ -2906,16 +2908,16 @@ template <typename T>
     TROMPELOEIL_NODISCARD
     lifetime_monitor*&
     trompeloeil_expect_death(
-      trompeloeil::lifetime_monitor* monitor)
+      lifetime_monitor* const monitor)
     const
     noexcept
     {
-      auto lock = get_lock();
+      auto const lock = get_lock();
       trompeloeil_lifetime_monitor = monitor;
       return trompeloeil_lifetime_monitor.leak();
     }
   private:
-    mutable null_on_move<trompeloeil::lifetime_monitor> trompeloeil_lifetime_monitor;
+    mutable null_on_move<lifetime_monitor> trompeloeil_lifetime_monitor;
   };
 
   struct expectation {
@@ -2928,11 +2930,11 @@ template <typename T>
   {
     template <typename T>
     lifetime_monitor(
-      ::trompeloeil::deathwatched<T> const &obj,
-      char const* obj_name_,
-      char const* invocation_name_,
-      char const* call_name_,
-      location loc_)
+      deathwatched<T> const &obj,
+      char const* const obj_name_,
+      char const* const invocation_name_,
+      char const* const call_name_,
+      location const loc_)
     noexcept
       : object_monitor(obj.trompeloeil_expect_death(this))
       , loc(loc_)
@@ -2958,7 +2960,7 @@ template <typename T>
 
     ~lifetime_monitor() override
     {
-      auto lock = get_lock();
+      auto const lock = get_lock();
       if (!died)
       {
         std::ostringstream os;
@@ -3007,7 +3009,7 @@ template <typename T>
   template <typename T>
   deathwatched<T>::~deathwatched()
   {
-    auto lock = get_lock();
+    auto const lock = get_lock();
     if (trompeloeil_lifetime_monitor)
     {
       trompeloeil_lifetime_monitor->notify();
@@ -3088,12 +3090,12 @@ template <typename T>
   {
     void decommission()
     {
-      auto lock = get_lock();
+      auto const lock = get_lock();
       auto iter = this->begin();
       auto const e = this->end();
       while (iter != e)
       {
-        auto i = iter++;
+        auto const i = iter++;
         auto &m = *i;
         m.mock_destroyed();
         m.unlink();
@@ -3105,8 +3107,8 @@ template <typename T>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig>>
   {
     call_matcher_base(
-      location loc_,
-      char const* name_)
+      location const loc_,
+      char const* const name_)
     : loc{loc_}
     , name{name_}
     {
@@ -3255,7 +3257,7 @@ template <typename T>
   template <typename V, typename P>
   void print_mismatch(
     std::ostream& os,
-    size_t num,
+    size_t const num,
     V const& v,
     P const& p)
   {
@@ -3290,10 +3292,10 @@ template <typename T>
   template <typename T>
   void missed_value(
     std::ostream& os,
-    int i,
+    int const i,
     T const& t)
   {
-    auto prefix = ::trompeloeil::param_name_prefix(&t) + "_";
+    auto const prefix = ::trompeloeil::param_name_prefix(&t) + "_";
     os << "  param " << std::setw((i < 9) + 1) << prefix << i + 1
        << ::trompeloeil::param_compare_operator(&t);
     ::trompeloeil::print(os, t);
@@ -3429,7 +3431,7 @@ template <typename T>
     {
       if (i.matches(p))
       {
-        unsigned cost = i.sequence_cost();
+        const auto cost = i.sequence_cost();
         if (cost == 0)
         {
           return &i;
@@ -3710,7 +3712,7 @@ template <typename T>
     using Parent::side_effects;
 
     call_modifier(
-       Matcher* m)
+       Matcher* const m)
     noexcept
       : matcher{m}
     {}
@@ -3719,7 +3721,7 @@ template <typename T>
     TROMPELOEIL_NODISCARD
     call_modifier&&
     with(
-      char const* str,
+      char const* const str,
       D&& d)
     &&
     {
@@ -3915,12 +3917,12 @@ template <typename T>
   inline
   void
   report_unfulfilled(
-    const char* reason,
-    char const        *name,
+    const char* const reason,
+    char const* const name,
     std::string const &values,
-    size_t min_calls,
-    size_t call_count,
-    location           loc)
+    size_t const min_calls,
+    size_t const call_count,
+    location const loc)
   {
     std::ostringstream os;
     os << reason
@@ -3946,8 +3948,8 @@ template <typename T>
   inline
   void
   report_forbidden_call(
-    char const *name,
-    location loc,
+    char const * const name,
+    location const loc,
     std::string const& values)
   {
     std::ostringstream os;
@@ -3977,9 +3979,9 @@ template <typename T>
 
     template <typename ... U>
     call_matcher(
-      char const *file,
-      unsigned long line,
-      char const *call_string,
+      char const * const file,
+      unsigned long const line,
+      char const * const call_string,
       U &&... u)
     : call_matcher_base<Sig>(location{file, line}, call_string)
     , val(std::forward<U>(u)...)
@@ -3989,7 +3991,7 @@ template <typename T>
 
     ~call_matcher() override
     {
-      auto lock = get_lock();
+      auto const lock = get_lock();
       if (is_unfulfilled())
       {
         report_missed("Unfulfilled expectation");
@@ -4105,7 +4107,7 @@ template <typename T>
         reported = true;
         report_forbidden_call(name, loc, params_string(params));
       }
-      auto lock = get_lock();
+      auto const lock = get_lock();
       {
         if (!sequences->can_be_called())
         {
@@ -4144,7 +4146,7 @@ template <typename T>
       report_signature(os);
       if (match_parameters(val, params))
       {
-        for (auto& cond : conditions)
+        for (auto const& cond : conditions)
         {
           if (!cond.check(params))
           {
@@ -4178,7 +4180,7 @@ template <typename T>
     template <typename C>
     void
     add_condition(
-      char const *str,
+      char const * const str,
       C&& c)
     {
       auto cond = new condition<Sig, C>(str, std::forward<C>(c));
@@ -4245,7 +4247,7 @@ template <typename T>
   constexpr
   TROMPELOEIL_DECLTYPE_AUTO
   arg(
-    T* t,
+    T* const t,
     std::true_type)
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
@@ -4291,7 +4293,7 @@ template <typename T>
     noexcept
     TROMPELOEIL_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
     {
-      auto lock = get_lock();
+      auto const lock = get_lock();
       m.matcher->hook_last(obj.trompeloeil_matcher_list(static_cast<Tag*>(nullptr)));
 
       return std::unique_ptr<expectation>(m.matcher);
@@ -4429,7 +4431,7 @@ template <typename T>
             char const *sig_name,
             P&& ... p)
   {
-    auto lock = get_lock();
+    auto const lock = get_lock();
 
     call_params_type_t<void(P...)> param_value(std::forward<P>(p)...);
 
@@ -5303,10 +5305,10 @@ template <typename T>
   trompeloeil::lifetime_monitor_releaser{} +                                   \
   trompeloeil::lifetime_monitor_modifier<false>{                               \
     ::trompeloeil::detail::make_unique<trompeloeil::lifetime_monitor>(         \
-      obj,                                                                     \
-      obj_s,                                                                   \
-      prefix "REQUIRE_DESTRUCTION(" obj_s ")",                                 \
-      "destructor for " obj_s,                                                 \
+      (obj),                                                                   \
+      (obj_s),                                                                 \
+      (prefix "REQUIRE_DESTRUCTION(" obj_s ")"),                               \
+      ("destructor for " obj_s),                                               \
       ::trompeloeil::location{__FILE__,                                        \
                               static_cast<unsigned long>(__LINE__)})           \
   }
