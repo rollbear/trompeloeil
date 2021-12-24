@@ -1693,7 +1693,7 @@ template <typename T>
       return *this;
     }
 
-    iterator
+    iterator // NOLINT(cert-dcl21-cpp)
     operator++(int)
     noexcept
     {
@@ -1964,7 +1964,7 @@ template <typename T>
     // std::all_of() is almost always preferable. The only reason
     // for using a hand rolled loop is because it cuts compilation
     // times quite noticeably (almost 10% with g++5.1)
-    for (const auto& matcher : matchers)
+    for (const auto& matcher : matchers) // NOLINT(readability-use-anyofallof)
     {
       if (!matcher.is_satisfied())
       {
@@ -2222,7 +2222,7 @@ template <typename T>
     // requires the function call operator to be private to avoid
     // ambiguities.
     template <typename ... U>
-    void operator()(U&&...) const = delete;
+    void operator()(U&&...) const = delete; // NOLINT(modernize-use-equals-delete)
 
     template <typename V, size_t ... I>
     TROMPELOEIL_NODISCARD
@@ -2797,8 +2797,8 @@ template <typename T>
   struct sequence_handler final : sequence_handler_base
   {
   public:
-    template <size_t M = N, typename detail::enable_if_t<M == 0>* = nullptr>
-    sequence_handler()
+    template <size_t M = N, detail::enable_if_t<M == 0>* = nullptr>
+    sequence_handler() // NOLINT(modernize-use-equals-default)
       noexcept
     {}
 
@@ -4260,7 +4260,7 @@ template <typename T>
   }
 
   template <int N>
-  constexpr
+  constexpr // NOLINT(readability-const-return-type)
   illegal_argument const
   arg(
     void const*,
