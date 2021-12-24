@@ -2332,7 +2332,7 @@ template <typename T>
     TROMPELOEIL_MK_OP_PRINTER(greater_equal, " >= ");
     #undef TROMPELOEIL_MK_OP_PRINTER
 
-  }
+  } // namespace lambdas
 
   template <typename MatchType, typename Predicate, typename Printer, typename ... T>
   make_matcher_return<MatchType, Predicate, Printer, T...>
@@ -2525,7 +2525,7 @@ template <typename T>
         os << " matching regular expression /" << str << "/";
       }
     };
-  }
+  } // namespace lambdas
 
   template <
     typename Kind = wildcard,
@@ -4528,7 +4528,7 @@ template <typename T>
 #if defined(TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER)
  extern template struct reporter<specialized>;
 #endif // TROMPELOEIL_USER_DEFINED_COMPILE_TIME_REPORTER
-}
+} // namespace trompeloeil
 
 #define TROMPELOEIL_LINE_ID(name)                                        \
   TROMPELOEIL_CONCAT(trompeloeil_l_ ## name ## _, __LINE__)
