@@ -1041,7 +1041,6 @@ namespace trompeloeil
     }
 
   template <typename ... T>
-  inline
   constexpr
   bool
   ignore(
@@ -2589,7 +2588,6 @@ template <typename T>
   template <typename T>
   struct null_on_move
   {
-  public:
     null_on_move()
     noexcept
       : p{nullptr}
@@ -2796,7 +2794,7 @@ template <typename T>
   }
 
   template <size_t N>
-  struct sequence_handler final : public sequence_handler_base
+  struct sequence_handler final : sequence_handler_base
   {
   public:
     template <size_t M = N, typename detail::enable_if_t<M == 0>* = nullptr>
@@ -2927,7 +2925,7 @@ template <typename T>
     TROMPELOEIL_NODISCARD virtual bool is_saturated() const noexcept = 0;
   };
 
-  struct lifetime_monitor final : public expectation
+  struct lifetime_monitor final : expectation
   {
     template <typename T>
     lifetime_monitor(
@@ -3064,7 +3062,6 @@ template <typename T>
 #endif
   template <typename R>
   TROMPELOEIL_NODISCARD
-  inline
   R
   default_return()
   {
@@ -3087,7 +3084,7 @@ template <typename T>
   struct call_matcher_base;
 
   template <typename Sig>
-  struct call_matcher_list final : public list<call_matcher_base<Sig>>
+  struct call_matcher_list final : list<call_matcher_base<Sig>>
   {
     void decommission()
     {
@@ -3105,7 +3102,7 @@ template <typename T>
   };
 
   template <typename Sig>
-  struct call_matcher_base : public list_elem<call_matcher_base<Sig>>
+  struct call_matcher_base : list_elem<call_matcher_base<Sig>>
   {
     call_matcher_base(
       location const loc_,
@@ -3184,7 +3181,6 @@ template <typename T>
             typename U,
             typename = detail::enable_if_t<is_equal_comparable<T, U>::value>>
   TROMPELOEIL_NODISCARD
-  inline
   U&
   identity(
     U& t)
@@ -3197,7 +3193,6 @@ template <typename T>
             typename U,
             typename = detail::enable_if_t<!is_equal_comparable<T, U>::value>>
   TROMPELOEIL_NODISCARD
-  inline
   T
   identity(
     const U& u)
@@ -3604,7 +3599,7 @@ template <typename T>
   using condition_list = list<condition_base<Sig>, delete_disposer>;
 
   template <typename Sig, typename Cond>
-  struct condition final : public condition_base<Sig>
+  struct condition final : condition_base<Sig>
   {
     condition(
       char const *str_,
@@ -3642,7 +3637,7 @@ template <typename T>
   using side_effect_list = list<side_effect_base<Sig>, delete_disposer>;
 
   template <typename Sig, typename Action>
-  struct side_effect final : public side_effect_base<Sig>
+  struct side_effect final : side_effect_base<Sig>
   {
     template <typename A, typename = detail::enable_if_t<!std::is_same<const A&, const side_effect&>::value>>
     explicit
@@ -3705,7 +3700,7 @@ template <typename T>
   };
 
   template <typename Matcher, typename modifier_tag, typename Parent>
-  struct call_modifier : public Parent
+  struct call_modifier : Parent
   {
     using typename Parent::signature;
     using typename Parent::return_type;
@@ -4485,7 +4480,6 @@ template <typename T>
   template <typename M,
             typename = detail::enable_if_t<is_matcher<M>::value>>
   TROMPELOEIL_NODISCARD
-  inline
   ptr_deref<detail::decay_t<M>>
   operator*(
     M&& m)
@@ -4523,7 +4517,7 @@ template <typename T>
   };
 
   template <typename T>
-  struct mock_interface : public T
+  struct mock_interface : T
   {
     using trompeloeil_interface_name = T;
     using T::T;
