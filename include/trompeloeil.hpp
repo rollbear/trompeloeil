@@ -2351,7 +2351,7 @@ template <typename T>
     return make_matcher<T>(lambdas::any_predicate(), lambdas::any_printer(type_name));
   }
 
-  template <typename T>
+  template <typename>
   wildcard
   any_matcher_impl(char const*, std::true_type) { return {}; }
 
