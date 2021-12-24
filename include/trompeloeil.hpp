@@ -1643,7 +1643,7 @@ template <typename T>
     iterator end() const noexcept;
     iterator push_front(T* t) noexcept;
     iterator push_back(T* t) noexcept;
-    bool empty() const noexcept { return begin() == end(); }
+    TROMPELOEIL_NODISCARD bool empty() const noexcept { return begin() == end(); }
   private:
     using list_elem<T>::invariant_check;
     using list_elem<T>::next;
