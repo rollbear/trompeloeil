@@ -1069,7 +1069,7 @@ namespace trompeloeil
     }
 
     template <typename T, bool b = false>
-    constexpr
+    constexpr // NOLINT(misc-unconventional-assign-operator)
     illegal_argument const& operator=(T const&) const
     {
       static_assert(b, "illegal argument");
