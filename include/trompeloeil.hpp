@@ -3934,9 +3934,13 @@ template <typename T>
     os << reason
        << ":\nExpected " << name << " to be called ";
     if (min_calls == 1)
+    {
       os << "once";
+    }
     else
+    {
       os << min_calls << " times";
+    }
     os << ", actually ";
     switch (call_count)
     {
