@@ -1053,7 +1053,7 @@ namespace trompeloeil
 
   struct illegal_argument
   {
-    template <bool b = false>
+    template <bool b = false> // NOLINTNEXTLINE(google-runtime-operator)
     constexpr
     illegal_argument const& operator&() const
     {
@@ -1079,7 +1079,7 @@ namespace trompeloeil
 
     template <typename T, bool b = false>
     constexpr
-    operator T() const
+    operator T() const // NOLINT(google-explicit-constructor)
     {
       static_assert(b, "illegal argument");
       return {};
@@ -1095,7 +1095,7 @@ namespace trompeloeil
               ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
 #endif
               >
-    operator T&&()
+    operator T&&() // NOLINT(google-explicit-constructor)
     const;
 
     template <typename T
@@ -1103,7 +1103,7 @@ namespace trompeloeil
               ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
 #endif
               >
-    operator T&()
+    operator T&() // NOLINT(google-explicit-constructor)
     volatile const; // less preferred than T&& above
 
     template <typename T>
@@ -1129,21 +1129,21 @@ template <typename T>
   template <typename T>
   struct typed_matcher : matcher
   {
-    operator T() const { return {}; }
+    operator T() const { return {}; } // NOLINT(google-explicit-constructor)
   };
 
   template <>
   struct typed_matcher<std::nullptr_t> : matcher
   {
     template <typename T, typename = decltype(std::declval<T>() == nullptr)>
-    operator T&&() const;
+    operator T&&() const; // NOLINT(google-explicit-constructor)
 
     template <typename T,
               typename = decltype(std::declval<T>() == nullptr)>
-    operator T&()const volatile;
+    operator T&()const volatile; // NOLINT(google-explicit-constructor)
 
     template <typename T, typename C>
-    operator T C::*() const;
+    operator T C::*() const; // NOLINT(google-explicit-constructor)
   };
 
   template <typename Pred, typename ... T>
@@ -1158,14 +1158,14 @@ template <typename T>
     template <typename V,
               typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&&, T...>>
-    operator V&&() const { return *this; }
+    operator V&&() const { return *this; } // NOLINT(google-explicit-constructor)
 
 #endif
 
     template <typename V,
               typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&, T...>>
-    operator V&() const volatile;
+    operator V&() const volatile; // NOLINT(google-explicit-constructor)
   };
 
   template <typename T>
@@ -1202,7 +1202,7 @@ template <typename T>
       typename T,
       typename = detail::enable_if_t<std::is_convertible<std::nullptr_t, T>::value>
     >
-    operator T&&() const = delete;
+    operator T&&() const = delete; // NOLINT(google-explicit-constructor)
 #endif
 #if TROMPELOEIL_GCC || TROMPELOEIL_MSVC
 
@@ -1210,13 +1210,13 @@ template <typename T>
     using memfunptr = T (C::*)(As...);
 
     template <typename T>
-    operator T*() const;
+    operator T*() const; // NOLINT(google-explicit-constructor)
     template <typename T, typename C>
-    operator T C::*() const;
+    operator T C::*() const; // NOLINT(google-explicit-constructor)
     template <typename T, typename C, typename ... As>
-    operator memfunptr<T,C,As...>() const;
+    operator memfunptr<T,C,As...>() const; // NOLINT(google-explicit-constructor)
 #endif /* TROMPELOEIL_GCC || TROMPELOEIL_MSVC */
-    operator std::nullptr_t() const;
+    operator std::nullptr_t() const; // NOLINT(google-explicit-constructor)
   };
 
   template <typename T, typename U>
@@ -2091,7 +2091,7 @@ template <typename T>
   public:
     template <typename U,
               typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(*std::declval<U>())>>(std::declval<M>()))>
-    operator U() const;
+    operator U() const; // NOLINT(google-explicit-constructor)
 
     template <typename U, typename = detail::enable_if_t<!std::is_same<const U&, const ptr_deref&>::value>>
     explicit
@@ -2129,7 +2129,7 @@ template <typename T>
   public:
     template <typename U,
               typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(std::declval<U>())>>(std::declval<M>()))>
-    operator U() const { return {}; }
+    operator U() const { return {}; } // NOLINT(google-explicit-constructor)
 
     template <typename U, typename = detail::enable_if_t<!std::is_same<const U&, const neg_matcher&>::value>>
     explicit
@@ -2464,14 +2464,14 @@ template <typename T>
       class string_helper // a vastly simplified string_view type of class
       {
       public:
-        string_helper(
+        string_helper( // NOLINT(google-explicit-constructor)
           std::string const& s)
         noexcept
           : str(s.c_str())
         {}
 
         constexpr
-        string_helper(
+        string_helper( // NOLINT(google-explicit-constructor)
           char const* const s)
         noexcept
           : str(s)
@@ -4362,6 +4362,7 @@ template <typename T>
   template <bool sequence_set>
   struct lifetime_monitor_modifier
   {
+    // NOLINTNEXTLINE(google-explicit-constructor)
     operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
     template <typename ... T, bool b = sequence_set>
     TROMPELOEIL_NODISCARD
