@@ -68,11 +68,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
   endif()
 
-  # Assumptions:
-  # Clang and GNU compilers run on Linux or Linux-like platforms.
-  # MSVC compilers run on Windows platforms.
-
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  if(UNIX)
 
     set(
       LIBCXX_PREFIX_PATH
@@ -215,9 +211,9 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
     endif()
 
-  endif() # Clang or GNU
+  endif() # UNIX
 
-  if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  if(WIN32)
 
     add_compile_options(/W4)
     add_compile_options(/bigobj)
@@ -228,7 +224,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       add_compile_options(/permissive-)
     endif()
 
-  endif() # MSVC
+  endif() # WIN32
 
   add_executable(
     self_test
@@ -379,7 +375,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   endif()
 
   # Shameless hack to get target to work on Windows.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  if(UNIX)
 
     add_custom_target(
       run_self_test
@@ -401,7 +397,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   endif()
 
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  if(UNIX)
 
     add_custom_target(
       run_coverage

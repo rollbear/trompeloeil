@@ -1043,6 +1043,14 @@ jobs:
             cc: "cl", cxx: "cl",
             cxx_standard: 17,
           }
+
+          # Clang Windows
+          - {
+            name: "Windows Clang",
+            os: windows-2019,
+            cmake_args: "-T ClangCL"
+          }
+
     steps:
       - uses: actions/checkout@v2
 
