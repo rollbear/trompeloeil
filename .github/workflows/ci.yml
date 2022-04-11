@@ -1159,7 +1159,7 @@ jobs:
           then
               wget https://apt.llvm.org/llvm.sh
               chmod +x llvm.sh
-              sudo ./llvm.sh "${{matrix.config.version }}"
+              sudo ./llvm.sh "${{matrix.config.version}}"
           else
               sudo apt-get install -y clang-${{matrix.config.version}}
           fi
