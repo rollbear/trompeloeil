@@ -977,6 +977,80 @@ jobs:
             libcxx: true
           }
 
+          # Clang-14
+          - {
+            name: "Linux Clang 14 C++11 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 14 C++14 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 14 C++17 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 14 C++20 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 14 C++11 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 14 C++14 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 14 C++17 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: true
+          }
+          - {
+            name: "Linux Clang 14 C++20 / libc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "14",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: true
+          }
+
           # AppleClang
           - {
             name: "macOS Clang C++11",
@@ -998,6 +1072,32 @@ jobs:
             cc: "clang", cxx: "clang++",
             cxx_standard: 17,
             cxx_asan: true
+          }
+
+          # MSVC 2022
+          - {
+            name: "Windows MSVC 2022 C++11",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 11,
+          }
+          - {
+            name: "Windows MSVC 2022 C++14",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 14,
+          }
+          - {
+            name: "Windows MSVC 2022 C++17",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 17,
+          }
+          - {
+            name: "Windows MSVC 2022 C++20",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 20,
           }
 
           # MSVC 2019
@@ -1024,24 +1124,6 @@ jobs:
             os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
-          }
-          - {
-              name: "Windows MSVC 2017 C++11",
-              os: windows-2016,
-              cc: "cl", cxx: "cl",
-              cxx_standard: 11,
-          }
-          - {
-            name: "Windows MSVC 2017 C++14",
-            os: windows-2016,
-            cc: "cl", cxx: "cl",
-            cxx_standard: 14,
-          }
-          - {
-            name: "Windows MSVC 2017 C++17",
-            os: windows-2016,
-            cc: "cl", cxx: "cl",
-            cxx_standard: 17,
           }
     steps:
       - uses: actions/checkout@v2
@@ -1073,11 +1155,11 @@ jobs:
         working-directory: ${{ env.HOME }}
         run: |
           sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
-          if [ "${{matrix.config.version}}" = "13" ]
+          if [ "${{matrix.config.version}}" -ge "13" ]
           then
               wget https://apt.llvm.org/llvm.sh
               chmod +x llvm.sh
-              sudo ./llvm.sh 13
+              sudo ./llvm.sh "${{matrix.config.version}}"
           else
               sudo apt-get install -y clang-${{matrix.config.version}}
           fi
