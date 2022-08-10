@@ -1,3 +1,5 @@
+	* Specify ARCH_INDEPENDENT when creating package version file in CMake.
+
 v42 2021-12-07
 
 	* Fixed issue 264: Sequence objects did not correctly report

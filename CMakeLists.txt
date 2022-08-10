@@ -9,7 +9,8 @@ include(CheckCXXCompilerFlag)
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
   VERSION 42
-  COMPATIBILITY AnyNewerVersion)
+  COMPATIBILITY AnyNewerVersion
+  ARCH_INDEPENDENT)
 
 add_library(trompeloeil INTERFACE)
 add_library(trompeloeil::trompeloeil ALIAS trompeloeil)
