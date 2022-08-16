@@ -696,8 +696,10 @@ and [**`IMPLEMENT_MOCKn`**](reference.md/#IMPLEMENT_MOCKn). See
 The way to mock a
 [`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec)
 function is to add a `noexcept` specifier to
-[**`MAKE_MOCKn`**](reference.md/#MAKE_MOCKn) or
-[**`MAKE_CONST_MOCKn`**](reference.md/#MAKE_CONST_MOCKn).
+[**`MAKE_MOCKn`**](reference.md/#MAKE_MOCKn),
+[**`MAKE_CONST_MOCKn`**](reference.md/#MAKE_CONST_MOCKn),
+[**`IMPLEMENT_MOCKn`**](reference.md/#IMPLEMENT_MOCKn) or
+[**`IMPLEMENT_CONST_MOCKn`**](reference.md/#IMPLEMENT_CONST_MOCKn).
 
 ```Cpp
 struct S

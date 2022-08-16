@@ -818,12 +818,15 @@ stored in test fixtures or otherwise have its lifetime programmatically controll
 
 <A name="IMPLEMENT_CONST_MOCKn"/>
 
-### **`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**
+### **`IMPLEMENT_CONST_MOCKn(`** *func_name* {, *specifiers* } **`)`**
 
 Make a `const` [mock function](#mock_function) implementation of the
 `virtual` function named *func_name* from the inherited interface. This macro
 is only usable with `virtual` non-`final` functions, and only when used with
 [`mock_interface<T>`](#mock_interface), where `T` is the interface.
+
+*specifiers* is an optional list which may include attributes or specifiers like
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
 
 Example:
 
@@ -866,12 +869,15 @@ of any member functions.
 
 <A name="IMPLEMENT_MOCKn"/>
 
-### **`IMPLEMENT_MOCKn(`** *func_name* **`)`**
+### **`IMPLEMENT_MOCKn(`** *func_name* {, *specifiers* } **`)`**
 
 Make a non-`const` [mock function](#mock_function) implementation of the
 `virtual` function named *func_name* from the inherited interface. This macro
 is only usable with `virtual` non-`final` functions, and only when used with
 [`mock_interface<T>`](#mock_interface), where `T` is the interface.
+
+*specifiers* is an optional list which may include attributes or specifiers like
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
 
 Example:
 
