@@ -78,6 +78,7 @@ else
     tar -xf libcxxabi-${VERSION}.src.tar.xz -C llvm-source/projects/libcxxabi --strip-components=1
 fi
 
+SOURCE=`pwd`/llvm-source
 TARGET=`pwd`/llvm
 mkdir "${TARGET}"
 mkdir llvm-build
@@ -104,6 +105,9 @@ else
           -DLIBCXX_ABI_UNSTABLE=ON \
           -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
           -DLLVM_USE_SANITIZER=${SANITIZER} \
+          -DCMAKE_MODULE_PATH=${SOURCE}/Modules \
+          -DLLVM_INCLUDE_BENCHMARKS=no \
+          -DLIBCXX_INCLUDE_BENCHMARKS=no \
           ../llvm-source
     make cxx -j4 VERBOSE=1
     make install-cxxabi install-cxx
