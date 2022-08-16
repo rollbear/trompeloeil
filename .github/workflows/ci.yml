@@ -1190,8 +1190,16 @@ jobs:
         run: |
           $GITHUB_WORKSPACE/install_libcxx.sh
 
-      - name: Install kcov
+      - name: Cache kcov
+        id: cache-kcov
         if: startsWith(matrix.config.os, 'ubuntu')
+        uses: actions/cache@v2
+        with:
+          path: kcov
+          key: ${{matrix.config.os}}
+
+      - name: Install kcov
+        if: startsWith(matrix.config.os, 'ubuntu') && (steps.cache-kcov.outputs.cache-hit != 'true')
         run: |
           sudo apt-get install -y libdw-dev libcurl4-openssl-dev
           mkdir kcov
