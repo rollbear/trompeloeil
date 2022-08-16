@@ -1200,7 +1200,7 @@ jobs:
           tar xf 38.tar.gz
           mkdir build
           cd build
-          cmake ../kcov-38
+          cmake ../kcov-38 -DCMAKE_INSTALL_PREFIX=../install
           cmake --build .
           sudo cmake --install .
 
@@ -1263,7 +1263,7 @@ jobs:
         if: (startsWith(matrix.config.os, 'ubuntu'))
         shell: bash
         run: |
-          cmake --build build --target run_coverage || true
+          PATH=`pwd`/kcov/install/bin:$PATH cmake --build build --target run_coverage || true
 
       - name: Upload coverage
         if: startsWith(matrix.config.os, 'ubuntu') && github.repository == 'rollbear/trompeloeil'
