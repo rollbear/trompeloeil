@@ -990,6 +990,48 @@ The above allows the following two sequences only.
 
 Any other sequence of calls renders a violation report.
 
+Note that `.IN_SEQUENCE()` in combination with [**`.TIMES(...)`**](#TIMES) is
+greedy. It will stay on  on the same expectation as long as it matches, and
+will leave for the next step in the sequence only when the upper bound from
+[**`.TIMES(...)`**](#TIMES) is reached, or a different expectation matches.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+};
+
+TEST(a_test)
+{
+  Mock m;
+  trompeloeil::sequence seq;
+  
+  REQUIRE_CALL(m, func(0))
+    .IN_SEQUENCE(seq)
+    .TIMES(1, 5);
+  
+  ALLOW_CALL(m, func(0))
+    .IN_SEQUENCE(seq)
+    .SIDE_EFFECT(std::cout << "extra\n");
+  
+  REQUIRE_CALL(m, func(1))
+    .IN_SEQUENCE(seq);
+  
+  test_func(m);
+}
+```
+
+The expectation `REQUIRE_CALL(m, func(0))` stays in effect until either matched
+5 times, or a call to `m.func(1)` has been made. After a call to `m.func(1)`,
+no call to `m.func(0)` is allowed.
+
+The function `test_func()` must call `m.func(0)` at least once, and end with
+`m.func(1)`. If `m.func(0)` is called more than 5 times, each call prints
+`"extra"` on `std::cout`.
+
 <A name="LR_RETURN"/>
 
 ### **`LR_RETURN(`** *expr* **`)`**
@@ -1811,6 +1853,9 @@ times, and no more than 5 times.
 
 See also the helpers [**`AT_LEAST(...)`**](#AT_LEAST) and
 [**`AT_MOST(...)`**](#AT_MOST).
+
+See also [**`IN_SEQUENCE(...)`**](#IN_SEQUENCE) for information about how
+`.TIMES(...)` works together with [**`sequence`**](#sequence_type) objects.
 
 <A name="WITH"/>
 
