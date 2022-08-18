@@ -2011,6 +2011,16 @@ template <typename T>
   const
   {
     if (is_first(matcher)) return;
+    if (matchers.empty())
+    {
+      std::ostringstream os;
+      os << "Sequence mismatch for sequence \"" << seq_name
+         << "\" with matching call of " << match_name
+         << " at " << loc
+         << ". Sequence \"" << seq_name
+         << "\" has no more pending expectations\n";
+      send_report<specialized>(s, loc, os.str());
+    }
     for (auto& m : matchers)
     {
       std::ostringstream os;

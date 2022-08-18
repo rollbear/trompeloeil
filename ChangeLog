@@ -1,3 +1,6 @@
+	* Fixed an obscure bug where an expectation could match with a sequence
+	  object that has run to completion.
+
 	* Specify ARCH_INDEPENDENT when creating package version file in CMake.
 
 v42 2021-12-07

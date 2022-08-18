@@ -510,7 +510,41 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: Calling 3 sequenced allow call in seq is allowed"
+  "C++11: A sequenced allow call is retired when matching the next step",
+  "[C++11][C++14][sequences]"
+  )
+{
+  mock_c obj;
+  trompeloeil::sequence seq;
+
+  ALLOW_CALL_V(obj, count(),
+               .IN_SEQUENCE(seq)
+               .RETURN(1));
+
+  REQUIRE_CALL_V(obj, getter(1),
+                 .IN_SEQUENCE(seq)
+                 .RETURN(1));
+
+  obj.count();
+  obj.count();
+  obj.getter(1);
+  try
+  {
+    obj.count();
+    FAIL("didn't report out of sequence call");
+  }
+  catch (reported)
+  {
+    auto re = R":(Sequence mismatch.*seq.*of obj\.count\(\).*Sequence.*seq.*has no more pending expectations):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(is_match(reports.front().msg,  re));
+    auto& first = reports.front();
+    INFO(first.file << ':' << first.line << "\n" << first.msg);
+  }
+}
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: Calling 3 sequenced allow call in seq is allowed",
   "[C++11][C++14][sequences]")
 {
   {
