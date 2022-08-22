@@ -4168,7 +4168,7 @@ template <typename T>
 
   template <int N>
   constexpr
-  illegal_argument const
+  illegal_argument
   arg(
     void const*,
     std::false_type)
@@ -4993,21 +4993,21 @@ template <typename T>
 
 #define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
   with(arg_s, [capture](auto const& trompeloeil_x) {                           \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
+    auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
+    auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
+    auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
+    auto&& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                        \
+    auto&& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                        \
+    auto&& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                        \
+    auto&& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                        \
+    auto&& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                        \
+    auto&& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                        \
+    auto&&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                       \
+    auto&&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                       \
+    auto&&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                       \
+    auto&&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                       \
+    auto&&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                       \
+    auto&&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                       \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
     return __VA_ARGS__;                                                        \
   })
@@ -5050,21 +5050,21 @@ template <typename T>
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
   sideeffect([capture](auto& trompeloeil_x) {                                  \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
+    auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
+    auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
+    auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
+    auto&& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                        \
+    auto&& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                        \
+    auto&& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                        \
+    auto&& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                        \
+    auto&& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                        \
+    auto&& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                        \
+    auto&&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                       \
+    auto&&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                       \
+    auto&&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                       \
+    auto&&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                       \
+    auto&&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                       \
+    auto&&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                       \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
     __VA_ARGS__;                                                               \
   })
@@ -5108,21 +5108,21 @@ template <typename T>
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
   handle_return([capture](auto& trompeloeil_x) -> decltype(auto) {             \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
+    auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
+    auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
+    auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
+    auto&& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                        \
+    auto&& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                        \
+    auto&& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                        \
+    auto&& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                        \
+    auto&& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                        \
+    auto&& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                        \
+    auto&&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                       \
+    auto&&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                       \
+    auto&&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                       \
+    auto&&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                       \
+    auto&&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                       \
+    auto&&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                       \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
     return ::trompeloeil::decay_return_type(__VA_ARGS__);                      \
   })
@@ -5165,21 +5165,21 @@ template <typename T>
 
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
   handle_throw([capture](auto& trompeloeil_x)  {                               \
-    auto& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                         \
-    auto& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                         \
-    auto& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                         \
-    auto& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                         \
-    auto& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                         \
-    auto& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                         \
-    auto& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                         \
-    auto& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                         \
-    auto& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                         \
-    auto&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                        \
-    auto&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                        \
-    auto&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                        \
-    auto&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                        \
-    auto&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                        \
-    auto&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                        \
+    auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
+    auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
+    auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
+    auto&& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                        \
+    auto&& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                        \
+    auto&& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                        \
+    auto&& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                        \
+    auto&& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                        \
+    auto&& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                        \
+    auto&&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                       \
+    auto&&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                       \
+    auto&&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                       \
+    auto&&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                       \
+    auto&&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                       \
+    auto&&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                       \
     ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
     throw __VA_ARGS__;                                                         \
  })
