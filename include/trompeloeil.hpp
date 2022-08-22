@@ -4324,6 +4324,7 @@ template <typename T>
   {
     expectations() = default;
     expectations(expectations&&)
+    noexcept
     {
       static_assert(std::is_same<Sig,void>::value,
         "By default, mock objects are not movable. "
