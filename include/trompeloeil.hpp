@@ -1031,7 +1031,6 @@ namespace trompeloeil
     }
 
   template <typename ... T>
-  inline
   constexpr
   bool
   ignore(
@@ -1226,7 +1225,6 @@ template <typename T>
 #endif
 
   template <typename T, typename = decltype(std::declval<T const&>() == nullptr)>
-  inline
   constexpr
   auto
   is_null_redirect(
@@ -1238,7 +1236,6 @@ template <typename T>
   }
 
   template <typename T>
-  inline
   constexpr
   auto
   is_null(
@@ -1252,7 +1249,6 @@ template <typename T>
   }
 
   template <typename T, typename V>
-  inline
   constexpr
   bool
   is_null(
@@ -1264,7 +1260,6 @@ template <typename T>
   }
 
   template <typename T>
-  inline
   constexpr
   bool
   is_null(
@@ -1276,7 +1271,6 @@ template <typename T>
   }
 
   template <typename T>
-  inline
   constexpr
   bool
   is_null(
@@ -1461,7 +1455,6 @@ template <typename T>
     os << "nullptr";
   }
 
-  inline
   constexpr
   auto
   param_compare_operator(
@@ -1471,7 +1464,6 @@ template <typename T>
     return " == ";
   }
 
-  inline
   constexpr
   auto
   param_compare_operator(
@@ -4142,8 +4134,7 @@ template <typename T>
       return_handler_obj.reset(new handler(std::forward<T>(h)));
     }
 
-    template <typename T>
-    inline                           // Never called. Used to limit errmsg
+    template <typename T>            // Never called. Used to limit errmsg
     static                           // with RETURN of wrong type and after:
     void                             //   FORBIDDEN_CALL
     set_return(std::false_type, T&&t)//   RETURN
@@ -4177,7 +4168,6 @@ template <typename T>
   }
 
   template <int N>
-  inline
   constexpr
   illegal_argument const
   arg(
