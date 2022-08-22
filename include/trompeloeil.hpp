@@ -4166,7 +4166,7 @@ template <typename T>
     return std::get<N-1>(*t);
   }
 
-  template <int N>
+  template <int>
   constexpr
   illegal_argument
   arg(
@@ -4267,20 +4267,26 @@ template <typename T>
   }
 
   template <bool sequence_set>
-  struct lifetime_monitor_modifier
+  struct lifetime_monitor_modifier : std::unique_ptr<lifetime_monitor>
   {
-    operator std::unique_ptr<lifetime_monitor>() { return std::move(monitor);}
+    explicit
+    lifetime_monitor_modifier(
+      std::unique_ptr<lifetime_monitor> p)
+    noexcept
+    : unique_ptr(std::move(p))
+    {}
+
     template <typename ... T, bool b = sequence_set>
-    lifetime_monitor_modifier<true>
+    auto
     in_sequence(T&& ... t)
     {
       static_assert(!b,
                     "Multiple IN_SEQUENCE does not make sense."
                       " You can list several sequence objects at once");
-      monitor->set_sequence(std::forward<T>(t)...);
-      return { std::move(monitor) };
+      std::unique_ptr<lifetime_monitor>& m = *this;
+      m->set_sequence(std::forward<T>(t)...);
+      return lifetime_monitor_modifier<true>{std::move(m)};
     }
-    std::unique_ptr<lifetime_monitor> monitor;
   };
 
   struct lifetime_monitor_releaser
@@ -4288,10 +4294,10 @@ template <typename T>
     template <bool b>
     std::unique_ptr<trompeloeil::lifetime_monitor>
     operator+(
-      lifetime_monitor_modifier<b> m)
+      lifetime_monitor_modifier<b>&& m)
     const
     {
-      return m;
+      return std::move(m);
     }
   };
 
