@@ -901,7 +901,7 @@ namespace trompeloeil
     ok_reporter_func orf)
   {
     return {
-      set_reporter(rf),
+      set_reporter(std::move(rf)),
       detail::exchange(ok_reporter_obj(), std::move(orf))
     };
   }
