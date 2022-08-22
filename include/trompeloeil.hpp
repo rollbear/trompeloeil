@@ -4299,7 +4299,7 @@ template <typename T>
     template <bool b>
     std::unique_ptr<trompeloeil::lifetime_monitor>
     operator+(
-      lifetime_monitor_modifier<b>&& m)
+      lifetime_monitor_modifier<b> m)
     const
     {
       return m;
