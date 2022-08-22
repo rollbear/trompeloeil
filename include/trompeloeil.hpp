@@ -1730,8 +1730,9 @@ template <typename T>
     auto i = this->begin();
     while (i != this->end())
     {
-      auto p = i++;
-      Disposer::dispose(&*p);
+      auto& elem = *i;
+      ++i; // intrusive list, so advance before destroying
+      Disposer::dispose(&elem);
     }
   }
 
@@ -3037,8 +3038,8 @@ template <typename T>
       auto const e = this->end();
       while (iter != e)
       {
-        auto i = iter++;
-        auto &m = *i;
+        auto &m = *iter;
+        ++iter; // intrusive list, so must advance to next before destroying
         m.mock_destroyed();
         m.unlink();
       }
