@@ -3791,7 +3791,7 @@ template <typename T>
       static_assert(!forbidden,
                     "THROW for forbidden call does not make sense");
 
-      constexpr bool valid = !throws && !has_return;// && !forbidden;
+      constexpr bool valid = !throws && !has_return;
       using tag = std::integral_constant<bool, valid>;
       auto handler = throw_handler_t<H>(std::forward<H>(h));
       matcher->set_return(tag{}, std::move(handler));
