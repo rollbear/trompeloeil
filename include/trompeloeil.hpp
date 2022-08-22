@@ -1850,7 +1850,7 @@ template <typename T>
     sequence_type& operator*() { return *obj; }
     bool is_completed() const { return obj->is_completed(); }
   private:
-    std::unique_ptr<sequence_type> obj{new sequence_type};
+    std::unique_ptr<sequence_type> obj{detail::make_unique<sequence_type>()};
   };
 
   struct sequence_handler_base;
