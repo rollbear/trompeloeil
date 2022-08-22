@@ -955,6 +955,7 @@ namespace trompeloeil
   class stream_tracer : public tracer
   {
   public:
+    explicit
     stream_tracer(
       std::ostream& stream_)
       : stream(stream_) {}
@@ -1165,6 +1166,7 @@ template <typename T>
 
   struct stream_sentry
   {
+    explicit
     stream_sentry(
       std::ostream& os_)
       : os(os_)
@@ -1708,6 +1710,7 @@ template <typename T>
     }
 
   private:
+    explicit
     iterator(
       list_elem<T> const *t)
     noexcept
@@ -1744,7 +1747,7 @@ template <typename T>
   noexcept
   -> iterator
   {
-    return {next};
+    return iterator{next};
   }
 
   template <typename T, typename Disposer>
@@ -1754,7 +1757,7 @@ template <typename T>
   noexcept
   -> iterator
   {
-    return {this};
+    return iterator{this};
   }
 
   template <typename T, typename Disposer>
@@ -1770,7 +1773,7 @@ template <typename T>
     next->prev = t;
     next = t;
     invariant_check();
-    return {t};
+    return iterator{t};
   }
 
   template <typename T, typename Disposer>
@@ -1786,7 +1789,7 @@ template <typename T>
     prev->next = t;
     prev = t;
     invariant_check();
-    return {t};
+    return iterator{t};
   }
 
   class sequence_matcher;
@@ -2565,6 +2568,7 @@ template <typename T>
     noexcept
     = default;
 
+    explicit
     null_on_move(
       T* p_)
     noexcept
@@ -2580,6 +2584,9 @@ template <typename T>
       null_on_move const&)
     noexcept
     {}
+
+    ~null_on_move()
+    = default;
 
     null_on_move&
     operator=(
@@ -3479,6 +3486,7 @@ template <typename T>
   {
   public:
     template <typename U>
+    explicit
     return_handler_t(
       U&& u)
     : func(std::forward<U>(u))
@@ -3500,6 +3508,7 @@ template <typename T>
   class condition_base : public list_elem<condition_base<Sig>>
   {
   public:
+    explicit
     condition_base(
       char const *n)
     noexcept
@@ -3570,6 +3579,7 @@ template <typename T>
   struct side_effect : public side_effect_base<Sig>
   {
     template <typename A>
+    explicit
     side_effect(
       A&& a_)
     : a(std::forward<A>(a_))
@@ -3736,7 +3746,7 @@ template <typename T>
     {
       using R = decltype(default_return<return_of_t<signature>>());
 
-      throw_handler_t(H&& h_)
+      explicit throw_handler_t(H&& h_)
         : h(std::forward<H>(h_))
       {}
 
