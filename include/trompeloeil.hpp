@@ -1653,11 +1653,6 @@ template <typename T>
     typedef T* pointer;
     typedef T& reference;
   public:
-    iterator()
-    noexcept
-      : p{nullptr}
-    {}
-
     friend
     bool
     operator==(
@@ -1717,7 +1712,7 @@ template <typename T>
     : p{const_cast<list_elem<T>*>(t)}
     {}
 
-    list_elem<T>* p;
+    list_elem<T>* p = nullptr;
   };
 
   template <typename T, typename Disposer>
@@ -2569,13 +2564,6 @@ template <typename T>
     noexcept
     = default;
 
-    explicit
-    null_on_move(
-      T* p_)
-    noexcept
-      : p{p_}
-    {}
-
     null_on_move(
       null_on_move&&)
     noexcept
@@ -3208,7 +3196,7 @@ template <typename T>
     if (!::trompeloeil::param_matches(v, p))
     {
       auto prefix = ::trompeloeil::param_name_prefix(&v) + "_";
-      os << "  Expected " << std::setw((num < 9) + 1) << prefix << num+1;
+      os << "  Expected " << std::setw((num < 9) ? 2 : 1) << prefix << num+1;
       ::trompeloeil::print_expectation(os, v);
     }
   }
@@ -3240,7 +3228,7 @@ template <typename T>
     T const& t)
   {
     auto prefix = ::trompeloeil::param_name_prefix(&t) + "_";
-    os << "  param " << std::setw((i < 9) + 1) << prefix << i + 1
+    os << "  param " << std::setw((i < 9) ? 2 : 1) << prefix << i + 1
        << ::trompeloeil::param_compare_operator(&t);
     ::trompeloeil::print(os, t);
     os << '\n';
