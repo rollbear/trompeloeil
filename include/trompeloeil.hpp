@@ -4271,7 +4271,7 @@ template <typename T>
   {
     explicit
     lifetime_monitor_modifier(
-      std::unique_ptr<lifetime_monitor> p)
+      std::unique_ptr<lifetime_monitor>&& p)
     noexcept
     : unique_ptr(std::move(p))
     {}
@@ -4279,6 +4279,7 @@ template <typename T>
     template <typename ... T, bool b = sequence_set>
     auto
     in_sequence(T&& ... t)
+    -> lifetime_monitor_modifier<true>
     {
       static_assert(!b,
                     "Multiple IN_SEQUENCE does not make sense."
