@@ -1852,11 +1852,10 @@ template <typename T>
   class sequence
   {
   public:
-    sequence() : obj(new sequence_type) {}
     sequence_type& operator*() { return *obj; }
     bool is_completed() const { return obj->is_completed(); }
   private:
-    std::unique_ptr<sequence_type> obj;
+    std::unique_ptr<sequence_type> obj{new sequence_type};
   };
 
   struct sequence_handler_base;
@@ -2572,8 +2571,7 @@ template <typename T>
   public:
     null_on_move()
     noexcept
-      : p{nullptr}
-    {}
+    = default;
 
     null_on_move(
       T* p_)
@@ -2584,13 +2582,11 @@ template <typename T>
     null_on_move(
       null_on_move&&)
     noexcept
-      : p{nullptr}
     {}
 
     null_on_move(
       null_on_move const&)
     noexcept
-      : p{nullptr}
     {}
 
     null_on_move&
@@ -2651,7 +2647,7 @@ template <typename T>
       return p != nullptr;
     }
   private:
-    T* p;
+    T* p = nullptr;
   };
 
   struct sequence_handler_base
