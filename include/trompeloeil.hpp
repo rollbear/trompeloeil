@@ -1647,11 +1647,11 @@ template <typename T>
   class list<T, Disposer>::iterator
   {
     friend class list<T, Disposer>;
-    typedef std::bidirectional_iterator_tag iterator_category;
-    typedef T value_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef T* pointer;
-    typedef T& reference;
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
   public:
     friend
     bool
