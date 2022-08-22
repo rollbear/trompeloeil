@@ -1922,6 +1922,7 @@ template <typename T>
 
     char const*
     sequence_name()
+    const
     noexcept
     {
       return seq_name;
@@ -1968,7 +1969,7 @@ template <typename T>
   noexcept
   {
     unsigned sequence_cost = 0U;
-    for (auto& e : matchers)
+    for (auto const& e : matchers)
     {
       if (&e == m) return sequence_cost;
       if (!e.is_satisfied())
@@ -2015,7 +2016,7 @@ template <typename T>
          << "\" has no more pending expectations\n";
       send_report<specialized>(s, loc, os.str());
     }
-    for (auto& m : matchers)
+    for (auto const& m : matchers)
     {
       std::ostringstream os;
       os << "Sequence mismatch for sequence \"" << seq_name
@@ -3342,7 +3343,7 @@ template <typename T>
         try {
           throw;
         }
-        catch (std::exception& e)
+        catch (std::exception const& e)
         {
           os << "threw exception: what() = " << e.what() << '\n';
         }
@@ -3453,7 +3454,7 @@ template <typename T>
   template <typename Ret, typename F, typename P, typename = detail::enable_if_t<std::is_void<Ret>::value>>
   void
   trace_return(
-    trace_agent&,
+    trace_agent const&,
     F& func,
     P& params)
   {
@@ -4210,7 +4211,7 @@ template <typename T>
     auto
     make_expectation(
       std::true_type,
-      call_modifier<M, Tag, Info>&& m)
+      call_modifier<M, Tag, Info> const& m)
     const
     noexcept
     TROMPELOEIL_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
