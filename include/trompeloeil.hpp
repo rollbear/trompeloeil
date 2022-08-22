@@ -4310,7 +4310,7 @@ template <typename T>
   struct expectations
   {
     expectations() = default;
-    expectations(expectations&&) = default;
+    expectations(expectations&&) noexcept = default;
     ~expectations() {
       active.decommission();
       saturated.decommission();
