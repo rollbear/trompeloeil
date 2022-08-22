@@ -3023,6 +3023,7 @@ template <typename T>
   void
   default_return<void>()
   {
+    // Implicitly do nothing when returning from function returning void
   }
 
   template <typename Sig>
