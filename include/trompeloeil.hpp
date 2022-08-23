@@ -1460,7 +1460,7 @@ template <typename T>
   constexpr
   auto
   param_compare_operator(
-    ...)
+    void const*)
   TROMPELOEIL_TRAILING_RETURN_TYPE(const char*)
   {
     return " == ";
@@ -2536,7 +2536,7 @@ template <typename T>
   inline
   std::string
   param_name_prefix(
-    ...)
+    void const*)
   {
     return "";
   }
@@ -3148,7 +3148,7 @@ template <typename T>
   param_matches_impl(
     T const& t,
     U const& u,
-    ...)
+    void const*)
   noexcept(noexcept(::trompeloeil::identity<U>(t) == u))
   {
     return ::trompeloeil::identity<U>(t) == u;
