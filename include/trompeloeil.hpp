@@ -1174,6 +1174,9 @@ template <typename T>
       , flags(os.flags(std::ios_base::dec | std::ios_base::left))
       , fill(os.fill(' '))
       {  }
+      stream_sentry(
+        stream_sentry const&)
+      = delete;
     ~stream_sentry()
     {
       os.flags(flags);
