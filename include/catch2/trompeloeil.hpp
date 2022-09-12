@@ -16,8 +16,9 @@
 #ifndef TROMPELOEIL_CATCH2_HPP_
 #define TROMPELOEIL_CATCH2_HPP_
 
-#ifndef CATCH_VERSION_MAJOR
-#error "<catch.hpp> must be included before <catch2/trompeloeil.hpp>"
+#if !((defined(CATCH_CONFIG_PREFIX_ALL) && defined(CATCH_CHECK)) \
+      || (!defined(CATCH_CONFIG_PREFIX_ALL) && defined(CHECK)))
+#error "Catch2 macros must be defined before including <catch2/trompeloeil.hpp>"
 #endif
 
 #include "../trompeloeil.hpp"
