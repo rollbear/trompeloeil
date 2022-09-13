@@ -1,3 +1,5 @@
+	* Fixed issue 272: Support Catch2 piecemeal headers.
+
 	* Fixed an obscure bug where an expectation could match with a sequence
 	  object that has run to completion.
 
