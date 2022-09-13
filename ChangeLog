@@ -1,5 +1,9 @@
 	* Fixed issue 272: Support Catch2 piecemeal headers.
 
+	* Fix issue #279 where the doctest adapter showed violation messages
+	  as hex addresses for most recent releases of doctest. Thanks
+	  @SimonKagstrom for reporting.
+
 	* Fixed an obscure bug where an expectation could match with a sequence
 	  object that has run to completion.
 
