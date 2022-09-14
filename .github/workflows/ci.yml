@@ -235,6 +235,40 @@ jobs:
             cxx_asan: true
           }
 
+          # GCC-12
+          - {
+            name: "Linux GCC 12 C++11",
+            os: ubuntu-22.04,
+            compiler: gcc,
+            version: "12",
+            cxx_standard: 11,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 12 C++14",
+            os: ubuntu-22.04,
+            compiler: gcc,
+            version: "12",
+            cxx_standard: 14,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 12 C++17",
+            os: ubuntu-22.04,
+            compiler: gcc,
+            version: "12",
+            cxx_standard: 17,
+            cxx_asan: true
+          }
+          - {
+            name: "Linux GCC 12 C++20",
+            os: ubuntu-22.04,
+            compiler: gcc,
+            version: "12",
+            cxx_standard: 20,
+            cxx_asan: true
+          }
+
           # Clang-3.5
           - {
             name: "Linux Clang 3.5 C++11 / libstdc++",
@@ -1133,8 +1167,11 @@ jobs:
         if: startsWith(matrix.config.os, 'ubuntu')
         shell: bash
         run: |
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
+          if [ ${{matrix.config.os}} != "ubuntu-22.04" ]
+          then
+            sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
+            sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
+          fi
           sudo apt-add-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
 
