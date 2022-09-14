@@ -1085,6 +1085,80 @@ jobs:
             libcxx: true
           }
 
+          # Clang-15
+          - {
+            name: "Linux Clang 15 C++11 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "15",
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 15 C++14 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "15",
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 15 C++17 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "15",
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: false
+          }
+          - {
+            name: "Linux Clang 15 C++20 / libstdc++",
+            os: ubuntu-20.04,
+            compiler: clang,
+            version: "15",
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: false
+          }
+          #- {
+          #  name: "Linux Clang 15 C++11 / libc++",
+          #  os: ubuntu-20.04,
+          #  compiler: clang,
+          #  version: "15",
+          #  cxx_standard: 11,
+          #  cxx_asan: true,
+          #  libcxx: true
+          #}
+          #- {
+          #  name: "Linux Clang 15 C++14 / libc++",
+          #  os: ubuntu-20.04,
+          #  compiler: clang,
+          #  version: "15",
+          #  cxx_standard: 14,
+          #  cxx_asan: true,
+          #  libcxx: true
+          #}
+          #- {
+          #  name: "Linux Clang 15 C++17 / libc++",
+          #  os: ubuntu-20.04,
+          #  compiler: clang,
+          #  version: "15",
+          #  cxx_standard: 17,
+          #  cxx_asan: true,
+          #  libcxx: true
+          #}
+          #- {
+          #  name: "Linux Clang 15 C++20 / libc++",
+          #  os: ubuntu-20.04,
+          #  compiler: clang,
+          #  version: "15",
+          #  cxx_standard: 20,
+          #  cxx_asan: true,
+          #  libcxx: true
+          #}
+
           # AppleClang
           - {
             name: "macOS Clang C++11",
