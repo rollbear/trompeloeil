@@ -1,3 +1,5 @@
+	* Added gcc-12 and clang++-15 to the CI build matrix
+
 	* Fixed issue 272: Support Catch2 piecemeal headers.
 
 	* Fix issue #279 where the doctest adapter showed violation messages
