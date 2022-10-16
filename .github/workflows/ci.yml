@@ -1481,7 +1481,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          cmake --build build --parallel 4 --target self_test custom_recursive_mutex
+          cmake --build build --target self_test custom_recursive_mutex
 
       - name: Run tests
         shell: bash
