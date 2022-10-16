@@ -7,7 +7,9 @@ jobs:
   build:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
-    container: ${{ matrix.config.container }}
+    container:
+      image: ${{ matrix.config.container }}
+      options: "--security-opt seccomp=unconfined"
     strategy:
       fail-fast: false
       matrix:
