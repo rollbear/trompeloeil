@@ -1496,7 +1496,7 @@ jobs:
 
       - name: Upload coverage
         if: startsWith(matrix.config.name, 'Linux') && github.repository == 'rollbear/trompeloeil'
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           directory: build/coverage
           files: self_test*/cobertura.xml
