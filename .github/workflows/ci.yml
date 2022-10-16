@@ -7,9 +7,8 @@ jobs:
   build:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
-    container:
-      image: ${{ matrix.config.container }}
-      options: "--security-opt seccomp=unconfined"
+    container: ${{ matrix.config.container }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -18,7 +17,7 @@ jobs:
           - {
             name: "Linux GCC 4.8 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:4.8",
+            container: { image: "ghcr.io/rollbear/gcc:4.8", options: "--security-opt seccomp=unconfined" },
             #cc: "gcc-4.8", cxx: "g++-4.8",
             compiler: gcc,
             version: "4.8",
@@ -29,7 +28,7 @@ jobs:
           - {
             name: "Linux GCC 4.9 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:4.9",
+            container: { image: "ghcr.io/rollbear/gcc:4.9", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "4.9",
             cxx_standard: 11,
@@ -38,7 +37,7 @@ jobs:
           - {
             name: "Linux GCC 4.9 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:4.9",
+            container: { image: "ghcr.io/rollbear/gcc:4.9", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "4.9",
             cxx_standard: 14,
@@ -48,7 +47,7 @@ jobs:
           - {
             name: "Linux GCC 5 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:5",
+            container: { image: "ghcr.io/rollbear/gcc:5", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "5",
             cxx_standard: 11,
@@ -57,7 +56,7 @@ jobs:
           - {
             name: "Linux GCC 5 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:5",
+            container: { image: "ghcr.io/rollbear/gcc:5", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "5",
             cxx_standard: 14,
@@ -66,7 +65,7 @@ jobs:
           - {
             name: "Linux GCC 5 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:5",
+            container: { image: "ghcr.io/rollbear/gcc:5", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "5",
             cxx_standard: 17,
@@ -76,7 +75,7 @@ jobs:
           - {
             name: "Linux GCC 6 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:6",
+            container: { image: "ghcr.io/rollbear/gcc:6", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "6",
             cxx_standard: 11,
@@ -85,7 +84,7 @@ jobs:
           - {
             name: "Linux GCC 6 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:6",
+            container: { image: "ghcr.io/rollbear/gcc:6", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "6",
             cxx_standard: 14,
@@ -94,7 +93,7 @@ jobs:
           - {
             name: "Linux GCC 6 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:6",
+            container: { image: "ghcr.io/rollbear/gcc:6", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "6",
             cxx_standard: 17,
@@ -105,7 +104,7 @@ jobs:
           - {
             name: "Linux GCC 7 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:7",
+            container: { image: "ghcr.io/rollbear/gcc:7", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "7",
             cxx_standard: 11,
@@ -114,7 +113,7 @@ jobs:
           - {
             name: "Linux GCC 7 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:7",
+            container: { image: "ghcr.io/rollbear/gcc:7", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "7",
             cxx_standard: 14,
@@ -123,7 +122,7 @@ jobs:
           - {
             name: "Linux GCC 7 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:7",
+            container: { image: "ghcr.io/rollbear/gcc:7", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "7",
             cxx_standard: 17,
@@ -134,7 +133,7 @@ jobs:
           - {
             name: "Linux GCC 8 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:8",
+            container: { image: "ghcr.io/rollbear/gcc:8", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "8",
             cxx_standard: 11,
@@ -143,7 +142,7 @@ jobs:
           - {
             name: "Linux GCC 8 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:8",
+            container: { image: "ghcr.io/rollbear/gcc:8", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "8",
             cxx_standard: 14,
@@ -152,7 +151,7 @@ jobs:
           - {
             name: "Linux GCC 8 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:8",
+            container: { image: "ghcr.io/rollbear/gcc:8", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "8",
             cxx_standard: 17,
@@ -163,7 +162,7 @@ jobs:
           - {
             name: "Linux GCC 9 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:9",
+            container: { image: "ghcr.io/rollbear/gcc:9", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "9",
             cxx_standard: 11,
@@ -172,7 +171,7 @@ jobs:
           - {
             name: "Linux GCC 9 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:9",
+            container: { image: "ghcr.io/rollbear/gcc:9", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "9",
             cxx_standard: 14,
@@ -181,7 +180,7 @@ jobs:
           - {
             name: "Linux GCC 9 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:9",
+            container: { image: "ghcr.io/rollbear/gcc:9", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "9",
             cxx_standard: 17,
@@ -192,7 +191,7 @@ jobs:
           - {
             name: "Linux GCC 10 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:10",
+            container: { image: "ghcr.io/rollbear/gcc:10", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "10",
             cxx_standard: 11,
@@ -201,7 +200,7 @@ jobs:
           - {
             name: "Linux GCC 10 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:10",
+            container: { image: "ghcr.io/rollbear/gcc:10", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "10",
             cxx_standard: 14,
@@ -210,7 +209,7 @@ jobs:
           - {
             name: "Linux GCC 10 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:10",
+            container: { image: "ghcr.io/rollbear/gcc:10", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "10",
             cxx_standard: 17,
@@ -219,7 +218,7 @@ jobs:
           - {
             name: "Linux GCC 10 C++20",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:10",
+            container: { image: "ghcr.io/rollbear/gcc:10", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "10",
             cxx_standard: 20,
@@ -230,7 +229,7 @@ jobs:
           - {
             name: "Linux GCC 11 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:11",
+            container: { image: "ghcr.io/rollbear/gcc:11", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "11",
             cxx_standard: 11,
@@ -239,7 +238,7 @@ jobs:
           - {
             name: "Linux GCC 11 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:11",
+            container: { image: "ghcr.io/rollbear/gcc:11", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "11",
             cxx_standard: 14,
@@ -248,7 +247,7 @@ jobs:
           - {
             name: "Linux GCC 11 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:11",
+            container: { image: "ghcr.io/rollbear/gcc:11", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "11",
             cxx_standard: 17,
@@ -257,7 +256,7 @@ jobs:
           - {
             name: "Linux GCC 11 C++20",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:11",
+            container: { image: "ghcr.io/rollbear/gcc:11", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "11",
             cxx_standard: 20,
@@ -268,7 +267,7 @@ jobs:
           - {
             name: "Linux GCC 12 C++11",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:12",
+            container: { image: "ghcr.io/rollbear/gcc:12", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "12",
             cxx_standard: 11,
@@ -277,7 +276,7 @@ jobs:
           - {
             name: "Linux GCC 12 C++14",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:12",
+            container: { image: "ghcr.io/rollbear/gcc:12", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "12",
             cxx_standard: 14,
@@ -286,7 +285,7 @@ jobs:
           - {
             name: "Linux GCC 12 C++17",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:12",
+            container: { image: "ghcr.io/rollbear/gcc:12", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "12",
             cxx_standard: 17,
@@ -295,18 +294,17 @@ jobs:
           - {
             name: "Linux GCC 12 C++20",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/gcc:12",
+            container: { image: "ghcr.io/rollbear/gcc:12", options: "--security-opt seccomp=unconfined" },
             compiler: gcc,
             version: "12",
             cxx_standard: 20,
             cxx_asan: true
           }
-
-          # Clang-3.5
+           # Clang-3.5
           - {
             name: "Linux Clang 3.5 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.5",
+            container: { image: "ghcr.io/rollbear/clang:3.5", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.5",
             cxx_standard: 11,
@@ -316,7 +314,7 @@ jobs:
           - {
             name: "Linux Clang 3.5 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.5",
+            container: { image: "ghcr.io/rollbear/clang:3.5", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.5",
             cxx_standard: 14,
@@ -326,7 +324,7 @@ jobs:
           - {
             name: "Linux Clang 3.5 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.5",
+            container: { image: "ghcr.io/rollbear/clang:3.5", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.5",
             cxx_standard: 11,
@@ -336,7 +334,7 @@ jobs:
           - {
             name: "Linux Clang 3.5 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.5",
+            container: { image: "ghcr.io/rollbear/clang:3.5", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.5",
             cxx_standard: 14,
@@ -347,7 +345,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.6",
+            container: { image: "ghcr.io/rollbear/clang:3.6", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.6",
             cxx_standard: 11,
@@ -357,7 +355,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.6",
+            container: { image: "ghcr.io/rollbear/clang:3.6", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.6",
             cxx_standard: 14,
@@ -367,7 +365,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.6",
+            container: { image: "ghcr.io/rollbear/clang:3.6", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.6",
             cxx_standard: 11,
@@ -377,7 +375,7 @@ jobs:
           - {
             name: "Linux Clang 3.6 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.6",
+            container: { image: "ghcr.io/rollbear/clang:3.6", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.6",
             cxx_standard: 14,
@@ -388,7 +386,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.7",
+            container: { image: "ghcr.io/rollbear/clang:3.7", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.7",
             cxx_standard: 11,
@@ -398,7 +396,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.7",
+            container: { image: "ghcr.io/rollbear/clang:3.7", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.7",
             cxx_standard: 14,
@@ -408,7 +406,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.7",
+            container: { image: "ghcr.io/rollbear/clang:3.7", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.7",
             cxx_standard: 11,
@@ -418,7 +416,7 @@ jobs:
           - {
             name: "Linux Clang 3.7 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.7",
+            container: { image: "ghcr.io/rollbear/clang:3.7", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.7",
             cxx_standard: 14,
@@ -429,7 +427,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.8",
+            container: { image: "ghcr.io/rollbear/clang:3.8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.8",
             cxx_standard: 11,
@@ -439,7 +437,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.8",
+            container: { image: "ghcr.io/rollbear/clang:3.8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.8",
             cxx_standard: 14,
@@ -449,7 +447,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.8",
+            container: { image: "ghcr.io/rollbear/clang:3.8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.8",
             cxx_standard: 11,
@@ -459,7 +457,7 @@ jobs:
           - {
             name: "Linux Clang 3.8 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.8",
+            container: { image: "ghcr.io/rollbear/clang:3.8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.8",
             cxx_standard: 14,
@@ -470,7 +468,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.9",
+            container: { image: "ghcr.io/rollbear/clang:3.9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.9",
             cxx_standard: 11,
@@ -480,7 +478,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.9",
+            container: { image: "ghcr.io/rollbear/clang:3.9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.9",
             cxx_standard: 14,
@@ -490,7 +488,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.9",
+            container: { image: "ghcr.io/rollbear/clang:3.9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.9",
             cxx_standard: 11,
@@ -500,7 +498,7 @@ jobs:
           - {
             name: "Linux Clang 3.9 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:3.9",
+            container: { image: "ghcr.io/rollbear/clang:3.9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "3.9",
             cxx_standard: 14,
@@ -511,7 +509,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:4.0",
+            container: { image: "ghcr.io/rollbear/clang:4.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "4.0",
             cxx_standard: 11,
@@ -521,7 +519,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:4.0",
+            container: { image: "ghcr.io/rollbear/clang:4.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "4.0",
             cxx_standard: 14,
@@ -531,7 +529,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:4.0",
+            container: { image: "ghcr.io/rollbear/clang:4.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "4.0",
             cxx_standard: 11,
@@ -541,7 +539,7 @@ jobs:
           - {
             name: "Linux Clang 4.0 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:4.0",
+            container: { image: "ghcr.io/rollbear/clang:4.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "4.0",
             cxx_standard: 14,
@@ -552,7 +550,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:5.0",
+            container: { image: "ghcr.io/rollbear/clang:5.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "5.0",
             cxx_standard: 11,
@@ -562,7 +560,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:5.0",
+            container: { image: "ghcr.io/rollbear/clang:5.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "5.0",
             cxx_standard: 14,
@@ -572,7 +570,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:5.0",
+            container: { image: "ghcr.io/rollbear/clang:5.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "5.0",
             cxx_standard: 17,
@@ -582,7 +580,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:5.0",
+            container: { image: "ghcr.io/rollbear/clang:5.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "5.0",
             cxx_standard: 11,
@@ -592,7 +590,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:5.0",
+            container: { image: "ghcr.io/rollbear/clang:5.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "5.0",
             cxx_standard: 14,
@@ -602,7 +600,7 @@ jobs:
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:5.0",
+            container: { image: "ghcr.io/rollbear/clang:5.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "5.0",
             cxx_standard: 17,
@@ -614,7 +612,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:6.0",
+            container: { image: "ghcr.io/rollbear/clang:6.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "6.0",
             cxx_standard: 11,
@@ -624,7 +622,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:6.0",
+            container: { image: "ghcr.io/rollbear/clang:6.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "6.0",
             cxx_standard: 14,
@@ -634,7 +632,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:6.0",
+            container: { image: "ghcr.io/rollbear/clang:6.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "6.0",
             cxx_standard: 17,
@@ -644,7 +642,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:6.0",
+            container: { image: "ghcr.io/rollbear/clang:6.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "6.0",
             cxx_standard: 11,
@@ -654,7 +652,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:6.0",
+            container: { image: "ghcr.io/rollbear/clang:6.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "6.0",
             cxx_standard: 14,
@@ -664,7 +662,7 @@ jobs:
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:6.0",
+            container: { image: "ghcr.io/rollbear/clang:6.0", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "6.0",
             cxx_standard: 17,
@@ -676,7 +674,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:8",
+            container: { image: "ghcr.io/rollbear/clang:8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "8",
             cxx_standard: 11,
@@ -686,7 +684,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:8",
+            container: { image: "ghcr.io/rollbear/clang:8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "8",
             cxx_standard: 14,
@@ -696,7 +694,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:8",
+            container: { image: "ghcr.io/rollbear/clang:8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "8",
             cxx_standard: 17,
@@ -706,7 +704,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:8",
+            container: { image: "ghcr.io/rollbear/clang:8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "8",
             cxx_standard: 11,
@@ -716,7 +714,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:8",
+            container: { image: "ghcr.io/rollbear/clang:8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "8",
             cxx_standard: 14,
@@ -726,7 +724,7 @@ jobs:
           - {
             name: "Linux Clang 8 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:8",
+            container: { image: "ghcr.io/rollbear/clang:8", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "8",
             cxx_standard: 17,
@@ -738,7 +736,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:9",
+            container: { image: "ghcr.io/rollbear/clang:9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "9",
             cxx_standard: 11,
@@ -748,7 +746,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:9",
+            container: { image: "ghcr.io/rollbear/clang:9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "9",
             cxx_standard: 14,
@@ -758,7 +756,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:9",
+            container: { image: "ghcr.io/rollbear/clang:9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "9",
             cxx_standard: 17,
@@ -768,7 +766,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:9",
+            container: { image: "ghcr.io/rollbear/clang:9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "9",
             cxx_standard: 11,
@@ -778,7 +776,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:9",
+            container: { image: "ghcr.io/rollbear/clang:9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "9",
             cxx_standard: 14,
@@ -788,7 +786,7 @@ jobs:
           - {
             name: "Linux Clang 9 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:9",
+            container: { image: "ghcr.io/rollbear/clang:9", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "9",
             cxx_standard: 17,
@@ -800,7 +798,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 11,
@@ -810,7 +808,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 14,
@@ -820,7 +818,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 17,
@@ -830,7 +828,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++20 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 20,
@@ -840,7 +838,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 11,
@@ -850,7 +848,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 14,
@@ -860,7 +858,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 17,
@@ -870,7 +868,7 @@ jobs:
           - {
             name: "Linux Clang 10 C++20 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:10",
+            container: { image: "ghcr.io/rollbear/clang:10", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "10",
             cxx_standard: 20,
@@ -882,7 +880,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 11,
@@ -892,7 +890,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 14,
@@ -902,7 +900,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 17,
@@ -912,7 +910,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++20 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 20,
@@ -922,7 +920,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 11,
@@ -932,7 +930,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 14,
@@ -942,7 +940,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 17,
@@ -952,7 +950,7 @@ jobs:
           - {
             name: "Linux Clang 11 C++20 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:11",
+            container: { image: "ghcr.io/rollbear/clang:11", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "11",
             cxx_standard: 20,
@@ -964,7 +962,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 11,
@@ -974,7 +972,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 14,
@@ -984,7 +982,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 17,
@@ -994,7 +992,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++20 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 20,
@@ -1004,7 +1002,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 11,
@@ -1014,7 +1012,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 14,
@@ -1024,7 +1022,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 17,
@@ -1034,7 +1032,7 @@ jobs:
           - {
             name: "Linux Clang 12 C++20 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:12",
+            container: { image: "ghcr.io/rollbear/clang:12", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "12",
             cxx_standard: 20,
@@ -1046,7 +1044,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 11,
@@ -1056,7 +1054,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 14,
@@ -1066,7 +1064,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 17,
@@ -1076,7 +1074,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++20 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 20,
@@ -1086,7 +1084,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 11,
@@ -1096,7 +1094,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 14,
@@ -1106,7 +1104,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 17,
@@ -1116,7 +1114,7 @@ jobs:
           - {
             name: "Linux Clang 13 C++20 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:13",
+            container: { image: "ghcr.io/rollbear/clang:13", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "13",
             cxx_standard: 20,
@@ -1128,7 +1126,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 11,
@@ -1138,7 +1136,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 14,
@@ -1148,7 +1146,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 17,
@@ -1158,7 +1156,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++20 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 20,
@@ -1168,7 +1166,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 11,
@@ -1178,7 +1176,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 14,
@@ -1188,7 +1186,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 17,
@@ -1198,7 +1196,7 @@ jobs:
           - {
             name: "Linux Clang 14 C++20 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:14",
+            container: { image: "ghcr.io/rollbear/clang:14", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "14",
             cxx_standard: 20,
@@ -1210,7 +1208,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++11 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 11,
@@ -1220,7 +1218,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++14 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 14,
@@ -1230,7 +1228,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++17 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 17,
@@ -1240,7 +1238,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++20 / libstdc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 20,
@@ -1250,7 +1248,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++11 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 11,
@@ -1260,7 +1258,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++14 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 14,
@@ -1270,7 +1268,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++17 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 17,
@@ -1280,7 +1278,7 @@ jobs:
           - {
             name: "Linux Clang 15 C++20 / libc++",
             os: ubuntu-latest,
-            container: "ghcr.io/rollbear/clang:15",
+            container: { image: "ghcr.io/rollbear/clang:15", options: "--security-opt seccomp=unconfined" },
             compiler: clang,
             version: "15",
             cxx_standard: 20,
