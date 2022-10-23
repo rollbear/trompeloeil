@@ -311,16 +311,16 @@ jobs:
             cxx_asan: false,
             libcxx: false
           }
-          - {
-            name: "Linux Clang 3.5 C++14 / libstdc++",
-            os: ubuntu-latest,
-            container: { image: "ghcr.io/rollbear/clang:3.5", options: "--security-opt seccomp=unconfined" },
-            compiler: clang,
-            version: "3.5",
-            cxx_standard: 14,
-            cxx_asan: false,
-            libcxx: false
-          }
+          #- {
+          #  name: "Linux Clang 3.5 C++14 / libstdc++",
+          #  os: ubuntu-latest,
+          #  container: { image: "ghcr.io/rollbear/clang:3.5", options: "--security-opt seccomp=unconfined" },
+          #  compiler: clang,
+          #  version: "3.5",
+          #  cxx_standard: 14,
+          #  cxx_asan: false,
+          #  libcxx: false
+          #}
           - {
             name: "Linux Clang 3.5 C++11 / libc++",
             os: ubuntu-latest,
@@ -328,7 +328,7 @@ jobs:
             compiler: clang,
             version: "3.5",
             cxx_standard: 11,
-            cxx_asan: true,
+            cxx_asan: false,
             libcxx: true
           }
           - {
