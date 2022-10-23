@@ -1458,7 +1458,7 @@ jobs:
           if [ "x${{ matrix.config.libcxx }}" == "xtrue" ]
           then
             cxx_flags="${cxx_flags} -stdlib=libc++  -Wno-unused-command-line-argument"
-            link_flags="${link_flags}"
+            link_flags="${link_flags} -lc++abi"
           fi
 
           if [ "x${{ matrix.config.cxx_asan }}" == "xtrue" ]
