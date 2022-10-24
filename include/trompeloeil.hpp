@@ -1148,7 +1148,17 @@ template <typename T>
     template <typename V,
               typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&&, T...>>
-    operator V&&() const { return *this; }
+    operator V&&() const {
+#if !TROMPELOEIL_CLANG || TROMPELOEIL_CLANG_VERSION >= 40000
+      // clang 3.x instantiates the function even when it's only used
+      // for compile time signature checks and never actually called.
+      static_assert(std::is_same<V, void>{},
+                    "Conversion function must only be used in unevaluated context for SFINAE expressions.\n"
+                    "The matcher conversion used in a runtime context.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270");
+#endif
+      return *this;
+    }
 
 #endif
 
