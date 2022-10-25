@@ -1,3 +1,6 @@
+	* Added static_assert to duck_typed_matcher's templatized conversion
+	  function explaining why it should never be instantiated. Issue 270.
+
 	* Added gcc-12 and clang++-15 to the CI build matrix
 
 	* Fixed issue 272: Support Catch2 piecemeal headers.
