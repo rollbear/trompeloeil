@@ -3,7 +3,7 @@
 #
 # Trompeloeil C++ mocking framework
 #
-# Copyright Björn Fahller 2014-2021
+# Copyright Björn Fahller 2014-2022
 #
 #  Use, modification and distribution is subject to the
 #  Boost Software License, Version 1.0. (See accompanying
@@ -12,9 +12,6 @@
 #
 # Project home: https://github.com/rollbear/trompeloeil
 #
-PASS="\033[32mPASS\033[0m"
-FAIL="\033[1;31mFAIL\033[0m"
-FAILURES=0
 
 echo "CXX=$CXX"
 echo "CXXFLAGS=$CXXFLAGS"
@@ -26,22 +23,11 @@ echo "CPPFLAGS=$CPPFLAGS"
 
 #echo "CXXFLAGS is now $CXXFLAGS"
 
+failfile=`mktemp`
 #${CXX} --version
 cd compilation_errors
-SCRIPT='
-s:^//\(.*\)$:\1:g
-t print
-b
-:print
-P
-'
-for f in *.cpp
-do
-  RE=`sed -n "$SCRIPT" < $f`
-  printf "%-45s" $f
-  # echo "RE=$RE"
-  ${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include $f -c 2>&1 | egrep  -q "${RE}" && echo ${PASS} && continue || echo ${FAIL} && false
-  FAILURES=$((FAILURES+$?))
-done
-# echo "FAILURES=$FAILURES"
+files=`ls *.cpp`
+parallel ../verify_compilation_error.sh ::: $files | tee $failfile
+FAILURES=`cat $failfile | grep FAIL | wc -l`
+rm $failfile
 exit $FAILURES
