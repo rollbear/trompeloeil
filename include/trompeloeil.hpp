@@ -1154,7 +1154,7 @@ template <typename T>
       // for compile time signature checks and never actually called.
       static_assert(std::is_same<V, void>{},
                     "Conversion function must only be used in unevaluated context for SFINAE expressions.\n"
-                    "The matcher conversion used in a runtime context.\n"
+                    "The matcher conversion is used in a runtime context.\n"
                     "See https://github.com/rollbear/trompeloeil/issues/270");
 #endif
       return *this;
