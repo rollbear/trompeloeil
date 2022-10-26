@@ -1,3 +1,5 @@
+v43 2022-10-26
+
 	* Added static_assert to duck_typed_matcher's templatized conversion
 	  function explaining why it should never be instantiated. Issue 270.
 
