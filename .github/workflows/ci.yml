@@ -22,7 +22,8 @@ jobs:
             compiler: gcc,
             version: "4.8",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           # GCC-4.9
           - {
@@ -32,7 +33,8 @@ jobs:
             compiler: gcc,
             version: "4.9",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 4.9 C++14",
@@ -41,7 +43,8 @@ jobs:
             compiler: gcc,
             version: "4.9",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           # GCC-5
           - {
@@ -51,7 +54,8 @@ jobs:
             compiler: gcc,
             version: "5",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 5 C++14",
@@ -60,7 +64,8 @@ jobs:
             compiler: gcc,
             version: "5",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 5 C++17",
@@ -69,7 +74,8 @@ jobs:
             compiler: gcc,
             version: "5",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           # GCC-6
           - {
@@ -79,7 +85,8 @@ jobs:
             compiler: gcc,
             version: "6",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 6 C++14",
@@ -88,7 +95,8 @@ jobs:
             compiler: gcc,
             version: "6",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 6 C++17",
@@ -97,7 +105,8 @@ jobs:
             compiler: gcc,
             version: "6",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
 
           # GCC-7
@@ -108,7 +117,8 @@ jobs:
             compiler: gcc,
             version: "7",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 7 C++14",
@@ -117,7 +127,8 @@ jobs:
             compiler: gcc,
             version: "7",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 7 C++17",
@@ -126,7 +137,8 @@ jobs:
             compiler: gcc,
             version: "7",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
 
           # GCC-8
@@ -137,7 +149,8 @@ jobs:
             compiler: gcc,
             version: "8",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 8 C++14",
@@ -146,7 +159,8 @@ jobs:
             compiler: gcc,
             version: "8",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 8 C++17",
@@ -155,7 +169,8 @@ jobs:
             compiler: gcc,
             version: "8",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
 
           # GCC-9
@@ -166,7 +181,8 @@ jobs:
             compiler: gcc,
             version: "9",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 9 C++14",
@@ -175,7 +191,8 @@ jobs:
             compiler: gcc,
             version: "9",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 9 C++17",
@@ -184,7 +201,8 @@ jobs:
             compiler: gcc,
             version: "9",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
 
           # GCC-10
@@ -195,7 +213,8 @@ jobs:
             compiler: gcc,
             version: "10",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 10 C++14",
@@ -204,7 +223,8 @@ jobs:
             compiler: gcc,
             version: "10",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 10 C++17",
@@ -213,7 +233,8 @@ jobs:
             compiler: gcc,
             version: "10",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 10 C++20",
@@ -222,7 +243,8 @@ jobs:
             compiler: gcc,
             version: "10",
             cxx_standard: 20,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
 
           # GCC-11
@@ -233,7 +255,8 @@ jobs:
             compiler: gcc,
             version: "11",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 11 C++14",
@@ -242,7 +265,8 @@ jobs:
             compiler: gcc,
             version: "11",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 11 C++17",
@@ -251,7 +275,8 @@ jobs:
             compiler: gcc,
             version: "11",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 11 C++20",
@@ -260,7 +285,8 @@ jobs:
             compiler: gcc,
             version: "11",
             cxx_standard: 20,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
 
           # GCC-12
@@ -271,7 +297,8 @@ jobs:
             compiler: gcc,
             version: "12",
             cxx_standard: 11,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 2
           }
           - {
             name: "Linux GCC 12 C++14",
@@ -280,7 +307,8 @@ jobs:
             compiler: gcc,
             version: "12",
             cxx_standard: 14,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 12 C++17",
@@ -289,7 +317,8 @@ jobs:
             compiler: gcc,
             version: "12",
             cxx_standard: 17,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
           - {
             name: "Linux GCC 12 C++20",
@@ -298,7 +327,8 @@ jobs:
             compiler: gcc,
             version: "12",
             cxx_standard: 20,
-            cxx_asan: true
+            cxx_asan: true,
+            catch2: 3
           }
            # Clang-3.5
           - {
@@ -309,7 +339,8 @@ jobs:
             version: "3.5",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           #- {
           #  name: "Linux Clang 3.5 C++14 / libstdc++",
@@ -329,7 +360,8 @@ jobs:
             version: "3.5",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 3.5 C++14 / libc++",
@@ -339,7 +371,8 @@ jobs:
             version: "3.5",
             cxx_standard: 14,
             cxx_asan: false,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           # Clang-3.6
           - {
@@ -350,7 +383,8 @@ jobs:
             version: "3.6",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.6 C++14 / libstdc++",
@@ -360,7 +394,8 @@ jobs:
             version: "3.6",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.6 C++11 / libc++",
@@ -370,7 +405,8 @@ jobs:
             version: "3.6",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 3.6 C++14 / libc++",
@@ -379,8 +415,9 @@ jobs:
             compiler: clang,
             version: "3.6",
             cxx_standard: 14,
-            cxx_asan: true,
-            libcxx: true
+            cxx_asan: false,
+            libcxx: true,
+            catch2: 2
           }
           # Clang-3.7
           - {
@@ -391,7 +428,8 @@ jobs:
             version: "3.7",
             cxx_standard: 11,
             cxx_asan: false,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.7 C++14 / libstdc++",
@@ -401,7 +439,8 @@ jobs:
             version: "3.7",
             cxx_standard: 14,
             cxx_asan: false,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.7 C++11 / libc++",
@@ -411,7 +450,8 @@ jobs:
             version: "3.7",
             cxx_standard: 11,
             cxx_asan: false,
-            libcxx: true
+            libcxx: true,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.7 C++14 / libc++",
@@ -421,7 +461,8 @@ jobs:
             version: "3.7",
             cxx_standard: 14,
             cxx_asan: false,
-            libcxx: true
+            libcxx: true,
+            catch2: 2
           }
           # Clang-3.8
           - {
@@ -432,7 +473,8 @@ jobs:
             version: "3.8",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.8 C++14 / libstdc++",
@@ -442,7 +484,8 @@ jobs:
             version: "3.8",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.8 C++11 / libc++",
@@ -452,7 +495,8 @@ jobs:
             version: "3.8",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 3.8 C++14 / libc++",
@@ -462,7 +506,8 @@ jobs:
             version: "3.8",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           # Clang-3.9
           - {
@@ -473,7 +518,8 @@ jobs:
             version: "3.9",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 3.9 C++14 / libstdc++",
@@ -483,7 +529,8 @@ jobs:
             version: "3.9",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 3.9 C++11 / libc++",
@@ -493,7 +540,8 @@ jobs:
             version: "3.9",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 3.9 C++14 / libc++",
@@ -503,7 +551,8 @@ jobs:
             version: "3.9",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           # Clang-4.0
           - {
@@ -514,7 +563,8 @@ jobs:
             version: "4.0",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 4.0 C++14 / libstdc++",
@@ -524,7 +574,8 @@ jobs:
             version: "4.0",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 4.0 C++11 / libc++",
@@ -534,7 +585,8 @@ jobs:
             version: "4.0",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 4.0 C++14 / libc++",
@@ -544,7 +596,8 @@ jobs:
             version: "4.0",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           # Clang-5.0
           - {
@@ -555,7 +608,8 @@ jobs:
             version: "5.0",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 5.0 C++14 / libstdc++",
@@ -565,7 +619,8 @@ jobs:
             version: "5.0",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 5.0 C++17 / libstdc++",
@@ -575,7 +630,8 @@ jobs:
             version: "5.0",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 5.0 C++11 / libc++",
@@ -585,7 +641,8 @@ jobs:
             version: "5.0",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 5.0 C++14 / libc++",
@@ -595,7 +652,8 @@ jobs:
             version: "5.0",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 5.0 C++17 / libc++",
@@ -605,7 +663,8 @@ jobs:
             version: "5.0",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-6.0
@@ -617,7 +676,8 @@ jobs:
             version: "6.0",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 6.0 C++14 / libstdc++",
@@ -627,7 +687,8 @@ jobs:
             version: "6.0",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 6.0 C++17 / libstdc++",
@@ -637,7 +698,8 @@ jobs:
             version: "6.0",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 6.0 C++11 / libc++",
@@ -647,7 +709,8 @@ jobs:
             version: "6.0",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 6.0 C++14 / libc++",
@@ -657,7 +720,8 @@ jobs:
             version: "6.0",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 6.0 C++17 / libc++",
@@ -667,7 +731,8 @@ jobs:
             version: "6.0",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-7
@@ -679,7 +744,8 @@ jobs:
             version: "7",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 7 C++14 / libstdc++",
@@ -689,7 +755,8 @@ jobs:
             version: "7",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 7 C++17 / libstdc++",
@@ -699,7 +766,8 @@ jobs:
             version: "7",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 7 C++11 / libc++",
@@ -709,7 +777,8 @@ jobs:
             version: "7",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 7 C++14 / libc++",
@@ -719,7 +788,8 @@ jobs:
             version: "7",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 7 C++17 / libc++",
@@ -729,7 +799,8 @@ jobs:
             version: "7",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-8
@@ -741,7 +812,8 @@ jobs:
             version: "8",
             cxx_standard: 11,
             cxx_asan: false,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 8 C++14 / libstdc++",
@@ -751,7 +823,8 @@ jobs:
             version: "8",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 8 C++17 / libstdc++",
@@ -761,7 +834,8 @@ jobs:
             version: "8",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 8 C++11 / libc++",
@@ -771,7 +845,8 @@ jobs:
             version: "8",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 8 C++14 / libc++",
@@ -781,7 +856,8 @@ jobs:
             version: "8",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 8 C++17 / libc++",
@@ -791,7 +867,8 @@ jobs:
             version: "8",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-9
@@ -803,7 +880,8 @@ jobs:
             version: "9",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 9 C++14 / libstdc++",
@@ -813,7 +891,8 @@ jobs:
             version: "9",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 9 C++17 / libstdc++",
@@ -823,7 +902,8 @@ jobs:
             version: "9",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 9 C++11 / libc++",
@@ -833,7 +913,8 @@ jobs:
             version: "9",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 9 C++14 / libc++",
@@ -843,7 +924,8 @@ jobs:
             version: "9",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 9 C++17 / libc++",
@@ -853,7 +935,8 @@ jobs:
             version: "9",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-10
@@ -865,7 +948,8 @@ jobs:
             version: "10",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 10 C++14 / libstdc++",
@@ -875,7 +959,8 @@ jobs:
             version: "10",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 10 C++17 / libstdc++",
@@ -885,7 +970,8 @@ jobs:
             version: "10",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 10 C++20 / libstdc++",
@@ -895,7 +981,8 @@ jobs:
             version: "10",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 10 C++11 / libc++",
@@ -905,7 +992,8 @@ jobs:
             version: "10",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 10 C++14 / libc++",
@@ -915,7 +1003,8 @@ jobs:
             version: "10",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 10 C++17 / libc++",
@@ -925,7 +1014,8 @@ jobs:
             version: "10",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 10 C++20 / libc++",
@@ -935,7 +1025,8 @@ jobs:
             version: "10",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-11
@@ -947,7 +1038,8 @@ jobs:
             version: "11",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 11 C++14 / libstdc++",
@@ -957,7 +1049,8 @@ jobs:
             version: "11",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 11 C++17 / libstdc++",
@@ -967,7 +1060,8 @@ jobs:
             version: "11",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 11 C++20 / libstdc++",
@@ -977,7 +1071,8 @@ jobs:
             version: "11",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 11 C++11 / libc++",
@@ -987,7 +1082,8 @@ jobs:
             version: "11",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 11 C++14 / libc++",
@@ -997,7 +1093,8 @@ jobs:
             version: "11",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 11 C++17 / libc++",
@@ -1007,7 +1104,8 @@ jobs:
             version: "11",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 11 C++20 / libc++",
@@ -1017,7 +1115,8 @@ jobs:
             version: "11",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-12
@@ -1029,7 +1128,8 @@ jobs:
             version: "12",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 12 C++14 / libstdc++",
@@ -1039,7 +1139,8 @@ jobs:
             version: "12",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 12 C++17 / libstdc++",
@@ -1049,7 +1150,8 @@ jobs:
             version: "12",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 12 C++20 / libstdc++",
@@ -1059,7 +1161,8 @@ jobs:
             version: "12",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 12 C++11 / libc++",
@@ -1069,7 +1172,8 @@ jobs:
             version: "12",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 12 C++14 / libc++",
@@ -1079,7 +1183,8 @@ jobs:
             version: "12",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 12 C++17 / libc++",
@@ -1089,7 +1194,8 @@ jobs:
             version: "12",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 12 C++20 / libc++",
@@ -1099,7 +1205,8 @@ jobs:
             version: "12",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-13
@@ -1111,7 +1218,8 @@ jobs:
             version: "13",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 13 C++14 / libstdc++",
@@ -1121,7 +1229,8 @@ jobs:
             version: "13",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 13 C++17 / libstdc++",
@@ -1131,7 +1240,8 @@ jobs:
             version: "13",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 13 C++20 / libstdc++",
@@ -1141,7 +1251,8 @@ jobs:
             version: "13",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 13 C++11 / libc++",
@@ -1151,7 +1262,8 @@ jobs:
             version: "13",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 13 C++14 / libc++",
@@ -1161,7 +1273,8 @@ jobs:
             version: "13",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 13 C++17 / libc++",
@@ -1171,7 +1284,8 @@ jobs:
             version: "13",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 13 C++20 / libc++",
@@ -1181,7 +1295,8 @@ jobs:
             version: "13",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-14
@@ -1193,7 +1308,8 @@ jobs:
             version: "14",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 14 C++14 / libstdc++",
@@ -1203,7 +1319,8 @@ jobs:
             version: "14",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 14 C++17 / libstdc++",
@@ -1213,7 +1330,8 @@ jobs:
             version: "14",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 14 C++20 / libstdc++",
@@ -1223,7 +1341,8 @@ jobs:
             version: "14",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 14 C++11 / libc++",
@@ -1233,7 +1352,8 @@ jobs:
             version: "14",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 14 C++14 / libc++",
@@ -1243,7 +1363,8 @@ jobs:
             version: "14",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 14 C++17 / libc++",
@@ -1253,7 +1374,8 @@ jobs:
             version: "14",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 14 C++20 / libc++",
@@ -1263,7 +1385,8 @@ jobs:
             version: "14",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: true
+            libcxx: true,
+            catch2: 3
           }
 
           # Clang-15
@@ -1275,7 +1398,8 @@ jobs:
             version: "15",
             cxx_standard: 11,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 2
           }
           - {
             name: "Linux Clang 15 C++14 / libstdc++",
@@ -1285,7 +1409,8 @@ jobs:
             version: "15",
             cxx_standard: 14,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 15 C++17 / libstdc++",
@@ -1295,7 +1420,8 @@ jobs:
             version: "15",
             cxx_standard: 17,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 15 C++20 / libstdc++",
@@ -1305,7 +1431,8 @@ jobs:
             version: "15",
             cxx_standard: 20,
             cxx_asan: true,
-            libcxx: false
+            libcxx: false,
+            catch2: 3
           }
           - {
             name: "Linux Clang 15 C++11 / libc++",
@@ -1314,8 +1441,9 @@ jobs:
             compiler: clang,
             version: "15",
             cxx_standard: 11,
-            cxx_asan: true,
-            libcxx: true
+            cxx_asan: false,
+            libcxx: true,
+            #catch2: 2
           }
           - {
             name: "Linux Clang 15 C++14 / libc++",
@@ -1324,8 +1452,9 @@ jobs:
             compiler: clang,
             version: "15",
             cxx_standard: 14,
-            cxx_asan: true,
-            libcxx: true
+            cxx_asan: false,
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 15 C++17 / libc++",
@@ -1334,8 +1463,9 @@ jobs:
             compiler: clang,
             version: "15",
             cxx_standard: 17,
-            cxx_asan: true,
-            libcxx: true
+            cxx_asan: false,
+            libcxx: true,
+            catch2: 3
           }
           - {
             name: "Linux Clang 15 C++20 / libc++",
@@ -1344,8 +1474,9 @@ jobs:
             compiler: clang,
             version: "15",
             cxx_standard: 20,
-            cxx_asan: true,
-            libcxx: true
+            cxx_asan: false,
+            libcxx: true,
+            catch2: 3
           }
 
           # AppleClang
@@ -1456,25 +1587,33 @@ jobs:
       - name: Configure
         shell: bash
         run: |
+          STD=${{ matrix.config.cxx_standard }}
           if [ "x${{ matrix.config.libcxx }}" == "xtrue" ]
           then
             cxx_flags="${cxx_flags} -stdlib=libc++  -Wno-unused-command-line-argument"
             link_flags="${link_flags} -lc++abi"
+            STDLIB="libc++"
           fi
 
           if [ "x${{ matrix.config.cxx_asan }}" == "xtrue" ]
           then
             cxx_flags="${cxx_flags} -fno-omit-frame-pointer"
           fi
-
+          if [ -n "${{ matrix.config.catch2 }}" ]
+          then
+            CATCH=${{ matrix.config.catch2 }}
+            CATCH_PREFIX=/usr/local/catch2-${CATCH}-c++${STD}${STDLIB}
+          fi
           cmake \
               -S . \
               -B build \
               -D CMAKE_BUILD_TYPE=Debug \
               -D CMAKE_VERBOSE_MAKEFILE=ON \
-              -D CXX_STANDARD:STRING=${{ matrix.config.cxx_standard }} \
+              -D CXX_STANDARD:STRING=${STD} \
               -D "CMAKE_CXX_FLAGS:STRING=${cxx_flags}" \
               -D "CMAKE_EXE_LINKER_FLAGS:STRING=${link_flags}" \
+              -D TROMPELOEIL_CATCH2_PREBUILT="${CATCH}" \
+              -D TROMPELOEIL_CATCH2_PREFIX="${CATCH_PREFIX}" \
               -D SANITIZE=${{matrix.config.cxx_asan}} \
               ${{ matrix.config.cmake_args }} \
               ${extra_cmake_args}

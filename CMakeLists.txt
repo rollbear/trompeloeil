@@ -39,6 +39,9 @@ option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ${TROMPELOEIL_INSTALL_TA
 
 if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
+  option(TROMPELOEIL_CATCH2_PREBUILT "Major ersion of prebuilt catch2")
+  option(TROMPELOEIL_CATCH2_PREFIX "Path to catch2 installation")
+
   if (${CXX_STANDARD})
     set(CMAKE_CXX_STANDARD ${CXX_STANDARD})
   else()
@@ -48,24 +51,26 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
   set(CATCH_DIR ${CMAKE_CURRENT_BINARY_DIR}/catch)
-  if(NOT EXISTS ${CATCH_DIR}/catch.hpp)
-    if (NOT EXISTS ${CATCH_DIR})
-      make_directory(${CATCH_DIR})
-    endif()
-    file(
-      DOWNLOAD
-        https://github.com/catchorg/Catch2/releases/download/v2.13.7/catch.hpp  ${CATCH_DIR}/catch.hpp
-      STATUS
-        status
-      LOG
-        log
-    )
-    list(GET status 0 status_code)
-    list(GET status 1 status_string)
+  if(NOT "${TROMPELOEIL_CATCH2_PREBUILT}")
+    if (NOT EXISTS "${CATCH_DIR}/catch2/catch.hpp")
+      if (NOT EXISTS ${CATCH_DIR})
+        make_directory("${CATCH_DIR}/catch2")
+      endif()
+      file(
+        DOWNLOAD
+          https://github.com/catchorg/Catch2/releases/download/v2.13.7/catch.hpp  ${CATCH_DIR}/catch2/catch.hpp
+        STATUS
+          status
+        LOG
+          log
+      )
+      list(GET status 0 status_code)
+      list(GET status 1 status_string)
 
-    if(NOT status_code EQUAL 0)
-      message(FATAL_ERROR "error downloading catch: ${status_string}"
-        "${log}")
+      if(NOT status_code EQUAL 0)
+        message(FATAL_ERROR "error downloading catch: ${status_string}"
+          "${log}")
+      endif()
     endif()
   endif()
 
@@ -236,8 +241,7 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     EXCLUDE_FROM_ALL
     test/compiling_tests.cpp
     test/compiling_tests_11.cpp
-    test/compiling_tests_14.cpp
-    include/catch2/trompeloeil.hpp)
+    test/compiling_tests_14.cpp)
 
   target_include_directories(
     self_test
@@ -262,6 +266,38 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
       trompeloeil
   )
 
+
+  if(${TROMPELOEIL_CATCH2_PREBUILT})
+    target_compile_definitions(
+      self_test
+      PUBLIC
+        CATCH2_VERSION=${TROMPELOEIL_CATCH2_PREBUILT}
+    )
+    target_link_libraries(
+      self_test
+      PUBLIC
+        Catch2Main
+    )
+    if (${TROMPELOEIL_CATCH2_PREBUILT} STREQUAL "3")
+      target_link_libraries(
+        self_test
+        PUBLIC
+          Catch2
+      )
+    endif()
+  endif()
+  if(TROMPELOEIL_CATCH2_PREFIX)
+    target_link_directories(
+      self_test
+      PRIVATE
+        "${TROMPELOEIL_CATCH2_PREFIX}/lib"
+    )
+    target_include_directories(
+      self_test
+      PRIVATE
+        ${TROMPELOEIL_CATCH2_PREFIX}/include
+  )
+  endif()
   find_package(Threads REQUIRED)
 
   add_executable(
