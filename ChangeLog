@@ -1,3 +1,6 @@
+	* Bumped required CMake version to 3.14 or later. Thank you Luke Dennis
+	  for reporting.
+
 v43 2022-10-26
 
 	* Added static_assert to duck_typed_matcher's templatized conversion
