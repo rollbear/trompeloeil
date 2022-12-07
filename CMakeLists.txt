@@ -50,29 +50,44 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
   set(CMAKE_CXX_STANDARD_REQUIRED YES)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
-  set(CATCH_DIR ${CMAKE_CURRENT_BINARY_DIR}/catch)
-  if(NOT "${TROMPELOEIL_CATCH2_PREBUILT}")
-    if (NOT EXISTS "${CATCH_DIR}/catch2/catch.hpp")
-      if (NOT EXISTS ${CATCH_DIR})
-        make_directory("${CATCH_DIR}/catch2")
-      endif()
-      file(
-        DOWNLOAD
-          https://github.com/catchorg/Catch2/releases/download/v2.13.7/catch.hpp  ${CATCH_DIR}/catch2/catch.hpp
-        STATUS
-          status
-        LOG
-          log
-      )
-      list(GET status 0 status_code)
-      list(GET status 1 status_string)
+  if (${CMAKE_CXX_STANDARD} GREATER 11)
+    find_package(Catch2 3 QUIET)
+  endif()
+  if (NOT Catch2_FOUND)
+    find_package(Catch2 2...<3 QUIET)
+    if (NOT Catch2_FOUND)
+      set(CATCH_DIR ${CMAKE_CURRENT_BINARY_DIR}/catch)
+      if (NOT EXISTS "${CATCH_DIR}/catch2/catch.hpp")
+        if (NOT EXISTS ${CATCH_DIR})
+         FILE(MAKE_DIRECTORY "${CATCH_DIR}/catch2")
+        endif()
+        file(
+          DOWNLOAD
+            https://github.com/catchorg/Catch2/releases/download/v2.13.7/catch.hpp  ${CATCH_DIR}/catch2/catch.hpp
+          STATUS
+            status
+          LOG
+            log
+        )
+        list(GET status 0 status_code)
+        list(GET status 1 status_string)
 
-      if(NOT status_code EQUAL 0)
-        message(FATAL_ERROR "error downloading catch: ${status_string}"
-          "${log}")
+        if(NOT status_code EQUAL 0)
+          message(FATAL_ERROR "error downloading catch: ${status_string}"
+            "${log}")
+        endif()
       endif()
+      add_library(Catch2 INTERFACE)
+      add_library(Catch2::Catch2 ALIAS Catch2)
+      target_include_directories(Catch2 INTERFACE "${CATCH_DIR}")
+      set(Catch2_VERSION_MAJOR 2)
     endif()
   endif()
+  if (TARGET Catch2::Catch2WithMain)
+    set(CATCH2_MAIN Catch2::Catch2WithMain)
+    add_compile_definitions(CATCH2_MAIN)
+  endif()
+  add_compile_definitions(CATCH2_VERSION=${Catch2_VERSION_MAJOR})
 
   # Assumptions:
   # Clang and GNU compilers run on Linux or Linux-like platforms.
@@ -243,11 +258,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     test/compiling_tests_11.cpp
     test/compiling_tests_14.cpp)
 
-  target_include_directories(
-    self_test
-    PRIVATE
-    ${CATCH_DIR}
-  )
 
   if (SANITIZE AND NOT APPLE)
     set_target_properties(
@@ -264,40 +274,11 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
     self_test
     PUBLIC
       trompeloeil
+      ${CATCH2_MAIN}
+      Catch2::Catch2
   )
 
 
-  if(${TROMPELOEIL_CATCH2_PREBUILT})
-    target_compile_definitions(
-      self_test
-      PUBLIC
-        CATCH2_VERSION=${TROMPELOEIL_CATCH2_PREBUILT}
-    )
-    target_link_libraries(
-      self_test
-      PUBLIC
-        Catch2Main
-    )
-    if (${TROMPELOEIL_CATCH2_PREBUILT} STREQUAL "3")
-      target_link_libraries(
-        self_test
-        PUBLIC
-          Catch2
-      )
-    endif()
-  endif()
-  if(TROMPELOEIL_CATCH2_PREFIX)
-    target_link_directories(
-      self_test
-      PRIVATE
-        "${TROMPELOEIL_CATCH2_PREFIX}/lib"
-    )
-    target_include_directories(
-      self_test
-      PRIVATE
-        ${TROMPELOEIL_CATCH2_PREFIX}/include
-  )
-  endif()
   find_package(Threads REQUIRED)
 
   add_executable(

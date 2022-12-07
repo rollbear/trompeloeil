@@ -15,14 +15,17 @@
 #define TROMPELOEIL_SANITY_CHECKS
 
 #include <trompeloeil.hpp>
-#ifndef CATCH2_VERSION
+#if not defined(CATCH2_VERSION) || CATCH2_VERSION == 2
+#ifndef CATCH2_MAIN
 #define CATCH_CONFIG_MAIN
 #endif
-#if defined(CATCH2_VERSION) && CATCH2_VERSION == 3
-#include <catch2/catch_test_macros.hpp>
-#else
 #include <catch2/catch.hpp>
+#else
+#if CATCH2_VERSION == 3
+#include <catch2/catch_test_macros.hpp>
 #endif
+#endif
+
 #include <algorithm>
 #include <cstddef>
 #include <memory>
