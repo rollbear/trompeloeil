@@ -20,6 +20,7 @@ A thread-safe header-only mocking framework for C++11/14 using the Boost Softwar
 
 - [Integrating with unit test frame works](docs/CookBook.md/#unit_test_frameworks)
 - [Introduction](https://playfulprogramming.blogspot.com/2014/12/introducing-trompeloeil-c-mocking.html)
+- [Building and running the self test suite](#self_test)
 - [How to contribute](#contribute)
 - [Compiler compatibility](#compilers)
 - [External tools](#tools)
@@ -95,6 +96,35 @@ TEST(exercise_interface_func)
 
   // all the above expectations must be fulfilled here
 }
+```
+
+# <A name="self_test"/> Building and running the self test suite
+
+To build the self test suite run `cmake` with Debug. Use the options `CXX_STANDARD`
+to select which C++ standard to test, and `SANITIZE` to select sanitizers to
+build with.
+
+```
+cmake -B build_dir \
+      -D CMAKE_BUILD_TYPE=Debug \
+      -D CXX_STANDARD=17 \
+      -D SANITIZE=Address,Undefined \
+      <trompeloeil source dir>
+```
+
+If the build finds a CMake package for `Catch2` it will use that, otherwise it
+will download a header-only version of Catch2 v2.x.
+
+Build the self test programs explicitly, they are excluded from target `ALL`.
+
+```
+cmake --build build_dir -t self_test thread_terror custom_recursive_mutex
+```
+
+Then run the built binaries:
+
+```
+./build_dir/self_test && ./build_dir/thread_terror && ./build_dir/custom_recursive_mutex
 ```
 
 # <A name="contribute"/> How to contribute
