@@ -922,7 +922,7 @@ like this:
 ```Cpp
 struct M
 {
-  MAKE_MOCK2(make, (std::pair<int,int>(int,int)));
+  MAKE_MOCK2(make, (std::pair<int,int>)(int,int));
 };
 ```
 
