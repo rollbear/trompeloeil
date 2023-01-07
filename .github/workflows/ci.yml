@@ -1362,13 +1362,13 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          ./build/self_test
+          ./build/test/self_test
 
       - name: Collect coverage
         if: (startsWith(matrix.config.name, 'Linux'))
         shell: bash
         run: |
-          kcov --skip-solibs --include-pattern=trompeloeil.hpp ./coverage ./build/self_testt || true
+          kcov --skip-solibs --include-pattern=trompeloeil.hpp ./coverage ./build/test/self_testt || true
 
       - name: Upload coverage
         if: startsWith(matrix.config.name, 'Linux') && github.repository == 'rollbear/trompeloeil'
