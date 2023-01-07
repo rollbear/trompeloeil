@@ -1500,7 +1500,7 @@ jobs:
         if: (startsWith(matrix.config.name, 'Linux'))
         shell: bash
         run: |
-          cmake --build build --target run_coverage || true
+          kcov --skip-solibs --include-pattern=trompeloeil.hpp ./coverage ./build/self_testt || true
 
       - name: Upload coverage
         if: startsWith(matrix.config.name, 'Linux') && github.repository == 'rollbear/trompeloeil'

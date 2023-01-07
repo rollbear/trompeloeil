@@ -396,41 +396,6 @@ if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
   endif()
 
-  # Shameless hack to get target to work on Windows.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-
-    add_custom_target(
-      run_self_test
-      COMMAND
-        ${CMAKE_CURRENT_BINARY_DIR}/self_test
-      DEPENDS
-        self_test
-    )
-
-  else()
-
-    add_custom_target(
-      run_self_test
-      COMMAND
-        ${CMAKE_CURRENT_BINARY_DIR}/Debug/self_test
-      DEPENDS
-        self_test
-    )
-
-  endif()
-
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-
-    add_custom_target(
-      run_coverage
-      COMMAND
-        kcov --skip-solibs --include-pattern=trompeloeil.hpp ./coverage ${CMAKE_CURRENT_BINARY_DIR}/self_test
-      DEPENDS
-        self_test
-    )
-
-  endif()
-
 endif() # MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug
 
 if (TROMPELOEIL_INSTALL_TARGETS)
