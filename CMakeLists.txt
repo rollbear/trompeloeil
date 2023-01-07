@@ -39,7 +39,7 @@ option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ${TROMPELOEIL_INSTALL_TA
 
 if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
 
-  option(TROMPELOEIL_CATCH2_PREBUILT "Major ersion of prebuilt catch2")
+  option(TROMPELOEIL_CATCH2_PREBUILT "Major version of prebuilt catch2")
   option(TROMPELOEIL_CATCH2_PREFIX "Path to catch2 installation")
 
   if (${CXX_STANDARD})
