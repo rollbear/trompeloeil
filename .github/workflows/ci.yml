@@ -1425,12 +1425,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Configure MSVC console (Windows)
+        if: startsWith(matrix.config.os, 'windows')
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Set MacOS compiler env
         id: set_macos_cc_cxx
         if: startsWith(matrix.config.os, 'macos')
         shell: bash
         run: |
-          brew install parallel
+          env brew install parallel ninja
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
 
@@ -1479,7 +1483,8 @@ jobs:
               -D CMAKE_EXE_LINKER_FLAGS:STRING="${link_flags}" \
               -D SANITIZE=${{matrix.config.cxx_asan}} \
               ${{ matrix.config.cmake_args }} \
-              ${extra_cmake_args}
+              ${extra_cmake_args} \
+              -G Ninja
 
       - name: Build
         shell: bash
@@ -1489,7 +1494,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          cmake --build build --target run_self_test
+          ./build/self_test
 
       - name: Collect coverage
         if: (startsWith(matrix.config.name, 'Linux'))
