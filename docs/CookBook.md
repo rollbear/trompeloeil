@@ -1857,7 +1857,7 @@ namespace trompeloeil {
       for (auto v : b) { os << int(v) << " "; }
       os << "}";
     }
-};
+  };
 }
 ```
 
@@ -1883,7 +1883,7 @@ namespace trompeloeil {
       for (auto v : b) { os << v << " "; }
       os << "}";
     }
-};
+  };
 }
 ```
 
