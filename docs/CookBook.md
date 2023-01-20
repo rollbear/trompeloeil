@@ -2079,7 +2079,7 @@ which creates the matcher.
 
       // stored value
       std::vector<int>(elements)
-    )
+    );
   }
 ```
 
