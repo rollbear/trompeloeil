@@ -1086,7 +1086,17 @@ namespace trompeloeil
 #endif
               >
     operator T&&()
-    const;
+    const
+    {
+#if !TROMPELOEIL_CLANG || TROMPELOEIL_CLANG_VERSION >= 40000
+
+      static_assert(std::is_same<T, void>{},
+                    "Getting a value from wildcard is not allowed.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                    "and https://github.com/rollbear/trompeloeil/issues/290");
+#endif
+      return *this;
+    }
 
     template <typename T
 #if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
@@ -1094,8 +1104,14 @@ namespace trompeloeil
 #endif
               >
     operator T&()
-    volatile const; // less preferred than T&& above
-
+    volatile const // less preferred than T&& above
+    {
+      static_assert(std::is_same<T, void>{},
+                    "Getting a value from wildcard is not allowed.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                    "and https://github.com/rollbear/trompeloeil/issues/290");
+      return *this;
+    }
     template <typename T>
     constexpr
     bool
@@ -1119,21 +1135,50 @@ template <typename T>
   template <typename T>
   struct typed_matcher : matcher
   {
-    operator T() const { return {}; }
+    template <bool b = false>
+    operator T() const {
+        static_assert(b,
+                      "Getting a value from a typed matcher is not allowed.\n"
+                      "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                      "and https://github.com/rollbear/trompeloeil/issues/290");
+        return {};
+    }
   };
 
   template <>
   struct typed_matcher<std::nullptr_t> : matcher
   {
-    template <typename T, typename = decltype(std::declval<T>() == nullptr)>
-    operator T&&() const;
+    template <typename T,
+              typename = decltype(std::declval<T>() == nullptr)>
+    operator T&&() const
+    {
+      static_assert(std::is_same<T, void>{},
+                    "Getting a value from a typed matcher is not allowed.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                    "https://github.com/rollbear/trompeloeil/issues/290");
+      return *this;
+    }
 
     template <typename T,
               typename = decltype(std::declval<T>() == nullptr)>
-    operator T&()const volatile;
+    operator T&()const volatile
+    {
+      static_assert(std::is_same<T, void>{},
+                    "Getting a value from a typed matcher is not allowed.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                    "and https://github.com/rollbear/trompeloeil/issues/290");
+      return *this;
+    }
 
     template <typename T, typename C>
-    operator T C::*() const;
+    operator T C::*() const
+    {
+      static_assert(std::is_same<C, void>{},
+          "Getting a value from a typed matcher is not allowed.\n"
+          "See https://github.com/rollbear/trompeloeil/issues/270\n"
+          "and https://github.com/rollbear/trompeloeil/issues/290");
+      return *this;
+    }
   };
 
   template <typename Pred, typename ... T>
@@ -1153,9 +1198,9 @@ template <typename T>
       // clang 3.x instantiates the function even when it's only used
       // for compile time signature checks and never actually called.
       static_assert(std::is_same<V, void>{},
-                    "Conversion function must only be used in unevaluated context for SFINAE expressions.\n"
-                    "The matcher conversion is used in a runtime context.\n"
-                    "See https://github.com/rollbear/trompeloeil/issues/270");
+                    "Getting a value from a duck typed matcher is not allowed.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                    "and https://github.com/rollbear/trompeloeil/issues/290");
 #endif
       return *this;
     }
@@ -1165,7 +1210,15 @@ template <typename T>
     template <typename V,
               typename = detail::enable_if_t<!is_matcher<V>{}>,
               typename = invoke_result_type<Pred, V&, T...>>
-    operator V&() const volatile;
+    operator V&() const volatile
+    {
+      static_assert(std::is_same<V, void>{},
+                    "Getting a value from a duck typed matcher is not allowed.\n"
+                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                    "and https://github.com/rollbear/trompeloeil/issues/290");
+
+      return *this;
+    }
   };
 
   template <typename T>
