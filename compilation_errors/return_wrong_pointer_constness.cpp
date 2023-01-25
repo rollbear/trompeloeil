@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014,2015,2017
+ * Copyright Björn Fahller
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -11,7 +11,8 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//RETURN const\* from function returning pointer to non-const
+// exception: c++11
+// pass: RETURN const\* from function returning pointer to non-const
 
 #include <trompeloeil.hpp>
 

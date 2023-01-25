@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2018
+ * Copyright Björn Fahller
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//array parameter type decays to pointer type for ANY
+// pass: array parameter type decays to pointer type for ANY
 
 #include <trompeloeil.hpp>
 

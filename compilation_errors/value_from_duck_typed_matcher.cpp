@@ -11,7 +11,8 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//value from a duck typed matcher
+// exception: clang++-3
+// pass: value from a duck typed matcher
 
 #include <trompeloeil.hpp>
 

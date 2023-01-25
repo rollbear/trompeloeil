@@ -11,7 +11,8 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//value from wildcard
+// exception: clang++-3
+// pass: value from wildcard
 
 #include <trompeloeil.hpp>
 

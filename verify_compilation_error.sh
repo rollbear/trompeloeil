@@ -13,17 +13,24 @@
 # Project home: https://github.com/rollbear/trompeloeil
 #
 
-PASS="\033[32mPASS\033[0m"
-FAIL="\033[1;31mFAIL\033[0m"
-
+get_rule ()
+{
 SCRIPT='
-s:^//\(.*\)$:\1:g
+s|^// '$1': \(.*\)$|\1|g
 t print
 b
 :print
 P
 '
+sed -n "$SCRIPT" < $2
+}
+PASS="\033[32mPASS\033[0m"
+FAIL="\033[1;31mFAIL\033[0m"
+
 f=$1
-RE=`sed -n "$SCRIPT" < $f`
-# echo "RE=$RE"
-${CXX} ${CXXFLAGS} ${CPPFLAGS} -I ../include $f -c 2>&1 | egrep  -q "${RE}" && printf "%-45s ${PASS}\n" $f && continue || printf "%-45s ${FAIL}\n" $f && false
+EXCEPTION_RE=`get_rule "exception" $f`
+COMPILER="${CXX} ${CXXFLAGS} ${CPPFLAGS}"
+
+[ -n "$EXCEPTION_RE" ] && echo ${COMPILER} | grep -q -e "$EXCEPTION_RE" && exit 0
+PASS_RE=`get_rule "pass" $f`
+${COMPILER} -I ../include $f -c 2>&1 | egrep  -q "${PASS_RE}" && printf "%-45s ${PASS}\n" $f && continue || printf "%-45s ${FAIL}\n" $f && false

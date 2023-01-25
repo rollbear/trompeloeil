@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//value from a typed matcher
+// pass: value from a typed matcher
 
 #include <trompeloeil.hpp>
 

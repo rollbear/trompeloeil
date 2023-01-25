@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014,2015,2017
+ * Copyright Björn Fahller
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -11,7 +11,8 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//RETURN value is not convertible to the return type of the function
+// exception: c++11
+// pass: RETURN value is not convertible to the return type of the function
 
 #include <trompeloeil.hpp>
 

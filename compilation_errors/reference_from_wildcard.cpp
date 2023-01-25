@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//value from wildcard
+// pass: value from wildcard
 
 #include <trompeloeil.hpp>
 

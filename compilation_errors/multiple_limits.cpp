@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2014,2017
+ * Copyright Björn Fahller
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//Only one TIMES call limit is allowed, but it can express an interval
+// pass: Only one TIMES call limit is allowed, but it can express an interval
 #include <trompeloeil.hpp>
 
 struct MS

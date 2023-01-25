@@ -1,7 +1,7 @@
 /*
  * Trompeloeil C++ mocking framework
  *
- * Copyright Björn Fahller 2015,2017
+ * Copyright Björn Fahller
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-//(cannot (initialize|convert)|no known conversion).*trompeloeil::param_list_t<int.*\(int, int, int\), 1.*>
+// pass: (cannot (initialize|convert)|no known conversion).*trompeloeil::param_list_t<int.*\(int, int, int\), 1.*>
 
 #include <trompeloeil.hpp>
 
