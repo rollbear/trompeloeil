@@ -737,6 +737,18 @@ namespace trompeloeil
 
 # endif
 
+  template <typename T>
+  class mini_span
+  {
+  public:
+    mini_span(T* address, size_t size) noexcept : begin_(address), end_(address + size) {}
+    T* begin() const noexcept { return begin_; }
+    T* end() const noexcept { return end_; }
+  private:
+    T* begin_;
+    T* end_;
+  };
+
   class specialized;
 
   template <typename T>
@@ -1438,16 +1450,35 @@ template <typename T>
     {
       os << "{ ";
       const char* sep = "";
-      auto const end = std::end(t);
-      for (auto i = std::begin(t); i != end; ++i)
-      {
-        os << sep;
-        ::trompeloeil::print(os, *i);
-        sep = ", ";
-      }
+      using element_type = decltype(*std::begin(t));
+      std::for_each(std::begin(t), std::end(t),
+                    [&os, &sep](element_type element) {
+                      os << sep;
+                      ::trompeloeil::print(os, element);
+                      sep = ", ";
+                    });
       os << " }";
     }
   };
+
+  inline void hexdump(const void* begin, size_t size, std::ostream& os)
+  {
+    stream_sentry s(os);
+    os << size << "-byte object={";
+    if (size > 8)
+    {
+      os << '\n';
+    }
+    os << std::setfill('0') << std::hex;
+    mini_span<uint8_t const> bytes(static_cast<uint8_t const*>(begin), size);
+    size_t byte_number = 0;
+    std::for_each(bytes.begin(), bytes.end(),  [&os, &byte_number](unsigned byte) {
+      os << " 0x" << std::setw(2) << std::right << byte;
+      if ((byte_number & 0xf) == 0xf) os << '\n';
+      ++byte_number;
+    });
+    os << " }";
+  }
 
   template <typename T>
   struct streamer<T, false, false>
@@ -1458,18 +1489,7 @@ template <typename T>
       std::ostream& os,
       T const &t)
     {
-      stream_sentry s(os);
-      static const char *linebreak = "\n";
-      os << sizeof(T) << "-byte object={";
-      os << (linebreak + (sizeof(T) <= 8)); // stupid construction silences VS2015 warning
-      os << std::setfill('0') << std::hex;
-      auto p = reinterpret_cast<uint8_t const*>(&t);
-      for (size_t i = 0; i < sizeof(T); ++i)
-      {
-        os << " 0x" << std::setw(2) << std::right << unsigned(p[i]);
-        if ((i & 0xf) == 0xf) os << '\n';
-      }
-      os << " }";
+      hexdump(&t, sizeof(T), os);
     }
   };
 

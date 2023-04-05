@@ -784,15 +784,16 @@ TEST_CASE_METHOD(
 {
   mock_c obj;
 
-  std::unique_ptr<trompeloeil::expectation> e[2];
+  std::unique_ptr<trompeloeil::expectation> e0;
+  std::unique_ptr<trompeloeil::expectation> e1;
   {
 
     trompeloeil::sequence s;
 
-    e[0] = NAMED_REQUIRE_CALL_V(obj, getter(ANY(int)),
+    e0 = NAMED_REQUIRE_CALL_V(obj, getter(ANY(int)),
       .IN_SEQUENCE(s)
       .RETURN(0));
-    e[1] = NAMED_REQUIRE_CALL_V(obj, foo(_),
+    e1 = NAMED_REQUIRE_CALL_V(obj, foo(_),
       .IN_SEQUENCE(s));
   }
 
