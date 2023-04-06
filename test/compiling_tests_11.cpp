@@ -243,7 +243,7 @@ TEST_CASE_METHOD(
   }
   catch (reported)
   {
-    auto re = R":(Sequence mismatch.*\"seq2\".*matching.*obj.func\(_,_\).*has obj.count\(\) at.*first):";
+    auto re = R":(Sequence mismatch.*\"seq2\".*matching.*obj.func\(_,_\).*\nSequence.*has obj.count\(\) at.*first):";
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     REQUIRE(is_match(msg, re));
@@ -309,7 +309,7 @@ TEST_CASE_METHOD(
   catch (reported)
   {
     REQUIRE(!reports.empty());
-    auto re = R":(Sequence mismatch.*\"seq\".*matching.*obj2.count\(\).*has obj2\.func\(_,_\) at.*first):";
+    auto re = R":(Sequence mismatch.*\"seq\".*matching.*obj2.count\(\).*\n.*has obj2\.func\(_,_\) at.*first):";
     REQUIRE(is_match(reports.front().msg, re));
   }
 }
@@ -348,7 +348,7 @@ TEST_CASE_METHOD(
   catch (reported)
   {
     REQUIRE(!reports.empty());
-    auto re = R":(Sequence mismatch.*seq2.*of obj2\.count\(\).*has obj1.count\(\).*first):";
+    auto re = R":(Sequence mismatch.*seq2.*of obj2\.count\(\).*\n.*has obj1.count\(\).*first):";
     REQUIRE(is_match(reports.front().msg, re));
   }
 }
@@ -471,7 +471,7 @@ TEST_CASE_METHOD(
   catch (reported)
   {
     REQUIRE(reports.size() >= 1U);
-    auto re = R":(Sequence mismatch.*seq.*of obj\.count\(\).*has obj\.func\(_, _\).*first):";
+    auto re = R":(Sequence mismatch.*seq.*of obj\.count\(\).*\nSequence.*has obj\.func\(_, _\).*first):";
     INFO("report=" << reports.front().msg);
     REQUIRE(is_match(reports.front().msg,  re));
   }
@@ -637,7 +637,7 @@ TEST_CASE_METHOD(
   }
   catch (reported)
   {
-    auto re = R":(Sequence mismatch.*seq.*of obj\.getter\(2\).*has obj\.getter\(3\).*first):";
+    auto re = R":(Sequence mismatch.*seq.*of obj\.getter\(2\).*\nSequence.*has obj\.getter\(3\).*first):";
     INFO("report=" << reports.front().msg);
     REQUIRE(is_match(reports.front().msg,  re));
     auto& first = reports.front();
@@ -674,7 +674,7 @@ TEST_CASE_METHOD(
   }
   catch (reported)
   {
-    auto re = R":(Sequence mismatch.*seq.*of obj\.getter\(1\).*has obj\.getter\(3\).*first):";
+    auto re = R":(Sequence mismatch.*seq.*of obj\.getter\(1\).*\nSequence.*has obj\.getter\(3\).*first):";
     INFO("report=" << reports.front().msg);
     REQUIRE(is_match(reports.front().msg,  re));
     auto& first = reports.front();
@@ -741,7 +741,7 @@ TEST_CASE_METHOD(
   catch (reported)
   {
     REQUIRE(reports.size() == 1U);
-    auto re = R":(Sequence mismatch.*seq1.*of obj1\.func\(_, _\).*has obj1\.count\(\).*first):";
+    auto re = R":(Sequence mismatch.*seq1.*of obj1\.func\(_, _\).*\nSequence.*has obj1\.count\(\).*first):";
     INFO("report=" << reports.front().msg);
     REQUIRE(is_match(reports.front().msg,  re));
     auto& first = reports.front();
@@ -5044,7 +5044,8 @@ TEST_CASE_METHOD(
   delete obj;
   REQUIRE(!reports.empty());
   auto& msg = reports.front().msg;
-  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*foo"):";
+  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*\.
+.*foo"):";
   INFO("msg=" << msg);
   REQUIRE(is_match(msg, re));
 }
@@ -5069,7 +5070,8 @@ TEST_CASE_METHOD(
   {
     REQUIRE(!reports.empty());
     auto& msg = reports.front().msg;
-    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\.
+Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
     REQUIRE(is_match(msg, re));
   }
@@ -5089,7 +5091,8 @@ TEST_CASE_METHOD(
   delete obj;
   REQUIRE(!reports.empty());
   auto& msg = reports.front().msg;
-  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*foo"):";
+  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*\.
+.*foo"):";
   INFO("msg=" << msg);
   REQUIRE(is_match(msg, re));
 }
@@ -5114,7 +5117,8 @@ TEST_CASE_METHOD(
   {
     REQUIRE(!reports.empty());
     auto& msg = reports.front().msg;
-    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\.
+Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
     REQUIRE(is_match(msg, re));
   }
