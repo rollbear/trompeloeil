@@ -4361,8 +4361,7 @@ TEST_CASE_METHOD(
   delete obj;
   REQUIRE(!reports.empty());
   auto& msg = reports.front().msg;
-  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*\.
-.*foo"):";
+  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*\n.*foo"):";
   INFO("msg=" << msg);
   REQUIRE(std::regex_search(msg, std::regex(re)));
 }
@@ -4387,8 +4386,7 @@ TEST_CASE_METHOD(
   {
     REQUIRE(!reports.empty());
     auto& msg = reports.front().msg;
-    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\.
-Sequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*\nSequence.* REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
     REQUIRE(std::regex_search(msg, std::regex(re)));
   }
@@ -4408,8 +4406,7 @@ TEST_CASE_METHOD(
   delete obj;
   REQUIRE(!reports.empty());
   auto& msg = reports.front().msg;
-  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*\.
-.*foo"):";
+  auto re = R":(Sequence mismatch for sequence "s".*destructor for \*obj at [A-Za-z0-9_ ./:\]*:[0-9]*.*\n.*foo"):";
   INFO("msg=" << msg);
   REQUIRE(std::regex_search(msg, std::regex(re)));
 }
@@ -4434,8 +4431,7 @@ TEST_CASE_METHOD(
   {
     REQUIRE(!reports.empty());
     auto& msg = reports.front().msg;
-    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*\.
-Sequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
+    auto re = R":(Sequence mismatch for sequence "s".*\*obj.foo\("foo"\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*\nSequence.* NAMED_REQUIRE_DESTRUCTION\(\*obj\)):";
     INFO("msg=" << msg);
     REQUIRE(std::regex_search(msg, std::regex(re)));
   }
