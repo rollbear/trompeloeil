@@ -1,3 +1,6 @@
+	* Fixed issue 296: Improved sequence violation message when ALLOW_CALL
+	  is involved. Thank you Sigurður Sveinn Halldórsson for reporting.
+
 	* Fixed -Wunsafe-buffer-usage warning from clang-16
 
 	* static_assert() when trying to get a runtime value from any matcher

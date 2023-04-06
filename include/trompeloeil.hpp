@@ -1980,6 +1980,11 @@ template <typename T>
       const
       noexcept;
 
+    bool
+    is_optional()
+      const
+      noexcept;
+
     void
     retire()
     noexcept
@@ -2097,17 +2102,37 @@ template <typename T>
          << "\" has no more pending expectations\n";
       send_report<specialized>(s, loc, os.str());
     }
+    bool first = true;
+    std::ostringstream os;
+    os << "Sequence mismatch for sequence \"" << seq_name
+       << "\" with matching call of " << match_name
+       << " at " << loc << ".\n";
     for (auto const& m : matchers)
     {
-      std::ostringstream os;
-      os << "Sequence mismatch for sequence \"" << seq_name
-         << "\" with matching call of " << match_name
-         << " at " << loc
-         << ". Sequence \"" << seq_name << "\" has ";
-      m.print_expectation(os);
-      os << " first in line\n";
-      send_report<specialized>(s, loc, os.str());
+      if (first || !m.is_optional())
+      {
+        if (first)
+        {
+          os << "Sequence \"" << seq_name << "\" has ";
+        }
+        else
+        {
+          os << "and has ";
+        }
+        m.print_expectation(os);
+        if (m.is_optional())
+        {
+          os << " first in line\n";
+        }
+        else
+        {
+          os << " as first required expectation\n";
+          break;
+        }
+      }
+      first = false;
     }
+    send_report<specialized>(s, loc, os.str());
   }
 
   inline
@@ -2827,6 +2852,15 @@ template <typename T>
   noexcept
   {
     return sequence_handler.is_satisfied();
+  }
+
+  inline
+  bool
+  sequence_matcher::is_optional()
+  const
+  noexcept
+  {
+    return sequence_handler.get_min_calls() == 0;
   }
 
   template <size_t N>
