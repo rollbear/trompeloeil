@@ -1337,6 +1337,20 @@ jobs:
             cxx_standard: 17,
             cxx_asan: true
           }
+          - {
+            name: "macOS Clang C++20",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++",
+            cxx_standard: 20,
+            cxx_asan: true
+          }
+          - {
+            name: "macOS Clang C++23",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++",
+            cxx_standard: 2b,
+            cxx_asan: true
+          }
 
           # MSVC 2022
           - {
