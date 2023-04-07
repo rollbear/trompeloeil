@@ -751,9 +751,6 @@ namespace trompeloeil
 
   class specialized;
 
-  template <typename T>
-  using aligned_storage_for =
-    typename std::aligned_storage<sizeof(T), alignof(T)>::type;
 
 #ifndef TROMPELOEIL_CUSTOM_RECURSIVE_MUTEX
 
@@ -766,7 +763,9 @@ namespace trompeloeil
     // the destructor of a global object in a translation unit
     // without #include <trompeloeil.hpp>
 
-    static aligned_storage_for<std::recursive_mutex> buffer;
+    alignas(std::recursive_mutex)
+    static char buffer[sizeof(std::recursive_mutex)];
+
     static auto mutex = new (&buffer) std::recursive_mutex;
     return unique_lock<std::recursive_mutex>{*mutex};
   }
