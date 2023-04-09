@@ -1091,38 +1091,39 @@ namespace trompeloeil
 
   struct wildcard : public matcher
   {
-    template <typename T
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
-              ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
-#endif
-              >
-    operator T&&()
-    const
+    template <typename T>
+    struct wrapper {
+      operator T() {
+        static_assert(std::is_same<T, void>{},
+                      "Getting a value from wildcard is not allowed.\n"
+                      "See https://github.com/rollbear/trompeloeil/issues/270\n"
+                      "and https://github.com/rollbear/trompeloeil/issues/290");
+        return *this;
+      }
+    };
+    template <typename T, typename std::enable_if<!std::is_convertible<wildcard&, T>{}>::type* = nullptr>
+    operator T()
     {
-#if !TROMPELOEIL_CLANG || TROMPELOEIL_CLANG_VERSION >= 40000
-
-      static_assert(std::is_same<T, void>{},
-                    "Getting a value from wildcard is not allowed.\n"
-                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
-                    "and https://github.com/rollbear/trompeloeil/issues/290");
-#endif
-      return *this;
+      return wrapper<T>{};
     }
 
-    template <typename T
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 50000
-              ,detail::enable_if_t<!std::is_convertible<wildcard&, T>{}>* = nullptr
-#endif
-              >
-    operator T&()
-    volatile const // less preferred than T&& above
+    template <typename T>
+    operator T&&() const
     {
-      static_assert(std::is_same<T, void>{},
-                    "Getting a value from wildcard is not allowed.\n"
-                    "See https://github.com/rollbear/trompeloeil/issues/270\n"
-                    "and https://github.com/rollbear/trompeloeil/issues/290");
+#if (!TROMPELOEIL_GCC  || TROMPELOEIL_GCC_VERSION < 60000 || TROMPELOEIL_GCC_VERSION >= 90000) \
+      && (!TROMPELOEIL_CLANG || TROMPELOEIL_CLANG_VERSION >= 40000 || !defined(_LIBCPP_STD_VER) || _LIBCPP_STD_VER != 14)
+      return wrapper<T &&>{};
+#else
       return *this;
+#endif
     }
+
+    template <typename T>
+    operator T&() const volatile
+    {
+      return wrapper<T&>{};
+    }
+
     template <typename T>
     constexpr
     bool
@@ -1511,8 +1512,8 @@ template <typename T>
     static
     void
     print(
-	  std::ostream& os,
-	  wildcard const&)
+    std::ostream& os,
+    wildcard const&)
     {
       os << " matching _";
     }
@@ -2354,7 +2355,7 @@ template <typename T>
     // since it doesn't respect the trailing return type declaration on
     // the lambdas of template deduction context
 
-    #define TROMPELOEIL_MK_PRED_BINOP(name, op)                         \
+#define TROMPELOEIL_MK_PRED_BINOP(name, op)                         \
     struct name {                                                       \
       template <typename X, typename Y>                                 \
       auto operator()(X const& x, Y const& y) const -> decltype(x op y) \
@@ -2369,7 +2370,7 @@ template <typename T>
     TROMPELOEIL_MK_PRED_BINOP(less_equal, <=);
     TROMPELOEIL_MK_PRED_BINOP(greater, >);
     TROMPELOEIL_MK_PRED_BINOP(greater_equal, >=);
-    #undef TROMPELOEIL_MK_PRED_BINOP
+#undef TROMPELOEIL_MK_PRED_BINOP
 
     // Define `struct` with `operator()` to replace generic lambdas.
 
@@ -2395,7 +2396,7 @@ template <typename T>
 
     // These structures replace the `op` printer lambdas.
 
-    #define TROMPELOEIL_MK_OP_PRINTER(name, op_string)                  \
+#define TROMPELOEIL_MK_OP_PRINTER(name, op_string)                  \
     struct name ## _printer                                             \
     {                                                                   \
       template <typename T>                                             \
@@ -2415,7 +2416,7 @@ template <typename T>
     TROMPELOEIL_MK_OP_PRINTER(less_equal, " <= ");
     TROMPELOEIL_MK_OP_PRINTER(greater, " > ");
     TROMPELOEIL_MK_OP_PRINTER(greater_equal, " >= ");
-    #undef TROMPELOEIL_MK_OP_PRINTER
+#undef TROMPELOEIL_MK_OP_PRINTER
 
   }
 
@@ -4019,6 +4020,10 @@ template <typename T>
     using call_matcher_base<Sig>::name;
     using call_matcher_base<Sig>::loc;
 
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 70000 && TROMPEOLEIL_GCC_VERSION < 80000
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic push
+#endif
     template <typename ... U>
     call_matcher(
       char const *file,
@@ -4028,6 +4033,9 @@ template <typename T>
     : call_matcher_base<Sig>(location{file, line}, call_string)
     , val(std::forward<U>(u)...)
     {}
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 70000 && TROMPEOLEIL_GCC_VERSION < 80000
+#pragma GCC diagnostic pop
+#endif
 
     call_matcher(call_matcher &&r) = delete;
 
@@ -4857,8 +4865,8 @@ template <typename T>
     return ::trompeloeil::mock_func<trompeloeil_movable_mock, TROMPELOEIL_REMOVE_PAREN(sig)>( \
                                     TROMPELOEIL_LINE_ID(cardinality_match){},  \
                                     TROMPELOEIL_LINE_ID(expectations),         \
-                                    #name,                                     \
-                                    #sig                                       \
+#name,                                     \
+#sig                                       \
                                     TROMPELOEIL_PARAMS(num));                  \
   }                                                                            \
                                                                                \
@@ -4906,7 +4914,14 @@ template <typename T>
   auto TROMPELOEIL_COUNT_ID(call_obj) =                                        \
     TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, #obj, #func, __VA_ARGS__)
 
-
+#if TROMPELOEIL_GCC
+// This is highly unfortunate. Conversion warnings are desired here, but there
+// are situations when the wildcard _ uses conversion when creating an
+// expectation. It would be much better if the warning could be suppressed only
+// for that type. See https://github.com/rollbear/trompeloeil/issues/293
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic push
+#endif
 #define TROMPELOEIL_REQUIRE_CALL_V_LAMBDA(obj, func, obj_s, func_s, ...)       \
   [&]                                                                          \
   {                                                                            \
@@ -4919,15 +4934,15 @@ template <typename T>
       __VA_ARGS__                                                              \
       ;                                                                        \
   }()
-
-
+#if TROMPELOEIL_GCC
+#pragma GCC diagnostic pop
+#endif
 #define TROMPELOEIL_REQUIRE_CALL_LAMBDA_OBJ(obj, func, obj_s, func_s)          \
   ::trompeloeil::call_validator_t<trompeloeil_s_t>{(obj)} +                    \
       ::trompeloeil::detail::conditional_t<false,                              \
                                            decltype((obj).func),               \
                                            trompeloeil_e_t>                    \
     {__FILE__, static_cast<unsigned long>(__LINE__), obj_s "." func_s}.func
-
 
 #define TROMPELOEIL_NAMED_REQUIRE_CALL_V(...)                                  \
   TROMPELOEIL_IDENTITY(TROMPELOEIL_NAMED_REQUIRE_CALL_IMPL TROMPELOEIL_LPAREN  \

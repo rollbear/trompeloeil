@@ -11,7 +11,7 @@
  * Project home: https://github.com/rollbear/trompeloeil
  */
 
-// exception: clang++-3
+// exception: g++-[678]
 // pass: value from wildcard
 
 #include <trompeloeil.hpp>

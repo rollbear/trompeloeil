@@ -1242,6 +1242,30 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+struct promiscuous
+{
+  template <typename T>
+  promiscuous(T&&) {}
+};
+
+struct with_promiscuous
+{
+  MAKE_MOCK1(func, void(promiscuous));
+};
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++14: wildcard matches parameter constructible from any type",
+  "[C++14][matching]")
+{
+  {
+    with_promiscuous obj;
+    REQUIRE_CALL(obj, func(_));
+    obj.func(1);
+  }
+  REQUIRE(reports.empty());
+}
+
 TEST_CASE_METHOD(
   Fixture,
   "C++14: ANY can match unique_ptr<> by value",
