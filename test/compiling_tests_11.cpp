@@ -4326,7 +4326,7 @@ TEST_CASE_METHOD(
   try
   {
     m.func(nn::TestOutput{ 3 });
-    FAIL("didn's throw");
+    FAIL("didn't throw");
   }
   catch (reported)
   {

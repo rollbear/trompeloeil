@@ -3806,7 +3806,7 @@ TEST_CASE_METHOD(
   try
   {
     m.func(nn::TestOutput{ 3 });
-    FAIL("didn's throw");
+    FAIL("didn't throw");
   }
   catch (reported)
   {
@@ -5118,7 +5118,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: REQUIRE_CALL genereate OK-report when satisfied",
+  "C++14: REQUIRE_CALL generate OK-report when satisfied",
   "[C++14][matching]")
 {
   {
@@ -5131,7 +5131,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: REQUIRE_CALL doesn't genereate OK-report when not satisfied",
+  "C++14: REQUIRE_CALL doesn't generate OK-report when not satisfied",
   "[C++14][matching]")
 {
   {
@@ -5143,7 +5143,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: ALLOW_CALL genereate OK-report when satisfied",
+  "C++14: ALLOW_CALL generate OK-report when satisfied",
   "[C++14][matching]")
 {
   {
@@ -5156,7 +5156,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: ALLOW_CALL doesn't genereate OK-report when not satisfied",
+  "C++14: ALLOW_CALL doesn't generate OK-report when not satisfied",
   "[C++14][matching]")
 {
   {
