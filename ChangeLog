@@ -1,3 +1,5 @@
+v44 2023-04-10
+
 	* Fixed issue 293: Wildcard _ could not match types that can be
 	  constructed from any type. This fix unfortunately turns off conversion
 	  warnings for REQUIRE_CALL and friends when building with gcc. Thank
