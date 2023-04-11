@@ -4020,7 +4020,7 @@ template <typename T>
     using call_matcher_base<Sig>::name;
     using call_matcher_base<Sig>::loc;
 
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 70000 && TROMPEOLEIL_GCC_VERSION < 80000
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 70000 && TROMPELOEIL_GCC_VERSION < 80000
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
 #endif
@@ -4033,7 +4033,7 @@ template <typename T>
     : call_matcher_base<Sig>(location{file, line}, call_string)
     , val(std::forward<U>(u)...)
     {}
-#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 70000 && TROMPEOLEIL_GCC_VERSION < 80000
+#if TROMPELOEIL_GCC && TROMPELOEIL_GCC_VERSION >= 70000 && TROMPELOEIL_GCC_VERSION < 80000
 #pragma GCC diagnostic pop
 #endif
 
