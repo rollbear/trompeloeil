@@ -1,3 +1,5 @@
+	* Added adapter for QA Systems Cantata. Thank you Andreas Schätti
+
 v44 2023-04-10
 
 	* Fixed issue 293: Wildcard _ could not match types that can be
