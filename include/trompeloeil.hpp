@@ -196,47 +196,49 @@ namespace trompeloeil { using std::unique_lock; }
   TROMPELOEIL_REMOVE_PAREN_INTERNAL __VA_ARGS__
 #define TROMPELOEIL_CLEAR_TROMPELOEIL_REMOVE_PAREN_INTERNAL
 
+#define TROMPELOEIL_EXPAND(x) x
+
 #define TROMPELOEIL_INIT_WITH_STR15(base, x, ...)                              \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR14(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR14(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR14(base, x, ...)                              \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR13(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR13(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR13(base, x, ...)                              \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR12(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR12(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR12(base, x, ...)                              \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR11(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR11(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR11(base, x, ...)                              \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR10(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR10(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR10(base, x, ...)                              \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR9(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR9(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR9(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR8(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR8(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR8(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR7(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR7(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR7(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR6(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR6(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR6(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR5(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR5(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR5(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR4(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR4(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR4(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR3(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR3(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR3(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR2(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR2(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR2(base, x, ...)                               \
-  base{#x, x}, TROMPELOEIL_INIT_WITH_STR1(base, __VA_ARGS__)
+  base{#x, x}, TROMPELOEIL_EXPAND(TROMPELOEIL_INIT_WITH_STR1(base, __VA_ARGS__))
 
 #define TROMPELOEIL_INIT_WITH_STR1(base, x)                                    \
   base{#x, x}
