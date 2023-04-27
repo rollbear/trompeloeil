@@ -276,6 +276,39 @@ TEST_CASE_METHOD(
     obj1.count();
     obj2.count();
   }
+
+   REQUIRE(reports.empty());
+}
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: join three sequences gives no report",
+  "[C++11][C++14][sequences]")
+{
+  {
+    mock_c obj1, obj2, obj3;
+
+    trompeloeil::sequence seq1, seq2, seq3;
+
+    REQUIRE_CALL_V(obj1, count(),
+      .IN_SEQUENCE(seq1)
+      .RETURN(1));
+
+    REQUIRE_CALL_V(obj2, func(_, _),
+      .IN_SEQUENCE(seq2));
+
+    REQUIRE_CALL_V(obj3, foo(_),
+      .IN_SEQUENCE(seq3));
+
+    REQUIRE_CALL_V(obj2, count(),
+      .IN_SEQUENCE(seq3, seq2, seq1)
+      .RETURN(3));
+
+    std::string str = "apa";
+    obj2.func(3, str);
+    obj3.foo(str);
+    obj1.count();
+    obj2.count();
+  }
   REQUIRE(reports.empty());
 }
 
