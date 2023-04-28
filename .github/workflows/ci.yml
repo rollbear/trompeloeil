@@ -278,7 +278,49 @@ jobs:
             cxx_standard: 23,
             cxx_asan: true,
           }
-           # Clang-3.5
+          # GCC-13
+          - {
+            name: "Linux GCC 13 C++11",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:13", options: "--security-opt seccomp=unconfined" },
+            compiler: gcc,
+            cxx_standard: 11,
+            cxx_asan: true,
+          }
+          - {
+            name: "Linux GCC 13 C++14",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:13", options: "--security-opt seccomp=unconfined" },
+            compiler: gcc,
+            cxx_standard: 14,
+            cxx_asan: true,
+          }
+          - {
+            name: "Linux GCC 13 C++17",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:13", options: "--security-opt seccomp=unconfined" },
+            compiler: gcc,
+            cxx_standard: 17,
+            cxx_asan: true,
+          }
+          - {
+            name: "Linux GCC 13 C++20",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:13", options: "--security-opt seccomp=unconfined" },
+            compiler: gcc,
+            cxx_standard: 20,
+            cxx_asan: true,
+          }
+          - {
+            name: "Linux GCC 13 C++23",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:13", options: "--security-opt seccomp=unconfined" },
+            compiler: gcc,
+            cxx_standard: 23,
+            cxx_asan: true,
+          }
+
+          # Clang-3.5
           - {
             name: "Linux Clang 3.5 C++11 / libstdc++",
             os: ubuntu-latest,
