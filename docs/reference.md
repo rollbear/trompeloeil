@@ -234,7 +234,7 @@ public:
   MAKE_MOCK1(func, int(int));
 };
 
-trompeloeil::_;
+using trompeloeil::_;
 
 TEST(atest)
 {
@@ -661,7 +661,7 @@ public:
   MAKE_MOCK1(func, int(int));
 };
 
-trompeloeil::_;
+using trompeloeil::_;
 
 TEST(atest)
 {
