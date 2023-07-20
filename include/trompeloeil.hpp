@@ -2555,28 +2555,50 @@ template <typename T>
       class string_helper // a vastly simplified string_view type of class
       {
       public:
+        template <
+          typename S,
+          typename = decltype(std::declval<const char*&>() = std::declval<S>().data()),
+          typename = decltype(std::declval<S>().length())
+            >
         string_helper(
-          std::string const& s)
+          const S& s)
         noexcept
-          : str(s.c_str())
+          : begin_(s.data())
+          , end_(begin_ + s.length())
         {}
 
         constexpr
         string_helper(
           char const* s)
         noexcept
-          : str(s)
-        {}
-
-        char const*
-        c_str()
-          const
-          noexcept
+          : begin_(s)
+          , end_(s ? begin_ + strlen(s) : nullptr)
         {
-          return str;
+        }
+
+        constexpr
+        explicit
+        operator bool() const
+        {
+          return begin_;
+        }
+        constexpr
+        char const *
+        begin()
+          const
+        {
+          return begin_;
+        }
+        constexpr
+        char const *
+        end()
+          const
+        {
+          return end_;
         }
       private:
-        char const* str;
+        char const* begin_;
+        char const* end_;
       };
 
       regex_check(
@@ -2593,8 +2615,7 @@ template <typename T>
         T const&)
       const
       {
-          return str.c_str()
-                 && std::regex_search(str.c_str(), re, match_type);
+        return str && std::regex_search(str.begin(), str.end(), re, match_type);
       }
 
     private:

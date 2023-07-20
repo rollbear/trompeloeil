@@ -2918,6 +2918,50 @@ TEST_CASE_METHOD(
 
 // tests of parameter matching using typed matcher re
 
+#if TROMPELOEIL_TEST_REGEX_FAILURES &&  defined(__cpp_lib_string_view)
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: call to string_view function matching regex is not reported",
+  "[C++11][C++14][matching][matchers][re]")
+{
+  {
+    mock_str obj;
+    REQUIRE_CALL_V(obj, string_view(trompeloeil::re("mid")));
+    char str[] = "pre mid post";
+    obj.string_view(str);
+  }
+  REQUIRE(reports.empty());
+}
+#endif
+#if TROMPELOEIL_TEST_REGEX_FAILURES &&  defined(__cpp_lib_string_view)
+TEST_CASE_METHOD(
+    Fixture,
+    "C++11: call to string_view function with non-matching string to regex is reported",
+    "[C++11][C++14][matching][matchers][re]")
+{
+  mock_str obj;
+  REQUIRE_CALL_V(obj, string_view(trompeloeil::re("mid")));
+  try
+  {
+    char str[] = "abcde";
+    obj.string_view(str);
+    FAIL("did not throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    auto re = R":(No match for call of string_view with signature void\(std::string_view\) with.
+  param  _1 == abcde
+
+Tried obj.string_view\(trompeloeil::re\("mid"\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 matching regular expression /mid/):";
+    REQUIRE(is_match(msg, re));
+  }
+}
+#endif
+
 #if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(

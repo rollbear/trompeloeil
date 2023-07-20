@@ -401,6 +401,9 @@ public:
   MAKE_MOCK1(str, void(std::string));
   MAKE_MOCK1(overload, void(char const*));
   MAKE_MOCK1(overload, void(std::string const&));
+#if defined(__cpp_lib_string_view)
+  MAKE_MOCK1(string_view, void(std::string_view));
+#endif
 };
 
 class C_ptr
