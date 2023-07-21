@@ -8,7 +8,7 @@ include(CheckCXXCompilerFlag)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
-  VERSION 44
+  VERSION 45
   COMPATIBILITY AnyNewerVersion
   ARCH_INDEPENDENT)
 

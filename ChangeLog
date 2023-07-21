@@ -1,3 +1,5 @@
+v45 2023-07-21
+
 	* Support matching regular expressions to std::string view
 
 	* Added adapter for QA Systems Cantata. Thank you Andreas Schätti
