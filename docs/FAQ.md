@@ -5,6 +5,7 @@
 - Q. [How do I use *Trompeloeil* with XXX unit test framework?](#unit_test_adaptation)
 - Q. [Is *Trompeloeil* thread-safe?](#thread_safety)
 - Q. [Can a mock function be marked `override`?](#override)
+- Q. [How can I assign to an out-parameter?](#assign_out)
 - Q. [Why can't I **`.RETURN()`** a reference?](#return_reference)
 - Q. [Why can't I change a local variable in **`.SIDE_EFFECT()`**?](#change_side_effect)
 - Q. [Why the "local reference" **`.LR_*()`** variants? Why not always capture by reference?](#why_lr)
@@ -140,6 +141,35 @@ public:
   MAKE_MOCK1(func1, int(int), override); // overridden
   MAKE_MOCK1(func2, int(int));           // not overridden
 };
+```
+## <A name="assign_out"/>Q. How can I assign to an out-parameter?
+
+**A.** Use the positional name of the parameter and assign to it, for example in a
+[**`.SIDE_EFFECT()`**](reference.md/#SIDE_EFFECT).
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(assign_out, void(int&));
+};
+
+using trompeloeil::_;
+
+TEST(some_test)
+{
+  C mock_obj;
+  
+  REQUIRE_CALL(mock_obj, assign_out(_))
+    .SIDE_EFFECT(_1 = 3);
+  
+  int x = 0;
+  
+  mock_obj.assign_out(x);
+  // x is 3 here
+}
 ```
 
 ## <A name="return_reference"/>Q. Why can't I [**`.RETURN()`**](reference.md/#RETURN) a reference?
