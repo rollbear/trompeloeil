@@ -8,6 +8,8 @@
 
 Get: [![Conan](https://img.shields.io/badge/on-conan-blue.svg)](https://conan.io/center/trompeloeil)
 
+<a href="https://www.buymeacoffee.com/bjornfahller"> <img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" height="50" width="210" alt="Buy me a coffee"/></a>
+
 > *trompe l'oeil* noun    (Concise Encyclopedia)
 > Style of representation in which a painted object is intended
 > to deceive the viewer into believing it is the object itself...
