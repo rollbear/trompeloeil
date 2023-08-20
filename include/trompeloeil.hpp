@@ -839,17 +839,17 @@ namespace trompeloeil
 
     char const *file;
     unsigned long line;
-  };
 
-  inline
-  std::ostream&
-  operator<<(
-    std::ostream& os,
-    const location& loc)
-  {
-    if (loc.line != 0U) os << loc.file << ':' << loc.line;
-    return os;
-  }
+    friend
+    std::ostream&
+    operator<<(
+      std::ostream& os,
+      const location& loc)
+    {
+      if (loc.line != 0U) os << loc.file << ':' << loc.line;
+      return os;
+    }
+  };
 
   enum class severity { fatal, nonfatal };
 
