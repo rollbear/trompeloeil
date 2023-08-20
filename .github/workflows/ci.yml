@@ -1485,6 +1485,7 @@ jobs:
           cmake \
               -S . \
               -B build \
+              -D TROMPELOEIL_BUILD_TESTS=yes \
               -D CMAKE_BUILD_TYPE=Debug \
               -D CMAKE_VERBOSE_MAKEFILE=ON \
               -D CXX_STANDARD:STRING=${STD} \

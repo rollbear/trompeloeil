@@ -1,6 +1,11 @@
 	* The self test program "custom_recursive_mutex" now says that it's
 	  succeeded. Thank you @yurivict for reporting the confusion.
 
+	* Self test programs are only build when explicitly setting
+	  -DTROMPELOEIL_BUILD_TESTS=yes to the CMake command line.
+
+	* The self test programs require a higher version of CMake (3.19 currently)
+
 v45 2023-07-21
 
 	* Support matching regular expressions to std::string view

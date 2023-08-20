@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.19)
+
 option(TROMPELOEIL_CATCH2_PREBUILT "Major version of prebuilt catch2")
 option(TROMPELOEIL_CATCH2_PREFIX "Path to catch2 installation")
 
@@ -212,7 +214,6 @@ endif() # MSVC
 
 add_executable(
         self_test
-        EXCLUDE_FROM_ALL
         compiling_tests.cpp
         compiling_tests_11.cpp
         compiling_tests_14.cpp)
@@ -242,7 +243,6 @@ find_package(Threads REQUIRED)
 
 add_executable(
         thread_terror
-        EXCLUDE_FROM_ALL
         thread_terror.cpp
 )
 
@@ -266,7 +266,6 @@ endif()
 
 add_executable(
         custom_recursive_mutex
-        EXCLUDE_FROM_ALL
         custom_recursive_mutex.cpp
 )
 

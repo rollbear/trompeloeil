@@ -6,6 +6,8 @@ include(ExternalProject)
 include(CMakePackageConfigHelpers)
 include(CheckCXXCompilerFlag)
 
+option(TROMPELOEIL_BUILD_TESTS "Build self test programs" off)
+
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
   VERSION 45
@@ -37,10 +39,9 @@ endif()
 option(TROMPELOEIL_INSTALL_TARGETS "Sets whether trompeloeil should be installed" ${MASTER_PROJECT})
 option(TROMPELOEIL_INSTALL_DOCS "Install documentation" ${TROMPELOEIL_INSTALL_TARGETS})
 
-if (MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug)
+if (MASTER_PROJECT AND TROMPELOEIL_BUILD_TESTS)
   add_subdirectory(test)
-
-endif() # MASTER_PROJECT AND CMAKE_BUILD_TYPE MATCHES Debug
+endif()
 
 if (TROMPELOEIL_INSTALL_TARGETS)
 install(

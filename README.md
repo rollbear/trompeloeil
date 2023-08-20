@@ -102,12 +102,14 @@ TEST(exercise_interface_func)
 
 # <A name="self_test"/> Building and running the self test suite
 
-To build the self test suite run `cmake` with Debug. Use the options `CXX_STANDARD`
-to select which C++ standard to test, and `SANITIZE` to select sanitizers to
-build with.
+To build the self test suite run `cmake` with `-DTROMPELOEIL_BUILD_TESTS=yes`.
+Use the options `CXX_STANDARD` to select which C++ standard to test, and
+`SANITIZE` to select sanitizers to build with. Note that the self tests needs a
+reasonably modern version of CMake. Example:
 
 ```
 cmake -B build_dir \
+      -D TROMPELOEIL_BUILD_TESTS=yes \
       -D CMAKE_BUILD_TYPE=Debug \
       -D CXX_STANDARD=17 \
       -D SANITIZE=Address,Undefined \
@@ -116,8 +118,6 @@ cmake -B build_dir \
 
 If the build finds a CMake package for `Catch2` it will use that, otherwise it
 will download a header-only version of Catch2 v2.x.
-
-Build the self test programs explicitly, they are excluded from target `ALL`.
 
 ```
 cmake --build build_dir -t self_test thread_terror custom_recursive_mutex
