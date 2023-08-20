@@ -25,4 +25,5 @@ public:
 
 int main() {
   C c;
+  std::puts("Pass! (the program compiled)");
 }

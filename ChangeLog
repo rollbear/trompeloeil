@@ -1,3 +1,6 @@
+	* The self test program "custom_recursive_mutex" now says that it's
+	  succeeded. Thank you @yurivict for reporting the confusion.
+
 v45 2023-07-21
 
 	* Support matching regular expressions to std::string view
