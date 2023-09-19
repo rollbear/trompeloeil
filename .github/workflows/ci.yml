@@ -1356,7 +1356,97 @@ jobs:
             cxx_asan: false,
             libcxx: true,
           }
-
+          # clang-17
+          - {
+            name: "Linux Clang 17 C++11 / libstdc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 11,
+            cxx_asan: true,
+            libcxx: false,
+          }
+          - {
+            name: "Linux Clang 17 C++14 / libstdc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 14,
+            cxx_asan: true,
+            libcxx: false,
+          }
+          - {
+            name: "Linux Clang 17 C++17 / libstdc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 17,
+            cxx_asan: true,
+            libcxx: false,
+          }
+          - {
+            name: "Linux Clang 17 C++20 / libstdc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 20,
+            cxx_asan: true,
+            libcxx: false,
+          }
+          - {
+            name: "Linux Clang 17 C++23 / libstdc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 23,
+            cxx_asan: true,
+            libcxx: false,
+          }
+          - {
+            name: "Linux Clang 17 C++11 / libc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 11,
+            cxx_asan: false,
+            libcxx: true,
+          }
+          - {
+            name: "Linux Clang 17 C++14 / libc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 14,
+            cxx_asan: false,
+            libcxx: true,
+          }
+          - {
+            name: "Linux Clang 17 C++17 / libc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 17,
+            cxx_asan: false,
+            libcxx: true,
+          }
+          - {
+            name: "Linux Clang 17 C++20 / libc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 20,
+            cxx_asan: false,
+            libcxx: true,
+          }
+          - {
+            name: "Linux Clang 17 C++23 / libc++",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/clang:17", options: "--security-opt seccomp=unconfined" },
+            compiler: clang,
+            cxx_standard: 23,
+            cxx_asan: false,
+            libcxx: true,
+          }
           # AppleClang
           - {
             name: "macOS Clang C++11",
