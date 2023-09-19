@@ -120,6 +120,7 @@
 #define TROMPELOEIL_NOT_IMPLEMENTED(...) __VA_ARGS__
 #endif
 
+#include <algorithm>
 #include <tuple>
 #include <iomanip>
 #include <sstream>
