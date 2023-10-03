@@ -854,7 +854,10 @@ void c_api_end(struct c_api_cookie*);
 ```
 
 ```Cpp
-// unit-test-C-API.h
+// unit-test-C-API.h -- example using Catch2
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/trompeloeil.hpp> /* this should go last */
 
 #include "C-API.h"
 
@@ -881,17 +884,17 @@ API c_api_mock;
 extern "C" {
   c_api_cookie c_api_init()
   {
-    return api_mock.c_api_init();
+    return c_api_mock.c_api_init();
   }
 
   int c_api_func1(c_api_cookie* cookie, const char* str, size_t len)
   {
-    return api_mock.c_api_func1(cookie, str, len);
+    return c_api_mock.c_api_func1(cookie, str, len);
   }
 
   void c_api_end(c_api_cookie* cookie)
   {
-    api_mock.c_api_end(cookie);
+    c_api_mock.c_api_end(cookie);
   }
 }
 ```
@@ -905,7 +908,7 @@ dispatch to the mock object.
 
 void a_test()
 {
-  REQUIRE_CALL(c_api_mock, create())
+  REQUIRE_CALL(c_api_mock, c_api_init())
     .RETURN(nullptr);
 
   REQUIRE_CALL(c_api_mock, c_api_end(nullptr));
