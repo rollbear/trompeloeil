@@ -4523,6 +4523,19 @@ TEST_CASE_METHOD(
   REQUIRE(os.str() == "pseudo_null_comparable");
 }
 
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: An object with non-const begin/end members, is printed using its memory representation.",
+  "[C++11][C++14][streaming]")
+{
+  std::ostringstream os;
+  trompeloeil::print(os, my_input_range{{42, 43, 44}});
+
+  const std::string printResult{os.str()};
+  const std::string expectedPrefix{std::to_string(sizeof(my_input_range)) + "-byte object={"};
+  REQUIRE(expectedPrefix == printResult.substr(0, expectedPrefix.size()));
+}
+
 #if !(defined(_MSC_VER) && _MSC_VER < 1910)
 // Disable this test case for Microsoft Visual Studio 2015
 // until a working implementation of is_null_comparable is found

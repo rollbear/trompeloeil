@@ -1381,8 +1381,8 @@ template <typename T>
   using is_collection = is_detected<iterable, T>;
 
   template <typename T,
-            bool = is_output_streamable<T>::value,
-            bool = is_collection<detail::remove_reference_t<T>>::value>
+            bool = is_output_streamable<const T>::value,
+            bool = is_collection<const detail::remove_reference_t<T>>::value>
   struct streamer
   {
     static
