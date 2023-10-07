@@ -4529,7 +4529,16 @@ TEST_CASE_METHOD(
   "[C++11][C++14][streaming]")
 {
   std::ostringstream os;
-  trompeloeil::print(os, my_input_range{std::vector<int>{42, 43, 44}});
+  trompeloeil::print(
+    os, 
+    []
+    {
+      my_input_range range{};
+      range.data.emplace_back(42);
+      range.data.emplace_back(44);
+      range.data.emplace_back(44);
+  	  return range;
+    }());
 
   const std::string printResult{os.str()};
   const std::string expectedPrefix{std::to_string(sizeof(my_input_range)) + "-byte object={"};
