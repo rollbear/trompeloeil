@@ -531,6 +531,23 @@ struct my_printable
     int x;
 };
 
+struct my_input_range
+{
+  using iterator = std::vector<int>::iterator;
+
+  std::vector<int> data{};
+
+  iterator begin()
+  {
+    return data.begin();
+  }
+
+  iterator end()
+  {
+    return data.end();
+  }
+};
+
 class TestOutputMock
 {
 public:
