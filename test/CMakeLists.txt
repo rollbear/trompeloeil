@@ -212,11 +212,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
 endif() # MSVC
 
+if (${CMAKE_CXX_STANDARD} GREATER_EQUAL 20)
+    set(CXX20TESTS "test_co_mock.cpp")
+else ()
+    set(CXX20TESTS "")
+endif ()
+
 add_executable(
         self_test
         compiling_tests.cpp
         compiling_tests_11.cpp
-        compiling_tests_14.cpp)
+        compiling_tests_14.cpp
+        ${CXX20TESTS})
 
 
 if (SANITIZE AND NOT APPLE)

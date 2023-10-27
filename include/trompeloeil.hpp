@@ -7,7 +7,7 @@
  *
  *  Use, modification and distribution is subject to the
  *  Boost Software License, Version 1.0. (See accompanying
- *  file LICENSE_1_0.txt or copy at
+ *  file LICENSE_1_0.txt or copy atl
  *  http://www.boost.org/LICENSE_1_0.txt)
  *
  * Project home: https://github.com/rollbear/trompeloeil
@@ -27,6 +27,14 @@
 // Deficiencies and missing features
 // * Mocking function templates is not supported
 // * If a macro kills a kitten, this threatens extinction of all felines!
+
+#if defined(TROMPELOEIL_EXPERIMENTAL_COROUTINES)
+#  if defined(__cpp_impl_coroutine)
+#    define TROMPELOEIL_COROUTINES_SUPPORTED 1
+#  else
+#    error "Coroutines are not supported by this compiler"
+#  endif
+#endif
 
 #if defined(_MSC_VER)
 
@@ -148,6 +156,10 @@ namespace trompeloeil { using std::atomic; }
 namespace trompeloeil { using std::unique_lock; }
 #else
 #include <trompeloeil/custom_unique_lock.hpp>
+#endif
+
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+#include <coroutine>
 #endif
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
@@ -739,6 +751,14 @@ namespace trompeloeil
   using invoke_result_type = decltype(std::declval<F&>()(std::declval<A>()...));
 
 # endif
+
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+  template <typename Sig, typename = void>
+  struct is_coroutine : std::false_type {};
+
+  template <typename Sig>
+  struct is_coroutine<Sig, std::void_t<decltype(&std::coroutine_traits<Sig>::promise_type::initial_suspend)>> : std::true_type {};
+#endif
 
   template <typename T>
   class mini_span
@@ -3194,6 +3214,7 @@ template <typename T>
   template <typename Sig>
   struct call_matcher_base : public list_elem<call_matcher_base<Sig>>
   {
+    using sig = Sig;
     call_matcher_base(
       location loc_,
       char const* name_)
@@ -3584,7 +3605,6 @@ template <typename T>
       call_params_type_t<Sig>& params) = 0;
   };
 
-
   template <typename Ret, typename F, typename P, typename = detail::enable_if_t<std::is_void<Ret>::value>>
   void
   trace_return(
@@ -3638,6 +3658,32 @@ template <typename T>
   private:
     T func;
   };
+
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+  template <typename Sig, typename T>
+  class co_return_handler_t : public return_handler<Sig>
+  {
+  public:
+    template <typename U>
+    explicit
+    co_return_handler_t(
+      U&& u)
+      : func(std::forward<U>(u))
+    {}
+
+    return_of_t<Sig>
+    call(
+      trace_agent& agent,
+      call_params_type_t<Sig>& params)
+    override
+    {
+      using ret = decltype(func(params));
+      co_return trace_return<ret>(agent, func, params);
+    }
+  private:
+    T func;
+  };
+#endif
 
   template <typename Sig>
   class condition_base : public list_elem<condition_base<Sig>>
@@ -3736,6 +3782,12 @@ template <typename T>
   struct multiplicity { };
 
   template <typename R, typename Parent>
+  struct co_return_injector : Parent
+  {
+    using co_return_type = R;
+  };
+
+  template <typename R, typename Parent>
   struct return_injector : Parent
   {
     using return_type = R;
@@ -3777,6 +3829,7 @@ template <typename T>
   struct call_modifier : public Parent
   {
     using typename Parent::signature;
+    using typename Parent::co_return_type;
     using typename Parent::return_type;
     using Parent::call_limit_set;
     using Parent::upper_call_limit;
@@ -3812,7 +3865,46 @@ template <typename T>
       matcher->add_side_effect(std::forward<A>(a));
       return {std::move(matcher)};
     }
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+    template <typename H>
+    call_modifier<Matcher, modifier_tag, co_return_injector<return_of_t<signature>, Parent >>
+    handle_co_return(
+      H&& h)
+    {
+      using params_type = call_params_type_t<signature>&;
+      using sigret = return_of_t<signature>;
+      using ret = std::invoke_result_t<H, params_type>;
 
+      constexpr bool has_return = !std::is_same_v<return_type, void>;
+      constexpr bool has_co_return = !std::is_same_v<co_return_type, void>;
+      constexpr bool is_coroutine = trompeloeil::is_coroutine<sigret>::value;
+      constexpr bool is_matching_type = std::invoke([]{if constexpr (is_coroutine) {
+        using promise = typename std::coroutine_traits<sigret>::promise_type;
+        if constexpr (std::is_same_v<void, ret>) {
+          return requires (promise p){p.return_void();};
+        } else {
+          return requires(promise p) { p.return_value(std::declval<ret>()); };
+        }}
+        return true;});
+
+      static_assert(!has_return,
+                    "CO_RETURN and RETURN cannot be combined");
+      static_assert(has_return || !has_co_return,
+                    "Multiple CO_RETURN does not make sense");
+      static_assert(has_return || is_coroutine, "CO_RETURN when return type is not a coroutine");
+      static_assert(has_return || has_co_return || !is_coroutine || is_matching_type,
+                    "Expression type does not match the coroutine promise type");
+      static_assert(!throws || upper_call_limit == 0,
+                    "THROW and CO_RETURN does not make sense");
+      static_assert(upper_call_limit > 0,
+                    "CO_RETURN for forbidden call does not make sense");
+
+      constexpr bool valid = !has_return && !has_co_return && is_coroutine && is_matching_type && !throws && upper_call_limit > 0;
+      using tag = std::bool_constant<valid>;
+      matcher->set_co_return(tag{}, std::forward<H>(h));
+      return {matcher};
+    }
+#endif
     template <typename H>
     call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >>
     handle_return(
@@ -3823,7 +3915,13 @@ template <typename T>
       using ret = decltype(std::declval<H>()(std::declval<params_type>()));
       // don't know why MS VS 2015 RC doesn't like std::result_of
 
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+      constexpr bool is_coroutine      = trompeloeil::is_coroutine<sigret>::value;
+#else
+      constexpr bool is_coroutine      = false;
+#endif
       constexpr bool is_illegal_type   = std::is_same<detail::decay_t<ret>, illegal_argument>::value;
+      constexpr bool has_co_return     = !std::is_same<co_return_type, void>::value;
       constexpr bool is_first_return   = std::is_same<return_type, void>::value;
       constexpr bool void_signature    = std::is_same<sigret, void>::value;
       constexpr bool is_pointer_sigret = std::is_pointer<sigret>::value;
@@ -3843,27 +3941,31 @@ template <typename T>
       constexpr bool matching_ret_type = std::is_constructible<sigret, ret>::value;
       constexpr bool ref_value_mismatch = !is_ref_ret && is_ref_sigret;
 
-      static_assert(matching_ret_type || !void_signature,
+      static_assert(!has_co_return,
+                    "RETURN and CO_RETURN cannot be combined");
+      static_assert(!is_coroutine,
+                    "Do not use RETURN from a coroutine, use CO_RETURN");
+      static_assert(is_coroutine || matching_ret_type || !void_signature,
                     "RETURN does not make sense for void-function");
-      static_assert(!is_illegal_type,
+      static_assert(is_coroutine || !is_illegal_type,
                     "RETURN illegal argument");
-      static_assert(!ptr_const_mismatch,
+      static_assert(is_coroutine || !ptr_const_mismatch,
                     "RETURN const* from function returning pointer to non-const");
-      static_assert(!ref_value_mismatch || matching_ret_type,
+      static_assert(is_coroutine || !ref_value_mismatch || matching_ret_type,
                     "RETURN non-reference from function returning reference");
-      static_assert(ref_value_mismatch || !ref_const_mismatch,
+      static_assert(is_coroutine || ref_value_mismatch || !ref_const_mismatch,
                     "RETURN const& from function returning non-const reference");
 
-      static_assert(ptr_const_mismatch || ref_const_mismatch || is_illegal_type || matching_ret_type || void_signature,
+      static_assert(is_coroutine || ptr_const_mismatch || ref_const_mismatch || is_illegal_type || matching_ret_type || void_signature,
                     "RETURN value is not convertible to the return type of the function");
-      static_assert(is_first_return,
+      static_assert(is_coroutine || is_first_return,
                     "Multiple RETURN does not make sense");
-      static_assert(!throws || upper_call_limit == 0,
+      static_assert(is_coroutine || !throws || upper_call_limit == 0,
                     "THROW and RETURN does not make sense");
-      static_assert(upper_call_limit > 0,
+      static_assert(is_coroutine || upper_call_limit > 0,
                     "RETURN for forbidden call does not make sense");
 
-      constexpr bool valid = !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0;
+      constexpr bool valid = !is_coroutine && !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0;
       using tag = std::integral_constant<bool, valid>;
       matcher->set_return(tag{}, std::forward<H>(h));
       return {matcher};
@@ -3915,7 +4017,15 @@ template <typename T>
     handle_throw(
       H&& h)
     {
-      static_assert(!throws,
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+      using sigret = return_of_t<signature>;
+      constexpr bool is_coroutine      = trompeloeil::is_coroutine<sigret>::value;
+#else
+      constexpr bool is_coroutine      = false;
+#endif
+      static_assert(!is_coroutine,
+                    "Do not use THROW from a coroutine, use CO_THROW");
+      static_assert(is_coroutine || !throws,
                     "Multiple THROW does not make sense");
       constexpr bool has_return = !std::is_same<return_type, void>::value;
       static_assert(!has_return,
@@ -3923,10 +4033,10 @@ template <typename T>
 
       constexpr bool forbidden = upper_call_limit == 0U;
 
-      static_assert(!forbidden,
+      static_assert(is_coroutine || !forbidden,
                     "THROW for forbidden call does not make sense");
 
-      constexpr bool valid = !throws && !has_return;
+      constexpr bool valid = !is_coroutine && !throws && !has_return;
       using tag = std::integral_constant<bool, valid>;
       auto handler = throw_handler_t<H>(std::forward<H>(h));
       matcher->set_return(tag{}, std::move(handler));
@@ -4029,6 +4139,7 @@ template <typename T>
   struct matcher_info
   {
     using signature = Sig;
+    using co_return_type = void;
     using return_type = void;
     static size_t const upper_call_limit = 1;
     static bool const throws = false;
@@ -4293,6 +4404,26 @@ template <typename T>
     set_return(std::false_type, T&&t)//   RETURN
       noexcept;                      //   THROW
 
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+    template <typename T>
+    inline
+    void
+    set_co_return(
+      std::true_type,
+      T&& h)
+    {
+      using basic_t = typename std::remove_reference<T>::type;
+      using handler = co_return_handler_t<Sig, basic_t>;
+      return_handler_obj.reset(new handler(std::forward<T>(h)));
+    }
+
+    template <typename T>              // Never called. Used to limit errmsg
+    static                             // with CO_RETURN of wrong type and after:
+    void                               //   FORBIDDEN_CALL and others
+    set_co_return(std::false_type, T&&)
+      noexcept;
+#endif
+
     condition_list<Sig>                    conditions;
     side_effect_list<Sig>                  actions;
     std::unique_ptr<return_handler<Sig>>   return_handler_obj;
@@ -4381,11 +4512,21 @@ template <typename T>
       using call = call_modifier<M, Tag, Info>;
       using sigret = return_of_t<typename call::signature>;
       using ret = typename call::return_type;
+      using coret = typename call::co_return_type;
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+      constexpr bool is_coroutine = trompeloeil::is_coroutine<sigret>::value;
+#else
+      constexpr bool is_coroutine = false;
+#endif
       constexpr bool retmatch = std::is_same<ret, sigret>::value;
+      constexpr bool coretmatch = std::is_same<coret, sigret>::value;
       constexpr bool forbidden = call::upper_call_limit == 0;
-      constexpr bool valid_return_type = call::throws || retmatch || forbidden;
-      static_assert(valid_return_type, "RETURN missing for non-void function");
-      auto tag = std::integral_constant<bool, valid_return_type>{};
+      constexpr bool valid_return_type = retmatch || coretmatch || forbidden;
+      constexpr bool handles_return = is_coroutine || valid_return_type || call::throws;
+      constexpr bool handles_co_return = !is_coroutine || valid_return_type || call::throws;
+      static_assert(handles_return, "RETURN missing for non-void function");
+      static_assert(handles_co_return, "CO_RETURN missing for coroutine");
+      auto tag = std::integral_constant<bool, handles_return || handles_co_return>{};
       return make_expectation(tag, std::move(t));
     }
     Mock& obj;
@@ -4418,6 +4559,12 @@ template <typename T>
     T (&t)[N])
   {
     return t;
+  }
+
+  inline
+  void
+  decay_return_type()
+  {
   }
 
   template <bool sequence_set>
@@ -5295,6 +5442,34 @@ template <typename T>
     return ::trompeloeil::decay_return_type(__VA_ARGS__);                      \
   })
 
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+
+#define TROMPELOEIL_CO_RETURN(...)    TROMPELOEIL_CO_RETURN_(=, __VA_ARGS__)
+#define TROMPELOEIL_LR_CO_RETURN(...) TROMPELOEIL_CO_RETURN_(&, __VA_ARGS__)
+
+#define TROMPELOEIL_CO_RETURN_(capture, ...) \
+  handle_co_return([capture](auto& trompeloeil_x) -> decltype(auto) { \
+    auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
+    auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
+    auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
+    auto&& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                        \
+    auto&& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                        \
+    auto&& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                        \
+    auto&& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                        \
+    auto&& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                        \
+    auto&& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                        \
+    auto&&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                       \
+    auto&&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                       \
+    auto&&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                       \
+    auto&&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                       \
+    auto&&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                       \
+    auto&&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                       \
+    ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+    return ::trompeloeil::decay_return_type(__VA_ARGS__);                      \
+  })
+
+#endif
+
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
 
@@ -5484,7 +5659,10 @@ template <typename T>
 #define LR_RETURN                 TROMPELOEIL_LR_RETURN
 #define THROW                     TROMPELOEIL_THROW
 #define LR_THROW                  TROMPELOEIL_LR_THROW
-
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+#define CO_RETURN                 TROMPELOEIL_CO_RETURN
+#define LR_CO_RETURN              TROMPELOEIL_LR_CO_RETURN
+#endif
 #define TIMES                     TROMPELOEIL_TIMES
 #define IN_SEQUENCE               TROMPELOEIL_IN_SEQUENCE
 #define ANY                       TROMPELOEIL_ANY
