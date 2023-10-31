@@ -31,7 +31,7 @@ f=$1
 EXCEPTION_RE=`get_rule "exception" $f`
 COMPILER="${CXX} ${CXXFLAGS} ${CPPFLAGS}"
 
-[ -n "$EXCEPTION_RE" ] && echo ${COMPILER} | grep -q -e "$EXCEPTION_RE" && exit 0
+[ -n "$EXCEPTION_RE" ] && echo "{$RUNNER_OS} ${COMPILER}" | grep -q -e "$EXCEPTION_RE" && exit 0
 PASS_RE=`get_rule "pass" $f`
 failfile=`mktemp`
 (${COMPILER} -I ../include $f -c 2>&1) > $failfile
