@@ -33,4 +33,9 @@ COMPILER="${CXX} ${CXXFLAGS} ${CPPFLAGS}"
 
 [ -n "$EXCEPTION_RE" ] && echo ${COMPILER} | grep -q -e "$EXCEPTION_RE" && exit 0
 PASS_RE=`get_rule "pass" $f`
-${COMPILER} -I ../include $f -c 2>&1 | egrep  -q "${PASS_RE}" && printf "%-45s ${PASS}\n" $f && continue || printf "%-45s ${FAIL}\n" $f && false
+failfile=`mktemp`
+(${COMPILER} -I ../include $f -c 2>&1) > $failfile
+cat $failfile | egrep  -q "${PASS_RE}" && printf "%-45s ${PASS}\n" $f && continue || { printf "%-45s ${FAIL}\n" $f; cat $failfile; } && false
+RET=$?
+rm $failfile
+exit $RET
