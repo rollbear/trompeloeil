@@ -23,11 +23,13 @@
   - [**`AT_LEAST(`** *number* **`)`**](#AT_LEAST)
   - [**`AT_MOST(`** *number* **`)`**](#AT_MOST)
   - [**`CO_RETURN(`** *expr **`)**](#CO_RETURN)
+  - [**`CO_THROW(`** *expr **`)**](#CO_THROW)
   - [**`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#FORBID_CALL)
   - [**`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_CONST_MOCKn)
   - [**`IMPLEMENT_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_MOCKn)
   - [**`IN_SEQUENCE(`** *seq...* **`)`**](#IN_SEQUENCE)
   - [**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN)
+  - [**`LR_CO_THROW(`** *expr* **`)`**](#LR_CO_THROW)
   - [**`LR_RETURN(`** *expr* **`)`**](#LR_RETURN)
   - [**`LR_SIDE_EFFECT(`** *expr* **`)`**](#LR_SIDE_EFFECT)
   - [**`LR_THROW(`** *expr* **`)`**](#LR_THROW)
@@ -786,6 +788,27 @@ Coroutine support must be explicitly enabled by defining
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
+<A name="CO_THROW"/>
+
+### **`CO_THROW(`** *expr* **`)`**
+
+Used in [expectations](#expectation) to throw an exception from a coroutine.
+Note that any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
+[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) would happen at the call, not in
+the co routine. To have side effects in the co-routine, they must be baked into
+*expr*. *expr* may refer to parameters in the call with their positional names
+`_1`, `_2`, etc. This code may alter out-parameters.
+
+Coroutine support must be explicitly enabled by defining
+**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
+
+```Cpp
+#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
+#include <trompeloeil.hpp>
+```
+
+**NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
+
 <A name="FORBID_CALL"/>
 
 ### **`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**
@@ -1076,6 +1099,26 @@ Coroutine support must be explicitly enabled by defining
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
+<A name="LR_CO_THROW"/>
+
+### **`LR_CO_THROW(`** *expr* **`)`**
+
+Used in [expectations](#expectation) to throw an exception from a coroutine.
+Note that any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
+[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) would happen at the call, not in
+the co routine. To have side effects in the co-routine, they must be baked into
+*expr*. *expr* may refer to parameters in the call with their positional names
+`_1`, `_2`, etc. This code may alter out-parameters.
+
+Coroutine support must be explicitly enabled by defining
+**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
+
+```Cpp
+#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
+#include <trompeloeil.hpp>
+```
+
+**NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
 <A name="LR_RETURN"/>
 

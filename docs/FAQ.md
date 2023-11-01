@@ -24,6 +24,7 @@
 - Q. [Why can't I mock a function that returns a template?](#return_template)
 - Q. [Can I mock a `noexcept` function?](#mock_noexcept)
 - Q. [What does it mean that an expectation is "saturated"?](#saturated_expectation)
+- Q. [Can I mock a coroutine functionp?](#coroutines)
 
 ## <A name="why_name"/>Q. Why a name that can neither be pronounced nor spelled?
 
@@ -775,3 +776,18 @@ test_func()
    exercise(obj); // calls obj.func. Fail. Expectation is alive, two prior calls, this one saturated
 }
 ```
+
+### <A name="coroutines"/> Q. Can I mock a coroutine function?
+
+There is experimental support to handle
+[`co_return`](https://en.cppreference.com/w/cpp/language/coroutines) from member
+functions that return a co-routine type.
+
+To enable the experimental support, you must `#define` `TROMPELOEIL_EXPERIMENTAL_COROUTINES`
+before `#include` of a *Trompeleil* header.
+
+See the reference manual for [**`CO_RETURN(`** ... **`)`**](reference.md#CO_RETURN),
+[**`LR_CO_RETURN(`** ... **`)`**](reference.md#LR_CO_RETURN),
+[**`CO_THROW(`** ... **`)`**](reference.md#CO_THROW) and
+[**`LR_CO_THROW(`** ... **`)`**](reference.md#LR_CO_THROW).
+
