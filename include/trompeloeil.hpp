@@ -758,6 +758,33 @@ namespace trompeloeil
 
   template <typename Sig>
   struct is_coroutine<Sig, std::void_t<decltype(&std::coroutine_traits<Sig>::promise_type::initial_suspend)>> : std::true_type {};
+
+  template <typename T>
+  struct coro_value_type
+  {
+    template <typename U>
+    struct wrapper{
+        template <typename V>
+        static V remove_rvalue_ref(V&&);
+        using type = decltype(remove_rvalue_ref(std::declval<U>()));
+    };
+    static auto func()
+    {
+      if constexpr (requires {std::declval<T>().operator co_await();})
+      {
+        return wrapper<decltype(std::declval<T>().operator co_await().await_resume())>{};
+      }
+      else
+      {
+        return wrapper<decltype(std::declval<T>().await_resume())>{};
+      }
+    }
+    using type = typename decltype(func())::type;
+  };
+
+template <typename T>
+using coro_value_type_t = typename coro_value_type<T>::type;
+
 #endif
 
   template <typename T>
@@ -3895,7 +3922,7 @@ template <typename T>
       static_assert(has_return || has_co_return || !is_coroutine || is_matching_type,
                     "Expression type does not match the coroutine promise type");
       static_assert(!throws || upper_call_limit == 0,
-                    "THROW and CO_RETURN does not make sense");
+                    "CO_THROW and CO_RETURN does not make sense");
       static_assert(upper_call_limit > 0,
                     "CO_RETURN for forbidden call does not make sense");
 
@@ -3977,7 +4004,57 @@ template <typename T>
       return std::move(*this);
     }
 
-  private:
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+
+    template <typename H>
+    struct co_throw_handler_t
+    {
+      using R = decltype(default_return<return_of_t<signature>>());
+      using promise_value_type = trompeloeil::coro_value_type_t<R>;
+      explicit
+      co_throw_handler_t(H&& h_)
+        : h(std::move(h_))
+      {}
+
+      template <typename T>
+      promise_value_type operator()(T& p)
+      {
+        return ((void)h(p), trompeloeil::default_return<promise_value_type>());
+      }
+
+    private:
+      H h;
+    };
+
+    template <typename H>
+    call_modifier<Matcher, modifier_tag, throw_injector<Parent>>
+    handle_co_throw(
+      H&& h)
+    {
+      using sigret = return_of_t<signature>;
+      constexpr bool is_coroutine      = trompeloeil::is_coroutine<sigret>::value;
+      static_assert(is_coroutine,
+                    "Do not use CO_THROW from a normal function, use THROW");
+      static_assert(!is_coroutine || !throws,
+                    "Multiple CO_THROW does not make sense");
+      constexpr bool has_return = !std::is_same<co_return_type, void>::value;
+      static_assert(!is_coroutine || !has_return,
+                    "CO_THROW and CO_RETURN does not make sense");
+
+      constexpr bool forbidden = upper_call_limit == 0U;
+
+      static_assert(!is_coroutine || !forbidden,
+                    "CO_THROW for forbidden call does not make sense");
+
+      constexpr bool valid = is_coroutine && !throws && !has_return;
+      if constexpr (valid) {
+        using tag = std::integral_constant<bool, valid>;
+        auto handler = co_throw_handler_t<H>(std::forward<H>(h));
+        matcher->set_co_return(tag{}, std::move(handler));
+      }
+      return {matcher};
+    }
+#endif
     template <typename H>
     struct throw_handler_t
     {
@@ -4011,7 +4088,6 @@ template <typename T>
       H h;
     };
 
-  public:
     template <typename H>
     call_modifier<Matcher, modifier_tag, throw_injector<Parent>>
     handle_throw(
@@ -5529,6 +5605,36 @@ template <typename T>
 
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+
+#define TROMPELOEIL_CO_THROW(...)    TROMPELOEIL_CO_THROW_(=, __VA_ARGS__)
+#define TROMPELOEIL_LR_CO_THROW(...) TROMPELOEIL_CO_THROW_(&, __VA_ARGS__)
+
+
+
+#define TROMPELOEIL_CO_THROW_(capture, ...)                                    \
+  handle_co_throw([capture](auto& trompeloeil_x)  {                            \
+    auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
+    auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
+    auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
+    auto&& _4 = ::trompeloeil::mkarg<4>(trompeloeil_x);                        \
+    auto&& _5 = ::trompeloeil::mkarg<5>(trompeloeil_x);                        \
+    auto&& _6 = ::trompeloeil::mkarg<6>(trompeloeil_x);                        \
+    auto&& _7 = ::trompeloeil::mkarg<7>(trompeloeil_x);                        \
+    auto&& _8 = ::trompeloeil::mkarg<8>(trompeloeil_x);                        \
+    auto&& _9 = ::trompeloeil::mkarg<9>(trompeloeil_x);                        \
+    auto&&_10 = ::trompeloeil::mkarg<10>(trompeloeil_x);                       \
+    auto&&_11 = ::trompeloeil::mkarg<11>(trompeloeil_x);                       \
+    auto&&_12 = ::trompeloeil::mkarg<12>(trompeloeil_x);                       \
+    auto&&_13 = ::trompeloeil::mkarg<13>(trompeloeil_x);                       \
+    auto&&_14 = ::trompeloeil::mkarg<14>(trompeloeil_x);                       \
+    auto&&_15 = ::trompeloeil::mkarg<15>(trompeloeil_x);                       \
+    ::trompeloeil::ignore(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15); \
+    throw __VA_ARGS__;                                                         \
+ })
+
+#endif
+
 
 #define TROMPELOEIL_TIMES(...) times(::trompeloeil::multiplicity<__VA_ARGS__>{})
 #define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
@@ -5662,6 +5768,8 @@ template <typename T>
 #ifdef TROMPELOEIL_COROUTINES_SUPPORTED
 #define CO_RETURN                 TROMPELOEIL_CO_RETURN
 #define LR_CO_RETURN              TROMPELOEIL_LR_CO_RETURN
+#define CO_THROW                  TROMPELOEIL_CO_THROW
+#define LR_CO_THROW               TROMPELOEIL_LR_CO_THROW
 #endif
 #define TIMES                     TROMPELOEIL_TIMES
 #define IN_SEQUENCE               TROMPELOEIL_IN_SEQUENCE

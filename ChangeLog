@@ -1,10 +1,6 @@
 	* Experimental support for coroutines. Use CO_RETURN (or LR_CO_RETURN)
-	  for a member function that has a coroutine return type. Do *not* use
-	  THROW in a such a member function, if you must throw, write
-
-	    .CO_RETURN(false ? <type> : throw <exception>)
-
-	  where <type> is the type that would be returned in a success case.
+	  for a member function that has a coroutine return type. Use CO_THROW
+	  (or LR_CO_THROW) to throw from a coroutine.
 
 	  The experimental support must be explicitly enabled with
 

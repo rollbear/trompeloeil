@@ -55,6 +55,20 @@ TEST_CASE("co await throws")
   REQUIRE(x == 1);
 }
 
+TEST_CASE("co await throws with CO_THROW")
+{
+  co_mock m;
+  REQUIRE_CALL(m, intret()).CO_THROW("foo");
+
+  int x = 0;
+  std::invoke([&]()->coro::task<void>{
+    auto p = m.intret();
+    REQUIRE_THROWS(co_await p);
+    x = 1;
+  });
+  REQUIRE(x == 1);
+}
+
 TEST_CASE("unique_ptr in co_return")
 {
   using trompeloeil::_;
