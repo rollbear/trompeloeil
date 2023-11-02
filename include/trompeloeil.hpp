@@ -3700,12 +3700,11 @@ template <typename T>
 
     return_of_t<Sig>
     call(
-      trace_agent& agent,
+      trace_agent& /*agent*/,
       call_params_type_t<Sig>& params)
     override
     {
-      using ret = decltype(func(params));
-      co_return trace_return<ret>(agent, func, params);
+      co_return func(params);
     }
   private:
     T func;

@@ -9,6 +9,11 @@
 
 	  There is currently no support for co_yield.
 
+	  Note that SIDE_EFFECT and LR_SIDE_EFFECT take effect when the coroutine
+	  member function is called, not when the coroutine runs.
+
+	  trompeloeil::stream_tracer does not produce correct result for coroutines
+
 	* The self test program "custom_recursive_mutex" now says that it's
 	  succeeded. Thank you @yurivict for reporting the confusion.
 
