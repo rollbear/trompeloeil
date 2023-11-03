@@ -50,10 +50,30 @@ namespace coro
     get_return_object()
       noexcept;
 
+    bool has_data() const
+    {
+      return !std::holds_alternative<std::monostate>(data_);
+    }
+
     void
     return_value(T t)
     {
       data_.template emplace<data>(std::move(t));
+      if (continuation_)
+      {
+        continuation_.resume();
+      }
+    }
+
+    auto
+    yield_value(T t)
+    {
+      data_.template emplace<data>(std::move(t));
+      if (continuation_)
+      {
+        continuation_.resume();
+      }
+      return std::suspend_always{};
     }
 
     void
@@ -63,44 +83,14 @@ namespace coro
       data_.template emplace<std::exception_ptr>(std::current_exception());
     }
 
-    const T&
+    T
     result()
-      const &
     {
-      if (auto v = std::get_if<data>(&data_))
-      {
-        return v->value;
-      }
-      else if (auto e = std::get_if<std::exception_ptr>(&data_))
-      {
-        std::rethrow_exception(*e);
-      }
-      else
-      {
-        abort();
-      }
-    }
-    T &
-    result()
-      &
-    {
-      if (auto v = std::get_if<data>(&data_))
-      {
-        return v->value;
-      }
-      else if (auto e = std::get_if<std::exception_ptr>(&data_))
-      {
-        std::rethrow_exception(*e);
-      }
-      else
-      {
-        abort();
-      }
-    }
-    T&&
-    result()
-      &&
-    {
+      struct cleaner_ {
+        promise* p;
+        ~cleaner_() { p->data_.template emplace<std::monostate>();}
+      };
+      cleaner_ c{this};
       if (auto v = std::get_if<data>(&data_))
       {
         return std::move(v->value);
@@ -169,9 +159,16 @@ namespace coro
     get_return_object()
       noexcept;
 
+    bool
+    has_data()
+      const
+    {
+      return has_data_;
+    }
     void
     return_void()
     {
+      has_data_ = true;
       exception_ = nullptr;
     }
 
@@ -179,13 +176,14 @@ namespace coro
     unhandled_exception()
       noexcept
     {
+      has_data_ = true;
       exception_ = std::current_exception();
     }
 
     void
     result()
-      const
     {
+      has_data_ = false;
       if (exception_)
       {
         std::rethrow_exception(exception_);
@@ -201,6 +199,7 @@ namespace coro
   private:
     std::exception_ptr exception_ = nullptr;
     std::coroutine_handle<> continuation_{nullptr};
+    bool has_data_ = false;
   };
 
   template<typename T>
@@ -254,7 +253,7 @@ namespace coro
       const
       noexcept
       {
-        return coroutine_.done();
+        return coroutine_.promise().has_data();
       }
 
       std::coroutine_handle<>

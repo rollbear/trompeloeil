@@ -1,16 +1,13 @@
 	* Experimental support for coroutines. Use CO_RETURN (or LR_CO_RETURN)
 	  for a member function that has a coroutine return type. Use CO_THROW
-	  (or LR_CO_THROW) to throw from a coroutine.
+	  (or LR_CO_THROW) to throw from a coroutine. Use as many CO_YIELD
+	  (or LR_CO_YIELD) from a coroutine function as you like, as long as the
+	  promise type supports it.
 
 	  The experimental support must be explicitly enabled with
 
 	    #define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 	    #include <trompeloeil.hpp>
-
-	  There is currently no support for co_yield.
-
-	  Note that SIDE_EFFECT and LR_SIDE_EFFECT take effect when the coroutine
-	  member function is called, not when the coroutine runs.
 
 	  trompeloeil::stream_tracer does not produce correct result for coroutines
 

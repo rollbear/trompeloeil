@@ -99,7 +99,7 @@ TEST_CASE("A move-only type can be CO_RETURNed from the argument", "[coro]")
   REQUIRE_CALL(m, unique(_)).CO_RETURN(std::move(_1));
   auto p = m.unique(std::make_unique<int>(3));
   iptr x;
-  std::invoke([&]() -> coro::task<void> { x = std::move(co_await p); });
+  std::invoke([&]() -> coro::task<void> { x = co_await p; });
   REQUIRE(x);
   REQUIRE(*x == 3);
 }
@@ -120,4 +120,18 @@ TEST_CASE("SIDE_EFFECT runs on the call to co-routine function, not when the cor
   REQUIRE(y == 5);
 }
 
+TEST_CASE("co_yield")
+{
+  co_mock m;
+  REQUIRE_CALL(m, intret()).CO_YIELD(1).CO_YIELD(2).CO_RETURN(0);
+  auto p = m.intret();
+  int v = 0;
+  std::invoke([&]() -> coro::task<void> { v = co_await p;});
+  REQUIRE(v == 1);
+  std::invoke([&]() -> coro::task<void> { v = co_await p;});
+  REQUIRE(v == 2);
+  std::invoke([&]() -> coro::task<void> { v = co_await p;});
+  REQUIRE(v == 0);
+
+}
 #endif
