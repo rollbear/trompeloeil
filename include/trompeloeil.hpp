@@ -3986,7 +3986,10 @@ template <typename T>
       static_assert(!is_coroutine || is_void || is_matching_type,
                     "CO_YIELD is incompatible with the promise type");
       constexpr auto valid = is_coroutine && !is_void && is_matching_type;
-      matcher->add_yield_expr(std::bool_constant<valid>{}, std::forward<E>(e));
+      if constexpr (valid)
+      {
+        matcher->add_yield_expr(std::forward<E>(e));
+      }
       return {matcher};
     }
     template <typename H>
@@ -4023,8 +4026,10 @@ template <typename T>
                     "CO_RETURN for forbidden call does not make sense");
 
       constexpr bool valid = !has_return && !has_co_return && is_coroutine && is_matching_type && !throws && upper_call_limit > 0;
-      using tag = std::bool_constant<valid>;
-      matcher->set_co_return(tag{}, std::forward<H>(h));
+      if constexpr (valid)
+      {
+        matcher->set_co_return(std::forward<H>(h));
+      }
       return {matcher};
     }
 #endif
@@ -4144,9 +4149,8 @@ template <typename T>
 
       constexpr bool valid = is_coroutine && !throws && !has_return;
       if constexpr (valid) {
-        using tag = std::integral_constant<bool, valid>;
         auto handler = co_throw_handler_t<H>(std::forward<H>(h));
-        matcher->set_co_return(tag{}, std::move(handler));
+        matcher->set_co_return(std::move(handler));
       }
       return {matcher};
     }
@@ -4561,19 +4565,11 @@ template <typename T>
     template <typename E>
     void
     add_yield_expr(
-      std::true_type,
       E&& e)
     {
       auto expr = new yield_expr<Sig, E>(std::forward<E>(e));
       yield_expressions->push_back(expr);
     }
-
-    template <typename E>
-    void
-    add_yield_expr(
-      std::false_type,
-      E&&
-      );
 #endif
     template <typename T>
     inline
@@ -4598,19 +4594,12 @@ template <typename T>
     inline
     void
     set_co_return(
-      std::true_type,
       T&& h)
     {
       using basic_t = typename std::remove_reference<T>::type;
       using handler = co_return_handler_t<Sig, basic_t>;
       return_handler_obj.reset(new handler(std::forward<T>(h), yield_expressions));
     }
-
-    template <typename T>              // Never called. Used to limit errmsg
-    static                             // with CO_RETURN of wrong type and after:
-    void                               //   FORBIDDEN_CALL and others
-    set_co_return(std::false_type, T&&)
-      noexcept;
 #endif
 
     condition_list<Sig>                    conditions;
