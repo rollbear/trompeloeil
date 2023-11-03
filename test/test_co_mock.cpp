@@ -147,7 +147,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "co_yield",
+    "CO_YIELDed values are co_await:ed in order with CO_RETURN last",
     "[coro]")
 {
   co_mock m;
