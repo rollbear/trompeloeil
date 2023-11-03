@@ -356,6 +356,7 @@ jobs:
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: true,
+            no_coverage: true,
           }
           # Clang-3.6
           - {
@@ -375,6 +376,7 @@ jobs:
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: false,
+            no_coverage: true
           }
           - {
             name: "Linux Clang 3.6 C++11 / libc++",
@@ -393,6 +395,7 @@ jobs:
             cxx_standard: 14,
             cxx_asan: false,
             libcxx: true,
+            no_coverage: true
           }
           # Clang-3.7
           - {
@@ -504,6 +507,7 @@ jobs:
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true,
+            no_coverage: true
           }
           # Clang-4.0
           - {
@@ -541,6 +545,7 @@ jobs:
             cxx_standard: 14,
             cxx_asan: true,
             libcxx: true,
+            no_coverage: true
           }
           # Clang-5.0
           - {
@@ -1572,8 +1577,9 @@ jobs:
           then
             cxx_flags="${cxx_flags} -fno-omit-frame-pointer"
           fi
-          echo ${{ matrix.config.name }} | grep -q -e '^Windows' || cxx_flags="${cxx_flags} --coverage"
-
+          [ -n "${{ matrix.config.no_coverage }}" ] || { 
+            echo ${{ matrix.config.name }} | grep -q -e '^Windows' || cxx_flags="${cxx_flags} --coverage"
+          }
           cmake \
               -S . \
               -B build \
@@ -1600,14 +1606,14 @@ jobs:
           ./build/test/self_test
 
       - name: Collect coverage
-        if: (!startsWith(matrix.config.name, 'windows'))
+        if: (!startsWith(matrix.config.name, 'windows') && !matrix.config.no_coverage)
         run: |
           COV=`echo "${{ matrix.config.name }}}" | grep -q -e "Linux.*Clang" && echo "llvm-cov gcov"|| echo gcov`
           ${COV} -abcfup `find build/test -name "*.gcno"`
           ls *.gcov| grep -v 'include#trompeloeil'|xargs rm
 
       - name: Upload coverage
-        if: (!startsWith(matrix.config.name, 'windows')) && github.repository == 'rollbear/trompeloeil'
+        if: (!startsWith(matrix.config.name, 'windows') && !matrix.config.no_coverage) && github.repository == 'rollbear/trompeloeil'
         uses: codecov/codecov-action@v3
         with:
           gcov_include: "include/trompeloeil"
