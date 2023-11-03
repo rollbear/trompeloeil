@@ -13,6 +13,7 @@
  */
 
 #include "compiling_tests.hpp"
+#include "test_reporter.hpp"
 
 #if defined(CATCH2_VERSION) && CATCH2_VERSION == 3
 #include <catch2/catch_test_macros.hpp>

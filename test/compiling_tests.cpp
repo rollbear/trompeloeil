@@ -36,6 +36,7 @@
 #include <vector>
 
 #include "compiling_tests.hpp"
+#include "test_reporter.hpp"
 
 std::vector<report> reports;
 std::vector<std::string> okReports;

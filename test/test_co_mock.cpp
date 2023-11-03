@@ -9,7 +9,7 @@
 #include <catch2/catch.hpp>
 #endif
 #include "micro_coro.hpp"
-
+#include "test_reporter.hpp"
 #include <optional>
 
 using trompeloeil::_;
@@ -24,7 +24,10 @@ namespace {
   };
 }
 
-TEST_CASE("A CO_RETURNed value is obtained from co_await","[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "A CO_RETURNed value is obtained from co_await",
+    "[coro]")
 {
   co_mock m;
   REQUIRE_CALL(m, intret()).CO_RETURN(3);
@@ -33,10 +36,14 @@ TEST_CASE("A CO_RETURNed value is obtained from co_await","[coro]")
    std::invoke([&]()->coro::task<void>{ x = co_await m.intret();});
 
   REQUIRE(x == 3);
+
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("The coroutine can be executed after the expectation has been retired",
-          "[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "The coroutine can be executed after the expectation has been retired",
+    "[coro]")
 {
   co_mock m;
   std::optional<coro::task<int>> t;
@@ -49,9 +56,13 @@ TEST_CASE("The coroutine can be executed after the expectation has been retired"
   std::invoke([&]()->coro::task<void>{ x = co_await *t;});
 
   REQUIRE(x == 3);
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("A void co_routine is CO_RETURNed", "[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "A void co_routine is CO_RETURNed",
+    "[coro]")
 {
   co_mock m;
   REQUIRE_CALL(m, voidret()).CO_RETURN();
@@ -60,10 +71,13 @@ TEST_CASE("A void co_routine is CO_RETURNed", "[coro]")
   std::invoke([&]()->coro::task<void>{ co_await m.voidret(); x = 3;});
 
   REQUIRE(x == 3);
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("If the CO_RETURN expression throws, the exception is thrown from co_await",
-          "[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "If the CO_RETURN expression throws, the exception is thrown from co_await",
+    "[coro]")
 {
   co_mock m;
   std::optional<coro::task<int>> t;
@@ -77,10 +91,13 @@ TEST_CASE("If the CO_RETURN expression throws, the exception is thrown from co_a
     x = 1;
   });
   REQUIRE(x == 1);
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("Exception from CO_THROW is thrown from co_await",
-          "[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "Exception from CO_THROW is thrown from co_await",
+    "[coro]")
 {
   co_mock m;
   REQUIRE_CALL(m, intret()).CO_THROW("foo");
@@ -91,9 +108,13 @@ TEST_CASE("Exception from CO_THROW is thrown from co_await",
     x = 1;
   });
   REQUIRE(x == 1);
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("A move-only type can be CO_RETURNed from the argument", "[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "A move-only type can be CO_RETURNed from the argument",
+    "[coro]")
 {
   co_mock m;
   REQUIRE_CALL(m, unique(_)).CO_RETURN(std::move(_1));
@@ -102,10 +123,13 @@ TEST_CASE("A move-only type can be CO_RETURNed from the argument", "[coro]")
   std::invoke([&]() -> coro::task<void> { x = co_await p; });
   REQUIRE(x);
   REQUIRE(*x == 3);
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("SIDE_EFFECT runs on the call to co-routine function, not when the coro runs",
-          "[coro]")
+TEST_CASE_METHOD(
+    Fixture,
+    "SIDE_EFFECT runs on the call to co-routine function, not when the coro runs",
+    "[coro]")
 {
   co_mock m;
   int x = 0;
@@ -118,9 +142,13 @@ TEST_CASE("SIDE_EFFECT runs on the call to co-routine function, not when the cor
   std::invoke([&]() -> coro::task<void> { y = co_await p;});
   REQUIRE(x == 0);
   REQUIRE(y == 5);
+  REQUIRE(reports.empty());
 }
 
-TEST_CASE("co_yield")
+TEST_CASE_METHOD(
+    Fixture,
+    "co_yield",
+    "[coro]")
 {
   co_mock m;
   REQUIRE_CALL(m, intret()).CO_YIELD(1).CO_YIELD(2).CO_RETURN(0);
@@ -132,6 +160,7 @@ TEST_CASE("co_yield")
   REQUIRE(v == 2);
   std::invoke([&]() -> coro::task<void> { v = co_await p;});
   REQUIRE(v == 0);
-
+  REQUIRE(reports.empty());
 }
+
 #endif
