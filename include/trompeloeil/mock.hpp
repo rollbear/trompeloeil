@@ -2207,42 +2207,6 @@ template <typename T>
   template <typename T>
   void can_match_parameter(T&&);
 
-  template <typename M>
-  class ptr_deref : public matcher
-  {
-  public:
-    template <typename U,
-              typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(*std::declval<U>())>>(std::declval<M>()))>
-    operator U() const;
-
-    template <typename U>
-    explicit
-    ptr_deref(
-      U&& m_)
-      : m( std::forward<U>(m_) )
-    {}
-
-    template <typename U>
-    bool
-    matches(
-      const U& u)
-    const
-    noexcept(noexcept(std::declval<M>().matches(*u)))
-    {
-      return (u != nullptr) && m.matches(*u);
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      ptr_deref<M> const& p)
-    {
-      return os << p.m;
-    }
-  private:
-    M m;
-  };
 
 
   template <typename MatchType, typename Predicate, typename ... ActualType>
@@ -2414,15 +2378,6 @@ template <typename T>
   {
     return "";
   }
-
-  template <typename M>
-  std::string
-  param_name_prefix(
-    const ptr_deref<M>*)
-  {
-    return "*" + param_name_prefix(static_cast<M*>(nullptr));
-  }
-
 
   template <typename T>
   struct null_on_move
@@ -4390,17 +4345,6 @@ template <typename T>
   using modifier_t = call_modifier<call_matcher<sig, param_t<U...>>,
                                    tag,
                                    matcher_info<sig>>;
-
-  template <typename M,
-            typename = detail::enable_if_t<::trompeloeil::is_matcher<M>::value>>
-  inline
-  ::trompeloeil::ptr_deref<detail::decay_t<M>>
-  operator*(
-    M&& m)
-  {
-    return ::trompeloeil::ptr_deref<detail::decay_t<M>>{std::forward<M>(m)};
-  }
-
 
   /*
    * Convert the signature S of a mock function to the signature of

@@ -609,6 +609,8 @@ matcher, to match a value pointed to by a pointer. A
 [`nullptr`](http://en.cppreference.com/w/cpp/language/nullptr) value fails the
 matcher.
 
+`#include <trompeloeil/matcher/deref.hpp>`
+
 Example:
 
 ```Cpp
