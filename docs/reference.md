@@ -1659,6 +1659,8 @@ object which reports a violation if the
 [**`deathwatched_type`**](#deathwatched_type) [mock object](#mock_object) is
 not destroyed by the time the `expectation` is destroyed.
 
+`#include <trompeloeil/lifetime.hpp>`
+
 Example:
 
 ```Cpp
@@ -1762,6 +1764,8 @@ fixtures.
 Create an anonymous [`lifetime_monitor`](#lifetime_monitor_type) which reports
 a violation if the [**`deathwatched`**](#deathwatched_type)
 [mock object](#mock_object) is not destroyed by the end of the scope.
+
+`#include <trompeloeil/lifetime.hpp>`
 
 Example:
 
@@ -2073,6 +2077,8 @@ Template used when it is necessary to control the life time of a
 [**`NAMED_REQUIRE_DESTRUCTION(...)`**](#NAMED_REQUIRE_DESTRUCTION)
 operates on instances of `trompeloeil::deathwatched<T>`.
 
+`#include <trompeloeil/lifetime.hpp>`
+
 Example:
 
 ```Cpp
@@ -2139,6 +2145,8 @@ results in a
 [`std::unique_ptr<trompeloeil::lifetime_monitor>`](http://en.cppreference.com/w/cpp/memory/unique_ptr)
 which you can hold in a variable. `trompeloeil::lifetime_monitor` inherits from
 [`trompeloeil::expectation`](#expectation_type).
+
+`#include <trompeloeil/lifetime.hpp>`
 
 Example:
 
