@@ -30,5 +30,6 @@
 #include "trompeloeil/lifetime.hpp"
 #include "trompeloeil/matcher/compare.hpp"
 #include "trompeloeil/matcher/re.hpp"
+#include "trompeloeil/stream_tracer.hpp"
 
 #endif // include guard

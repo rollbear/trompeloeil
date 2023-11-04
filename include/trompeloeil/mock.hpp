@@ -1014,26 +1014,6 @@ using coro_value_type_t = typename coro_value_type<T>::type;
     tracer* previous = set_tracer(this);
   };
 
-  class stream_tracer : public tracer
-  {
-  public:
-    explicit
-    stream_tracer(
-      std::ostream& stream_)
-      : stream(stream_) {}
-    void
-    trace(
-      char const *file,
-      unsigned long line,
-      std::string const &call)
-      override
-    {
-      stream << location{file, line} << '\n' << call << '\n';
-    }
-  private:
-    std::ostream& stream;
-  };
-
   class trace_agent;
 
   template <typename T>

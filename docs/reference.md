@@ -2372,6 +2372,8 @@ matched calls to the
 it refers to. `stream_tracer` inherits from
 [`trompeloeil::tracer`](#tracer_type).
 
+`#include <trompeloeil/stream_tracer.hpp>`
+
 ```Cpp
 namespace trompeloeil {
 class stream_tracer : public ::trompeloeil::tracer
