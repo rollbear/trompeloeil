@@ -21,6 +21,7 @@ namespace {
     MAKE_MOCK0 (intret, coro::task<int>());
     MAKE_MOCK0 (voidret, coro::task<void>());
     MAKE_MOCK1 (unique, coro::task<iptr>(iptr));
+    MAKE_MOCK0 (gen, coro::generator<int>());
   };
 }
 
@@ -163,4 +164,25 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(
+    Fixture,
+    "Empty CO_RETURN can end a generator with yield and return_void",
+    "[coro]")
+{
+    co_mock m;
+    REQUIRE_CALL(m, gen())
+      .CO_YIELD(5)
+      .CO_YIELD(8)
+      .CO_YIELD(3)
+      .CO_RETURN();
+    auto p = m.gen();
+    int v = 0;
+    std::invoke([&]() -> coro::task<void> { v = co_await p;});
+    REQUIRE(v == 5);
+    std::invoke([&]() -> coro::task<void> { v = co_await p;});
+    REQUIRE(v == 8);
+    std::invoke([&]() -> coro::task<void> { v = co_await p;});
+    REQUIRE(v == 3);
+    REQUIRE(reports.empty());
+}
 #endif
