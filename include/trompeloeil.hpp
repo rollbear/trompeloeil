@@ -27,5 +27,6 @@
 // * If a macro kills a kitten, this threatens extinction of all felines!
 
 #include "trompeloeil/mock.hpp"
+#include "trompeloeil/matcher/re.hpp"
 
 #endif // include guard

@@ -537,6 +537,8 @@ equal value.
 Used in the parameter list of an [expectation](#expectation) to match a
 string with a regular expression.
 
+`#include <trompeloeil/matcher/re.hpp>`
+
 **`re()`** exists in two flavours.
 
 - **`re(`** *string*, *flags...* **`)`**
