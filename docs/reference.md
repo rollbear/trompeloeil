@@ -295,6 +295,8 @@ value equal to the one provided. By default it matches any parameter type
 that supports `operator==()` with the value, but an explicit type can be
 specified if needed for disambiguation.
 
+`#include <trompeloeil/matcher/compare.hpp>`
+
 Example:
 
 ```Cpp
@@ -335,6 +337,8 @@ value not equal to the one provided. By default it matches any parameter type
 that supports `operator!=()` with the value, but an explicit type can be
 specified if needed for disambiguation.
 
+`#include <trompeloeil/matcher/compare.hpp>`
+
 Example:
 
 ```Cpp
@@ -371,6 +375,8 @@ Used in the parameter list of an [expectation](#expectation) to match a
 value greater than the one provided. By default it matches any parameter type
 that supports `operator>()` with the value, but an explicit type can be
 specified if needed for disambiguation.
+
+`#include <trompeloeil/matcher/compare.hpp>`
 
 Example:
 
@@ -415,6 +421,8 @@ value greater than on equal to the one provided. By default it matches any
 parameter type that supports `operator>=()` with the value, but an explicit
 type can be specified if needed for disambiguation.
 
+`#include <trompeloeil/matcher/compare.hpp>`
+
 Example:
 
 ```Cpp
@@ -457,6 +465,8 @@ value less than the one provided. By default it matches any parameter type
 that supports `operator<()` with the value, but an explicit type can be
 specified if needed for disambiguation.
 
+`#include <trompeloeil/matcher/compare.hpp>`
+
 Example:
 
 ```Cpp
@@ -497,6 +507,8 @@ Used in the parameter list of an [expectation](#expectation) to match a
 value less than or equal to the one provided. By default it matches any
 parameter type that supports `operator<=()` with the value, but an explicit type
 can be specified if needed for disambiguation.
+
+`#include <trompeloeil/matcher/compare.hpp>`
 
 Example:
 
