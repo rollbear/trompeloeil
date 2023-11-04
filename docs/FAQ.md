@@ -780,14 +780,17 @@ test_func()
 ### <A name="coroutines"/> Q. Can I mock a coroutine function?
 
 There is experimental support to handle
-[`co_return`](https://en.cppreference.com/w/cpp/language/coroutines) from member
+[`co_return`](https://en.cppreference.com/w/cpp/language/coroutines) and
+[`co_yield`](https://en.cppreference.com/w/cpp/language/coroutines#co_yield) from member
 functions that return a co-routine type.
 
 To enable the experimental support, you must `#define` `TROMPELOEIL_EXPERIMENTAL_COROUTINES`
 before `#include` of a *Trompeleil* header.
 
-See the reference manual for [**`CO_RETURN(`** ... **`)`**](reference.md#CO_RETURN),
-[**`LR_CO_RETURN(`** ... **`)`**](reference.md#LR_CO_RETURN),
-[**`CO_THROW(`** ... **`)`**](reference.md#CO_THROW) and
-[**`LR_CO_THROW(`** ... **`)`**](reference.md#LR_CO_THROW).
+See the reference manual for [**`CO_RETURN(`** *expr* **`)`**](reference.md#CO_RETURN),
+[**`LR_CO_RETURN(`** *expr* **`)`**](reference.md#LR_CO_RETURN),
+[**`CO_THROW(`** *expr **`)`**](reference.md#CO_THROW),
+[**`LR_CO_THROW(`** *expr* **`)`**](reference.md#LR_CO_THROW),
+[**`CO_YIELD(`** *expr* **`)`**](reference.md#CO_YIELD),
+[**`LR_CO_YIELD(`** *expr* **`)`**](reference.md#LR_CO_YIELD).
 

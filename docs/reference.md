@@ -24,12 +24,14 @@
   - [**`AT_MOST(`** *number* **`)`**](#AT_MOST)
   - [**`CO_RETURN(`** *expr **`)**](#CO_RETURN)
   - [**`CO_THROW(`** *expr **`)**](#CO_THROW)
+  - [**`CO_YIELD(`** *expr **`)**](#CO_YIELD)
   - [**`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#FORBID_CALL)
   - [**`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_CONST_MOCKn)
   - [**`IMPLEMENT_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_MOCKn)
   - [**`IN_SEQUENCE(`** *seq...* **`)`**](#IN_SEQUENCE)
   - [**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN)
   - [**`LR_CO_THROW(`** *expr* **`)`**](#LR_CO_THROW)
+  - [**`LR_CO_YIELD(`** *expr* **`)`**](#LR_CO_YIELD)
   - [**`LR_RETURN(`** *expr* **`)`**](#LR_RETURN)
   - [**`LR_SIDE_EFFECT(`** *expr* **`)`**](#LR_SIDE_EFFECT)
   - [**`LR_THROW(`** *expr* **`)`**](#LR_THROW)
@@ -772,11 +774,9 @@ is reported.
 ### **`CO_RETURN(`** *expr* **`)`**
 
 Used in [expectations](#expectation) to set the return value from a coroutine.
-Note that any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
-[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) would happen at the call, not in
-the co routine. To have side effects in the co-routine, they must be baked into
-*expr*. *expr* may refer to parameters in the call with their positional names
-`_1`, `_2`, etc. This code may alter out-parameters.
+Note that when [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
+[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
+coroutine promise  type. This code may alter out-parameters.
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -793,11 +793,32 @@ Coroutine support must be explicitly enabled by defining
 ### **`CO_THROW(`** *expr* **`)`**
 
 Used in [expectations](#expectation) to throw an exception from a coroutine.
-Note that any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
-[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) would happen at the call, not in
-the co routine. To have side effects in the co-routine, they must be baked into
-*expr*. *expr* may refer to parameters in the call with their positional names
-`_1`, `_2`, etc. This code may alter out-parameters.
+Note that when any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
+[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
+coroutine promise type. This code may alter out-parameters.
+
+Coroutine support must be explicitly enabled by defining
+**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
+
+```Cpp
+#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
+#include <trompeloeil.hpp>
+```
+
+**NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
+
+<A name="CO_YIELD"/>
+
+### **`CO_YIELD(`** *expr* **`)`**
+
+Used in [expectations](#expectation) with a coroutine type that can
+[`co_yield`](https://en.cppreference.com/w/cpp/language/coroutines#co_yield).
+You can add several **`CO_YIELD`** to the same expectation, and the values will
+be yielded one at the time, in the order they are listed. Note that
+[**`CO_RETURN(`** *expr* **`)`**](#CO_RETURN) or
+[**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN) is still needed.
+
+See also [**`LR_CO_YIELD(`** *expr* **`]`**](#LR_CO_YIELD)
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -1083,11 +1104,9 @@ The function `test_func()` must call `m.func(0)` at least once, and end with
 ### **`LR_CO_RETURN(`** *expr* **`)`**
 
 Used in [expectations](#expectation) to set the return value from a coroutine.
-Note that any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
-[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) would happen at the call, not in
-the co routine. To have side effects in the co-routine, they must be baked into
-*expr*. *expr* may refer to parameters in the call with their positional names
-`_1`, `_2`, etc. This code may alter out-parameters.
+Note that when any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
+[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
+coroutine promise type. This code may alter out-parameters.
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -1096,6 +1115,9 @@ Coroutine support must be explicitly enabled by defining
 #define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 #include <trompeloeil.hpp>
 ```
+
+**NOTE!** Any named local objects named in *expr* are captured by reference so
+lifetime management is important.
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
@@ -1104,11 +1126,9 @@ Coroutine support must be explicitly enabled by defining
 ### **`LR_CO_THROW(`** *expr* **`)`**
 
 Used in [expectations](#expectation) to throw an exception from a coroutine.
-Note that any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
-[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) would happen at the call, not in
-the co routine. To have side effects in the co-routine, they must be baked into
-*expr*. *expr* may refer to parameters in the call with their positional names
-`_1`, `_2`, etc. This code may alter out-parameters.
+Note that when any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
+[**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
+coroutine promise type. This code may alter out-parameters.
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -1117,6 +1137,34 @@ Coroutine support must be explicitly enabled by defining
 #define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 #include <trompeloeil.hpp>
 ```
+
+**NOTE!** Any named local objects named in *expr* are captured by reference so
+lifetime management is important.
+
+**NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
+
+<A name="LR_CO_YIELD"/>
+
+### **`LR_CO_YIELD(`** *expr* **`)`**
+
+Used in [expectations](#expectation) with a coroutine type that can
+[`co_yield`](https://en.cppreference.com/w/cpp/language/coroutines#co_yield).
+You can add several **`LR_CO_YIELD`** to the same expectation, and the values will
+be yielded one at the time, in the order they are listed. Note that
+[**`CO_RETURN(`** *expr* **`)`**](#CO_RETURN) or
+[**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN) is still needed.
+
+See also [**`CO_YIELD(`** *expr* **`]`**](#LR_CO_YIELD)
+
+Coroutine support must be explicitly enabled by defining
+**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
+
+```Cpp
+#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
+#include <trompeloeil.hpp>
+```
+**NOTE!** Any named local objects named in *expr* are captured by reference so
+lifetime management is important.
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
