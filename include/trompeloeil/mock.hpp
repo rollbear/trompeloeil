@@ -2244,42 +2244,6 @@ template <typename T>
     M m;
   };
 
-  template <typename M>
-  class neg_matcher : public matcher
-  {
-  public:
-    template <typename U,
-              typename = decltype(can_match_parameter<detail::remove_reference_t<decltype(std::declval<U>())>>(std::declval<M>()))>
-    operator U() const { return {}; }
-
-    template <typename U>
-    explicit
-    neg_matcher(
-      U&& m_)
-      : m( std::forward<U>(m_) )
-    {}
-
-    template <typename U>
-    bool
-    matches(
-      const U& u)
-    const
-    noexcept(noexcept(!std::declval<M>().matches(u)))
-    {
-      return !m.matches(u);
-    }
-
-    friend
-    std::ostream&
-    operator<<(
-      std::ostream& os,
-      neg_matcher<M> const& p)
-    {
-      return os << p.m;
-    }
-  private:
-    M m;
-  };
 
   template <typename MatchType, typename Predicate, typename ... ActualType>
   struct matcher_kind
@@ -2456,16 +2420,9 @@ template <typename T>
   param_name_prefix(
     const ptr_deref<M>*)
   {
-    return "*" + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
+    return "*" + param_name_prefix(static_cast<M*>(nullptr));
   }
 
-  template <typename M>
-  std::string
-  param_name_prefix(
-    const neg_matcher<M>*)
-  {
-    return "not " + ::trompeloeil::param_name_prefix(static_cast<M*>(nullptr));
-  }
 
   template <typename T>
   struct null_on_move
@@ -2992,7 +2949,7 @@ template <typename T>
   {
     if (!::trompeloeil::param_matches(v, p))
     {
-      auto prefix = ::trompeloeil::param_name_prefix(&v) + "_";
+      auto prefix = param_name_prefix(&v) + "_";
       os << "  Expected " << std::setw((num < 9) ? 2 : 1) << prefix << num+1;
       ::trompeloeil::print_expectation(os, v);
     }
@@ -3024,7 +2981,7 @@ template <typename T>
     int i,
     T const& t)
   {
-    auto prefix = ::trompeloeil::param_name_prefix(&t) + "_";
+    auto prefix = param_name_prefix(&t) + "_";
     os << "  param " << std::setw((i < 9) ? 2 : 1) << prefix << i + 1
        << ::trompeloeil::param_compare_operator(&t);
     ::trompeloeil::print(os, t);
@@ -4444,15 +4401,6 @@ template <typename T>
     return ::trompeloeil::ptr_deref<detail::decay_t<M>>{std::forward<M>(m)};
   }
 
-  template <typename M,
-            typename = detail::enable_if_t<::trompeloeil::is_matcher<M>::value>>
-  inline
-  ::trompeloeil::neg_matcher<detail::decay_t<M>>
-  operator!(
-    M&& m)
-  {
-    return ::trompeloeil::neg_matcher<detail::decay_t<M>>{std::forward<M>(m)};
-  }
 
   /*
    * Convert the signature S of a mock function to the signature of

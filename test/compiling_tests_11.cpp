@@ -3470,7 +3470,7 @@ Tried obj.overload\(trompeloeil::re<std::string const&>\("end\$", std::regex_con
 
 #endif /* TROMPELOEIL_TEST_REGEX_BOL_EOL_FAILURES */
 
-// tests of parameter matching using neg_matcher
+// tests of parameter matching using not_matcher
 
 
 TEST_CASE_METHOD(

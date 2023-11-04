@@ -16,7 +16,7 @@
     - [**`le(`** *value* **`)`**](#le)
     - [**`re(`** *string* **`)`**](#re)
     - [**`*`** *matcher*](#deref_matcher)
-    - [**`!`** *matcher*](#negate_matcher)
+    - [**`!`** *matcher*](#not_matcher)
 - [Macros](#macros) (alphabetical order)
   - [**`ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#ALLOW_CALL)
   - [**`ANY(`** *type* **`)`**](#ANY_MACRO)
@@ -629,11 +629,13 @@ TEST(atest)
 Above, `test_function(&mock_obj)` must call `mock_obj.func()` with a pointer
 to the value `3`.
 
-#### <A name="negate_matcher"/>**`!`** *matcher*
+#### <A name="not_matcher"/>**`!`** *matcher*
 
 Used in the parameter list of an [expectation](#expectation) together with a
 matcher, to negate a matcher, i.e. to fail what the matcher allows, and to
 allow what the matcher fails.
+
+`#include <trompeloeil/matcher/not.hpp>`
 
 Example:
 
