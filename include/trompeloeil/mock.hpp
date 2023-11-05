@@ -129,10 +129,8 @@
 #include <exception>
 #include <functional>
 #include <memory>
-#include <cstring>
-#include <regex>
+#include <vector>
 #include <mutex>
-#include <atomic>
 #include <array>
 #include <initializer_list>
 #include <type_traits>
