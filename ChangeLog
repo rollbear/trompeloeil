@@ -1,3 +1,16 @@
+	* Split the monolithinc "trompeloeil.hpp" into several smaller
+	  headers. You can continue to #include <trompeloeil.hpp> as usual,
+	  but you can also do more fine grained #include:s, which may
+	  improve build times. E.g.:
+
+	    #include <trompeloeil/mock.hpp> // basic mock functionality
+	    #include <trompeloeil/lifetime.hpp> // REQUIRE_DESTRUCTION etc.
+	    #include <trompeloeil/matcher/re.hpp> // regular expressions
+
+	  The reference manual says which header to include to get the
+	  functionality for each item. If no header is mentioned, it is in
+	  <trompeleil/mock.hpp>
+
 v46 2023-11-06
 
 	* Experimental support for coroutines. Use CO_RETURN (or LR_CO_RETURN)
@@ -11,7 +24,14 @@ v46 2023-11-06
 	    #define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 	    #include <trompeloeil.hpp>
 
-	  trompeloeil::stream_tracer does not produce correct result for coroutines
+	  alternatively
+
+	    #define TROMPELOEIL_EXPERIMENTAL_COROUTINES
+	    #include <trompeloeil/mock.hpp>
+	    #include <trompeloeil/coro.hpp>
+
+	  trompeloeil::stream_tracer does not produce correct result for
+	  coroutines
 
 	* Corrected output of input-range like types. Thank you Dominic Koepke for
 	  the fix.
@@ -22,7 +42,8 @@ v46 2023-11-06
 	* Self test programs are only build when explicitly setting
 	  -DTROMPELOEIL_BUILD_TESTS=yes to the CMake command line.
 
-	* The self test programs require a higher version of CMake (3.19 currently)
+	* The self test programs require a higher version of CMake (3.19
+	  currently)
 
 v45 2023-07-21
 
