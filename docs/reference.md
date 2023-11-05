@@ -796,6 +796,8 @@ Note that when [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
 coroutine promise  type. This code may alter out-parameters.
 
+`#include <trompeloeil/coro.hpp>`
+
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
 
@@ -814,6 +816,8 @@ Used in [expectations](#expectation) to throw an exception from a coroutine.
 Note that when any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
 coroutine promise type. This code may alter out-parameters.
+
+`#include <trompeloeil/coro.hpp>`
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -837,6 +841,8 @@ be yielded one at the time, in the order they are listed. Note that
 [**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN) is still needed.
 
 See also [**`LR_CO_YIELD(`** *expr* **`]`**](#LR_CO_YIELD)
+
+`#include <trompeloeil/coro.hpp>`
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -1126,6 +1132,8 @@ Note that when any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
 coroutine promise type. This code may alter out-parameters.
 
+`#include <trompeloeil/coro.hpp>`
+
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
 
@@ -1147,6 +1155,8 @@ Used in [expectations](#expectation) to throw an exception from a coroutine.
 Note that when any [**`SIDE_EFFECT(...)`**](#SIDE_EFFECT) and
 [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT) are executed depends on the behaviour of the
 coroutine promise type. This code may alter out-parameters.
+
+`#include <trompeloeil/coro.hpp>`
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
@@ -1173,6 +1183,8 @@ be yielded one at the time, in the order they are listed. Note that
 [**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN) is still needed.
 
 See also [**`CO_YIELD(`** *expr* **`]`**](#LR_CO_YIELD)
+
+`#include <trompeloeil/coro.hpp>`
 
 Coroutine support must be explicitly enabled by defining
 **`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
