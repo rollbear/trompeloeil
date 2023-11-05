@@ -1,7 +1,8 @@
 #ifdef __cpp_impl_coroutine
 
 #define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
+#include <trompeloeil/mock.hpp>
+#include <trompeloeil/coro.hpp>
 
 #if defined(CATCH2_VERSION) && CATCH2_VERSION == 3
 #include <catch2/catch_test_macros.hpp>
