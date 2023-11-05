@@ -534,6 +534,9 @@ namespace trompeloeil {
 template <typename T>
 using coro_value_type_t = typename coro_value_type<T>::type;
 
+#else
+  template <typename>
+  using is_coroutine = std::false_type;
 #endif
 
   template <typename T>
@@ -3175,6 +3178,62 @@ template <typename T>
     static bool const sequence_set = true;
   };
 
+#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+  template <typename H, typename signature>
+    struct co_throw_handler_t
+    {
+      using R = decltype(default_return<return_of_t<signature>>());
+      using promise_value_type = trompeloeil::coro_value_type_t<R>;
+      explicit
+      co_throw_handler_t(H&& h_)
+        : h(std::move(h_))
+      {}
+
+      template <typename T>
+      promise_value_type operator()(T& p)
+      {
+        return ((void)h(p), trompeloeil::default_return<promise_value_type>());
+      }
+
+    private:
+      H h;
+    };
+#endif
+
+  template <typename H, typename signature>
+  struct throw_handler_t
+  {
+    using R = decltype(default_return<return_of_t<signature>>());
+
+    explicit
+    throw_handler_t(H&& h_)
+      : h(std::move(h_))
+    {}
+
+    template <typename T>
+    R operator()(T& p)
+    {
+      /* Work around VS 2017 15.7.x C4702 warning by
+       * enclosing the operation in an otherwise
+       * unnecessary try/catch block.
+       */
+      try
+      {
+        h(p);
+        abort();
+      }
+      catch (...)
+      {
+        throw;
+      }
+      return default_return<R>(); // unreachable code
+    }
+
+  private:
+    H h;
+  };
+
+
   template <typename Matcher, typename modifier_tag, typename Parent>
   struct call_modifier : public Parent
   {
@@ -3193,35 +3252,98 @@ template <typename T>
       : matcher{m}
     {}
 
-    template <typename D>
-    call_modifier&&
-    with(
-      char const* str,
-      D&& d)
-    &&
+    template <typename F, typename ... Ts>
+    auto action(Ts&& ... ts) &
+    -> decltype(F::action(*this, std::forward<Ts>(ts)...))
     {
-      matcher->add_condition(str, std::forward<D>(d));
+        return F::action(*this, std::forward<Ts>(ts)...);
+    }
+    template <typename F, typename ... Ts>
+    auto action(Ts&& ... ts) const &
+    -> decltype(F::action(*this, std::forward<Ts>(ts)...))
+    {
+        return F::action(*this, std::forward<Ts>(ts)...);
+    }
+    template <typename F, typename ... Ts>
+    auto action(Ts&& ... ts) &&
+    -> decltype(F::action(std::move(*this), std::forward<Ts>(ts)...))
+    {
+        return F::action(std::move(*this), std::forward<Ts>(ts)...);
+    }
+    template <typename F, typename ... Ts>
+    auto action(Ts&& ... ts) const &&
+    -> decltype(F::action(std::move(*this), std::forward<Ts>(ts)...))
+    {
+        return F::action(std::move(*this), std::forward<Ts>(ts)...);
+    }
+    call_modifier&&
+    null_modifier()
+    {
       return std::move(*this);
     }
 
-    template <typename A>
+    template <typename ... T,
+              bool b = sequence_set>
+    call_modifier<Matcher, modifier_tag, sequence_injector<Parent>>
+    in_sequence(
+      T&& ... t)
+    {
+      static_assert(!b,
+                    "Multiple IN_SEQUENCE does not make sense."
+                    " You can list several sequence objects at once");
+
+      static_assert(upper_call_limit > 0,
+                    "IN_SEQUENCE for forbidden call does not make sense");
+
+      matcher->set_sequence(std::forward<T>(t)...);
+      return {matcher};
+    }
+    Matcher* matcher;
+  };
+
+  struct with
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename D>
+    static
+    call_modifier<Matcher, modifier_tag, Parent>&&
+    action(
+      call_modifier<Matcher, modifier_tag, Parent>&& m,
+      const char* str,
+      D&& d)
+    {
+      m.matcher->add_condition(str, std::forward<D>(d));
+      return std::move(m);
+    }
+  };
+
+  struct sideeffect
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename A>
+    static
     call_modifier<Matcher, modifier_tag, sideeffect_injector<Parent>>
-    sideeffect(
+    action(
+      call_modifier<Matcher, modifier_tag, Parent>&& m,
       A&& a)
     {
-      constexpr bool forbidden = upper_call_limit == 0U;
+      constexpr bool forbidden = Parent::upper_call_limit == 0U;
       static_assert(!forbidden,
                     "SIDE_EFFECT for forbidden call does not make sense");
-      matcher->add_side_effect(std::forward<A>(a));
-      return {std::move(matcher)};
+      m.matcher->add_side_effect(std::forward<A>(a));
+      return {std::move(m.matcher)};
     }
-    template <typename...> struct S;
+  };
+
 #ifdef TROMPELOEIL_COROUTINES_SUPPORTED
-    template <typename E>
+  struct handle_co_yield
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename E>
+    static
     call_modifier<Matcher, modifier_tag, Parent>
-    handle_co_yield(
+    action(
+      call_modifier<Matcher, modifier_tag, Parent>&& m,
       E&& e)
     {
+      using signature = typename Parent::signature;
       using params_type = call_params_type_t<signature>&;
       using sigret = return_of_t<signature>;
       using ret = std::invoke_result_t<E, params_type>;
@@ -3245,19 +3367,25 @@ template <typename T>
       constexpr auto valid = is_coroutine && !is_void && is_matching_type;
       if constexpr (valid)
       {
-        matcher->add_yield_expr(std::forward<E>(e));
+        m.matcher->add_yield_expr(std::forward<E>(e));
       }
-      return {matcher};
+      return {m.matcher};
     }
-    template <typename H>
-    call_modifier<Matcher, modifier_tag, co_return_injector<return_of_t<signature>, Parent >>
-    handle_co_return(
-      H&& h)
+  };
+  struct handle_co_return
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename H>
+    static
+    call_modifier<Matcher, modifier_tag, co_return_injector<return_of_t<typename Parent::signature>, Parent>>
+    action(call_modifier<Matcher, modifier_tag, Parent>&& m,
+           H&& h)
     {
+      using signature = typename Parent::signature;
+      using return_type = typename Parent::return_type;
+      using co_return_type = typename Parent::co_return_type;
       using params_type = call_params_type_t<signature>&;
       using sigret = return_of_t<signature>;
       using ret = std::invoke_result_t<H, params_type>;
-
       constexpr bool has_return = !std::is_same_v<return_type, void>;
       constexpr bool has_co_return = !std::is_same_v<co_return_type, void>;
       constexpr bool is_coroutine = trompeloeil::is_coroutine<sigret>::value;
@@ -3277,34 +3405,37 @@ template <typename T>
       static_assert(has_return || is_coroutine, "CO_RETURN when return type is not a coroutine");
       static_assert(has_return || has_co_return || !is_coroutine || is_matching_type,
                     "Expression type does not match the coroutine promise type");
-      static_assert(!throws || upper_call_limit == 0,
+      static_assert(!Parent::throws || Parent::upper_call_limit == 0,
                     "CO_THROW and CO_RETURN does not make sense");
-      static_assert(upper_call_limit > 0,
+      static_assert(Parent::upper_call_limit > 0,
                     "CO_RETURN for forbidden call does not make sense");
 
-      constexpr bool valid = !has_return && !has_co_return && is_coroutine && is_matching_type && !throws && upper_call_limit > 0;
+      constexpr bool valid = !has_return && !has_co_return && is_coroutine && is_matching_type && !Parent::throws && Parent::upper_call_limit > 0;
       if constexpr (valid)
       {
-        matcher->set_co_return(std::forward<H>(h));
+        m.matcher->set_co_return(std::forward<H>(h));
       }
-      return {matcher};
+      return {m.matcher};
     }
+  };
 #endif
-    template <typename H>
-    call_modifier<Matcher, modifier_tag, return_injector<return_of_t<signature>, Parent >>
-    handle_return(
-      H&& h)
+  struct handle_return
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename H>
+    static
+    call_modifier<Matcher, modifier_tag, return_injector<return_of_t<typename Parent::signature>, Parent>>
+    action(call_modifier<Matcher, modifier_tag, Parent>&& m,
+           H&& h)
     {
+      using signature = typename Parent::signature;
+      using return_type = typename Parent::return_type;
+      using co_return_type = typename Parent::co_return_type;
       using params_type = call_params_type_t<signature>&;
       using sigret = return_of_t<signature>;
       using ret = decltype(std::declval<H>()(std::declval<params_type>()));
       // don't know why MS VS 2015 RC doesn't like std::result_of
 
-#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
       constexpr bool is_coroutine      = trompeloeil::is_coroutine<sigret>::value;
-#else
-      constexpr bool is_coroutine      = false;
-#endif
       constexpr bool is_illegal_type   = std::is_same<detail::decay_t<ret>, illegal_argument>::value;
       constexpr bool has_co_return     = !std::is_same<co_return_type, void>::value;
       constexpr bool is_first_return   = std::is_same<return_type, void>::value;
@@ -3345,143 +3476,97 @@ template <typename T>
                     "RETURN value is not convertible to the return type of the function");
       static_assert(is_coroutine || is_first_return,
                     "Multiple RETURN does not make sense");
-      static_assert(is_coroutine || !throws || upper_call_limit == 0,
+      static_assert(is_coroutine || !Parent::throws || Parent::upper_call_limit == 0,
                     "THROW and RETURN does not make sense");
-      static_assert(is_coroutine || upper_call_limit > 0,
+      static_assert(is_coroutine || Parent::upper_call_limit > 0,
                     "RETURN for forbidden call does not make sense");
 
-      constexpr bool valid = !is_coroutine && !is_illegal_type && matching_ret_type && is_first_return && !throws && upper_call_limit > 0;
+      constexpr bool valid = !is_coroutine && !is_illegal_type && matching_ret_type && is_first_return && !Parent::throws && Parent::upper_call_limit > 0;
       using tag = std::integral_constant<bool, valid>;
-      matcher->set_return(tag{}, std::forward<H>(h));
-      return {matcher};
+      m.matcher->set_return(tag{}, std::forward<H>(h));
+      return {m.matcher};
     }
+  };
 
-    call_modifier&&
-    null_modifier()
-    {
-      return std::move(*this);
-    }
-
-#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
-
-    template <typename H>
-    struct co_throw_handler_t
-    {
-      using R = decltype(default_return<return_of_t<signature>>());
-      using promise_value_type = trompeloeil::coro_value_type_t<R>;
-      explicit
-      co_throw_handler_t(H&& h_)
-        : h(std::move(h_))
-      {}
-
-      template <typename T>
-      promise_value_type operator()(T& p)
-      {
-        return ((void)h(p), trompeloeil::default_return<promise_value_type>());
-      }
-
-    private:
-      H h;
-    };
-
-    template <typename H>
+  #ifdef TROMPELOEIL_COROUTINES_SUPPORTED
+  struct handle_co_throw
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename H>
+    static
     call_modifier<Matcher, modifier_tag, throw_injector<Parent>>
-    handle_co_throw(
-      H&& h)
+    action(call_modifier<Matcher, modifier_tag, Parent>&& m,
+           H&& h)
     {
+      using signature = typename Parent::signature;
+      using co_return_type = typename Parent::co_return_type;
       using sigret = return_of_t<signature>;
       constexpr bool is_coroutine      = trompeloeil::is_coroutine<sigret>::value;
       static_assert(is_coroutine,
                     "Do not use CO_THROW from a normal function, use THROW");
-      static_assert(!is_coroutine || !throws,
+      static_assert(!is_coroutine || !Parent::throws,
                     "Multiple CO_THROW does not make sense");
       constexpr bool has_return = !std::is_same<co_return_type, void>::value;
       static_assert(!is_coroutine || !has_return,
                     "CO_THROW and CO_RETURN does not make sense");
 
-      constexpr bool forbidden = upper_call_limit == 0U;
+      constexpr bool forbidden = Parent::upper_call_limit == 0U;
 
       static_assert(!is_coroutine || !forbidden,
                     "CO_THROW for forbidden call does not make sense");
 
-      constexpr bool valid = is_coroutine && !throws && !has_return;
+      constexpr bool valid = is_coroutine && !Parent::throws && !has_return;
       if constexpr (valid) {
-        auto handler = co_throw_handler_t<H>(std::forward<H>(h));
-        matcher->set_co_return(std::move(handler));
+        auto handler = co_throw_handler_t<H, signature>(std::forward<H>(h));
+        m.matcher->set_co_return(std::move(handler));
       }
-      return {matcher};
+      return {m.matcher};
     }
-#endif
-    template <typename H>
-    struct throw_handler_t
-    {
-      using R = decltype(default_return<return_of_t<signature>>());
+  };
+  #endif
 
-      explicit
-      throw_handler_t(H&& h_)
-        : h(std::move(h_))
-      {}
-
-      template <typename T>
-      R operator()(T& p)
-      {
-        /* Work around VS 2017 15.7.x C4702 warning by
-         * enclosing the operation in an otherwise
-         * unnecessary try/catch block.
-         */
-        try
-        {
-          h(p);
-          abort();
-        }
-        catch (...)
-        {
-          throw;
-        }
-        return default_return<R>(); // unreachable code
-      }
-
-    private:
-      H h;
-    };
-
-    template <typename H>
+  struct handle_throw
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent, typename H>
+    static
     call_modifier<Matcher, modifier_tag, throw_injector<Parent>>
-    handle_throw(
-      H&& h)
+    action(call_modifier<Matcher, modifier_tag, Parent>&& m,
+           H&& h)
     {
-#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
-      using sigret = return_of_t<signature>;
-      constexpr bool is_coroutine      = trompeloeil::is_coroutine<sigret>::value;
-#else
-      constexpr bool is_coroutine      = false;
-#endif
+      using signature = typename Parent::signature;
+      constexpr bool is_coroutine      = trompeloeil::is_coroutine<return_of_t<signature>>::value;
+
       static_assert(!is_coroutine,
                     "Do not use THROW from a coroutine, use CO_THROW");
-      static_assert(is_coroutine || !throws,
+      static_assert(is_coroutine || !Parent::throws,
                     "Multiple THROW does not make sense");
-      constexpr bool has_return = !std::is_same<return_type, void>::value;
+      constexpr bool has_return = !std::is_same<typename Parent::return_type, void>::value;
       static_assert(!has_return,
                     "THROW and RETURN does not make sense");
 
-      constexpr bool forbidden = upper_call_limit == 0U;
+      constexpr bool forbidden = Parent::upper_call_limit == 0U;
 
       static_assert(is_coroutine || !forbidden,
                     "THROW for forbidden call does not make sense");
 
-      constexpr bool valid = !is_coroutine && !throws && !has_return;
+      constexpr bool valid = !is_coroutine && !Parent::throws && !has_return;
       using tag = std::integral_constant<bool, valid>;
-      auto handler = throw_handler_t<H>(std::forward<H>(h));
-      matcher->set_return(tag{}, std::move(handler));
-      return {matcher};
+      auto handler = throw_handler_t<H, signature>(std::forward<H>(h));
+      m.matcher->set_return(tag{}, std::move(handler));
+      return {m.matcher};
     }
+  };
 
-    template <size_t L,
-              size_t H,
-              bool               times_set = call_limit_set>
+  struct times
+  {
+    template <
+      typename Matcher, typename modifier_tag, typename Parent,
+      size_t L,
+      size_t H,
+      bool times_set = Parent::call_limit_set>
+    static
     call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, H>>
-    times(
-      multiplicity<L, H>)
+    action(call_modifier<Matcher, modifier_tag, Parent>&& m,
+           multiplicity<L, H>)
     {
       static_assert(!times_set,
                     "Only one TIMES call limit is allowed, but it can express an interval");
@@ -3489,39 +3574,21 @@ template <typename T>
       static_assert(H >= L,
                     "In TIMES the first value must not exceed the second");
 
-      static_assert(H > 0 || !throws,
+      static_assert(H > 0 || !Parent::throws,
                     "THROW and TIMES(0) does not make sense");
 
-      static_assert(H > 0 || std::is_same<return_type, void>::value,
+      static_assert(H > 0 || std::is_same<typename Parent::return_type, void>::value,
                     "RETURN and TIMES(0) does not make sense");
 
-      static_assert(H > 0 || !side_effects,
+      static_assert(H > 0 || !Parent::side_effects,
                     "SIDE_EFFECT and TIMES(0) does not make sense");
 
-      static_assert(H > 0 || !sequence_set,
+      static_assert(H > 0 || !Parent::sequence_set,
                     "IN_SEQUENCE and TIMES(0) does not make sense");
 
-      matcher->sequences->set_limits(L, H);
-      return {matcher};
+      m.matcher->sequences->set_limits(L, H);
+      return {m.matcher};
     }
-
-    template <typename ... T,
-              bool b = sequence_set>
-    call_modifier<Matcher, modifier_tag, sequence_injector<Parent>>
-    in_sequence(
-      T&& ... t)
-    {
-      static_assert(!b,
-                    "Multiple IN_SEQUENCE does not make sense."
-                    " You can list several sequence objects at once");
-
-      static_assert(upper_call_limit > 0,
-                    "IN_SEQUENCE for forbidden call does not make sense");
-
-      matcher->set_sequence(std::forward<T>(t)...);
-      return {matcher};
-    }
-    Matcher* matcher;
   };
 
   inline
@@ -3952,11 +4019,7 @@ template <typename T>
       using sigret = return_of_t<typename call::signature>;
       using ret = typename call::return_type;
       using coret = typename call::co_return_type;
-#ifdef TROMPELOEIL_COROUTINES_SUPPORTED
       constexpr bool is_coroutine = trompeloeil::is_coroutine<sigret>::value;
-#else
-      constexpr bool is_coroutine = false;
-#endif
       constexpr bool retmatch = std::is_same<ret, sigret>::value;
       constexpr bool coretmatch = std::is_same<coret, sigret>::value;
       constexpr bool forbidden = call::upper_call_limit == 0;
@@ -4663,7 +4726,8 @@ template <typename T>
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
-  with(arg_s, [capture](auto const& trompeloeil_x) {                           \
+  template action<trompeloeil::with>(arg_s,                                    \
+                                     [capture](auto const& trompeloeil_x) {    \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4693,7 +4757,7 @@ template <typename T>
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
-  sideeffect([capture](auto& trompeloeil_x) {                                  \
+  template action<trompeloeil::sideeffect>([capture](auto& trompeloeil_x) {    \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4723,7 +4787,8 @@ template <typename T>
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
-  handle_return([capture](auto& trompeloeil_x) -> decltype(auto) {             \
+  template action<trompeloeil::handle_return>([capture](auto& trompeloeil_x)   \
+                                              -> decltype(auto) {              \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4748,8 +4813,9 @@ template <typename T>
 #define TROMPELOEIL_CO_RETURN(...)    TROMPELOEIL_CO_RETURN_(=, __VA_ARGS__)
 #define TROMPELOEIL_LR_CO_RETURN(...) TROMPELOEIL_CO_RETURN_(&, __VA_ARGS__)
 
-#define TROMPELOEIL_CO_RETURN_(capture, ...) \
-  handle_co_return([capture](auto& trompeloeil_x) -> decltype(auto) { \
+#define TROMPELOEIL_CO_RETURN_(capture, ...)                                   \
+  template action<trompeloeil::handle_co_return>([capture](auto& trompeloeil_x)\
+                                                 -> decltype(auto) {           \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4781,7 +4847,7 @@ template <typename T>
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
-  handle_throw([capture](auto& trompeloeil_x)  {                               \
+  template action<trompeloeil::handle_throw>([capture](auto& trompeloeil_x) {  \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4809,7 +4875,7 @@ template <typename T>
 #define TROMPELOEIL_LR_CO_THROW(...) TROMPELOEIL_CO_THROW_(&, __VA_ARGS__)
 
 #define TROMPELOEIL_CO_THROW_(capture, ...)                                    \
-  handle_co_throw([capture](auto& trompeloeil_x)  {                            \
+  template action<trompeloeil::handle_co_throw>([capture](auto& trompeloeil_x){\
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4833,8 +4899,8 @@ template <typename T>
 #define TROMPELOEIL_LR_CO_YIELD(...) TROMPELOEIL_CO_YIELD_(&, __VA_ARGS__)
 
 
-#define TROMPELOEIL_CO_YIELD_(capture, ...)                                   \
-  handle_co_yield([capture](auto& trompeloeil_x)  {                            \
+#define TROMPELOEIL_CO_YIELD_(capture, ...)                                    \
+  template action<trompeloeil::handle_co_yield>([capture](auto& trompeloeil_x){\
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4856,7 +4922,7 @@ template <typename T>
 #endif
 
 
-#define TROMPELOEIL_TIMES(...) times(::trompeloeil::multiplicity<__VA_ARGS__>{})
+#define TROMPELOEIL_TIMES(...) template action<trompeloeil::times>(::trompeloeil::multiplicity<__VA_ARGS__>{})
 #define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
 
 #define TROMPELOEIL_IN_SEQUENCE(...)                                           \

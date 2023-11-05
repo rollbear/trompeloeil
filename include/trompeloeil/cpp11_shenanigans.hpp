@@ -273,7 +273,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
 }
 
 #define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
-  with(                                                                        \
+  template action<trompeloeil::with>(                                          \
     arg_s,                                                                     \
     [capture]                                                                  \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t const& trompeloeil_x)\
@@ -299,7 +299,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
     })
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
-  sideeffect(                                                                  \
+  template action<trompeloeil::sideeffect>(                                    \
     [capture]                                                                  \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
     {                                                                          \
@@ -324,7 +324,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
     })
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
-  handle_return(                                                               \
+  template action<trompeloeil::handle_return>(                                 \
     [capture]                                                                  \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
       -> typename trompeloeil_e_t::trompeloeil_return_of_t                     \
@@ -349,7 +349,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
       return ::trompeloeil::decay_return_type(__VA_ARGS__);                    \
     })
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
-  handle_throw(                                                                \
+  template action<trompeloeil::handle_throw>(                                  \
     [capture]                                                                  \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
     {                                                                          \
