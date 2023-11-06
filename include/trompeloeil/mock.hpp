@@ -373,17 +373,11 @@ namespace trompeloeil
 
   template <typename R, typename C, typename ... Args>
   identity_type<R(Args...)>
-  nonconst_member_signature(R (C::*)(Args...))
-  {
-    return {};
-  }
+  nonconst_member_signature(R (C::*)(Args...));
 
   template <typename R, typename C, typename ... Args>
   identity_type<R(Args...)>
-  const_member_signature(R (C::*)(Args...) const)
-  {
-    return {};
-  }
+  const_member_signature(R (C::*)(Args...) const);
 
   template <typename ...>
   struct void_t_
@@ -1073,17 +1067,6 @@ template <typename T>
   is_null(
     T const &,
     V)
-  noexcept
-  {
-    return false;
-  }
-
-  template <typename T>
-  constexpr
-  bool
-  is_null(
-    T const &,
-    std::false_type)
   noexcept
   {
     return false;
@@ -2812,25 +2795,7 @@ template <typename T>
     {}
 
     template <typename F, typename ... Ts>
-    auto action(Ts&& ... ts) &
-    -> decltype(F::action(*this, std::forward<Ts>(ts)...))
-    {
-        return F::action(*this, std::forward<Ts>(ts)...);
-    }
-    template <typename F, typename ... Ts>
-    auto action(Ts&& ... ts) const &
-    -> decltype(F::action(*this, std::forward<Ts>(ts)...))
-    {
-        return F::action(*this, std::forward<Ts>(ts)...);
-    }
-    template <typename F, typename ... Ts>
     auto action(Ts&& ... ts) &&
-    -> decltype(F::action(std::move(*this), std::forward<Ts>(ts)...))
-    {
-        return F::action(std::move(*this), std::forward<Ts>(ts)...);
-    }
-    template <typename F, typename ... Ts>
-    auto action(Ts&& ... ts) const &&
     -> decltype(F::action(std::move(*this), std::forward<Ts>(ts)...))
     {
         return F::action(std::move(*this), std::forward<Ts>(ts)...);
@@ -3559,7 +3524,7 @@ template <typename T>
 
   template <typename ... U>
   struct param_helper {
-    using type = decltype(detail::make_tuple(std::declval<U>()...));
+    using type = decltype(std::make_tuple(std::declval<U>()...));
   };
 
   template <typename ... U>
@@ -3569,25 +3534,6 @@ template <typename T>
   using modifier_t = call_modifier<call_matcher<sig, param_t<U...>>,
                                    tag,
                                    matcher_info<sig>>;
-
-  /*
-   * Convert the signature S of a mock function to the signature of
-   * a member function of class T that takes the same parameters P
-   * but returns R.
-   *
-   * The member function has the same constness as the mock function.
-   */
-  template <typename T, typename R, typename S>
-  struct signature_to_member_function;
-
-  template <typename T, typename R, typename R_of_S, typename... P>
-  struct signature_to_member_function<T, R, R_of_S(P...)>
-  {
-    using type = detail::conditional_t<
-      std::is_const<T>::value,
-      R (T::*)(P...) const,
-      R (T::*)(P...)>;
-  };
 
   template <typename T>
   struct mock_interface : public T

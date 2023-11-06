@@ -28,12 +28,6 @@ struct unwrap_type<std::reference_wrapper<T>>
 {
 using type = T&;
 };
-template <typename ... Ts>
-std::tuple<typename unwrap_type<typename std::decay<Ts>::type>::type...>
-make_tuple(Ts&& ... ts)
-{
-  return { std::forward<Ts>(ts)... };
-}
 
 /* Implement C++14 features using only C++11 entities. */
 
