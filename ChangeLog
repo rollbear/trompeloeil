@@ -1,3 +1,5 @@
+v46 2023-11-06
+
 	* Experimental support for coroutines. Use CO_RETURN (or LR_CO_RETURN)
 	  for a member function that has a coroutine return type. Use CO_THROW
 	  (or LR_CO_THROW) to throw from a coroutine. Use as many CO_YIELD
@@ -10,6 +12,9 @@
 	    #include <trompeloeil.hpp>
 
 	  trompeloeil::stream_tracer does not produce correct result for coroutines
+
+	* Corrected output of input-range like types. Thank you Dominic Koepke for
+	  the fix.
 
 	* The self test program "custom_recursive_mutex" now says that it's
 	  succeeded. Thank you @yurivict for reporting the confusion.
