@@ -129,7 +129,6 @@
 #include <exception>
 #include <functional>
 #include <memory>
-#include <vector>
 #include <mutex>
 #include <array>
 #include <initializer_list>
@@ -1617,299 +1616,42 @@ template <typename T>
 
   class sequence_matcher;
 
-  class sequence_type
-  {
-  public:
-    sequence_type() noexcept = default;
-    sequence_type(sequence_type&&) noexcept = delete;
-    sequence_type(const sequence_type&) = delete;
-    sequence_type& operator=(sequence_type&&) noexcept = delete;
-    sequence_type& operator=(const sequence_type&) = delete;
-    ~sequence_type();
 
-    bool
-    is_completed()
-    const
-    noexcept;
-
-    bool
-    is_first(
-      sequence_matcher const *m)
-    const
-    noexcept;
-
-    unsigned
-    cost(
-      sequence_matcher const *m)
-    const
-    noexcept;
-
-    void
-    retire_until(
-      sequence_matcher const* m)
-    noexcept;
-
-    void
-    add_last(
-      sequence_matcher *m)
-    noexcept;
-
-    void
-    validate_match(
-      severity s,
-      sequence_matcher const *matcher,
-      char const *seq_name,
-      char const *match_name,
-      location loc)
-    const;
-
-  private:
-    list<sequence_matcher> matchers;
-  };
-
-  class sequence
-  {
-  public:
-    sequence_type& operator*() { return *obj; }
-    bool is_completed() const { return obj->is_completed(); }
-  private:
-    std::unique_ptr<sequence_type> obj{detail::make_unique<sequence_type>()};
-  };
-
+  class sequence;
   struct sequence_handler_base;
 
-  class sequence_matcher : public list_elem<sequence_matcher>
+  template <size_t N>
+  struct sequence_matchers;
+
+  template <>
+  struct sequence_matchers<0>
   {
-  public:
-    using init_type = std::pair<char const*, sequence&>;
-
-    sequence_matcher(
-      char const *exp,
-      location loc,
-      const sequence_handler_base& handler,
-      init_type i)
-    noexcept
-    : seq_name(i.first)
-    , exp_name(exp)
-    , exp_loc(loc)
-    , sequence_handler(handler)
-    , seq(*i.second)
-    {
-      auto lock = get_lock();
-      seq.add_last(this);
-    }
-
     void
-    validate_match(
-      severity s,
-      char const *match_name,
-      location loc)
-    const
+    validate(
+      severity,
+      char const*,
+      location)
     {
-      seq.validate_match(s, this, seq_name, match_name, loc);
     }
-
     unsigned
-    cost()
-    const
-    noexcept
+    order()
+      const
+      noexcept
     {
-      return seq.cost(this);
+      return 0;
     }
-
-    bool
-    is_satisfied()
-      const
-      noexcept;
-
-    bool
-    is_optional()
-      const
-      noexcept;
-
     void
     retire()
-    noexcept
+      noexcept
     {
-      this->unlink();
     }
-
     void
     retire_predecessors()
-    noexcept
+      noexcept
     {
-      seq.retire_until(this);
     }
-
-    void
-    print_expectation(std::ostream& os)
-    const
-    {
-      os << exp_name << " at " << exp_loc;
-    }
-
-    char const*
-    sequence_name()
-    const
-    noexcept
-    {
-      return seq_name;
-    }
-  private:
-    char const *seq_name;
-    char const *exp_name;
-    location    exp_loc;
-    const sequence_handler_base& sequence_handler;
-    sequence_type& seq;
   };
 
-  inline
-  bool
-  sequence_type::is_completed()
-  const
-  noexcept
-  {
-    for (const auto& matcher : matchers)
-    {
-      if (!matcher.is_satisfied())
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  inline
-  bool
-  sequence_type::is_first(
-    sequence_matcher const *m)
-  const
-  noexcept
-  {
-    return !matchers.empty() && &*matchers.begin() == m;
-  }
-
-  inline
-  unsigned
-  sequence_type::cost(
-    sequence_matcher const* m)
-  const
-  noexcept
-  {
-    unsigned sequence_cost = 0U;
-    for (auto const& e : matchers)
-    {
-      if (&e == m) return sequence_cost;
-      if (!e.is_satisfied())
-      {
-        return ~0U;
-      }
-      ++sequence_cost;
-    }
-    return ~0U;
-  }
-
-  inline
-  void
-  sequence_type::retire_until(
-    sequence_matcher const* m)
-  noexcept
-  {
-    while (!matchers.empty())
-    {
-      auto first = &*matchers.begin();
-      if (first == m) return;
-      first->retire();
-    }
-  }
-
-  inline
-  void
-  sequence_type::validate_match(
-    severity s,
-    sequence_matcher const *matcher,
-    char const* seq_name,
-    char const* match_name,
-    location loc)
-  const
-  {
-    if (is_first(matcher)) return;
-    if (matchers.empty())
-    {
-      std::ostringstream os;
-      os << "Sequence mismatch for sequence \"" << seq_name
-         << "\" with matching call of " << match_name
-         << " at " << loc
-         << ". Sequence \"" << seq_name
-         << "\" has no more pending expectations\n";
-      send_report<specialized>(s, loc, os.str());
-    }
-    bool first = true;
-    std::ostringstream os;
-    os << "Sequence mismatch for sequence \"" << seq_name
-       << "\" with matching call of " << match_name
-       << " at " << loc << ".\n";
-    for (auto const& m : matchers)
-    {
-      if (first || !m.is_optional())
-      {
-        if (first)
-        {
-          os << "Sequence \"" << seq_name << "\" has ";
-        }
-        else
-        {
-          os << "and has ";
-        }
-        m.print_expectation(os);
-        if (m.is_optional())
-        {
-          os << " first in line\n";
-        }
-        else
-        {
-          os << " as first required expectation\n";
-          break;
-        }
-      }
-      first = false;
-    }
-    send_report<specialized>(s, loc, os.str());
-  }
-
-  inline
-  sequence_type::~sequence_type()
-  {
-    bool touched = false;
-    std::ostringstream os;
-    while (!matchers.empty())
-    {
-      auto m = matchers.begin();
-      if (!touched)
-      {
-        os << "Sequence expectations not met at destruction of sequence object \""
-           << m->sequence_name() << "\":";
-        touched = true;
-      }
-      os << "\n  missing ";
-      m->print_expectation(os);
-      m->unlink();
-    }
-    if (touched)
-    {
-      os << "\n";
-      send_report<specialized>(severity::nonfatal, location{}, os.str());
-    }
-  }
-
-  inline
-  void
-  sequence_type::add_last(
-    sequence_matcher *m)
-  noexcept
-  {
-    matchers.push_back(m);
-  }
 
   template <typename T>
   void can_match_parameter(T&);
@@ -2267,23 +2009,6 @@ template <typename T>
     sequence_handler_base(const sequence_handler_base&) = default;
   };
 
-  inline
-  bool
-  sequence_matcher::is_satisfied()
-  const
-  noexcept
-  {
-    return sequence_handler.is_satisfied();
-  }
-
-  inline
-  bool
-  sequence_matcher::is_optional()
-  const
-  noexcept
-  {
-    return sequence_handler.get_min_calls() == 0;
-  }
 
   template <size_t N>
   struct sequence_handler : public sequence_handler_base
@@ -2302,7 +2027,7 @@ template <typename T>
       S&& ... s)
     noexcept
       : sequence_handler_base(base)
-      , matchers{{sequence_matcher{name, loc, *this, std::forward<S>(s)}...}}
+      , matchers{{{sequence_matcher{name, loc, *this, std::forward<S>(s)}...}}}
     {
     }
 
@@ -2313,10 +2038,7 @@ template <typename T>
       location loc)
     override
     {
-      for (auto& e : matchers)
-      {
-        e.validate_match(s, match_name, loc);
-      }
+      matchers.validate(s, match_name, loc);
     }
 
     unsigned
@@ -2325,16 +2047,7 @@ template <typename T>
     noexcept
     override
     {
-      unsigned highest_order = 0U;
-      for (auto& m : matchers)
-      {
-        auto cost = m.cost();
-        if (cost > highest_order)
-        {
-          highest_order = cost;
-        }
-      }
-      return highest_order;
+      return matchers.order();
     }
 
     bool
@@ -2351,10 +2064,7 @@ template <typename T>
     noexcept
     override
     {
-      for (auto& e : matchers)
-      {
-        e.retire();
-      }
+      matchers.retire();
     }
 
     void
@@ -2362,17 +2072,10 @@ template <typename T>
     noexcept
       override
     {
-      for (auto& e : matchers)
-      {
-        e.retire_predecessors();
-      }
+      matchers.retire_predecessors();
     }
   private:
-    // work around for MS STL issue 942
-    // https://github.com/microsoft/STL/issues/942
-    detail::conditional_t<N == 0,
-                          std::vector<sequence_matcher>,
-                          std::array<sequence_matcher, N>> matchers;
+    sequence_matchers<N> matchers;
   };
 
 
@@ -4554,9 +4257,6 @@ template <typename T>
 #define TROMPELOEIL_TIMES(...) template action<trompeloeil::times>(::trompeloeil::multiplicity<__VA_ARGS__>{})
 #define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
 
-#define TROMPELOEIL_IN_SEQUENCE(...)                                           \
-  in_sequence(TROMPELOEIL_INIT_WITH_STR(::trompeloeil::sequence_matcher::init_type, __VA_ARGS__))
-
 #define TROMPELOEIL_ANY(type) ::trompeloeil::any_matcher<type>(#type)
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~static_cast<size_t>(0)
@@ -4659,7 +4359,6 @@ template <typename T>
 #define THROW                     TROMPELOEIL_THROW
 #define LR_THROW                  TROMPELOEIL_LR_THROW
 #define TIMES                     TROMPELOEIL_TIMES
-#define IN_SEQUENCE               TROMPELOEIL_IN_SEQUENCE
 #define ANY                       TROMPELOEIL_ANY
 #define AT_LEAST                  TROMPELOEIL_AT_LEAST
 #define AT_MOST                   TROMPELOEIL_AT_MOST

@@ -1019,7 +1019,9 @@ Several sequences can be parallel and interleaved. A sequence for an
 [expectation](#expectation) can move forward to the next once the lower
 limit from [**`TIMES(...)`**](#TIMES) is reached (defaults to 1). This means
 that if the lower limit is 0 (see [**`ALLOW_CALL(...)`**](#ALLOW_CALL)), the
-the expectation may be skipped in the sequence.
+expectation may be skipped in the sequence.
+
+`#include <trompeloeil/sequence.hpp>`
 
 Example:
 
@@ -2315,6 +2317,8 @@ which (if any) [expectations](#expectation) there are on the
 Type of object used for fine-tuned control of sequencing of matched
 [expectations](#expectation).
 
+`#include <trompeloeil/sequence.hpp>`
+
 Example:
 
 ```Cpp
@@ -2583,6 +2587,8 @@ unit test frame works.
 
 Member function of [`sequence`](#sequence_type) object, used to query if
 the sequence it describes is completed or not.
+
+`#include <trompeloeil/sequence.hpp>`
 
 Example:
 

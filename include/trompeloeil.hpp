@@ -32,6 +32,7 @@
 #include "trompeloeil/matcher/deref.hpp"
 #include "trompeloeil/matcher/not.hpp"
 #include "trompeloeil/matcher/re.hpp"
+#include "trompeloeil/sequence.hpp"
 #include "trompeloeil/stream_tracer.hpp"
 #ifdef __cpp_impl_coroutine
 #include "trompeloeil/coro.hpp"
