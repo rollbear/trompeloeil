@@ -8,12 +8,12 @@
 class C
 {
 public:
-  MAKE_MOCK0(func, int(void));
+  MAKE_MOCK0(func, unsigned(void));
   std::unique_ptr<trompeloeil::expectation> allow;
 };
 
 static std::mutex ptr_mutex;
-inline auto get_lock()
+inline std::unique_lock<std::mutex> get_lock()
 {
   return std::unique_lock<std::mutex>{ ptr_mutex };
 }
@@ -26,15 +26,15 @@ inline std::shared_ptr<C> get_obj()
   return obj;
 }
 
-static std::atomic<std::size_t> call_count[7];
-static std::atomic<std::size_t> ret_count[7];
+static std::array<std::atomic<std::size_t>, 7> call_count;
+static std::array<std::atomic<std::size_t>, 7> ret_count;
 
 static void init_obj()
 {
   auto m = std::make_shared<C>();
   m->allow = NAMED_ALLOW_CALL(*m, func())
     .SIDE_EFFECT(++call_count[0])
-    .RETURN(0);
+    .RETURN(0U);
   auto lock = get_lock();
   obj = m;
 }
@@ -53,12 +53,14 @@ static void call(size_t count)
   {
     if (auto m = get_obj())
     {
-      ret_count[m->func()]++;
+      std::size_t idx = m->func();
+      assert(idx < ret_count.size());
+      ret_count[idx]++;
     }
   }
 }
 
-static void allow(size_t count, int id)
+static void allow(size_t count, unsigned id)
 {
   std::unique_ptr<trompeloeil::expectation> exp;
   while (count--)
