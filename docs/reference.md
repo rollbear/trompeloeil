@@ -231,6 +231,8 @@ You can also provide [your own matchers](CookBook.md/#custom_matchers).
 Used in the parameter list of an [expectation](#expectation), `trompeloeil::_`
 matches any value of any type.
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -673,6 +675,8 @@ that describes matching calls.
 This is the same as
 [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL).[**`TIMES(`**](#TIMES) 0,infinity **`)`**.
 
+`#include <trompeloeil/mock.hpp>`
+
 Matches any number of times, but is not required to match. (_actually the limit is
 0..~0ULL, but that is for all practical purposes "infinity"_)
 
@@ -719,6 +723,8 @@ A [matcher](#matcher) for use in the parameter list of an
 [expectation](#expectation) to disambiguate overloaded functions on type when
 the exact value is unimportant. See the matcher [**`ANY(`** *type* **`)`**](#ANY) above.
 
+`#include <trompeloeil/mock.hpp>`
+
 <A name="AT_LEAST"/>
 
 ### **`AT_LEAST(`** *number* **`)`**
@@ -726,6 +732,8 @@ the exact value is unimportant. See the matcher [**`ANY(`** *type* **`)`**](#ANY
 Used in [**`TIMES(...)`**](#TIMES) to set the range *number*..infinity.
 *number* must be
 [`constexpr`](http://en.cppreference.com/w/cpp/language/constexpr).
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -761,6 +769,9 @@ _In reality the upper limit is ~0ULL, but that is for all practical purposes
 Used in [**`TIMES(...)`**](#TIMES) to set the range 0..*number*.
 *number* must be
 [`constexpr`](http://en.cppreference.com/w/cpp/language/constexpr).
+
+`#include <trompeloeil/mock.hpp>`
+
 
 Example:
 
@@ -869,6 +880,8 @@ where the wider scope would allow the call. [**`LR_RETURN(...)`**](#LR_RETURN),
 [**`RETURN(...)`**](#RETURN), [**`LR_THROW(...)`**](#LR_THROW) and
 [**`THROW(...)`**](#THROW) are illegal in a **`FORBID_CALL(...)`**.
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -918,6 +931,8 @@ is only usable with `virtual` non-`final` functions, and only when used with
 
 *specifiers* is an optional list which may include attributes or specifiers like
 [`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -969,6 +984,8 @@ is only usable with `virtual` non-`final` functions, and only when used with
 
 *specifiers* is an optional list which may include attributes or specifiers like
 [`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1214,6 +1231,8 @@ exactly one of [**`RETURN(...)`**](#RETURN), **`LR_RETURN(...)`**,
 `_2`, etc.
 This code may alter out-parameters.
 
+`#include <trompeloeil/mock.hpp>`
+
 If you need to return an
 [lvalue-reference](http://en.cppreference.com/w/cpp/language/reference),
 to a variable, use
@@ -1267,6 +1286,8 @@ may alter out-parameters. Several **`LR_SIDE_EFFECT(...)`** and
 clauses can be added to a single [expectation](#expectation), and they are
 evaluated in order.
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -1310,6 +1331,8 @@ Used in [expectations](#expectation) to throw after having evaluated every
 **`LR_THROW(...)`** with any of [**`THROW(...)`**](#THROW),
 [**`LR_RETURN(...)`**](#LR_RETURN) or [**`RETURN(...)`**](#RETURN). Named local
 objects are accessed by reference so lifetime management is important.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1357,6 +1380,8 @@ have passed.
 Named local objects are accessed by reference so lifetime management is
 important.
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -1403,6 +1428,8 @@ it is not a requirement. `n` is the number of parameters in *signature*.
 [`override`](http://en.cppreference.com/w/cpp/language/override) or
 [`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -1448,6 +1475,8 @@ it is not a requirement. `n` is the number of parameters in *signature*.
 *specifiers* is an optional list which may include attributes or specifiers like
 [`override`](http://en.cppreference.com/w/cpp/language/override) or
 [`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1504,6 +1533,8 @@ Matches any number of times, but is not required to match. (_Actually the limit 
 [**`LR_WITH(...)`**](#LR_WITH), [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT),
 [**`LR_RETURN(...)`**](#LR_RETURN) and [**`LR_THROW(...)`**](#LR_THROW) are
 captured by reference so lifetime management is important.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1564,6 +1595,8 @@ scope would allow the call. [**`RETURN(...)`**](#RETURN),
 **NOTE!** Any named objects referenced in attached
 [**`LR_WITH(...)`**](#LR_WITH) are captured by reference so lifetime management
 is important.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1626,6 +1659,8 @@ is destroyed can be changed with an optional [**`TIMES(...)`**](#TIMES) clause.
 [**`LR_WITH(...)`**](#LR_WITH), [**`LR_SIDE_EFFECT(...)`**](#LR_SIDE_EFFECT),
 [**`LR_RETURN(...)`**](#LR_RETURN) and [**`LR_THROW(...)`**](#LR_THROW) are
 captured by reference so lifetime management is important.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1734,6 +1769,8 @@ or [matchers](#matcher) that describes matching parameter values for the
 
 The number of matches required before the [expectation](#expectation) object
 is destroyed can be changed with an optional [**`TIMES(...)`**](#TIMES) clause.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1845,6 +1882,8 @@ This code may alter out-parameters.
 
 Named local objects accessed here refers to a immutable copies.
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -1898,6 +1937,8 @@ evaluated in order.
 
 Named local objects accessed here refers to immutable copies.
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -1945,6 +1986,8 @@ Used in [expectations](#expectation) to throw after having evaluated every
 [**`LR_RETURN(...)`**](#LR_RETURN) or [**`RETURN(...)`**](#RETURN).
 
 Named local objects here refers to immutable copies.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -1999,6 +2042,8 @@ If the maximum number of matching calls is exceeded, a violation is reported.
 [**`REQUIRE_CALL(..)`**](#REQUIRE_CALL) or
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL).
 
+`#include <trompeloeil/mock.hpp>`
+
 Example:
 
 ```Cpp
@@ -2044,6 +2089,8 @@ and [**`LR_WITH(...)`**](#LR_WITH) clauses can be added to a single expectation
 and they are tried in the order until one has failed, or they all have passed.
 
 Named local objects here refers to immutable copies.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -2142,6 +2189,8 @@ Base class for all [expectations](#expectation). The macros
 [`std::unique_ptr<trompeloeil::expectation>`](http://en.cppreference.com/w/cpp/memory/unique_ptr)
 which you can hold in a variable.
 
+`#include <trompeloeil/mock.hpp>`
+
 ### <A name="expectation_violation_type"/>`trompeloeil::expectation_violation`
 
 The exception type used by default to report violations.
@@ -2155,6 +2204,8 @@ public:
 ```
 
 The `what()` string contains the violation report message.
+
+`#include <trompeloeil/mock.hpp>`
 
 ### <A name="lifetime_monitor_type"/>`trompeloeil::lifetime_monitor`
 
@@ -2204,6 +2255,8 @@ and [tag dispatch](http://www.generic-programming.org/languages/cpp/techniques.p
 Use it, or [`trompeloeil::typed_matcher<T>`](#typed_matcher), as the base class
 when writing custom [matchers](CookBook.md/#custom_matchers).
 
+`#include <trompeloeil/mock.hpp>`
+
 ### <A name="mock_interface"/>`trompeloeil::mock_interface<T>`
 
 `trompeloeil::mock_interface<T>` is a template useful when creating a mock from
@@ -2216,6 +2269,8 @@ The [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) and
 [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) macros can also be used.
 
 The interface type `T` must not be final.
+
+`#include <trompeloeil/mock.hpp>`
 
 Example:
 
@@ -2253,6 +2308,8 @@ A type used to pass information to the unit testing frame work that a call to a
 ```Cpp
 using trompeloeil::ok_reporter_func = std::function<const char*>;
 ```
+
+`#include <trompeloeil/mock.hpp>`
 
 The string passed is the parameters to the expectation. E.g.
 
@@ -2294,6 +2351,8 @@ second template parameter, which must be `void` if present, is a chance to add
 SFINAE constraints on the T.
 See example in the [Cook Book](CookBook.md/#custom_formatting).
 
+`#include <trompeloeil/mock.hpp>`
+
 ### <A name="reporter_func"/>`trompeloeil::reporter_func`
 
 A type used to pass information to the unit testing frame work that a call has
@@ -2311,6 +2370,8 @@ See [`trompeloeil::severity`](#severity_type).
 The parameter `msg` contains detailed information about the violation and
 which (if any) [expectations](#expectation) there are on the
 [mock function](#mock_function).
+
+`#include <trompeloeil/mock.hpp>`
 
 ### <A name="sequence_type"/>`trompeloeil::sequence`
 
@@ -2384,6 +2445,8 @@ is called from stack rollback and must not throw, lest
 [`std::terminate`](http://en.cppreference.com/w/cpp/error/terminate) is
 called.
 
+`#include <trompeloeil/mock.hpp>`
+
 ### <A name="stream_tracer"/>`trompeloeil::stream_tracer`
 
 An instance of `trompeloeil::stream_tracer` prints information about
@@ -2412,6 +2475,8 @@ See "[Using `trompeloeil::stream_tracer`](CookBook.md/#stream_tracer)" in the
 
 Base class for tracers. Inherit from it when writing custom tracers.
 
+`#include <trompeloeil/stream_tracer.hpp>`
+
 ```Cpp
 namespace trompeloeil {
 class tracer
@@ -2438,6 +2503,8 @@ type. It inherits from [`trompeloeil::matcher`](#matcher_type).
 See "[Writing custom matchers](CookBook.md/#custom_matchers)" in the
 [Cook Book](CookBook.md) for examples.
 
+`#include <trompeloeil/mock.hpp>`
+
 ## <A name="functions"/>Functions
 
 ### <A name="is_satisfied"/> `trompeloeil::expectation::is_satisfied() const`
@@ -2446,6 +2513,8 @@ Query an [expectation object](#expectation_type) if it is satisfied, i.e. if
 it will not report a missing call if it is destroyed. If
 [**`.TIMES()`**](#TIMES) is used, this is true if the minimum number of calls
 has been reached.
+
+`#include <trompeloeil/mock.hpp>`
 
 ```Cpp
 test(...)
@@ -2468,6 +2537,8 @@ test(...)
 Query an [expectation object](#expectation_type) if it is saturated, i.e. if
 another call will report an unexpected call. If [**`.TIMES()`**](#TIMES) is
 used, this is true if the maximum number of calls has been reached.
+
+`#include <trompeloeil/mock.hpp>`
 
 ```Cpp
   ...
@@ -2492,6 +2563,8 @@ Get the global
 [`recursive_mutex`](http://en.cppreference.com/w/cpp/thread/recursive_mutex)
 used by *Trompeloeil*. The mutex is held until the end of the scope.
 
+`#include <trompeloeil/mock.hpp>`
+
 ### <A name="print"/>`trompeloeil::print(std::ostream& os, T const& t)`
 
 By default `print()` uses the type [`printer<T>`](#printer) to format
@@ -2504,11 +2577,17 @@ You can write specializations of
 specializations.  See example in the
 [Cook Book](CookBook.md/#custom_formatting).
 
+`#include <trompeloeil/mock.hpp>`
+
+
 ### <A name="is_null"/>`trompeloeil::is_null(T const&)`
 
 Null check that works for all types. If `T` is not comparable with
 `nullptr` the value is false. This is mostly used when writing
 [duck typed matchers](CookBook.md/#custom_matchers).
+
+`#include <trompeloeil/mock.hpp>`
+
 
 ### <A name="make_matcher"/>`trompeloeil::make_matcher<Type>(...)`
 
@@ -2537,6 +2616,9 @@ stored values `T&&...` in order as `const&`.
 Examples are found in the Cook Book under
 [Writing custom matchers](CookBook.md/#custom_matchers)
 
+`#include <trompeloeil/mock.hpp>`
+
+
 ### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
 
 These functions are used to adapt *Trompeloeil* to your unit test framework
@@ -2548,6 +2630,8 @@ all reports, with the violation message in the `what()` string.
 
 If this is not suitable, you can change the report mechanism by
 calling `trompeloeil::set_reporter(...)`
+
+`#include <trompeloeil/mock.hpp>`
 
 ```Cpp
 reporter_func
@@ -2625,6 +2709,8 @@ created lambdas associated with
 [**`.THROW()`**](reference.md/#THROW) and their **`LR_`** counter parts, refers
 to member variables in the mock objects, they will continue to refer the old
 moved from object.
+
+`#include <trompeloeil/mock.hpp>`
 
 ```Cpp
 class immobile
