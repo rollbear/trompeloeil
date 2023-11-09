@@ -15,7 +15,9 @@
 #ifndef TROMPELOEIL_LIFETIME_HPP
 #define TROMPELOEIL_LIFETIME_HPP
 
+#ifndef TROMPELOEIL_MOCK_HPP_
 #include "mock.hpp"
+#endif
 
 #if defined(__cxx_rtti) || defined(__GXX_RTTI) || defined(_CPPRTTI)
 #  define TROMPELOEIL_TYPE_ID_NAME(x) typeid(x).name()

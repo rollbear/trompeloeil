@@ -15,7 +15,9 @@
 #ifndef TROMPELOEIL_RE_HPP
 #define TROMPELOEIL_RE_HPP
 
+#ifndef TROMPELOEIL_MOCK_HPP_
 #include "../mock.hpp"
+#endif
 
 #include <regex>
 #include <cstring>

@@ -16,7 +16,9 @@
 #ifndef TROMPELOEIL_DEREF_HPP
 #define TROMPELOEIL_DEREF_HPP
 
+#ifndef TROMPELOEIL_MOCK_HPP_
 #include "../mock.hpp"
+#endif
 
 namespace trompeloeil {
 

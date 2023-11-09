@@ -24,7 +24,9 @@
 
 #ifdef TROMPELOEIL_COROUTINES_SUPPORTED
 
+#ifndef TROMPELOEIL_MOCK_HPP_
 #include "mock.hpp"
+#endif
 
 namespace trompeloeil
 {

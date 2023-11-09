@@ -1,7 +1,9 @@
 #ifndef TROMPELOEIL_STREAM_TRACER_HPP
 #define TROMPELOEIL_STREAM_TRACER_HPP
 
+#ifndef TROMPELOEIL_MOCK_HPP_
 #include "mock.hpp"
+#endif
 
 namespace trompeloeil {
 
