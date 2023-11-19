@@ -1,3 +1,16 @@
+/*
+ * Trompeloeil C++ mocking framework
+ *
+ * Copyright (C) Björn Fahller
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0. (See accompanying
+ *  file LICENSE_1_0.txt or copy atl
+ *  http://www.boost.org/LICENSE_1_0.txt)
+ *
+ * Project home: https://github.com/rollbear/trompeloeil
+ */
+
 #ifndef TROMPELOEIL_MICRO_CORO_HPP
 #define TROMPELOEIL_MICRO_CORO_HPP
 
