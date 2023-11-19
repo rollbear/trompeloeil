@@ -15,8 +15,8 @@
 #ifndef TROMPELOEIL_RE_HPP
 #define TROMPELOEIL_RE_HPP
 
-#ifndef TROMPELOEIL_MOCK_HPP_
-#include "../mock.hpp"
+#ifndef TROMPELOEIL_MATCHER_HPP
+#include "../matcher.hpp"
 #endif
 
 #include <regex>

@@ -267,6 +267,8 @@ of a specified type. This can be used as an alternative to
 [`trompeloeil::_`](#wildcard) when it is important to disambiguate between
 overloads.
 
+`#include <trompeloeil/matcher.hpp>`
+
 Example:
 
 ```Cpp
@@ -723,7 +725,7 @@ A [matcher](#matcher) for use in the parameter list of an
 [expectation](#expectation) to disambiguate overloaded functions on type when
 the exact value is unimportant. See the matcher [**`ANY(`** *type* **`)`**](#ANY) above.
 
-`#include <trompeloeil/mock.hpp>`
+`#include <trompeloeil/matcher.hpp>`
 
 <A name="AT_LEAST"/>
 
@@ -2503,7 +2505,7 @@ type. It inherits from [`trompeloeil::matcher`](#matcher_type).
 See "[Writing custom matchers](CookBook.md/#custom_matchers)" in the
 [Cook Book](CookBook.md) for examples.
 
-`#include <trompeloeil/mock.hpp>`
+`#include <trompeloeil/matcher.hpp>`
 
 ## <A name="functions"/>Functions
 
@@ -2616,7 +2618,7 @@ stored values `T&&...` in order as `const&`.
 Examples are found in the Cook Book under
 [Writing custom matchers](CookBook.md/#custom_matchers)
 
-`#include <trompeloeil/mock.hpp>`
+`#include <trompeloeil/matcher.hpp>`
 
 
 ### <A name="set_reporter"/>`trompeloeil::set_reporter(...)`
