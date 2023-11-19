@@ -29,6 +29,7 @@
 #include "trompeloeil/mock.hpp"
 #include "trompeloeil/lifetime.hpp"
 #include "trompeloeil/matcher.hpp"
+#include "trompeloeil/matcher/any.hpp"
 #include "trompeloeil/matcher/compare.hpp"
 #include "trompeloeil/matcher/deref.hpp"
 #include "trompeloeil/matcher/not.hpp"

@@ -267,7 +267,7 @@ of a specified type. This can be used as an alternative to
 [`trompeloeil::_`](#wildcard) when it is important to disambiguate between
 overloads.
 
-`#include <trompeloeil/matcher.hpp>`
+`#include <trompeloeil/matcher/any.hpp>`
 
 Example:
 
@@ -725,7 +725,7 @@ A [matcher](#matcher) for use in the parameter list of an
 [expectation](#expectation) to disambiguate overloaded functions on type when
 the exact value is unimportant. See the matcher [**`ANY(`** *type* **`)`**](#ANY) above.
 
-`#include <trompeloeil/matcher.hpp>`
+`#include <trompeloeil/matcher/any.hpp>`
 
 <A name="AT_LEAST"/>
 
