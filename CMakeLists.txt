@@ -10,7 +10,7 @@ option(TROMPELOEIL_BUILD_TESTS "Build self test programs" off)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/trompeloeil/trompeloeil-config-version.cmake"
-  VERSION 46
+  VERSION 47
   COMPATIBILITY AnyNewerVersion
   ARCH_INDEPENDENT)
 
