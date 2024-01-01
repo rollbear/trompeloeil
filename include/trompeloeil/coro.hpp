@@ -15,9 +15,7 @@
 #define TROMPELOEIL_CORO_HPP
 
 #if defined(__cpp_impl_coroutine)
-#  ifdef TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#    define TROMPELOEIL_COROUTINES_SUPPORTED 1
-#  endif
+#  define TROMPELOEIL_COROUTINES_SUPPORTED 1
 #else
 #  error "Coroutines are not supported by this compiler"
 #endif

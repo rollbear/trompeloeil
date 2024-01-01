@@ -784,8 +784,9 @@ There is experimental support to handle
 [`co_yield`](https://en.cppreference.com/w/cpp/language/coroutines#co_yield) from member
 functions that return a co-routine type.
 
-To enable the experimental support, you must `#define` `TROMPELOEIL_EXPERIMENTAL_COROUTINES`
-before `#include` of a *Trompeleil* header.
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
 See the reference manual for [**`CO_RETURN(`** *expr* **`)`**](reference.md#CO_RETURN),
 [**`LR_CO_RETURN(`** *expr* **`)`**](reference.md#LR_CO_RETURN),

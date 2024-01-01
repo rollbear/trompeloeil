@@ -1,3 +1,8 @@
+	* Coroutines are conditionally supported by the __cpp_impl_coroutine
+      feature test macro. There is no longer any need to define the
+      TROMPELOEIL_EXPERIMENTAL_COROUTINES macro in order to use coroutines
+      with Trompeloeil.
+
 	* Split the monolithinc "trompeloeil.hpp" into several smaller
 	  headers. You can continue to #include <trompeloeil.hpp> as usual,
 	  but you can also do more fine grained #include:s, which may

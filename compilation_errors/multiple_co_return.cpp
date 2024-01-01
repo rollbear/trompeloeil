@@ -14,7 +14,6 @@
 // exception: macOS\|g++-10\|clang++-1[0-3]\|c++1[147]
 // pass: Multiple CO_RETURN does not make sense
 
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 #include <trompeloeil.hpp>
 
 struct task

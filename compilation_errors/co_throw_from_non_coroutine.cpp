@@ -14,7 +14,6 @@
 // exception: macOS\|g++-10\|clang++-1[0-3]\|c++1[147]
 // pass: Do not use CO_THROW from a normal function, use THROW
 
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 #include <trompeloeil.hpp>
 
 struct MS

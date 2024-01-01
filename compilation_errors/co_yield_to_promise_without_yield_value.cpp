@@ -14,7 +14,6 @@
 // exception: macOS\|g++-10\|clang++-1[0-3]\|c++1[147]
 // pass: CO_YIELD is incompatible with the promise type
 
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 #include <trompeloeil.hpp>
 
 struct task

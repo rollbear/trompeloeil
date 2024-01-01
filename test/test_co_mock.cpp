@@ -13,7 +13,6 @@
 
 #ifdef __cpp_impl_coroutine
 
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
 #include <trompeloeil/mock.hpp>
 #include <trompeloeil/coro.hpp>
 

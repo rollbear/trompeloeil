@@ -811,13 +811,10 @@ coroutine promise  type. This code may alter out-parameters.
 
 `#include <trompeloeil/coro.hpp>`
 
-Coroutine support must be explicitly enabled by defining
-**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
-```Cpp
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
-```
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
@@ -832,13 +829,9 @@ coroutine promise type. This code may alter out-parameters.
 
 `#include <trompeloeil/coro.hpp>`
 
-Coroutine support must be explicitly enabled by defining
-**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
-
-```Cpp
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
-```
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
@@ -857,13 +850,9 @@ See also [**`LR_CO_YIELD(`** *expr* **`]`**](#LR_CO_YIELD)
 
 `#include <trompeloeil/coro.hpp>`
 
-Coroutine support must be explicitly enabled by defining
-**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
-
-```Cpp
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
-```
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
 **NOTE!** Be very extra careful with lifetime issues when dealing with coroutines.
 
@@ -1155,13 +1144,9 @@ coroutine promise type. This code may alter out-parameters.
 
 `#include <trompeloeil/coro.hpp>`
 
-Coroutine support must be explicitly enabled by defining
-**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
-
-```Cpp
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
-```
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
 **NOTE!** Any named local objects named in *expr* are captured by reference so
 lifetime management is important.
@@ -1179,13 +1164,9 @@ coroutine promise type. This code may alter out-parameters.
 
 `#include <trompeloeil/coro.hpp>`
 
-Coroutine support must be explicitly enabled by defining
-**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
-
-```Cpp
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
-```
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
 **NOTE!** Any named local objects named in *expr* are captured by reference so
 lifetime management is important.
@@ -1207,13 +1188,10 @@ See also [**`CO_YIELD(`** *expr* **`]`**](#LR_CO_YIELD)
 
 `#include <trompeloeil/coro.hpp>`
 
-Coroutine support must be explicitly enabled by defining
-**`TROMPELOEIL_EXPERIMENTAL_COROUTINES`** before including the header.
+Coroutines are supported if the compiler defines the
+[**`__cpp_impl_coroutines`**](https://eel.is/c++draft/cpp.predefined#:__cpp_impl_coroutine)
+feature test macro.
 
-```Cpp
-#define TROMPELOEIL_EXPERIMENTAL_COROUTINES
-#include <trompeloeil.hpp>
-```
 **NOTE!** Any named local objects named in *expr* are captured by reference so
 lifetime management is important.
 
