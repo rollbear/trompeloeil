@@ -1,18 +1,18 @@
 v47 2024-01-01
 
 	* Coroutines are conditionally supported by the __cpp_impl_coroutine
-      feature test macro. There is no longer any need to define the
-      TROMPELOEIL_EXPERIMENTAL_COROUTINES macro in order to use coroutines
-      with Trompeloeil.
+	  feature test macro. There is no longer any need to define the
+	  TROMPELOEIL_EXPERIMENTAL_COROUTINES macro in order to use coroutines
+	  with Trompeloeil.
 
 	* Split the monolithic "trompeloeil.hpp" into several smaller
 	  headers. You can continue to #include <trompeloeil.hpp> as usual,
 	  but you can also do more fine grained #include:s, which may
 	  improve build times. E.g.:
 
-	    #include <trompeloeil/mock.hpp> // basic mock functionality
-	    #include <trompeloeil/lifetime.hpp> // REQUIRE_DESTRUCTION etc.
-	    #include <trompeloeil/matcher/re.hpp> // regular expressions
+	      #include <trompeloeil/mock.hpp> // basic mock functionality
+	      #include <trompeloeil/lifetime.hpp> // REQUIRE_DESTRUCTION etc.
+	      #include <trompeloeil/matcher/re.hpp> // regular expressions
 
 	  The reference manual says which header to include to get the
 	  functionality for each item. If no header is mentioned, it is in
