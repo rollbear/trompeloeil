@@ -1,3 +1,18 @@
+	* New experimental macros support creating mock functions, using trailing
+	  return type syntax, without explicitly stating the number of arguments
+	  in the function. E.g.
+
+	  struct S
+	  {
+	      MAKE_MOCK(func, (int, std::string_view) -> bool);
+	      MAKE_CONST_MOCK(func, (char, double)->int);
+	  };
+
+	  This only works with trailing return type syntax.
+	  This does only work with C++14 or higher (C++11 mode not supported).
+	  This does not work with gcc-4.9.
+	  This does work with overloading.
+
 v47 2024-01-01
 
 	* Coroutines are conditionally supported by the __cpp_impl_coroutine
