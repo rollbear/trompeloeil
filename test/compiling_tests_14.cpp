@@ -5167,6 +5167,8 @@ TEST_CASE_METHOD(
   REQUIRE(okReports.empty());
 }
 
+#if not TROMPELOEIL_GCC or TROMPELOEIL_GCC_VERSION >= 50000
+
 struct S
 {
   TROMPELOEIL_MAKE_MOCK(func, (int x, int y)->int);
@@ -5197,5 +5199,7 @@ TEST_CASE_METHOD(
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }
+
+#endif
 
 #endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
