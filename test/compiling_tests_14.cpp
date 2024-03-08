@@ -5171,8 +5171,9 @@ TEST_CASE_METHOD(
 
 struct S
 {
-  TROMPELOEIL_MAKE_MOCK(func, (int x, int y)->int);
-  TROMPELOEIL_MAKE_MOCK(func, (int x)->int);
+  MAKE_MOCK(func, (int x, int y)->int);
+  MAKE_MOCK(func, (int x)->int);
+  MAKE_CONST_MOCK(func, (int x)->int);
 };
 
 TEST_CASE_METHOD(
@@ -5182,6 +5183,7 @@ TEST_CASE_METHOD(
 )
 {
   S s;
+  const auto& cs = s;
   REQUIRE_CALL(s, func(_, _))
   .RETURN(_1 - _2);
   auto c = s.func(5, 2);
@@ -5198,6 +5200,12 @@ TEST_CASE_METHOD(
     INFO("report=" << reports.front().msg);
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
+  ALLOW_CALL(s, func(_)).RETURN(_1);
+  ALLOW_CALL(cs, func(_)).RETURN(-_1);
+  auto sr = s.func(3);
+  auto csr = cs.func(3);
+  REQUIRE(sr == 3);
+  REQUIRE(csr == -3);
 }
 
 #endif
