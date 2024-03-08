@@ -1735,7 +1735,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          ./build/test/self_test
+          ./build/test/self_test -s
 
       - name: Collect coverage
         if: (!startsWith(matrix.config.name, 'windows') && !matrix.config.no_coverage)
