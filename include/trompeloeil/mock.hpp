@@ -3448,8 +3448,8 @@ template <typename T>
 
 #endif
 
-#define TROMPELOEIL_MAKE_MOCK(name, sig, ...) \
-TROMPELOEIL_MAKE_MOCK_(name,,TROMPELOEIL_ARG_COUNT(sig), auto sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_MOCK(name, ...) \
+TROMPELOEIL_MAKE_MOCK_(name,,TROMPELOEIL_ARG_COUNT(__VA_ARGS__), auto __VA_ARGS__,,)
 
 
 #define TROMPELOEIL_IMPLEMENT_MOCK0(...) \

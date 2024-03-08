@@ -5938,7 +5938,7 @@ TEST_CASE_METHOD(
 
 struct S
 {
-TROMPELOEIL_MAKE_MOCK(func, (int x, const char* p)->char);
+TROMPELOEIL_MAKE_MOCK(func, (int x, int y)->int);
 TROMPELOEIL_MAKE_MOCK(func, (int x)->int);
 };
 
@@ -5950,9 +5950,9 @@ TEST_CASE_METHOD(
 {
   S s;
   REQUIRE_CALL(s, func(_, _))
-  .RETURN(_2[_1]);
-  auto c = s.func(3, "abcde");
-  REQUIRE(c == 'd');
+  .RETURN(_1 - _2);
+  auto c = s.func(5, 2);
+  REQUIRE(c == 3);
   try {
     s.func(3);
     FAIL("didn't throw");
