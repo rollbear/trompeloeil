@@ -5167,4 +5167,35 @@ TEST_CASE_METHOD(
   REQUIRE(okReports.empty());
 }
 
+struct S
+{
+  TROMPELOEIL_MAKE_MOCK(func, (int x, int y)->int);
+  TROMPELOEIL_MAKE_MOCK(func, (int x)->int);
+};
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++ 14: Trailing return type syntax for mocks",
+  "[C++14]"
+)
+{
+  S s;
+  REQUIRE_CALL(s, func(_, _))
+  .RETURN(_1 - _2);
+  auto c = s.func(5, 2);
+  REQUIRE(c == 3);
+  try {
+    s.func(3);
+    FAIL("didn't throw");
+  }
+  catch(reported)
+  {
+    REQUIRE(reports.size() == 1);
+    auto re = R":(No match for call of func with signature auto \(int x\)->int with\.
+  param  _1 == 3):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
 #endif /* TROMPELOEIL_CPLUSPLUS > 201103L */
