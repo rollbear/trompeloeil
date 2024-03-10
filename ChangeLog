@@ -9,8 +9,7 @@
 	  };
 
 	  This only works with trailing return type syntax.
-	  This does only work with C++14 or higher (C++11 mode not supported).
-	  This does not work with gcc-4.9.
+	  This does not work with gcc-4.8 or gcc-4.9.
 	  This does work with overloading.
 
 v47 2024-01-01
