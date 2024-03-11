@@ -5938,7 +5938,7 @@ TEST_CASE_METHOD(
 
 #if not TROMPELOEIL_GCC or TROMPELOEIL_GCC_VERSION >= 50000
 
-struct S
+struct trailing_syntax_mock
 {
     MAKE_MOCK(func, (int x, int y)->int);
     MAKE_MOCK(func, (int x)->int);
@@ -5947,18 +5947,18 @@ struct S
 
 TEST_CASE_METHOD(
         Fixture,
-        "C++ 11: Trailing return type syntax for mocks",
+        "C++11: Trailing return type syntax for mocks",
         "[C++11]"
 )
 {
-    S s;
-    const auto& cs = s;
-    REQUIRE_CALL_V(s, func(_, _),
-            .RETURN(_1 - _2));
-    auto c = s.func(5, 2);
+    trailing_syntax_mock obj;
+    const auto& cobj = obj;
+    REQUIRE_CALL_V(obj, func(_, _),
+                   .RETURN(_1 - _2));
+    auto c = obj.func(5, 2);
     REQUIRE(c == 3);
     try {
-        s.func(3);
+        obj.func(3);
         FAIL("didn't throw");
     }
     catch(reported)
@@ -5969,10 +5969,10 @@ TEST_CASE_METHOD(
         INFO("report=" << reports.front().msg);
         REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
     }
-    ALLOW_CALL_V(s, func(_),.RETURN(_1));
-    ALLOW_CALL_V(cs, func(_),.RETURN(-_1));
-    auto sr = s.func(3);
-    auto csr = cs.func(3);
+    ALLOW_CALL_V(obj, func(_),.RETURN(_1));
+    ALLOW_CALL_V(cobj, func(_),.RETURN(-_1));
+    auto sr = obj.func(3);
+    auto csr = cobj.func(3);
     REQUIRE(sr == 3);
     REQUIRE(csr == -3);
 }
