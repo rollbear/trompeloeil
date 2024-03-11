@@ -3448,11 +3448,18 @@ template <typename T>
 
 #endif
 
+#if TROMPELOEIL_MSVC
+#define TROMPELOEIL_MAKE_MOCK(name, sig, ...) \
+TROMPELOEIL_MAKE_MOCK_(name,,TROMPELOEIL_ARG_COUNT(sig), auto sig, __VA_ARGS__,,)
+#define TROMPELOEIL_MAKE_CONST_MOCK(name, sig, ...) \
+TROMPELOEIL_MAKE_MOCK_(name,const,TROMPELOEIL_ARG_COUNT(sig), auto sig, __VA_ARGS__,,)
+#else
+
 #define TROMPELOEIL_MAKE_MOCK(name, ...) \
 TROMPELOEIL_MAKE_MOCK_(name,,TROMPELOEIL_ARG_COUNT(__VA_ARGS__), auto __VA_ARGS__,,)
 #define TROMPELOEIL_MAKE_CONST_MOCK(name, ...) \
 TROMPELOEIL_MAKE_MOCK_(name,const,TROMPELOEIL_ARG_COUNT(__VA_ARGS__), auto __VA_ARGS__,,)
-
+#endif
 
 #define TROMPELOEIL_IMPLEMENT_MOCK0(...) \
   TROMPELOEIL_IDENTITY(TROMPELOEIL_IMPLEMENT_MOCK_(0, __VA_ARGS__,override))
