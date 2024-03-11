@@ -5946,41 +5946,41 @@ struct trailing_syntax_base
 
 struct trailing_syntax_mock : trailing_syntax_base
 {
-    MAKE_MOCK(func, (int x, int y)->int, override final);
-    MAKE_MOCK(func, (int x)->int);
-    MAKE_CONST_MOCK(func, (int x)->int);
+  MAKE_MOCK(func, (int x, int y)->int, override final);
+  MAKE_MOCK(func, (int x)->int);
+  MAKE_CONST_MOCK(func, (int x)->int);
 };
 
 TEST_CASE_METHOD(
-        Fixture,
-        "C++11: Trailing return type syntax for mocks",
-        "[C++11]"
+  Fixture,
+  "C++11: Trailing return type syntax for mocks",
+  "[C++11]"
 )
 {
-    trailing_syntax_mock obj;
-    const auto& cobj = obj;
-    REQUIRE_CALL_V(obj, func(_, _),
-                   .RETURN(_1 - _2));
-    auto c = obj.func(5, 2);
-    REQUIRE(c == 3);
-    try {
-        obj.func(3);
-        FAIL("didn't throw");
-    }
-    catch(reported)
-    {
-        REQUIRE(reports.size() == 1);
-        auto re = R":(No match for call of func with signature auto \(int x\)->int with\.
+  trailing_syntax_mock obj;
+  const auto& cobj = obj;
+  REQUIRE_CALL_V(obj, func(_, _),
+                 .RETURN(_1 - _2));
+  auto c = obj.func(5, 2);
+  REQUIRE(c == 3);
+  try {
+    obj.func(3);
+    FAIL("didn't throw");
+  }
+  catch(reported)
+  {
+    REQUIRE(reports.size() == 1);
+    auto re = R":(No match for call of func with signature auto \(int x\)->int with\.
   param  _1 == 3):";
-        INFO("report=" << reports.front().msg);
-        REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
-    }
-    ALLOW_CALL_V(obj, func(_),.RETURN(_1));
-    ALLOW_CALL_V(cobj, func(_),.RETURN(-_1));
-    auto sr = obj.func(3);
-    auto csr = cobj.func(3);
-    REQUIRE(sr == 3);
-    REQUIRE(csr == -3);
+    INFO("report=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+  ALLOW_CALL_V(obj, func(_),.RETURN(_1));
+  ALLOW_CALL_V(cobj, func(_),.RETURN(-_1));
+  auto sr = obj.func(3);
+  auto csr = cobj.func(3);
+  REQUIRE(sr == 3);
+  REQUIRE(csr == -3);
 }
 
 #endif
