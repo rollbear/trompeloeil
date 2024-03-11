@@ -5938,9 +5938,15 @@ TEST_CASE_METHOD(
 
 #if not TROMPELOEIL_GCC or TROMPELOEIL_GCC_VERSION >= 50000
 
-struct trailing_syntax_mock
+struct trailing_syntax_base
 {
-    MAKE_MOCK(func, (int x, int y)->int);
+  virtual ~trailing_syntax_base() = default;
+  virtual auto func(int,int)->int = 0;
+};
+
+struct trailing_syntax_mock : trailing_syntax_base
+{
+    MAKE_MOCK(func, (int x, int y)->int, override final);
     MAKE_MOCK(func, (int x)->int);
     MAKE_CONST_MOCK(func, (int x)->int);
 };
