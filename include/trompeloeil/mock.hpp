@@ -1850,7 +1850,7 @@ template <typename T>
   template <typename R, typename ... T>
   struct call_params_type<R(T...)>
   {
-    using type = std::tuple<std::reference_wrapper<std::remove_reference_t<T>>...>;
+    using type = std::tuple<std::reference_wrapper<detail::remove_reference_t<T>>...>;
   };
 
   template <typename T>
