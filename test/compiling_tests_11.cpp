@@ -1397,6 +1397,29 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
+  "C++11: Matchers receive parameters as lvalue-reference.",
+  "[C++11][C++14][matching]")
+{
+  const auto matcher = trompeloeil::make_matcher<trompeloeil::wildcard>(
+	[](int& value)
+	{
+	  return value == 42;
+	},
+	[](std::ostream&)
+	{
+	});
+
+  {
+    U u;
+    REQUIRE_CALL_V(u, func_lr(matcher));
+    int x = 42;
+	u.func_lr(x);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
   "C++11: An uncomparable but constructible type by reference matches a call",
   "[C++11][C++14][matching]")
 {
