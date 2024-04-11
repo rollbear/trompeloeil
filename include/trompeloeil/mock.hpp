@@ -1000,6 +1000,15 @@ template <typename T>
   }
 
   template <typename T>
+  constexpr
+  bool
+  is_null(
+    std::reference_wrapper<T> t)
+  {
+    return is_null(t.get());
+  }
+
+  template <typename T>
   void
   print(
     std::ostream& os,
