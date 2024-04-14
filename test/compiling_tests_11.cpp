@@ -17,6 +17,7 @@
 
 #if defined(CATCH2_VERSION) && CATCH2_VERSION == 3
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #else
 #include <catch2/catch.hpp>
 #endif
