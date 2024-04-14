@@ -204,7 +204,7 @@ namespace trompeloeil
         auto expr = new yield_expr<signature, E>(std::forward<E>(e));
         m.matcher->yield_expressions->push_back(expr);
       }
-      return {m.matcher};
+      return {std::move(m).matcher};
     }
   };
 
@@ -261,7 +261,7 @@ namespace trompeloeil
           m.matcher->yield_expressions)
         );
       }
-      return {m.matcher};
+      return {std::move(m).matcher};
     }
   };
 
@@ -303,7 +303,7 @@ namespace trompeloeil
         m.matcher->return_handler_obj.reset(new ret_handler(std::move(handler),
                                                             m.matcher->yield_expressions));
       }
-      return {m.matcher};
+      return {std::move(m).matcher};
     }
   };
 
