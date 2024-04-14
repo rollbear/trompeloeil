@@ -4874,10 +4874,14 @@ TEST_CASE_METHOD(
         const std::size_t max = GENERATE(0u, 1u, 2u, 3u, 4u);
 	    const std::size_t min = max + GENERATE(1u, 2u, 3u, 4u);
 
+        const auto makeExpectation = [&]()
+        {
+            REQUIRE_CALL_V(obj, count(),
+				.DYN_TIMES(min, max)
+				.RETURN(1));
+        };
         REQUIRE_THROWS_AS(
-	        (NAMED_REQUIRE_CALL_V(obj, count(),
-			  .DYN_TIMES(min, max)
-			  .RETURN(1))),
+            makeExpectation(),
 	        std::logic_error);
     }
   }
