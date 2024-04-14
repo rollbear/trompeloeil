@@ -152,10 +152,12 @@ TEST_CASE(
   // this test shall not check any testable errors, but instead is intended to force memory leaks during
   // expectation construction
   mock_c mock{};
+  trompeloeil::sequence seq{};
 
   const auto makeExpectation = [&]
   {
     REQUIRE_CALL_V(mock, getter(42),
+      .IN_SEQUENCE(seq)
 	  .TIMES(2)
 	  .SIDE_EFFECT()
 	  .WITH(true)
