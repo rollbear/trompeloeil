@@ -2509,7 +2509,13 @@ template <typename T>
   struct dynamic_multiplicity
   {
 	  std::size_t low{};
-	  std::size_t high{low};
+	  std::size_t high{};
+
+    explicit dynamic_multiplicity(std::size_t _low, std::size_t _high = _low) noexcept
+	    : low{_low},
+		high{_high}
+    {
+    }
   };
 
   template <typename R, typename Parent>
