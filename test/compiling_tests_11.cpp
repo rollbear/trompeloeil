@@ -4838,8 +4838,8 @@ TEST_CASE_METHOD(
 
     SECTION("For arbitrary valid bounds.")
     {
-	    const std::size_t min = GENERATE(range<std::size_t>(0, 5));
-    	const std::size_t max = min + GENERATE(range<std::size_t>(0, 5));
+	    const std::size_t min = GENERATE(0u, 1u, 2u, 3u, 4u);
+    	const std::size_t max = min + GENERATE(0u, 1u, 2u, 3u, 4u);
     	auto e = NAMED_REQUIRE_CALL_V(obj, count(),
 		  .DYN_TIMES(min, max)
 		  .RETURN(1));
@@ -4870,8 +4870,8 @@ TEST_CASE_METHOD(
 
     SECTION("When invalid bounds are given.")
     {
-        const std::size_t max = GENERATE(range<std::size_t>(0, 5));
-	    const std::size_t min = max + GENERATE(range<std::size_t>(1, 5));
+        const std::size_t max = GENERATE(0u, 1u, 2u, 3u, 4u);
+	    const std::size_t min = max + GENERATE(1u, 2u, 3u, 4u);
 
         REQUIRE_THROWS_AS(
 	        (NAMED_REQUIRE_CALL_V(obj, count(),
@@ -4891,7 +4891,7 @@ TEST_CASE_METHOD(
   {
     mock_c obj;
 
-    const std::size_t count = GENERATE(range<std::size_t>(0, 5));
+    const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
     auto e = NAMED_REQUIRE_CALL_V(obj, count(),
 	  .DYN_TIMES(AT_LEAST(count))
 	  .RETURN(1));
@@ -4920,7 +4920,7 @@ TEST_CASE_METHOD(
   {
     mock_c obj;
 
-    const std::size_t count = GENERATE(range<std::size_t>(0, 5));
+    const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
     auto e = NAMED_REQUIRE_CALL_V(obj, count(),
 	  .DYN_TIMES(AT_MOST(count))
 	  .RETURN(1));
