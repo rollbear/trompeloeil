@@ -2511,7 +2511,13 @@ template <typename T>
 	  std::size_t low{};
 	  std::size_t high{};
 
-    explicit dynamic_multiplicity(std::size_t _low, std::size_t _high = _low) noexcept
+    explicit dynamic_multiplicity(std::size_t _low) noexcept
+	    : low{_low},
+		high{_low}
+    {
+    }
+
+    explicit dynamic_multiplicity(std::size_t _low, std::size_t _high) noexcept
 	    : low{_low},
 		high{_high}
     {
