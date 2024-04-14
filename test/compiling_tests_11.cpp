@@ -6096,14 +6096,14 @@ TEST_CASE_METHOD(
 )
 {
   bool called = false;
-	auto set_expectation = [&called](movable_mock obj) {
-	auto exp = NAMED_REQUIRE_CALL_V(obj, func(3),
-									.LR_SIDE_EFFECT(called = true));
-	return std::make_pair(std::move(obj), std::move(exp));
-	};
+  auto set_expectation = [&called](movable_mock obj) {
+    auto exp = NAMED_REQUIRE_CALL_V(obj, func(3),
+                                  .LR_SIDE_EFFECT(called = true));
+    return std::make_pair(std::move(obj), std::move(exp));
+  };
 
-	auto e = set_expectation(movable_mock{});
-	e.first.func(3);
+  auto e = set_expectation(movable_mock{});
+  e.first.func(3);
   REQUIRE(reports.empty());
   REQUIRE(called);
 }
