@@ -3563,7 +3563,7 @@ template <typename T>
                           TROMPELOEIL_REMOVE_PAREN(sig),                       \
                           ::trompeloeil::param_t<trompeloeil_param_type...>>;  \
       return {                                                                 \
-          std::make_unique<matcher>(                                           \
+          ::trompeloeil::detail::make_unique<matcher>(                         \
                 trompeloeil_expectation_file,                                  \
                 trompeloeil_expectation_line,                                  \
                 trompeloeil_expectation_string,                                \
