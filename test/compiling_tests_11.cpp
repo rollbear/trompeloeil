@@ -4830,6 +4830,119 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
+  "C++11: .DYN_TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
+  "[C++11][C++14][multiplicity]")
+{
+  {
+    mock_c obj;
+
+    SECTION("For arbitrary valid bounds.")
+    {
+	    const std::size_t min = GENERATE(range<std::size_t>(0, 5));
+    	const std::size_t max = min + GENERATE(range<std::size_t>(0, 5));
+    	auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+		  .DYN_TIMES(min, max)
+		  .RETURN(1));
+
+    	for (std::size_t i{0};
+			i < min;
+			++i)
+    	{
+    		REQUIRE(!e->is_satisfied());
+    		REQUIRE(!e->is_saturated());
+
+    		obj.count();
+    	}
+
+    	for (std::size_t i{min};
+			i < max;
+			++i)
+    	{
+    		REQUIRE(e->is_satisfied());
+    		REQUIRE(!e->is_saturated());
+
+    		obj.count();
+    	}
+
+    	REQUIRE(e->is_satisfied());
+    	REQUIRE(e->is_saturated());
+    }
+
+    SECTION("When invalid bounds are given.")
+    {
+        const std::size_t max = GENERATE(range<std::size_t>(0, 5));
+	    const std::size_t min = max + GENERATE(range<std::size_t>(1, 5));
+
+        REQUIRE_THROWS_AS(
+	        (NAMED_REQUIRE_CALL_V(obj, count(),
+			  .DYN_TIMES(min, max)
+			  .RETURN(1))),
+	        std::logic_error);
+    }
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: .DYN_TIMES with AT_LEAST is satisfied when count calls is reached, but never saturated.",
+  "[C++11][C++14][multiplicity]")
+{
+  {
+    mock_c obj;
+
+    const std::size_t count = GENERATE(range<std::size_t>(0, 5));
+    auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+	  .DYN_TIMES(AT_LEAST(count))
+	  .RETURN(1));
+
+    for (std::size_t i{0};
+		i < count;
+		++i)
+    {
+        REQUIRE(!e->is_satisfied());
+    	REQUIRE(!e->is_saturated());
+
+    	obj.count();
+    }
+
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: .DYN_TIMES with AT_MOST is satisfied until count calls is reached, and saturaded when exactly count calls are made.",
+  "[C++11][C++14][multiplicity]")
+{
+  {
+    mock_c obj;
+
+    const std::size_t count = GENERATE(range<std::size_t>(0, 5));
+    auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+	  .DYN_TIMES(AT_MOST(count))
+	  .RETURN(1));
+
+    for (std::size_t i{0};
+		i < count;
+		++i)
+    {
+        REQUIRE(e->is_satisfied());
+    	REQUIRE(!e->is_saturated());
+
+    	obj.count();
+    }
+
+    REQUIRE(e->is_satisfied());
+    REQUIRE(e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
   "C++11: unsatisfied expectation when mock dies is reported",
   "[C++11][C++14][scoping][multiplicity]")
 {
@@ -5983,14 +6096,14 @@ TEST_CASE_METHOD(
 )
 {
   bool called = false;
-  auto set_expectation = [&called](movable_mock obj) {
-    auto exp = NAMED_REQUIRE_CALL_V(obj, func(3),
-                                  .LR_SIDE_EFFECT(called = true));
-    return std::make_pair(std::move(obj), std::move(exp));
-  };
+	auto set_expectation = [&called](movable_mock obj) {
+	auto exp = NAMED_REQUIRE_CALL_V(obj, func(3),
+									.LR_SIDE_EFFECT(called = true));
+	return std::make_pair(std::move(obj), std::move(exp));
+	};
 
-  auto e = set_expectation(movable_mock{});
-  e.first.func(3);
+	auto e = set_expectation(movable_mock{});
+	e.first.func(3);
   REQUIRE(reports.empty());
   REQUIRE(called);
 }
