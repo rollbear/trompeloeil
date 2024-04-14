@@ -129,7 +129,42 @@ namespace
 
 #endif /* !TROMPELOEIL_TEST_REGEX_FAILURES */
 
+  struct throwing_action
+  {
+    template <typename Matcher, typename modifier_tag, typename Parent>
+    static
+    trompeloeil::call_modifier<Matcher, modifier_tag, Parent>&&
+    action(
+      trompeloeil::call_modifier<Matcher, modifier_tag, Parent>&&)
+    {
+        throw throwing_action{};
+    }
+  };
+
 } /* unnamed namespace */
+
+
+TEST_CASE(
+    "C++11: exceptions thrown during expectation construction, shall not lead to resource leaks.",
+    "[C++11]"
+)
+{
+  // this test shall not check any testable errors, but instead is intended to force memory leaks during
+  // expectation construction
+  mock_c mock{};
+
+  const auto makeExpectation = [&]
+  {
+    REQUIRE_CALL_V(mock, getter(42),
+	  .TIMES(2)
+	  .SIDE_EFFECT()
+	  .WITH(true)
+	  .RETURN(1337)
+	  .template action<throwing_action>());
+  };
+
+  REQUIRE_THROWS_AS(makeExpectation(), throwing_action);
+}
 
 // mock_interface<> tests
 
