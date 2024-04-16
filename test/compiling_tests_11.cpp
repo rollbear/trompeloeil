@@ -1413,7 +1413,7 @@ TEST_CASE_METHOD(
     U u;
     REQUIRE_CALL_V(u, func_lr(matcher));
     int x = 42;
-	u.func_lr(x);
+    u.func_lr(x);
   }
   REQUIRE(reports.empty());
 }
