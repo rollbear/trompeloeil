@@ -2538,9 +2538,9 @@ template <typename T>
     using Parent::side_effects;
 
     call_modifier(
-       Matcher* m)
+       std::unique_ptr<Matcher>&& m)
     noexcept
-      : matcher{m}
+      : matcher{std::move(m)}
     {}
 
     template <typename F, typename ... Ts>
@@ -2569,9 +2569,9 @@ template <typename T>
                     "IN_SEQUENCE for forbidden call does not make sense");
 
       matcher->set_sequence(std::forward<T>(t)...);
-      return {matcher};
+      return {std::move(matcher)};
     }
-    Matcher* matcher;
+    std::unique_ptr<Matcher> matcher;
   };
 
   struct with
@@ -2671,7 +2671,7 @@ template <typename T>
       constexpr bool valid = !is_coroutine && !is_illegal_type && matching_ret_type && is_first_return && !Parent::throws && Parent::upper_call_limit > 0;
       using tag = std::integral_constant<bool, valid>;
       m.matcher->set_return(tag{}, std::forward<H>(h));
-      return {m.matcher};
+      return {std::move(m).matcher};
     }
   };
 
@@ -2703,7 +2703,7 @@ template <typename T>
       using tag = std::integral_constant<bool, valid>;
       auto handler = throw_handler_t<H, signature>(std::forward<H>(h));
       m.matcher->set_return(tag{}, std::move(handler));
-      return {m.matcher};
+      return {std::move(m).matcher};
     }
   };
 
@@ -2738,7 +2738,7 @@ template <typename T>
                     "IN_SEQUENCE and TIMES(0) does not make sense");
 
       m.matcher->sequences->set_limits(L, H);
-      return {m.matcher};
+      return {std::move(m).matcher};
     }
   };
 
@@ -3117,7 +3117,7 @@ template <typename T>
     auto
     make_expectation(
       std::true_type,
-      call_modifier<M, Tag, Info> const& m)
+      call_modifier<M, Tag, Info>&& m)
     const
     noexcept
     TROMPELOEIL_TRAILING_RETURN_TYPE(std::unique_ptr<expectation>)
@@ -3125,7 +3125,7 @@ template <typename T>
       auto lock = get_lock();
       m.matcher->hook_last(obj.trompeloeil_matcher_list(static_cast<Tag*>(nullptr)));
 
-      return std::unique_ptr<expectation>(m.matcher);
+      return std::move(m).matcher;
     }
 
     template <typename T>
@@ -3563,12 +3563,12 @@ template <typename T>
                           TROMPELOEIL_REMOVE_PAREN(sig),                       \
                           ::trompeloeil::param_t<trompeloeil_param_type...>>;  \
       return {                                                                 \
-          new matcher {                                                        \
+          ::trompeloeil::detail::make_unique<matcher>(                         \
                 trompeloeil_expectation_file,                                  \
                 trompeloeil_expectation_line,                                  \
                 trompeloeil_expectation_string,                                \
                 std::forward<trompeloeil_param_type>(trompeloeil_param)...     \
-              }                                                                \
+              )                                                                \
       };                                                                       \
     }                                                                          \
   };                                                                           \
