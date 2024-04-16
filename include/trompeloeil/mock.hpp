@@ -1330,7 +1330,7 @@ template <typename T>
       return next != this;
     }
   protected:
-    list_elem() noexcept = default;
+    list_elem() = default;
   public:
     list_elem* next = this;
     list_elem* prev = this;
@@ -1678,7 +1678,7 @@ template <typename T>
 
     virtual
     ~sequence_handler_base()
-    noexcept = default;
+    = default;
 
     void
       increment_call()
@@ -3224,7 +3224,7 @@ template <typename T>
   struct expectations
   {
     expectations() = default;
-    expectations(expectations&&) noexcept = default;
+    expectations(expectations&&) = default;
     ~expectations() {
       active.decommission();
       saturated.decommission();

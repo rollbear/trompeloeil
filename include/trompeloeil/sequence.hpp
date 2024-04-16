@@ -24,10 +24,10 @@ namespace trompeloeil {
   class sequence_type
   {
   public:
-    sequence_type() noexcept = default;
-    sequence_type(sequence_type&&) noexcept = delete;
+    sequence_type() = default;
+    sequence_type(sequence_type&&) = delete;
     sequence_type(const sequence_type&) = delete;
-    sequence_type& operator=(sequence_type&&) noexcept = delete;
+    sequence_type& operator=(sequence_type&&) = delete;
     sequence_type& operator=(const sequence_type&) = delete;
     ~sequence_type();
 

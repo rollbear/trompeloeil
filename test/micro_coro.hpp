@@ -27,7 +27,7 @@ namespace coro
   template<typename T>
   struct promise
   {
-    promise() noexcept = default;
+    promise() = default;
 
     promise &operator=(promise &&) = delete;
 
@@ -137,7 +137,7 @@ namespace coro
   template<>
   struct promise<void>
   {
-    promise() noexcept = default;
+    promise() = default;
     promise &operator=(promise &&) = delete;
 
     std::suspend_never
@@ -347,7 +347,7 @@ namespace coro
   template<typename T>
   struct generator_promise
   {
-    generator_promise() noexcept = default;
+    generator_promise() = default;
 
     generator_promise &operator=(generator_promise &&) = delete;
 

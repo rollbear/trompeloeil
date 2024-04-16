@@ -5995,4 +5995,3 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
   REQUIRE(called);
 }
-
