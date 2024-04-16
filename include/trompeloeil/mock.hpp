@@ -1000,6 +1000,15 @@ template <typename T>
   }
 
   template <typename T>
+  constexpr
+  bool
+  is_null(
+    std::reference_wrapper<T> t)
+  {
+    return is_null(t.get());
+  }
+
+  template <typename T>
   void
   print(
     std::ostream& os,
@@ -1152,6 +1161,20 @@ template <typename T>
       os << " matching _";
     }
   };
+
+  template <typename T>
+  struct printer<std::reference_wrapper<T>>
+  {
+    static
+    void
+    print(
+    std::ostream& os,
+    std::reference_wrapper<T> ref)
+    {
+        ::trompeloeil::print(os, ref.get());
+    }
+  };
+
   template <typename T>
   void
   print(
@@ -1836,7 +1859,7 @@ template <typename T>
   template <typename R, typename ... T>
   struct call_params_type<R(T...)>
   {
-    using type = std::tuple<typename std::add_lvalue_reference<T>::type...>;
+    using type = std::tuple<std::reference_wrapper<detail::remove_reference_t<T>>...>;
   };
 
   template <typename T>
@@ -1970,11 +1993,11 @@ template <typename T>
   bool
   param_matches_impl(
     T const& t,
-    U const& u,
+    std::reference_wrapper<U> u,
     matcher const*)
-  noexcept(noexcept(t.matches(u)))
+  noexcept(noexcept(t.matches(u.get())))
   {
-    return t.matches(u);
+    return t.matches(u.get());
   }
 
   template <typename T,
@@ -2005,11 +2028,11 @@ template <typename T>
   bool
   param_matches_impl(
     T const& t,
-    U const& u,
+    std::reference_wrapper<U> u,
     void const*)
-  noexcept(noexcept(::trompeloeil::identity<U>(t) == u))
+  noexcept(noexcept(::trompeloeil::identity<U>(t) == u.get()))
   {
-    return ::trompeloeil::identity<U>(t) == u;
+    return ::trompeloeil::identity<U>(t) == u.get();
   }
 
   template <typename T, typename U>
@@ -3072,7 +3095,7 @@ template <typename T>
     int N,
     typename T,
     typename = detail::enable_if_t<N <= std::tuple_size<T>::value>,
-    typename R = decltype(std::get<N-1>(std::declval<T>()))
+    typename R = decltype(std::get<N-1>(std::declval<T>()).get())
   >
   constexpr
   TROMPELOEIL_DECLTYPE_AUTO
@@ -3081,7 +3104,7 @@ template <typename T>
     std::true_type)
   TROMPELOEIL_TRAILING_RETURN_TYPE(R)
   {
-    return std::get<N-1>(*t);
+    return std::get<N-1>(*t).get();
   }
 
   template <int>
