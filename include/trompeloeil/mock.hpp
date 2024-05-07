@@ -1772,6 +1772,7 @@ template <typename T>
     template <size_t M = N, typename detail::enable_if_t<M == 0>* = nullptr>
     sequence_handler()
       noexcept
+      : matchers{}
     {}
 
     template <typename ... S>
@@ -1830,7 +1831,7 @@ template <typename T>
       matchers.retire_predecessors();
     }
   private:
-    sequence_matchers<N> matchers{};
+    sequence_matchers<N> matchers;
   };
 
 
