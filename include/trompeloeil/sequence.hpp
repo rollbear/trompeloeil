@@ -102,6 +102,7 @@ namespace trompeloeil {
     }
 
     sequence_matcher(const sequence_matcher&) = delete;
+    sequence_matcher(sequence_matcher&&) = default;
     sequence_matcher& operator=(sequence_matcher const&) = delete;
 
     void
