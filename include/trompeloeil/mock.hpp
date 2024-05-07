@@ -1830,7 +1830,7 @@ template <typename T>
       matchers.retire_predecessors();
     }
   private:
-    sequence_matchers<N> matchers;
+    sequence_matchers<N> matchers{};
   };
 
 
@@ -2227,7 +2227,7 @@ template <typename T>
   private:
     location loc;
     tracer* t;
-    std::ostringstream os;
+    std::ostringstream os{};
   };
 
   template <typename Sig>
