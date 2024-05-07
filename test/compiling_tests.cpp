@@ -14,6 +14,11 @@
 
 #define TROMPELOEIL_SANITY_CHECKS
 
+#if defined(_WIN32)
+#include <Unknwn.h>
+#undef interface
+#endif
+
 #include <trompeloeil.hpp>
 #if not defined(CATCH2_VERSION) || CATCH2_VERSION == 2
 #ifndef CATCH2_MAIN

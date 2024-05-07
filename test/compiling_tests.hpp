@@ -24,6 +24,12 @@ constexpr bool operator==(std::nullptr_t,QCharIsh) noexcept;
 constexpr bool operator==(QCharIsh,std::nullptr_t) noexcept;
 
 #define TROMPELOEIL_SANITY_CHECKS
+
+#if defined(_WIN32)
+#include <Unknwn.h>
+#undef interface
+#endif
+
 #include <trompeloeil.hpp>
 
 #include <algorithm>
@@ -667,5 +673,72 @@ struct all_mock
   MAKE_MOCK1(f1t, (std::tuple<int, float, double>(I<1>)));
   MAKE_CONST_MOCK1(cf1t, (std::pair<int, float>(I<1>)));
 };
+
+#if defined(_WIN32)
+struct idispatch_mock : public trompeloeil::mock_interface<IDispatch> {
+  IMPLEMENT_STDMETHOD_MOCK0(AddRef);
+  IMPLEMENT_STDMETHOD_MOCK0(Release);
+  MAKE_STDMETHOD_MOCK2(QueryInterface, HRESULT(REFIID, void **), override);
+  IMPLEMENT_STDMETHOD_MOCK1(GetTypeInfoCount);
+  IMPLEMENT_STDMETHOD_MOCK3(GetTypeInfo);
+  IMPLEMENT_STDMETHOD_MOCK5(GetIDsOfNames);
+  IMPLEMENT_STDMETHOD_MOCK8(Invoke);
+};
+
+struct all_stdcall_if
+{
+  virtual ~all_stdcall_if() = default;
+  virtual void STDMETHODCALLTYPE f0() = 0;
+  virtual void STDMETHODCALLTYPE f1(I<1>) = 0;
+  virtual void STDMETHODCALLTYPE f2(I<1>, I<2>) = 0;
+  virtual void STDMETHODCALLTYPE f3(I<1>, I<2>, I<3>) = 0;
+  virtual void STDMETHODCALLTYPE f4(I<1>, I<2>, I<3>, I<4>) = 0;
+  virtual void STDMETHODCALLTYPE f5(I<1>, I<2>, I<3>, I<4>, I<5>) = 0;
+  virtual void STDMETHODCALLTYPE f6(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>) = 0;
+  virtual void STDMETHODCALLTYPE f7(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>) = 0;
+  virtual void STDMETHODCALLTYPE f8(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>) = 0;
+  virtual void STDMETHODCALLTYPE f9(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                  I<9>) = 0;
+  virtual void STDMETHODCALLTYPE f10(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>) = 0;
+  virtual void STDMETHODCALLTYPE f11(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>) = 0;
+  virtual void STDMETHODCALLTYPE f12(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>) = 0;
+  virtual void STDMETHODCALLTYPE f13(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>,I<13>) = 0;
+  virtual void STDMETHODCALLTYPE f14(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>,I<13>,I<14>) = 0;
+  virtual void STDMETHODCALLTYPE f15(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+                   I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>) = 0;
+};
+
+struct all_stdcall_mock_if : public all_stdcall_if
+{
+  MAKE_STDMETHOD_MOCK0(f0, void(), override);
+  MAKE_STDMETHOD_MOCK1(f1, void(I<1>), override);
+  MAKE_STDMETHOD_MOCK2(f2, void(I<1>, I<2>), override);
+  MAKE_STDMETHOD_MOCK3(f3, void(I<1>, I<2>, I<3>), override);
+  MAKE_STDMETHOD_MOCK4(f4, void(I<1>, I<2>, I<3>, I<4>), override);
+  MAKE_STDMETHOD_MOCK5(f5, void(I<1>, I<2>, I<3>, I<4>, I<5>), override);
+  MAKE_STDMETHOD_MOCK6(f6, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>), override);
+  MAKE_STDMETHOD_MOCK7(f7, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>), override);
+  MAKE_STDMETHOD_MOCK8(f8, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>), override);
+  MAKE_STDMETHOD_MOCK9(f9, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>), override);
+  MAKE_STDMETHOD_MOCK10(f10, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>,I<10>), override);
+  MAKE_STDMETHOD_MOCK11(f11, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>,I<10>,I<11>), override);
+  MAKE_STDMETHOD_MOCK12(f12, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>,I<10>,I<11>,I<12>), override);
+  MAKE_STDMETHOD_MOCK13(f13, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>,I<10>,I<11>,I<12>,I<13>), override);
+  MAKE_STDMETHOD_MOCK14(f14, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>,I<10>,I<11>,I<12>,I<13>,I<14>), override);
+  MAKE_STDMETHOD_MOCK15(f15, void(I<1>, I<2>, I<3>, I<4>, I<5>, I<6>, I<7>, I<8>,
+    I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>), override);
+};
+#endif
 
 #endif /* !COMPILING_TESTS_HPP_ */
