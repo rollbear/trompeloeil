@@ -1,3 +1,5 @@
+	* Silenced gcc -Weffc++ warnings. Thanks Sven Fischer for the report
+
 v47 2024-01-01
 
 	* Coroutines are conditionally supported by the __cpp_impl_coroutine

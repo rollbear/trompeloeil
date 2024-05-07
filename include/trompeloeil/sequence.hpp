@@ -68,7 +68,7 @@ namespace trompeloeil {
     const;
 
   private:
-    list<sequence_matcher> matchers;
+    list<sequence_matcher> matchers{};
   };
 
   class sequence
@@ -100,6 +100,9 @@ namespace trompeloeil {
       auto lock = get_lock();
       seq.add_last(this);
     }
+
+    sequence_matcher(const sequence_matcher&) = delete;
+    sequence_matcher& operator=(sequence_matcher const&) = delete;
 
     void
     validate_match(

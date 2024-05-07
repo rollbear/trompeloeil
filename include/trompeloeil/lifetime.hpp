@@ -101,6 +101,8 @@ struct lifetime_monitor : public expectation
     }
   }
 
+  lifetime_monitor& operator=(lifetime_monitor const&) = delete;
+
   void
   notify()
   noexcept
