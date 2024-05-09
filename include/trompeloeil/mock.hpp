@@ -2838,7 +2838,7 @@ template <typename T>
       }
 
       m.matcher->sequences->set_limits(bounds.low, bounds.high);
-      return {m.matcher};
+      return std::move(m).matcher;
     }
   };
 
