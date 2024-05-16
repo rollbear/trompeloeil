@@ -251,13 +251,14 @@ All tests passed (2 assertions in 1 test case)
 
 The easiest way to use *Trompeloeil* with *Catch2* is to
 `#include <catch2/trompeloeil.hpp>` in your test .cpp files. Note that the
-inclusion order is important. `<catch.hpp>` must be included before
-`<catch/trompeloeil.hpp>`.
+inclusion order is important. `<catch.hpp>` (Catch2 2.x) or
+`<catch2/catch_test_macros.hpp>` (Catch2 3.x) must be included before
+`<catch2/trompeloeil.hpp>`.
 
 Like this:
 
 ```Cpp
-#include <catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <catch2/trompeloeil.hpp>
 
 TEST_CASE("...
