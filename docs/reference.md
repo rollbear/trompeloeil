@@ -28,6 +28,7 @@
   - [**`FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#FORBID_CALL)
   - [**`IMPLEMENT_CONST_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_CONST_MOCKn)
   - [**`IMPLEMENT_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_MOCKn)
+  - [**`IMPLEMENT_STDMETHOD_MOCKn(`** *func_name* **`)`**`](#IMPLEMENT_STDMETHOD_MOCKn)
   - [**`IN_SEQUENCE(`** *seq...* **`)`**](#IN_SEQUENCE)
   - [**`LR_CO_RETURN(`** *expr* **`)`**](#LR_CO_RETURN)
   - [**`LR_CO_THROW(`** *expr* **`)`**](#LR_CO_THROW)
@@ -38,6 +39,7 @@
   - [**`LR_WITH(`** *expr* **`)`**](#LR_WITH)
   - [**`MAKE_CONST_MOCKn(`** *func_name*, *signature* **`)`**](#MAKE_CONST_MOCKn)
   - [**`MAKE_MOCKn(`** *name*, *signature* **`)`**](#MAKE_MOCKn)
+  - [**`MAKE_STDMETHOD_MOCKn(`** *name*, *signature* **`)`**](#MAKE_STDMETHOD_MOCKn)
   - [**`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_ALLOW_CALL)
   - [**`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_FORBID_CALL)
   - [**`NAMED_REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_REQUIRE_CALL)
@@ -1016,6 +1018,56 @@ member functions.
 See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
 member functions.
 
+<A name="IMPLEMENT_STDMETHOD_MOCKn"/>
+
+### **`IMPLEMENT_STDMETHOD_MOCKn(`** *func_name* {, *specifiers* } **`)`**
+
+Make a `STDMETHODCALLTYPE` [mock function](#mock_function) implementation of the
+`virtual` function named *func_name* from the inherited interface. This macro
+is only usable with `virtual` non-`final` functions, and only when used with
+[`mock_interface<T>`](#mock_interface), where `T` is the interface.
+
+*specifiers* is an optional list which may include attributes or specifiers like
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+`#include <trompeloeil/mock.hpp>`
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual int STDMETHODCALLTYPE func(int, const std::vector<int>&)) const = 0;
+};
+
+class C : public trompeloeil::mock_interface<I>
+{
+public:
+  IMPLEMENT_STDMETHOD_MOCK2(func);
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public trompeloeil::mock_interface<I>
+{
+public:
+  int STDMETHODCALLTYPE func(int, const std::vector<int>&) const override;
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**NOTE!** **`IMPLEMENT_STDMETHOD_MOCKn(...)`** cannot handle overloaded functions.
+
+**NOTE!** **`IMPLEMENT_STDMETHOD_MOCKn(...)`** only works on Windows.
+
+See also [**`MAKE_STDMETHOD_MOCKn(...)`**](#MAKE_STDMETHOD_MOCKn)
+
 <A name="IN_SEQUENCE"/>
 
 ### **`IN_SEQUENCE(`** *seq...* **`)`**
@@ -1492,6 +1544,53 @@ you can call [mock functions](#mock_function) from those.
 
 See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
 member functions.
+
+<A name="MAKE_STDMETHOD_MOCKn"/>
+
+### **`MAKE_STDMETHOD_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**
+
+Make a STDMETHODCALLTYPE [mock function](#mock_function) named *func_name*. It is a
+good idea for this to implement a pure virtual function from an interface, but
+it is not a requirement. `n` is the number of parameters in *signature*.
+*specifiers* is an optional list which may include attributes or specifiers like
+[`override`](http://en.cppreference.com/w/cpp/language/override) or
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+`#include <trompeloeil/mock.hpp>`
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual int STDMETHODCALLTYPE func1(int, const std::vector<int>&)) = 0;
+};
+
+class C : public I
+{
+public:
+  MAKE_STDMETHO_MOCK2(func1, int(int, const std::vector<int>&), override);
+  MAKE_STDMETHO_MOCK1(func2, int(std::string));
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public I
+{
+public:
+  int STDMETHODCALLTYPE func1(int, const std::vector<int>&) override;
+  int STDMETHODCALLTYPE func2(std::string);
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**NOTE!** **`MAKE_STDMETHOD_MOCKn(...)`** only works on Windows.
 
 <A name="NAMED_ALLOW_CALL"/>
 

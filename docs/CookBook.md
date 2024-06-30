@@ -9,6 +9,7 @@
   - [Mocking non-virtual member functions](#mocking_non_virtual)
   - [Mocking free functions](#mocking_free_functions)
   - [Mocking functions which return a template](#mocking_return_template)
+  - [Mocking __stdcall functions](#mocking_stdcall)
 - [Setting Expectations](#setting_expectations)
   - [Matching exact values](#matching_exact_values)
   - [Matching values with conditions](#matching_conditions)
@@ -928,6 +929,25 @@ struct M
 {
   MAKE_MOCK2(make, (std::pair<int,int>)(int,int));
 };
+```
+
+### <A name="mocking_stdcall"/> Mocking STDMETHOD functions
+
+Windows API functions and COM Interfaces are declared with the
+[__stdcall](https://learn.microsoft.com/en-us/cpp/cpp/stdcall?view=msvc-170)
+calling convention when targeting a 32-bit build, which becomes part of the
+signature of a method. If you have the need to mock this type of functions the
+[**`MAKE_STDMETHOD_MOCKn(...)`**](reference.md/#MAKE_STDMETHOD_MOCKn) and
+[**`IMPLEMENT_STDMETHOD_MOCKn(...)`**](reference.md/#IMPLEMENT_STDMETHOD_MOCKn)
+macros are provided.
+
+```Cpp
+struct Mock_stdcall : public trompeloeil::mock_interface<IUnknown>
+{
+  IMPLEMENT_STDMETHOD_MOCK0(AddRef);
+  IMPLEMENT_STDMETHOD_MOCK0(Release);
+  MAKE_STDMETHOD_MOCK2(QueryInterface, HRESULT(REFIID, void **), override);
+}
 ```
 
 ## <A name="setting_expectations"/> Setting Expectations
