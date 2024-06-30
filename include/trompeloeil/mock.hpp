@@ -2500,6 +2500,24 @@ template <typename T>
   template <size_t L, size_t H = L>
   struct multiplicity { };
 
+  struct dynamic_multiplicity
+  {
+	  std::size_t low{};
+	  std::size_t high{};
+
+    explicit dynamic_multiplicity(std::size_t _low) noexcept
+	    : low{_low},
+		high{_low}
+    {
+    }
+
+    explicit dynamic_multiplicity(std::size_t _low, std::size_t _high) noexcept
+	    : low{_low},
+		high{_high}
+    {
+    }
+  };
+
   template <typename R, typename Parent>
   struct co_return_injector : Parent
   {
@@ -2792,6 +2810,29 @@ template <typename T>
 
       m.matcher->sequences->set_limits(L, H);
       return {std::move(m).matcher};
+    }
+  };
+
+  struct dynamic_times
+  {
+    template <
+      typename Matcher, typename modifier_tag, typename Parent,
+      bool times_set = Parent::call_limit_set>
+    static
+    call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, std::numeric_limits<std::size_t>::max()>>
+    action(call_modifier<Matcher, modifier_tag, Parent>&& m,
+           dynamic_multiplicity bounds)
+    {
+      static_assert(!times_set,
+                    "Only one DYN_TIMES call limit is allowed, but it can express an interval");
+
+      if (bounds.high < bounds.low)
+      {
+	      throw std::logic_error{"In DYN_TIMES the first value must not exceed the second"};
+      }
+
+      m.matcher->sequences->set_limits(bounds.low, bounds.high);
+      return std::move(m).matcher;
     }
   };
 
@@ -4003,6 +4044,7 @@ template <typename T>
 
 
 #define TROMPELOEIL_TIMES(...) template action<trompeloeil::times>(::trompeloeil::multiplicity<__VA_ARGS__>{})
+#define TROMPELOEIL_DYN_TIMES(...) template action<trompeloeil::dynamic_times>(::trompeloeil::dynamic_multiplicity{__VA_ARGS__})
 #define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~static_cast<size_t>(0)
@@ -4105,6 +4147,7 @@ template <typename T>
 #define THROW                     TROMPELOEIL_THROW
 #define LR_THROW                  TROMPELOEIL_LR_THROW
 #define TIMES                     TROMPELOEIL_TIMES
+#define DYN_TIMES                 TROMPELOEIL_DYN_TIMES
 #define AT_LEAST                  TROMPELOEIL_AT_LEAST
 #define AT_MOST                   TROMPELOEIL_AT_MOST
 
