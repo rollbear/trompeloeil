@@ -1,3 +1,6 @@
+	* Fixed issue with std::expected causing compilation error. Thank you
+	  @subbota-a for reporting
+
 	* Silenced gcc -Weffc++ warnings. Thanks Sven Fischer for the report
 
 v47 2024-01-01

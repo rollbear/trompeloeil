@@ -5167,4 +5167,41 @@ TEST_CASE_METHOD(
   REQUIRE(okReports.empty());
 }
 
+#if TROMPELOEIL_HAS_EXPECTED
+TEST_CASE_METHOD(
+  Fixture,
+  "C++23: is_null with std::expected",
+  "[C++23][is_null]")
+{
+  WHEN("value type of expected is not comparable with null")
+  {
+    THEN("is_null is false")
+    {
+      REQUIRE_FALSE(trompeloeil::is_null(std::expected<int,int>{}));
+    }
+  }
+  AND_WHEN("value type is comparable with nullptr but not null")
+  {
+    THEN("is_null is false")
+    {
+      REQUIRE_FALSE(trompeloeil::is_null(std::expected<const void*, int>{"foo"}));
+    }
+  }
+  AND_WHEN("value type is comparable with nullptr and is null")
+  {
+    THEN("is_null is true")
+    {
+      REQUIRE(trompeloeil::is_null(std::expected<const void*, int>{}));
+    }
+  }
+  AND_WHEN("value type is comparable with nullptr but doesn't hold value")
+  {
+    THEN("is_null is false")
+    {
+      REQUIRE_FALSE(trompeloeil::is_null(std::expected<const void*, int>{std::unexpected{3}}));
+    }
+  }
+}
+#endif
+
 #endif /* TROMPELOEIL_CPLUSPLUS > 201103L */

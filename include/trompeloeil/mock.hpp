@@ -139,6 +139,19 @@
 #include <coroutine>
 #endif
 
+
+#if TROMPELOEIL_CPLUSPLUS >= 202211L
+#  if __has_include(<expected>)
+#    include <expected>
+#  endif
+#  if defined(__cpp_lib_expected)
+#    define   TROMPELOEIL_HAS_EXPECTED 1
+#  else
+#    define TROMPELOEIL_HAS_EXPECTED 0
+#  endif
+#else
+#define TROMPELOEIL_HAS_EXPECTED 0
+#endif
 #ifndef TROMPELOEIL_CUSTOM_ATOMIC
 #include <atomic>
 namespace trompeloeil { using std::atomic; }
@@ -1007,6 +1020,22 @@ template <typename T>
   {
     return is_null(t.get());
   }
+
+#if TROMPELOEIL_HAS_EXPECTED
+  template <typename T, typename E>
+  constexpr
+  bool
+  is_null(const std::expected<T, E>& e)
+  {
+    if constexpr (requires { e.value() == nullptr; }) {
+      return e == nullptr;
+    }
+    else
+    {
+      return false;
+    }
+  }
+#endif
 
   template <typename T>
   void
