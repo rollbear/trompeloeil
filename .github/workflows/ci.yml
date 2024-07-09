@@ -1743,13 +1743,14 @@ jobs:
           COV=`echo "${{ matrix.config.name }}}" | grep -q -e "Linux.*Clang" && echo "llvm-cov gcov"|| echo gcov`
           ${COV} -abcfup `find build/test -name "*.gcno"`
           ls *.gcov| grep -v 'include#trompeloeil'|xargs rm
+          find . -name "*test*.gcno" -exec rm {} \;
 
       - name: Upload coverage
         if: (!startsWith(matrix.config.name, 'windows') && !matrix.config.no_coverage) && github.repository == 'rollbear/trompeloeil'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
-          gcov_include: "include/trompeloeil"
           name: "${{ matrix.config.name }}"
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
