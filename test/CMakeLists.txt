@@ -231,7 +231,7 @@ if (SANITIZE AND NOT APPLE)
           self_test
           PROPERTIES
           LINK_FLAGS
-          "${SSAN} -fuse-ld=gold"
+          ${SSAN}
           COMPILE_FLAGS
           ${SSAN}
   )
@@ -288,7 +288,7 @@ if (SANITIZE AND NOT APPLE)
           custom_recursive_mutex
           PROPERTIES
           LINK_FLAGS
-          "${SSAN} -fuse-ld=gold"
+          "${SSAN}"
           COMPILE_FLAGS
           ${SSAN}
   )

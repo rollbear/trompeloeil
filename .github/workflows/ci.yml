@@ -1704,7 +1704,17 @@ jobs:
             link_flags="${link_flags} -lc++abi"
             STDLIB="libc++"
           fi
-
+          if [ "$RUNNER_OS" == "Linux" ]
+          then
+            LINKER=`which mold || which gold`
+            if [ -n "$LINKER" ]
+            then
+              LINKER=`basename $LINKER`
+              # ugly hack for gcc-9
+              echo "" | $CXX -E -fuse-ld=$LINKER - 2>&1 > /dev/null || LINKER=gold
+              link_flags="${link_flags} -fuse-ld=$LINKER"
+            fi
+          fi
           if [ "x${{ matrix.config.cxx_asan }}" == "xtrue" ]
           then
             cxx_flags="${cxx_flags} -fno-omit-frame-pointer"
