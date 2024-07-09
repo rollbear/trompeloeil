@@ -1673,7 +1673,7 @@ jobs:
             cxx_standard: 20,
           }
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Configure MSVC console (Windows)
         if: startsWith(matrix.config.os, 'windows')
