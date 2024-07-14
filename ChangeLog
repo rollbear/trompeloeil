@@ -1,3 +1,8 @@
+v48 2024-07-17
+
+	* Fixed memory leak when adding an action (.RETURN, .SIDE_EFFECT, etc)
+	  throws. Thank you Dominic Koepke for the fix.
+
 	* Dropped older compilers from CI builds (gcc <= 6 and clang <= 7) since
 	  GitHub actions now require node-20, and no build environment is
 	  currently available that both supports node-20 and older compilers.
