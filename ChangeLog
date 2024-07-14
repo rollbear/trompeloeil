@@ -1,3 +1,7 @@
+	* Dropped older compilers from CI builds (gcc <= 6 and clang <= 7) since
+	  GitHub actions now require node-20, and no build environment is
+	  currently available that both supports node-20 and older compilers.
+
 	* Fixed issue with std::expected causing compilation error. Thank you
 	  @subbota-a for reporting
 
