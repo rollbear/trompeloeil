@@ -2,6 +2,13 @@
 	  GitHub actions now require node-20, and no build environment is
 	  currently available that both supports node-20 and older compilers.
 
+	* Support for STDMETHOD functions for COM. Thank you Luis Andres Cesena
+	  for the implementation, and Kevin Puetz for the discussions. This
+	  adds new macros:
+
+	      MAKE_STDMETHOD_MOCKn(...)
+	      IMPLEMENT_STDMETHOD_MOCKn(...)
+
 	* Fixed issue with std::expected causing compilation error. Thank you
 	  @subbota-a for reporting
 
