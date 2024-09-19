@@ -1629,10 +1629,24 @@ jobs:
             cxx_standard: 11,
           }
           - {
+              name: "Windows MSVC 2022 C++11 preprocessor",
+              os: windows-2022,
+              cc: "cl", cxx: "cl",
+              cxx_standard: 11,
+              cxx_flags: "/Zc:preprocessor"
+          }
+          - {
             name: "Windows MSVC 2022 C++14",
             os: windows-2022,
             cc: "cl", cxx: "cl",
             cxx_standard: 14,
+          }
+          - {
+            name: "Windows MSVC 2022 C++14 preprocessor",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 14,
+            cxx_flags: "/Zc:preprocessor"
           }
           - {
             name: "Windows MSVC 2022 C++17",
@@ -1641,10 +1655,24 @@ jobs:
             cxx_standard: 17,
           }
           - {
+            name: "Windows MSVC 2022 C++17 preprocessor",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 17,
+            cxx_flags: "/Zc:preprocessor"
+          }
+          - {
             name: "Windows MSVC 2022 C++20",
             os: windows-2022,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
+          }
+          - {
+            name: "Windows MSVC 2022 C++20 preprocessor",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 20,
+            cxx_flags: "/Zc:preprocessor"
           }
 
           # MSVC 2019
@@ -1655,10 +1683,24 @@ jobs:
             cxx_standard: 11,
           }
           - {
+            name: "Windows MSVC 2019 C++11 preprocessor",
+            os: windows-2019,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 11,
+            cxx_flags: "/Zc:preprocessor"
+          }
+          - {
             name: "Windows MSVC 2019 C++14",
             os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 14,
+          }
+          - {
+            name: "Windows MSVC 2019 C++14 preprocessor",
+            os: windows-2019,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 14,
+            cxx_flags: "/Zc:preprocessor"
           }
           - {
             name: "Windows MSVC 2019 C++17",
@@ -1667,10 +1709,24 @@ jobs:
             cxx_standard: 17,
           }
           - {
+            name: "Windows MSVC 2019 C++17 preprocessor",
+            os: windows-2019,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 17,
+            cxx_flags: "/Zc:preprocessor"
+          }
+          - {
             name: "Windows MSVC 2019 C++20",
             os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
+          }
+          - {
+            name: "Windows MSVC 2019 C++20 preprocessor",
+            os: windows-2019,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 20,
+            cxx_flags: "/Zc:preprocessor"
           }
     steps:
       - uses: actions/checkout@v4
@@ -1698,6 +1754,10 @@ jobs:
         shell: bash
         run: |
           STD=${{ matrix.config.cxx_standard }}
+          if [ -n "${{ matrix.config.cxx_flags }}" ]
+          then
+            cxx_flags="${{matrix.config.cxx_flags }}"
+          fi
           if [ "x${{ matrix.config.libcxx }}" == "xtrue" ]
           then
             cxx_flags="${cxx_flags} -stdlib=libc++  -Wno-unused-command-line-argument"
