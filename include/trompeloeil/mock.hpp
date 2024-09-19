@@ -122,6 +122,43 @@
 #define TROMPELOEIL_NOT_IMPLEMENTED(...) __VA_ARGS__
 #endif
 
+#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL==0
+#  if _MSC_VER >= 1940
+#    define TROMPELOEIL_HAS_VA_OPT 1
+#  else
+#    define TROMPELOEIL_HAS_VA_OPT 0
+#  endif
+#  define TROMPELOEIL_MSVC_PREPROCESSOR 0
+#elif __cplusplus >= 202002L
+#  define TROMPELOEIL_HAS_VA_OPT 1
+#else
+#  define TROMPELOEIL_HAS_VA_OPT 0
+#endif
+
+#if TROMPELOEIL_MSVC
+#  if !defined(TROMPELOEIL_MSVC_PREPROCESSOR)
+#    define TROMPELOEIL_MSVC_PREPROCESSOR 1
+#  endif
+#else
+#  define TROMPELOEIL_MSVC_PREPROCESSOR 0
+#endif
+
+#define TROMPELOEIL_IDENTITY(...) __VA_ARGS__
+#define TROMPELOEIL_APPLY(f, ...) TROMPELOEIL_SEQUENCE(f, (__VA_ARGS__))
+#define TROMPELOEIL_SEQUENCE(a,b) a b
+#if TROMPELOEIL_HAS_VA_OPT
+#  define TROMPELOEIL_COUNT(...) TROMPELOEIL_COUNT_(__VA_OPT__(__VA_ARGS__,) 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#  define TROMPELOEIL_COUNT_(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,...) _15
+#else
+#  if defined (TROMPELOEIL_HAS_GCC_PP)
+#    define TROMPELOEIL_COUNT(...) TROMPELOEIL_APPLY(TROMPELOEIL_COUNT_,TROMPELOEIL_IDENTITY(,## __VA_ARGS__,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
+#  else
+#    define TROMPELOEIL_COUNT(...) TROMPELOEIL_APPLY(TROMPELOEIL_COUNT_,TROMPELOEIL_IDENTITY(__VA_ARGS__,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
+#  endif
+#  define TROMPELOEIL_COUNT_(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,...) _16
+#endif
+
+
 #include <algorithm>
 #include <tuple>
 #include <iomanip>
@@ -173,25 +210,20 @@ namespace trompeloeil { using std::unique_lock; }
 #define TROMPELOEIL_ASSERT(x) do {} while (false)
 #endif
 
-#define TROMPELOEIL_IDENTITY(...) __VA_ARGS__ // work around stupid MS VS2015 RC bug
-
 #define TROMPELOEIL_ARG16(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15, ...) _15
 
-#define TROMPELOEIL_COUNT(...)                                                 \
-  TROMPELOEIL_IDENTITY(TROMPELOEIL_ARG16(__VA_ARGS__,                          \
-                                         15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0))
 
-#if TROMPELOEIL_MSVC
+#if TROMPELOEIL_MSVC_PREPROCESSOR
 
 #define TROMPELOEIL_CONCAT_(x, y, ...) x ## y __VA_ARGS__
 #define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
 
-#else /* TROMPELOEIL_MSVC */
+#else /* TROMPELOEIL_MSVC_PREPROCESSOR */
 
 #define TROMPELOEIL_CONCAT_(x, ...) x ## __VA_ARGS__
 #define TROMPELOEIL_CONCAT(x, ...) TROMPELOEIL_CONCAT_(x, __VA_ARGS__)
 
-#endif /* !TROMPELOEIL_MSVC */
+#endif /* !TROMPELOEIL_MSVC_PREPROCESSOR */
 
 #define TROMPELOEIL_SEPARATE1(p1) p1
 #define TROMPELOEIL_SEPARATE2(p1,p2) p1 p2
@@ -203,8 +235,9 @@ namespace trompeloeil { using std::unique_lock; }
 #define TROMPELOEIL_SEPARATE8(p1,...) p1 TROMPELOEIL_SEPARATE7(__VA_ARGS__)
 #define TROMPELOEIL_SEPARATE9(p1,...) p1 TROMPELOEIL_SEPARATE8(__VA_ARGS__)
 #define TROMPELOEIL_SEPARATE(...) \
-  TROMPELOEIL_CONCAT(TROMPELOEIL_SEPARATE,\
-                     TROMPELOEIL_COUNT(__VA_ARGS__))(__VA_ARGS__)
+  TROMPELOEIL_APPLY(TROMPELOEIL_CONCAT, \
+                    TROMPELOEIL_SEPARATE, \
+                    TROMPELOEIL_COUNT(__VA_ARGS__))(__VA_ARGS__)
 
 
 #define TROMPELOEIL_REMOVE_PAREN(...) TROMPELOEIL_CONCAT(TROMPELOEIL_CLEAR_,   \
@@ -263,8 +296,9 @@ namespace trompeloeil { using std::unique_lock; }
 #define TROMPELOEIL_INIT_WITH_STR0(base)
 
 #define TROMPELOEIL_INIT_WITH_STR(base, ...)                                   \
-  TROMPELOEIL_CONCAT(TROMPELOEIL_INIT_WITH_STR,                                \
-                     TROMPELOEIL_COUNT(__VA_ARGS__))(base, __VA_ARGS__)
+  TROMPELOEIL_APPLY(TROMPELOEIL_CONCAT,                                        \
+                    TROMPELOEIL_INIT_WITH_STR,                                 \
+                    TROMPELOEIL_COUNT(__VA_ARGS__))(base, __VA_ARGS__)
 
 #define TROMPELOEIL_PARAM_LIST15(...)                                          \
   TROMPELOEIL_PARAM_LIST14(__VA_ARGS__),                                       \
@@ -3404,7 +3438,7 @@ template <typename T>
 #define TROMPELOEIL_COUNT_ID(name)                                       \
   TROMPELOEIL_CONCAT(trompeloeil_c_ ## name ## _, __COUNTER__)
 
-#if TROMPELOEIL_MSVC
+#if TROMPELOEIL_MSVC_PREPROCESSOR
 #define TROMPELOEIL_MAKE_MOCK0(name, sig, ...)                           \
   TROMPELOEIL_MAKE_MOCK_(name,,,0, sig, __VA_ARGS__,,)
 #define TROMPELOEIL_MAKE_MOCK1(name, sig, ...)                           \
