@@ -676,7 +676,42 @@ struct all_mock
 
 struct trailing_mock
 {
-  MAKE_MOCK(func, auto (int x, int y)->int, noexcept);
+#if TROMPELOEIL_HAS_VA_OPT
+  MAKE_MOCK(f, auto ()->int);
+#endif
+  MAKE_MOCK(f, auto(I<1>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>)->int, noexcept);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>,I<14>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>)->int);
+  MAKE_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>,I<16>)->int);
+#if TROMPELOEIL_HAS_VA_OPT
+  MAKE_CONST_MOCK(f, auto ()->int);
+#endif
+  MAKE_CONST_MOCK(f, auto(I<1>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>)->int, noexcept);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>,I<14>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>)->int);
+  MAKE_CONST_MOCK(f, auto (I<1>, I<2>,I<3>,I<5>,I<6>,I<7>,I<8>,I<9>,I<10>,I<11>,I<12>,I<13>,I<14>,I<15>,I<16>)->int);
 };
 
 #if defined(_WIN32)
