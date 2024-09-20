@@ -674,12 +674,17 @@ struct all_mock
   MAKE_CONST_MOCK1(cf1t, (std::pair<int, float>(I<1>)));
 };
 
+struct trailing_mock
+{
+  MAKE_MOCK(func, auto (int x, int y)->int, noexcept);
+};
+
 #if defined(_WIN32)
 struct idispatch_mock : public trompeloeil::mock_interface<IDispatch> {
   IMPLEMENT_STDMETHOD_MOCK0(AddRef);
   IMPLEMENT_STDMETHOD_MOCK0(Release);
   MAKE_STDMETHOD_MOCK2(QueryInterface, HRESULT(REFIID, void **), override);
-  IMPLEMENT_STDMETHOD_MOCK1(GetTypeInfoCount);
+  MAKE_STDMETHOD_MOCK(GetTypeInfoCount, auto (UINT*)->HRESULT, override);
   IMPLEMENT_STDMETHOD_MOCK3(GetTypeInfo);
   IMPLEMENT_STDMETHOD_MOCK5(GetIDsOfNames);
   IMPLEMENT_STDMETHOD_MOCK8(Invoke);
