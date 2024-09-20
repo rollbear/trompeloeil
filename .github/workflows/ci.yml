@@ -904,6 +904,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
           - {
             name: "Linux Clang 10 C++11 / libc++",
@@ -940,6 +941,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
 
           # Clang-11
@@ -978,6 +980,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
           - {
             name: "Linux Clang 11 C++11 / libc++",
@@ -1014,6 +1017,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
 
           # Clang-12
@@ -1052,6 +1056,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
           - {
             name: "Linux Clang 12 C++11 / libc++",
@@ -1088,6 +1093,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
 
           # Clang-13
@@ -1126,6 +1132,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: false,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
           - {
             name: "Linux Clang 13 C++11 / libc++",
@@ -1162,6 +1169,7 @@ jobs:
             cxx_standard: 20,
             cxx_asan: true,
             libcxx: true,
+            cxx_flags: "-Wno-gnu-zero-variadic-macro-arguments"
           }
 
           # Clang-14
