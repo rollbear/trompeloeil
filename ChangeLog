@@ -1,3 +1,25 @@
+	* Added mocking macros that infers function arity from a trailing return
+	  type syntax signature.
+
+	    MAKE_MOCK(name, signature {, specifiers})
+	    MAE_CONST_MOCK(name, signature {, specifiers})
+	    MAKE_STDMETHOD_MOCK(name, signature {, specifiers})
+
+	  Note that these only work with trailing return type syntax. Examples
+	  of specifiers are 'override' and 'final'
+
+	  The preprocessor is limited and can only handle nullary functions,
+	  i.e. functions that do not accept any arguments, in some cases.
+
+	  MSVC handles nullary functions when compiling with /Zc:preprocessor
+	  with MSVC 19.40 (VS 17.10) or later.
+
+	  Gcc and Clang always handles nullary functions when compiling with
+	  C++20 or later, and when enabling a gcc extension by compiling with
+	  -std=gnu++11/14/17 and defining the macro TROMPELOEIL_HAS_GCC_PP before
+	  #include:ing the trompeloeil headers.
+
+
 	* Added .RT_TIMES() to exceptations, which works like .TIMES()
 	  but where the limits are only known at runtime. Thank you
 	  Dominic Koepke for submitting the implementation.
