@@ -652,11 +652,28 @@ only work when implementing to an interface, do not handle multiple inheritance
 and do not handle overloads.
 
 A more generic technique is to implement free mocks as members of any
-`struct` or `class` using the macros [**`MAKE_MOCKn`**](
+`struct` or `class` using the macros [**`MAKE_MOCK`**](
+reference.md/#MAKE_MOCK
+) and [**`MAKE_CONST_MOCK`**](
+reference.md/#MAKE_CONST_MOCK
+) and also [**`MAKE_MOCKn`**](
   reference.md/#MAKE_MOCKn
-) and [**`MAKE_CONST_MOCKn`**](
+)  and [**`MAKE_CONST_MOCKn`**](
   reference.md/#MAKE_CONST_MOCKn
-), where `n` is the number of parameters in the function.
+).
+
+The macros [**`MAKE_MOCKn`**](
+reference.md/#MAKE_MOCKn
+)  and [**`MAKE_CONST_MOCKn`**](
+reference.md/#MAKE_CONST_MOCKn
+) requires that you explicitly state the number of parameters to the function
+(the `n`), while macros [**`MAKE_MOCK`**](
+reference.md/#MAKE_MOCK
+) and [**`MAKE_CONST_MOCK`**](
+reference.md/#MAKE_CONST_MOCK
+) infers the number of parameters, but require that you write the function
+signatures with the trailing return type syntax.
+
 
 Example:
 
@@ -677,7 +694,7 @@ class MockDictionary : public trompeloeil::mock_interface<Dictionary>
 
 struct Logger
 {
-  MAKE_MOCK2(log, void(int severity, const std::string& msg));
+  MAKE_MOCK(log, auto (int severity, const std::string& msg) -> void);
 };
 
 ```
@@ -689,9 +706,11 @@ The line `IMPLEMENT_CONST_MOCK1(lookup);` implements the function
 `std::string& lookup(int) const` and the line `IMPLEMENT_MOCK2(add);` implements
 the function `void add(int, std::string&&)`.
 
-The line `MAKE_MOCK2(log, void(int severity, const std::string& msg))`
+The line `MAKE_MOCK(log, auto (int severity, const std::string& msg) -> void)`
 creates a mock function `void Logger::log(int, const std::string&)`. If
-[**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_MOCK(...)`**](reference.md/#MAKE_MOCK),
+[**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn),
+[**`MAKE_CONST_MOCK(...)`**](reference.md/#MAKE_CONST_MOCK)or
 [**`MAKE_CONST_MOCKn(...)`**](reference.md/#MAKE_CONST_MOCKn) are used
 to implement a virtual function from a base class, it is always recommended to
 add a third macro parameter `override` since it gives the compiler an ability to
@@ -700,11 +719,10 @@ complain about mistakes.
 ### <A name="mocking_non_public"/> Mocking private or protected member functions
 
 Mocking private or protected member functions using
-[**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn) or
+[**`MAKE_MOCK(...)`**](reference.md/#MAKE_MOCK), [**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn),
+[**`MAKE_CONST_MOCK(...)`**](reference.md/#MAKE_CONST_MOCK) or
 [**`MAKE_CONST_MOCKn(...)`**](reference.md/#MAKE_CONST_MOCKn) is no different
-from mocking
-
-public member functions. Just make them public in the mock class. It may seem
+from mocking public member functions. Just make them public in the mock class. It may seem
 strange that you can change access rights of a member function through
 inheritance, but C\+\+ allows it.
 
@@ -720,7 +738,7 @@ private:
 class Mock : public Base
 {
 public:
-  MAKE_MOCK1(secret, void(int), override); // not so secret now
+  MAKE_MOCK(secret, auto (int) -> void, override); // not so secret now
 };
 ```
 
@@ -746,9 +764,9 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(overload, void(int));
-  MAKE_MOCK1(overload, int(const std::string&));
-  MAKE_MOCK2(overload, int(const char*, size_t));
+  MAKE_MOCK(overload, auto (int) -> void);
+  MAKE_MOCK(overload, auto (const std::string&) -> int);
+  MAKE_MOCK(overload, auto (const char*, size_t) -> int);
 };
 ```
 
@@ -775,7 +793,7 @@ class Mock
 {
 public:
   int operator()(int x) const { return function_call(x); }
-  MAKE_CONST_MOCK1(function_call, int(int));
+  MAKE_CONST_MOCK(function_call, auto (int) -> int);
 };
 ```
 
@@ -791,8 +809,8 @@ template <typename T>
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
-  MAKE_MOCK2(tfunc, int(const T&, size_t));
+  MAKE_MOCK(func, auto (int) -> void);
+  MAKE_MOCK(tfunc, auto(const T&, size_t) -> int);
 };
 ```
 
@@ -812,7 +830,7 @@ Example:
 class ConcreteMock
 {
 public:
-  MAKE_MOCK2(func, bool(size_t, const char*));
+  MAKE_MOCK(func, auto(size_t, const char*) -> bool);
 };
 ```
 
@@ -938,7 +956,9 @@ Windows API functions and COM Interfaces are declared with the
 [__stdcall](https://learn.microsoft.com/en-us/cpp/cpp/stdcall?view=msvc-170)
 calling convention when targeting a 32-bit build, which becomes part of the
 signature of a method. If you have the need to mock this type of functions the
-[**`MAKE_STDMETHOD_MOCKn(...)`**](reference.md/#MAKE_STDMETHOD_MOCKn) and
+[**`MAKE_STDMETHOD_MOCK(...)`**](reference.md/#MAKE_STDMETHOD_MOCK),
+[**`MAKE_STDMETHOD_MOCKn(...)`**](reference.md/#MAKE_STDMETHOD_MOCKn),
+[**`IMPLEMENT_STDMETHOD_MOCKn(...)`**](reference.md/#IMPLEMENT_STDMETHOD_MOCKn) and
 [**`IMPLEMENT_STDMETHOD_MOCKn(...)`**](reference.md/#IMPLEMENT_STDMETHOD_MOCKn)
 macros are provided.
 
@@ -947,7 +967,7 @@ struct Mock_stdcall : public trompeloeil::mock_interface<IUnknown>
 {
   IMPLEMENT_STDMETHOD_MOCK0(AddRef);
   IMPLEMENT_STDMETHOD_MOCK0(Release);
-  MAKE_STDMETHOD_MOCK2(QueryInterface, HRESULT(REFIID, void **), override);
+  MAKE_STDMETHOD_MOCK(QueryInterface, auto (REFIID, void **) -> HRESULT, override);
 }
 ```
 
@@ -1006,8 +1026,8 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
-  MAKE_MOCK2(func, void(const char*));
+  MAKE_MOCK(func, auto (int) -> void);
+  MAKE_MOCK2(func, auto (const char*) -> void);
 };
 
 void test()
@@ -1043,9 +1063,9 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
-  MAKE_MOCK1(func, void(const char*));
-  MAKE_MOCK1(func, void(const std::string&))
+  MAKE_MOCK(func, auto (int) -> void);
+  MAKE_MOCK(func, auto (const char*) -> void);
+  MAKE_MOCK(func, auto (const std::string&) -> void)
 };
 
 void test()
@@ -1138,7 +1158,7 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK(func, auto (const char*) -> void);
 };
 
 void test()
@@ -1166,8 +1186,8 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int*));
-  MAKE_MOCK2(func, void(std::unique_ptr<short>*));
+  MAKE_MOCK(func, auto (int*) -> void);
+  MAKE_MOCK(func, auto (std::unique_ptr<short>) -> void);
 };
 
 using trompeloeil::eq;
@@ -1193,7 +1213,7 @@ Example:
 
 ```Cpp
 struct Mock {
-  MAKE_MOCK1(func, void(const std::string&));
+  MAKE_MOCK(func, auto (const std::string&) -> void);
 };
 
 using trompeloeil::re; // matching regular expressions
@@ -1219,7 +1239,7 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK2(func, void(const char*, size_t len));
+  MAKE_MOCK(func, auto (const char*, size_t len) -> void);
 };
 
 using trompeloeil::ne;
@@ -1274,7 +1294,7 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(std::unique_ptr<int>));
+  MAKE_MOCK(func, auto (std::unique_ptr<int>) -> void);
 };
 
 using trompeloeil::ne;
@@ -1300,7 +1320,7 @@ bind a reference in the expectation.
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(std::unique_ptr<int>&));
+  MAKE_MOCK(func, auto (std::unique_ptr<int>&) -> void);
 };
 
 void func_to_test(Mock& m, std::unique_ptr<int>& ptr);
@@ -1338,8 +1358,8 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int*));
-  MAKE_MOCK1(func, void(char*));
+  MAKE_MOCK(func, auto (int*) -> void);
+  MAKE_MOCK(func, auto (char*) -> void);
 };
 
 using namespace trompeloeil;
@@ -1367,8 +1387,8 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
-  MAKE_CONST_MOCK1(func, void(int));
+  MAKE_MOCK(func, auto (int) -> void);
+  MAKE_CONST_MOCK(func, auto (int) -> void);
 };
 
 void test()
@@ -1403,7 +1423,7 @@ Example:
 class Dispatcher
 {
 public:
-  MAKE_MOCK1(subscribe, void(std::function<void(const std::string&)>));
+  MAKE_MOCK(subscribe, auto (std::function<void(const std::string&)>) -> void);
 };
 
 using trompeloeil::_;
@@ -1451,7 +1471,7 @@ class Dictionary
 {
 public:
   using id_t = size_t;
-  MAKE_MOCK1(lookup, std::string(id_t));
+  MAKE_MOCK(lookup, auto (id_t) -> std::string);
 };
 
 using trompeloeil::ge; // greater than or equal
@@ -1496,7 +1516,7 @@ class Dictionary
 {
 public:
   using id_t = size_t;
-  MAKE_MOCK1(lookup, const std::string&(id_t));
+  MAKE_MOCK(lookup, auto (id_t) -> const std::string&);
 };
 
 using trompeloeil::gt; // greater than or equal
@@ -1548,7 +1568,7 @@ class Dictionary
 {
 public:
   using id_t = size_t;
-  MAKE_CONST_MOCK1(lookup, const std::string&(id_t));
+  MAKE_CONST_MOCK(lookup, auto (id_t) -> const std::string&);
 };
 
 using trompeloeil::_; // matches anything
@@ -1595,8 +1615,8 @@ template <typename T>
 class Allocator
 {
 public:
-  MAKE_MOCK1(allocate, T*(size_t));
-  MAKE_MOCK1(deallocate, void(T*));
+  MAKE_MOCK(allocate, auto (size_t) -> T*);
+  MAKE_MOCK(deallocate, auto (T*) -> void);
 };
 
 using trompeloeil::_;
@@ -1632,8 +1652,8 @@ template <typename T>
 class Allocator
 {
 public:
-  MAKE_MOCK1(allocate, T*(size_t));
-  MAKE_MOCK1(deallocate, void(T*));
+  MAKE_MOCK(allocate, auto (size_t) -> T*);
+  MAKE_MOCK(deallocate, auto (T*) -> void);
 };
 
 using trompeloeil::_;
@@ -1705,9 +1725,9 @@ class FileOps
 {
 public:
   using handle = int;
-  MAKE_MOCK1(open, handle(const std::string&));
-  MAKE_MOCK3(write, size_t(handle, const char*, size_t));
-  MAKE_MOCK1(close, void(handle));
+  MAKE_MOCK(open, auto (const std::string&) -> handle);
+  MAKE_MOCK(write, auto (handle, const char*, size_t) -> size_t);
+  MAKE_MOCK(close, auto (handle) -> void);
 };
 
 using trompeloeil::ne;
@@ -1751,9 +1771,9 @@ class FileOps
 {
 public:
   using handle = int;
-  MAKE_MOCK1(open, handle(const std::string&));
-  MAKE_MOCK3(write, size_t(handle, const char*, size_t));
-  MAKE_MOCK1(close, void(handle));
+  MAKE_MOCK(open, auto (const std::string&) -> handle);
+  MAKE_MOCK(write, auto (handle, const char*, size_t) -> size_t);
+  MAKE_MOCK(close, auto (handle) -> void);
 };
 
 using trompeloeil::ne;
@@ -1814,7 +1834,7 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
+  MAKE_MOCK(func, auto (int) -> void);
 };
 
 void some_test()
@@ -1857,7 +1877,7 @@ class Mock
 {
 public:
   virtual ~Mock() {}          // virtual destructor required for deathwatched<>
-  MAKE_MOCK1(func, void(int));
+  MAKE_MOCK(func, auto (int) -> void);
 }
 
 template <typename T>
@@ -2049,8 +2069,8 @@ Example:
 class Mock
 {
 public:
-  MAKE_MOCK1(create, int(const std::string&));
-  MAKE_MOCK1(func, std::string(int));
+  MAKE_MOCK(create, auto (const std::string&) -> int);
+  MAKE_MOCK(func, auto (int) -> std::string);
 };
 
 using trompeloeil::_;
@@ -2193,7 +2213,7 @@ Example usage:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
+  MAKE_MOCK(func, auto (int) -> void);
 };
 
 void test()
@@ -2307,9 +2327,9 @@ Here's an example of the usage.
 ```Cpp
   struct C
   {
-    MAKE_MOCK1(func, void(int));
-    MAKE_MOCK1(func, void(std::string&&));
-    MAKE_MOCK1(func2, void(std::vector<int> const&);
+    MAKE_MOCK(func, auto (int) -> void);
+    MAKE_MOCK(func, auto (std::string&&) -> void);
+    MAKE_MOCK(func2, auto (std::vector<int> const&) -> void);
   };
 
   void test()
@@ -2542,7 +2562,7 @@ Example usage:
 class Mock
 {
 public:
-  MAKE_MOCK1(func, void(int));
+  MAKE_MOCK(func, auto (int) -> void);
 };
 
 void test()
