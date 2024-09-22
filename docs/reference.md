@@ -49,8 +49,11 @@
   - [**`LR_SIDE_EFFECT(`** *expr* **`)`**](#LR_SIDE_EFFECT)
   - [**`LR_THROW(`** *expr* **`)`**](#LR_THROW)
   - [**`LR_WITH(`** *expr* **`)`**](#LR_WITH)
+  - [**`MAKE_CONST_MOCK(`** *func_name*, *signature* **`)`**](#MAKE_CONST_MOCK)
   - [**`MAKE_CONST_MOCKn(`** *func_name*, *signature* **`)`**](#MAKE_CONST_MOCKn)
+  - [**`MAKE_MOCK(`** *name*, *signature* **`)`**](#MAKE_MOCK)
   - [**`MAKE_MOCKn(`** *name*, *signature* **`)`**](#MAKE_MOCKn)
+  - [**`MAKE_STDMETHOD_MOCK(`** *name*, *signature* **`)`**](#MAKE_STDMETHOD_MOCK)
   - [**`MAKE_STDMETHOD_MOCKn(`** *name*, *signature* **`)`**](#MAKE_STDMETHOD_MOCKn)
   - [**`NAMED_ALLOW_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_ALLOW_CALL)
   - [**`NAMED_FORBID_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#NAMED_FORBID_CALL)
@@ -96,7 +99,9 @@
 ### <A name="mock_function"/>Mock function
 
 A *mock function* is a member function that is mocked with
-[**`MAKE_MOCKn(name, signature)`**](#MAKE_MOCKn) or
+[**`MAKE_MOCK(name, signature)`**](#MAKE_MOCK),
+[**`MAKE_MOCKn(name, signature)`**](#MAKE_MOCKn),
+[**`MAKE_CONST_MOCK(name, signature)`**](#MAKE_CONST_MOCK) or
 [**`MAKE_CONST_MOCKn(name, signature)`**](#MAKE_CONST_MOCKn).
 
 Example:
@@ -106,12 +111,12 @@ class C
 {
 public:
   MAKE_MOCK1(func, void(int));
-  MAKE_CONST_MOCK2(cfunc, int(std::string, int));
+  MAKE_CONST_MOCK(cfunc, auto (std::string, int) -> int);
 };
 ```
 
 Above `C` is a type that has two mock functions `void func(int)` and
-`int cfunc(std::string, int) const`. With a [mock object](#mock_object)
+`auto cfunc(std::string, int) const -> int`. With a [mock object](#mock_object)
 of type `C` it is possible to place [expectations](#expectation)
 on the functions `func(...)` and `cfunc(...)`.
 
@@ -1649,7 +1654,9 @@ you can call [mock functions](#mock_function) from those.
 See also [**`IMPLEMENT_MOCKn(...)`**](#IMPLEMENT_MOCKn) for non-`const`
 member functions.
 
-See also [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) and
+See also [**`MAKE_MOCK(...)`**](#MAKE_MOCK),
+[**`MAKE_MOCKn(...)`**](#MAKE_MOCKn),
+[**`MAKE_CONST_MOCK(...)`**](#MAKE_CONST_MOCK) and
 [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for making mock implementations
 of any member functions.
 
@@ -2136,6 +2143,74 @@ global/static objects will be modified also by those
 
 See also [**`WITH(...)`**](#WITH) which accesses copies of local objects.
 
+<A name="MAKE_CONST_MOCK"/>
+
+### **`MAKE_CONST_MOCK(`** *func_name*, *signature* {, *specifiers* } **`)`**
+
+Make a `const` [mock function](#mock_function) named *func_name*. It is a good
+idea for this to implement a pure virtual function from an interface, but
+it is not a requirement. `n` is the number of parameters in *signature*.
+*specifiers* is an optional list which may include attributes or specifiers like
+[`override`](http://en.cppreference.com/w/cpp/language/override) or
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+Because of limitations in how the preprocessor works,  *signature* **must** be written with
+[trailing return type syntax](https://arne-mertz.de/2016/11/trailing-return-types-everywhere/).
+
+`#include <trompeloeil/mock.hpp>`
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual auto func1(int, const std::vector<int>&)) const -> int = 0;
+};
+
+class C
+{
+public:
+  MAKE_CONST_MOCK(func1, auto (int, const std::vector<int>&) -> int, override);
+  MAKE_CONST_MOCK(func2, auto (std::string) -> int);
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public I
+{
+public:
+  auto func1(int, const std::vector<int>&) const -> int override;
+  auto func2(std::string) const -> int;
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**Note!** The preprocessor is limited and can only handle nullary functions,
+i.e. functions that do not accept any arguments, in some cases.
+
+* MSVC handles nullary functions when compiling with `/Zc:preprocessor`
+  with MSVC 19.40 (VS 17.10) or later.
+
+* Gcc and Clang always handles nullary functions when compiling with
+  C++20 or later, and when enabling a gcc extension by defining the macro 
+  `TROMPELOEIL_HAS_GCC_PP` before `#include`:ing the trompeloeil headers, and
+  compiling with `-std=gnu++11`, `-std=gnu++14` or `-std=gnu++17`.
+
+Otherwise, use [**`MAKE_CONST_MOCK0(...)`**](#MAKE_CONST_MOCKn) to explicitly
+define a nullary mock function.
+
+
+See also [**`MAKE_MOCK(...)`**](#MAKE_MOCK) for non-`const`
+member functions, and [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for
+explicit function arity.
+
+
 <A name="MAKE_CONST_MOCKn"/>
 
 ### **`MAKE_CONST_MOCKn(`** *func_name*, *signature* {, *specifiers* } **`)`**
@@ -2182,7 +2257,78 @@ It is not possible to mock operators, constructors or the destructor, but
 you can call [mock functions](#mock_function) from those.
 
 See also [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) for non-`const`
-member functions.
+member functions and [**`MAKE_CONST_MOCK(...)`**`](#MAKE_CONST_MOCK) for
+implicit function arity deduction.
+
+
+<A name="MAKE_MOCK"/>
+
+### **`MAKE_MOCK(`** *func_name*, *signature* {, *specifiers* } **`)`**
+
+Make a non-const [mock function](#mock_function) named *func_name*. It is a
+good idea for this to implement a pure virtual function from an interface, but
+it is not a requirement. `n` is the number of parameters in *signature*.
+*specifiers* is an optional list which may include attributes or specifiers like
+[`override`](http://en.cppreference.com/w/cpp/language/override) or
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+Because of limitations in how the preprocessor works,  *signature* **must** be written with
+[trailing return type syntax](https://arne-mertz.de/2016/11/trailing-return-types-everywhere/).
+
+
+`#include <trompeloeil/mock.hpp>`
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual auto func1(int, const std::vector<int>&)) -> int = 0;
+};
+
+class C : public I
+{
+public:
+  MAKE_MOCK(func1, auto (int, const std::vector<int>&) -> int, override);
+  MAKE_MOCK(func2, auto (std::string) -> int);
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public I
+{
+public:
+  auto func1(int, const std::vector<int>&) -> int override;
+  auto func2(std::string) -> int;
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**Note!** The preprocessor is limited and can only handle nullary functions,
+i.e. functions that do not accept any arguments, in some cases.
+
+* MSVC handles nullary functions when compiling with `/Zc:preprocessor`
+  with MSVC 19.40 (VS 17.10) or later.
+
+* Gcc and Clang always handles nullary functions when compiling with
+  C++20 or later, and when enabling a gcc extension by defining the macro
+  `TROMPELOEIL_HAS_GCC_PP` before `#include`:ing the trompeloeil headers, and
+  compiling with `-std=gnu++11`, `-std=gnu++14` or `-std=gnu++17`.
+
+Otherwise, use [**`MAKE_MOCK0(...)`**](#MAKE_MOCKn) to explicitly
+define a nullary mock function.
+
+
+See also [**`MAKE_CONST_MOCK(...)`**](#MAKE_CONST_MOCK) for `const`
+member functions and [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) for explicit
+function arity.
+
 
 <A name="MAKE_MOCKn"/>
 
@@ -2230,7 +2376,77 @@ It is not possible to mock operators, constructors or the destructor, but
 you can call [mock functions](#mock_function) from those.
 
 See also [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) for `const`
-member functions.
+member functions and [**`MAKE_MOCK(...)`**`](#MAKE_MOCK) for implicit function
+arity deduction.
+
+
+<A name="MAKE_STDMETHOD_MOCK"/>
+
+### **`MAKE_STDMETHOD_MOCK(`** *func_name*, *signature* {, *specifiers* } **`)`**
+
+Make a STDMETHODCALLTYPE [mock function](#mock_function) named *func_name*. It is a
+good idea for this to implement a pure virtual function from an interface, but
+it is not a requirement. `n` is the number of parameters in *signature*.
+*specifiers* is an optional list which may include attributes or specifiers like
+[`override`](http://en.cppreference.com/w/cpp/language/override) or
+[`noexcept`](https://en.cppreference.com/w/cpp/language/noexcept_spec).
+
+Because of limitations in how the preprocessor works,  *signature* **must** be written with
+[trailing return type syntax](https://arne-mertz.de/2016/11/trailing-return-types-everywhere/).
+
+`#include <trompeloeil/mock.hpp>`
+
+Example:
+
+```Cpp
+class I
+{
+public:
+  virtual ~I() = default;
+  virtual auto STDMETHODCALLTYPE func1(int, const std::vector<int>&)) -> int = 0;
+};
+
+class C : public I
+{
+public:
+  MAKE_STDMETHOD_MOCK(func1, auto (int, const std::vector<int>&) -> int, override);
+  MAKE_STDMETHOD_MOCK(func2, auto (std::string) -> int);
+};
+```
+
+Above, class `C` will effectively become:
+
+```Cpp
+class C : public I
+{
+public:
+  auto STDMETHODCALLTYPE func1(int, const std::vector<int>&) -> int override;
+  auto STDMETHODCALLTYPE func2(std::string) -> int;
+};
+```
+
+It is not possible to mock operators, constructors or the destructor, but
+you can call [mock functions](#mock_function) from those.
+
+**NOTE!** **`MAKE_STDMETHOD_MOCK(...)`** only works on Windows.
+
+**NOTE!** The preprocessor is limited and can only handle nullary functions,
+i.e. functions that do not accept any arguments, in some cases.
+
+* MSVC handles nullary functions when compiling with `/Zc:preprocessor`
+  with MSVC 19.40 (VS 17.10) or later.
+
+* Gcc and Clang always handles nullary functions when compiling with
+  C++20 or later, and when enabling a gcc extension by defining the macro
+  `TROMPELOEIL_HAS_GCC_PP` before `#include`:ing the trompeloeil headers, and
+  compiling with `-std=gnu++11`, `-std=gnu++14` or `-std=gnu++17`.
+
+Otherwise, use [**`MAKE_STDMETHOD_MOCK0(...)`**](#MAKE_STDMETHOD_MOCKn) to
+explicitly define a nullary mock function.
+
+See also [**`MAKE_STDTMETHOD_MOCKn(...)`**](#MAKE_STDMETHOD_MOCKn) for explicit
+function arity.
+
 
 <A name="MAKE_STDMETHOD_MOCKn"/>
 
@@ -2258,8 +2474,8 @@ public:
 class C : public I
 {
 public:
-  MAKE_STDMETHO_MOCK2(func1, int(int, const std::vector<int>&), override);
-  MAKE_STDMETHO_MOCK1(func2, int(std::string));
+  MAKE_STDMETHOD_MOCK2(func1, int(int, const std::vector<int>&), override);
+  MAKE_STDMETHOD_MOCK1(func2, int(std::string));
 };
 ```
 
@@ -2278,6 +2494,10 @@ It is not possible to mock operators, constructors or the destructor, but
 you can call [mock functions](#mock_function) from those.
 
 **NOTE!** **`MAKE_STDMETHOD_MOCKn(...)`** only works on Windows.
+
+See also [**`MAKE_STDMETHOD_MOCK(...)`**`](#MAKE_STDMETHOD_MOCK) for implicit
+function arity deduction.
+
 
 <A name="NAMED_ALLOW_CALL"/>
 
@@ -3036,7 +3256,8 @@ you want to mock).
 
 It enables use of the [**`IMPLEMENT_MOCKn(...)`**](#IMPLEMENT_MOCKn) and
 [**`IMPLEMENT_CONST_MOCKn(...)`**](#IMPLEMENT_CONST_MOCKn) macros.
-The [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn) and
+The [**`MAKE_MOCK(...)`**](#MAKE_MOCK), [**`MAKE_MOCKn(...)`**](#MAKE_MOCKn),
+[**`MAKE_CONST_MOCK(...)`**](#MAKE_CONST_MOCK) and
 [**`MAKE_CONST_MOCKn(...)`**](#MAKE_CONST_MOCKn) macros can also be used.
 
 The interface type `T` must not be final.
