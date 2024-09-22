@@ -13,6 +13,7 @@
 - [Setting Expectations](#setting_expectations)
   - [Matching exact values](#matching_exact_values)
   - [Matching values with conditions](#matching_conditions)
+  - [Matching ranges with conditions](#matching_ranges)
   - [Matching strings with regular expressions](#matching_regular_expressions)
   - [Matching pointers to values](#matching_pointers)
   - [Matching the opposite of a matcher](#negating_matchers)
@@ -1056,6 +1057,44 @@ void test()
   // expectations must be met before end of scope
 }
 ```
+
+### <A name="matching_ranges"/> Matching ranges with conditions
+
+Instead of using exact values of parameters to match calls with, *Trompeloeil*
+provides a set of [matchers](reference.md/#matcher). Range matchers are:
+
+- [**`range_is(`** *range* **`)`**](reference.md/#range_is) matches values of each element in the range with expected values
+- [**`range_starts_with(`** *range* **`)`**](reference.md/#range_starts_with) matches values of the first elements in the range with expected values
+- [**`range_ends_with(`** *range* **`)`**](reference.md/#range_ends_with) matches values of the last elements in the range with expected values
+- [**`range_is_all(`** *value* **`)`**](reference.md/#range_is_all) matches when every element in the range matches value
+- [**`range_is_none(`** *value* **`)`**](reference.md/#range_is_none) matches when no element in the range matches value
+
+By default, the matchers are [*duck typed*](
+https://en.wikipedia.org/wiki/Duck_typing
+), i.e. they match a parameter that supports the operation. If disambiguation
+is necessary to resolve overloads, an explicit type can be specified.
+
+Example:
+
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::list<int>&))
+};
+
+void test()
+{
+  Mock m;
+  ALLOW_CALL(m, vfunc(trompeloeil::range_starts_with(1,2,3)));
+  REQUIRE_CALL(m, ofunc(trompeloeil::range_is_all<std::vector<int>>(trompeloeil::ge(0)))); // const std::vector<int>& version once
+  func(&m);
+  // expectations must be met before end of scope
+}
+```
+
 
 ### <A name="matching_regular_expressions"/> Matching strings with regular expressions
 
