@@ -59,9 +59,9 @@ void interface_func(Interface*); // function to test
 class Mock : public Interface
 {
 public:
-  MAKE_MOCK2(foo, bool(int, std::string&),override);
-  MAKE_MOCK1(bar, bool(int),override);
-  MAKE_MOCK1(bar, bool(std::string),override);
+  MAKE_MOCK(foo, auto (int, std::string&) -> bool, override);
+  MAKE_MOCK(bar, auto (int) -> bool, override);
+  MAKE_MOCK(bar, auto (std::string) -> bool, override);
   MAKE_MOCK0(baz, void()); // not from Interface
 };
 
