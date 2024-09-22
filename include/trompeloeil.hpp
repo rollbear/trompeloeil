@@ -33,6 +33,9 @@
 #include "trompeloeil/matcher/compare.hpp"
 #include "trompeloeil/matcher/deref.hpp"
 #include "trompeloeil/matcher/not.hpp"
+#if TROMPELOEIL_CPLUSPLUS >= 201402L
+#include "trompeloeil/matcher/range.hpp"
+#endif
 #include "trompeloeil/matcher/re.hpp"
 #include "trompeloeil/sequence.hpp"
 #include "trompeloeil/stream_tracer.hpp"
