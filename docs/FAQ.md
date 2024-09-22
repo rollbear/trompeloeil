@@ -23,6 +23,7 @@
 - Q. [Why are mock objects not move constructible?](#move_constructible)
 - Q. [Why can't I mock a function that returns a template?](#return_template)
 - Q. [Why doesn't **`MAKE_MOCK(...)`** work with templated parameter types?](#template_args)
+- Q. [Why doesn't **`MAKE_MOCK(...)`** work with nullary functions?](#nullary_functions)
 - Q. [Can I mock a `noexcept` function?](#mock_noexcept)
 - Q. [What does it mean that an expectation is "saturated"?](#saturated_expectation)
 - Q. [Can I mock a coroutine functionp?](#coroutines)
@@ -752,6 +753,27 @@ struct M
 
 Another way is to resort to [**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn)
 and be explicit about the function arity.
+
+### <A name="nullary_functions"/> Q. Why doesn't **`MAKE_MOCK(...)`** work with nullary functions?
+
+Like this:
+
+```Cpp
+struct M
+{
+  MAKE_MOCK(make, auto () -> int);
+};
+```
+
+**A.** It does, but compilers disgagree a bit on it.
+
+* MSVC handles nullary functions when compiling with `/Zc:preprocessor`
+  with MSVC 19.40 (VS 17.10) or later.
+
+* Gcc and Clang always handles nullary functions when compiling with
+  C++20 or later, and when enabling a gcc extension by defining the macro
+  `TROMPELOEIL_HAS_GCC_PP` before `#include`:ing the trompeloeil headers, and
+  compiling with `-std=gnu++11`, `-std=gnu++14` or `-std=gnu++17`.
 
 
 ### <A name="mock_noexcept"/> Q. Can I mock a `noexcept` function?
