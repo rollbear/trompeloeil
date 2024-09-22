@@ -2,11 +2,11 @@
 	  type syntax signature.
 
 	    MAKE_MOCK(name, signature {, specifiers})
-	    MAE_CONST_MOCK(name, signature {, specifiers})
+	    MAKE_CONST_MOCK(name, signature {, specifiers})
 	    MAKE_STDMETHOD_MOCK(name, signature {, specifiers})
 
 	  Note that these only work with trailing return type syntax. Examples
-	  of specifiers are 'override' and 'final'
+	  of specifiers are 'override', 'final' and 'noexcept'
 
 	  The preprocessor is limited and can only handle nullary functions,
 	  i.e. functions that do not accept any arguments, in some cases.
