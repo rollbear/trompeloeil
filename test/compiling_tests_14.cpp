@@ -4611,7 +4611,7 @@ Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++14: unmatched with wildcard reports failed WITH clauses",
+  "C++14: unmatched with wildcard reports first failed WITH clause",
   "[C++14][mismatches]")
 {
   try {
@@ -4630,8 +4630,7 @@ TEST_CASE_METHOD(
   param  _1 == 4
 
 Tried obj\.getter\(ANY\(int\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
-  Failed WITH\(_1 < 3\)
-  Failed WITH\(_1 > 5\)):";
+  Failed WITH\(_1 < 3\)):";
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
 }

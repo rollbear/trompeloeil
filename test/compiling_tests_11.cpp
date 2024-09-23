@@ -5434,7 +5434,7 @@ Tried obj\.getter\(4\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: unmatched with wildcard reports failed WITH clauses",
+  "C++11: unmatched with wildcard reports first failed WITH clause",
   "[C++11][C++14][mismatches]")
 {
   try {
@@ -5457,8 +5457,7 @@ TEST_CASE_METHOD(
 Tried obj\.getter\():" +
   escape_parens(CXX11_AS_STRING(ANY(int))) +
   R":(\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
-  Failed WITH\(_1 < 3\)
-  Failed WITH\(_1 > 5\)):";
+  Failed WITH\(_1 < 3\)):";
     auto& msg = reports.front().msg;
     INFO("msg=" << msg);
     INFO("re=" << re);

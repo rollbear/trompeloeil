@@ -1,3 +1,15 @@
+	* When an expectation is constrained by several .WITH() clauses, a
+	  violation report will only include the first failed condition,
+	  short cirquiting the login.
+
+	  Example:
+
+	    REQUIRE_CALL(obj, func(_))
+	    .WITH(_1 != nullptr)
+	    .WITH(*_1 == 0); // would be runtime crash on nullptr access
+
+	  Thank you Örjan Gustavsson for the suggestion.
+
 v48 2024-07-17
 
 	* Fixed memory leak when adding an action (.RETURN, .SIDE_EFFECT, etc)

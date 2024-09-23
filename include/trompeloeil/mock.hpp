@@ -3038,6 +3038,7 @@ template <typename T>
           if (!cond.check(params))
           {
             os << "\n  Failed WITH(" << cond.name() << ')';
+            break;
           }
         }
       }
