@@ -210,6 +210,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     add_compile_options(/permissive-)
   endif()
 
+  add_compile_definitions(NOMINMAX)
+
 endif() # MSVC
 
 if (${CMAKE_CXX_STANDARD} GREATER_EQUAL 20)
