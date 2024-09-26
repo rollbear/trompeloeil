@@ -4831,7 +4831,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: .DYN_TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
+  "C++11: .RT_TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
   "[C++11][C++14][multiplicity]")
 {
   {
@@ -4842,7 +4842,7 @@ TEST_CASE_METHOD(
 	    const std::size_t min = GENERATE(0u, 1u, 2u, 3u, 4u);
     	const std::size_t max = min + GENERATE(0u, 1u, 2u, 3u, 4u);
     	auto e = NAMED_REQUIRE_CALL_V(obj, count(),
-		  .DYN_TIMES(min, max)
+		  .RT_TIMES(min, max)
 		  .RETURN(1));
 
     	for (std::size_t i{0};
@@ -4877,7 +4877,7 @@ TEST_CASE_METHOD(
         const auto makeExpectation = [&]()
         {
             REQUIRE_CALL_V(obj, count(),
-				.DYN_TIMES(min, max)
+				.RT_TIMES(min, max)
 				.RETURN(1));
         };
         REQUIRE_THROWS_AS(
@@ -4890,7 +4890,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: .DYN_TIMES with AT_LEAST is satisfied when count calls is reached, but never saturated.",
+  "C++11: .RT_TIMES with AT_LEAST is satisfied when count calls is reached, but never saturated.",
   "[C++11][C++14][multiplicity]")
 {
   {
@@ -4898,7 +4898,7 @@ TEST_CASE_METHOD(
 
     const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
     auto e = NAMED_REQUIRE_CALL_V(obj, count(),
-	  .DYN_TIMES(AT_LEAST(count))
+	  .RT_TIMES(AT_LEAST(count))
 	  .RETURN(1));
 
     for (std::size_t i{0};
@@ -4919,7 +4919,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
   Fixture,
-  "C++11: .DYN_TIMES with AT_MOST is satisfied until count calls is reached, and saturaded when exactly count calls are made.",
+  "C++11: .RT_TIMES with AT_MOST is satisfied until count calls is reached, and saturaded when exactly count calls are made.",
   "[C++11][C++14][multiplicity]")
 {
   {
@@ -4927,7 +4927,7 @@ TEST_CASE_METHOD(
 
     const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
     auto e = NAMED_REQUIRE_CALL_V(obj, count(),
-	  .DYN_TIMES(AT_MOST(count))
+	  .RT_TIMES(AT_MOST(count))
 	  .RETURN(1));
 
     for (std::size_t i{0};

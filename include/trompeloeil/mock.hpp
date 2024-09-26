@@ -2819,7 +2819,7 @@ template <typename T>
     }
   };
 
-  struct dynamic_times
+  struct runtime_times
   {
     template <
       typename Matcher, typename modifier_tag, typename Parent,
@@ -2830,11 +2830,11 @@ template <typename T>
            dynamic_multiplicity bounds)
     {
       static_assert(!times_set,
-                    "Only one DYN_TIMES call limit is allowed, but it can express an interval");
+                    "Only one RT_TIMES call limit is allowed, but it can express an interval");
 
       if (bounds.high < bounds.low)
       {
-	      throw std::logic_error{"In DYN_TIMES the first value must not exceed the second"};
+	      throw std::logic_error{"In RT_TIMES the first value must not exceed the second"};
       }
 
       m.matcher->sequences->set_limits(bounds.low, bounds.high);
@@ -4165,7 +4165,7 @@ template <typename T>
 
 
 #define TROMPELOEIL_TIMES(...) template action<trompeloeil::times>(::trompeloeil::multiplicity<__VA_ARGS__>{})
-#define TROMPELOEIL_DYN_TIMES(...) template action<trompeloeil::dynamic_times>(::trompeloeil::dynamic_multiplicity{__VA_ARGS__})
+#define TROMPELOEIL_RT_TIMES(...) template action<trompeloeil::runtime_times>(::trompeloeil::dynamic_multiplicity{__VA_ARGS__})
 #define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~static_cast<size_t>(0)
@@ -4302,7 +4302,7 @@ template <typename T>
 #define THROW                     TROMPELOEIL_THROW
 #define LR_THROW                  TROMPELOEIL_LR_THROW
 #define TIMES                     TROMPELOEIL_TIMES
-#define DYN_TIMES                 TROMPELOEIL_DYN_TIMES
+#define RT_TIMES                  TROMPELOEIL_RT_TIMES
 #define AT_LEAST                  TROMPELOEIL_AT_LEAST
 #define AT_MOST                   TROMPELOEIL_AT_MOST
 
