@@ -2506,18 +2506,18 @@ template <typename T>
   template <size_t L, size_t H = L>
   struct multiplicity { };
 
-  struct dynamic_multiplicity
+  struct rt_multiplicity
   {
 	  std::size_t low{};
 	  std::size_t high{};
 
-    explicit dynamic_multiplicity(std::size_t _low) noexcept
+    explicit rt_multiplicity(std::size_t _low) noexcept
 	    : low{_low},
 		high{_low}
     {
     }
 
-    explicit dynamic_multiplicity(std::size_t _low, std::size_t _high) noexcept
+    explicit rt_multiplicity(std::size_t _low, std::size_t _high) noexcept
 	    : low{_low},
 		high{_high}
     {
@@ -2827,7 +2827,7 @@ template <typename T>
     static
     call_modifier<Matcher, modifier_tag, call_limit_injector<Parent, std::numeric_limits<std::size_t>::max()>>
     action(call_modifier<Matcher, modifier_tag, Parent>&& m,
-           dynamic_multiplicity bounds)
+           rt_multiplicity bounds)
     {
       static_assert(!times_set,
                     "Only one RT_TIMES call limit is allowed, but it can express an interval");
@@ -4165,7 +4165,7 @@ template <typename T>
 
 
 #define TROMPELOEIL_TIMES(...) template action<trompeloeil::times>(::trompeloeil::multiplicity<__VA_ARGS__>{})
-#define TROMPELOEIL_RT_TIMES(...) template action<trompeloeil::runtime_times>(::trompeloeil::dynamic_multiplicity{__VA_ARGS__})
+#define TROMPELOEIL_RT_TIMES(...) template action<trompeloeil::runtime_times>(::trompeloeil::rt_multiplicity{__VA_ARGS__})
 #define TROMPELOEIL_INFINITY_TIMES() TROMPELOEIL_TIMES(0, ~static_cast<size_t>(0))
 
 #define TROMPELOEIL_AT_LEAST(num) num, ~static_cast<size_t>(0)
