@@ -32,6 +32,9 @@
 #include "trompeloeil/matcher/any.hpp"
 #include "trompeloeil/matcher/compare.hpp"
 #include "trompeloeil/matcher/deref.hpp"
+#if TROMPELOEIL_CPLUSPLUS >= 201402L
+#include "trompeloeil/matcher/member_is.hpp"
+#endif
 #include "trompeloeil/matcher/not.hpp"
 #if TROMPELOEIL_CPLUSPLUS >= 201402L
 #include "trompeloeil/matcher/range.hpp"

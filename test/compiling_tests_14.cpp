@@ -4331,6 +4331,109 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+struct xy_coord {
+  int x;
+  int y;
+  friend std::ostream& operator<<(std::ostream& os, xy_coord c)
+  {
+    return os << "{ .x=" << c.x << ", .y=" << c.y << " }";
+  }
+};
+struct xy_mock {
+  MAKE_MOCK1(func, void(const xy_coord&));
+  MAKE_MOCK1(vfunc, void(const std::vector<xy_coord>&));
+};
+
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: MEMBER_IS can match a public member of a struct",
+    "[C++14][matching][matchers][MEMBER_IS]"
+    )
+{
+  {
+    xy_mock m;
+    using trompeloeil::eq;
+    REQUIRE_CALL(m, func(MEMBER_IS(&xy_coord::x, eq(3))));
+    m.func({3, 2});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: MEMBER_IS mismatching is reported",
+    "[C++14][matching][matchers][MEMBER_IS]"
+    )
+{
+  try {
+    xy_mock m;
+    using trompeloeil::eq;
+    REQUIRE_CALL(m, func(MEMBER_IS(&xy_coord::x, eq(3))));
+    m.func({1, 2});
+    FAIL("didn't throw");
+  }
+  catch (reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of func with signature void\(const xy_coord&\) with\.
+  param  _1 == \{ \.x=1, \.y=2 \}
+
+Tried m\.func\(MEMBER_IS\(&xy_coord::x, eq\(3\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 &xy_coord::x == 3):";
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: MEMBER_IS, range_is_all and any_of can be composed",
+    "[C++14][matching][matchers][MEMBER_IS][range_is_all][any_of]"
+    )
+{
+  {
+    xy_mock m;
+    using trompeloeil::lt;
+    using trompeloeil::gt;
+    using trompeloeil::any_of;
+    using trompeloeil::range_is_all;
+    REQUIRE_CALL(m, vfunc(range_is_all(any_of(MEMBER_IS(&xy_coord::x, gt(0)), MEMBER_IS(&xy_coord::y, lt(0))))));
+    m.vfunc({{1,1},{0,-1},{-1,-1}});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: A failed composition of MEMBER_IS, range_is_all and any_of is reported",
+    "[C++14][matching][matchers][MEMBER_IS][range_is_all][any_of]"
+)
+{
+  try {
+    xy_mock m;
+    using trompeloeil::lt;
+    using trompeloeil::gt;
+    using trompeloeil::any_of;
+    using trompeloeil::range_is_all;
+    REQUIRE_CALL(m, vfunc(range_is_all(any_of(MEMBER_IS(&xy_coord::x, gt(0)), MEMBER_IS(&xy_coord::y, lt(0))))));
+    m.vfunc({{1,1},{0,-1},{-1,1}});
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    auto re = R":(No match for call of vfunc with signature void\(const std::vector<xy_coord>&\) with\.
+  param  _1 == \{ .* \}
+
+Tried m\.vfunc\(range_is_all\(any_of\(MEMBER_IS\(&xy_coord::x, gt\(0\)\), MEMBER_IS\(&xy_coord::y, lt\(0\)\)\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is all to be any of \{  &xy_coord::x > 0,  &xy_coord::y < 0 \}):";
+    auto& msg = reports.front().msg;
+    INFO("msg=" << msg);
+    REQUIRE(std::regex_search(msg, std::regex(re)));
+
+  }
+}
+
 #if TROMPELOEIL_TEST_REGEX_FAILURES
 
 TEST_CASE_METHOD(
@@ -4357,6 +4460,8 @@ Tried obj\.foo\(not_empty\{\}\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
     REQUIRE(std::regex_search(msg, std::regex(re)));
   }
 }
+
+
 
 #endif /* TROMPELOEIL_TEST_REGEX_FAILURES */
 
