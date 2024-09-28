@@ -15,9 +15,12 @@
     - [**`lt(`** *value* **`)`**](#lt)
     - [**`le(`** *value* **`)`**](#le)
     - [**`re(`** *string* **`)`**](#re)
+    - [**`range_has(`** *range* **`)`**](#range_has)
     - [**`range_is(`** *range* **`)`**](#range_is)
     - [**`range_is_all(`** *value* **`)`**](#range_is_all)
+    - [**`range_is_any(`** *value* **`)`**](#range_is_any)
     - [**`range_is_none(`** *value* **`)`**](#range_is_none)
+    - [**`range_is_permutation(`** *range* **`)`**](#range_is_permutation)
     - [**`range_starts_with(`** *range* **`)`**](#range_starts_with)
     - [**`range_ends_with(`** *range* **`)`**](#range_ends_with)
     - [**`*`** *matcher*](#deref_matcher)
@@ -614,7 +617,49 @@ a regular expression, or `!re(string)` to allow only strings that do not match
 a regular expression.
 
 
-#### <A name="range_is"/>**`range_is`** *matcher*  
+#### <A name="range_has"/>**`range_has(`** matchers **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a
+range with has a set of matchers. By default it can match any range-like
+type, but it can be explicitly disambiguated by providing a type to match for.
+
+`#include <trompeloeil/matcher/range.hpp>`
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::list<int>&));
+};
+
+using trompeloeil::gt;
+using trompeloeil::range_has;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, vfunc(range_has(gt(2), 1)));
+  REQUIRE_CALL(mock_obj, ofunc(range_has<std::list<int>>(1,2,3)));
+  test_function(&mock_obj);
+}
+```
+
+Above, first the [expectation](#expectation) matches only calls to
+`mock_obj.vfunc(const std::vector<int>&)` which has at least one element
+`== 1`, and at least one element `> 2`. Any call with a different set of
+values renders a violation report since no [expectation](#expectation)
+matches.
+
+The second [expectation](#expectation) matches calls to
+`mock_obj.ofunc(const std::list<int>&)` with at least the values
+`{ 1, 2, 3 }` (in any order).
+
+
+#### <A name="range_is"/>**`range_is`** *matcher*
 
 Used in the parameter list of an [expectation](#expectation) to match a
 range with a set of matchers. By default it can match any range-like
@@ -694,7 +739,50 @@ renders a violation report since no [expectation](#expectation) matches.
 The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with values `> 0`.
 
-The matcher `range_is_all` does never match an empty range.
+The matcher `range_is_all` always matches an empty range.
+
+
+#### <A name="range_is_any"/>**`range_is_any`** *matcher*
+
+Used in the parameter list of an [expectation](#expectation) to match each
+element in a range to a matcher or value. By default it can match any
+range-like  type, but it can be explicitly disambiguated by providing a
+type to match for.
+
+`#include <trompeloeil/matcher/range.hpp>`
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::list<int>&));
+};
+
+using trompeloeil::gt;
+using trompeloeil::range_is_any;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, vfunc(range_is_any(gt(0))));
+  REQUIRE_CALL(mock_obj, ofunc(range_is_any<std::list<int>>(gt(0))));
+  test_function(&mock_obj);
+}
+```
+
+Above, first the [expectation](#expectation) matches only calls to
+`mock_obj.vfunc(const std::vector<int>&)` with at least one values `> 0`,
+Any call with a different set of values
+renders a violation report since no [expectation](#expectation) matches.
+
+The second [expectation](#expectation) matches calls to
+`mock_obj.ofunc(const std::list<int>&)` with at least one value `> 0`.
+
+The matcher `range_is_any` does never match an empty range.
 
 #### <A name="range_is_none"/>**`range_is_none`** *matcher*
 
@@ -737,6 +825,48 @@ The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` where none of the values are `< 0`.
 
 The matcher `range_is_nonel` always matches an empty range.
+
+
+#### <A name="range_is_permutation"/>**`range_is_permutation(`** *elements* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a
+range with a set of matchers without regard to order. By default it can
+match any range-like type, but it can be explicitly disambiguated by
+providing a type to match for.
+
+`#include <trompeloeil/matcher/range.hpp>`
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::vector<int>&));
+  MAKE_MOCK1(ofunc, void(const std::list<int>&));
+};
+
+using trompeloeil::le;
+using trompeloeil::range_is_permutation;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, vfunc(range_is_permutation(le(0), 1, 3)));
+  REQUIRE_CALL(mock_obj, ofunc(range_is_permutation<std::list<int>>(1,2,3)));
+  test_function(&mock_obj);
+}
+```
+
+Above, first the [expectation](#expectation) matches only calls to
+`mock_obj.vfunc(const std::vector<int>&)` with some permutation of the values
+`{ 1, 3, x }`, where `x <= 0`. Any call with a different set of values
+renders a violation report since no [expectation](#expectation) matches.
+
+The second [expectation](#expectation) matches calls to
+`mock_obj.ofunc(const std::list<int>&)` with a permutation of the values
+`{ 1, 2, 3 }`.
 
 
 #### <A name="range_starts_with"/>**`range_starts_with`** *matcher*

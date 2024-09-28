@@ -1,6 +1,9 @@
-	* Added range matchers range_is(*elements*), range_is_all(*comparator*),
-	  range_is_none(*comparator*), range_starts_with(*elements*) and
-	  range_ends_with(*elements*). Use in expectations as:
+	* Added range matchers range_has(*elements*), range_is(*elements*),
+	  range_is_permutation(*elements*), range_is_all(*comparator*),
+	  range_is_none(*comparator*), range_is_any(*comparator*),
+	  range_starts_with(*elements*) and range_ends_with(*elements*).
+
+	  Use in expectations as:
 
 	    REQUIRE_CALL(obj, vector_func(range_starts_with(2,3,5,8)));
 
