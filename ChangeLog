@@ -1,4 +1,6 @@
-	* Added range matchers range_has(*elements*), range_is(*elements*),
+	* Added several new composable matchers.
+
+	  range matchers range_has(*elements*), range_is(*elements*),
 	  range_is_permutation(*elements*), range_is_all(*comparator*),
 	  range_is_none(*comparator*), range_is_any(*comparator*),
 	  range_starts_with(*elements*) and range_ends_with(*elements*).
@@ -7,7 +9,21 @@
 
 	    REQUIRE_CALL(obj, vector_func(range_starts_with(2,3,5,8)));
 
-      Thank you Artem for the suggestion
+      MEMBER_IS(ptr_to_mem, matcher). Use as:
+
+        REQUIRE_CALL(obj, func(MEMBER_IS(&type::height, gt(5)));
+
+      all_of(matchers), any_of(matchers), none_of(matchers). Use as:
+
+        REQUIRE_CALL(obj, func(any_of(-1, gt(0))));
+
+      These can be composed like:
+
+        REQUIRE_CALL(obj, func(range_is_all(
+                                 any_of(MEMBER_IS(&type::x, -1),
+                                        MEMBER_IS(&type::y, gt(0))))));
+
+      Thank you Artem for the suggestion.
 
 	* When an expectation is constrained by several .WITH() clauses, a
 	  violation report will only include the first failed condition,
