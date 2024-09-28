@@ -39,12 +39,8 @@ struct any_of_printer
   {
     os << " to be any of {";
     const char* sep = " ";
-    const auto print = [&](const auto& v) {
-      os << std::exchange(sep, ", ") << v;
-      return 0;
-    };
     trompeloeil::ignore(std::initializer_list<int>{
-        (print(compare))...
+        ((os << detail::exchange(sep, ", ") << compare),0)...
     });
     os << " }";
   }
@@ -89,12 +85,8 @@ struct none_of_printer
   {
     os << " to be none of {";
     const char* sep = " ";
-    const auto print = [&](const auto& v) {
-      os << std::exchange(sep, ", ") << v;
-      return 0;
-    };
     trompeloeil::ignore(std::initializer_list<int>{
-        (print(compare))...
+        ((os << detail::exchange(sep, ", ") << compare),0)...
     });
     os << " }";
   }
@@ -139,12 +131,8 @@ struct all_of_printer
   {
     os << " to be all of {";
     const char* sep = " ";
-    const auto print = [&](const auto& v) {
-      os << std::exchange(sep, ", ") << v;
-      return 0;
-    };
     trompeloeil::ignore(std::initializer_list<int>{
-        (print(compare))...
+        ((os << detail::exchange(sep, ", ") << compare),0)...
     });
     os << " }";
   }
