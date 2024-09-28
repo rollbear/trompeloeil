@@ -4134,7 +4134,7 @@ Tried m\.vector\(trompeloeil::range_is_any\(gt\(0\)\)\) at [A-Za-z0-9_ ./:\]*:[0
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: range_is_none can be disambiguated with an explicit type",
+    "C++14: range_is_any can be disambiguated with an explicit type",
     "[C++14][matching][matchers][range_is any]"
 )
 {
