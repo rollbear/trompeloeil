@@ -2375,6 +2375,186 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: any_of is true if at least one element matches",
+    "[C++14][matching][matchers][any_of]"
+    )
+{
+  {
+    mock_str obj;
+    using trompeloeil::any_of;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, str(any_of("", eq("foo"))));
+    obj.str("foo");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: any_of reports if none of the element matches",
+    "[C++14][matching][matchers][any_of]"
+)
+{
+  try {
+    mock_str obj;
+    using trompeloeil::any_of;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, str(any_of("", eq("foo"))));
+    obj.str("bar");
+    FAIL("didn't throw");
+  }
+  catch (reported) {
+    REQUIRE(reports.size() == 1U);
+    auto re = R":(No match for call of str with signature void\(std::string\) with\.
+  param  _1 == bar
+
+Tried obj\.str\(any_of\(\"\", eq\(\"foo\"\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 to be any of \{ ,  == foo \}):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: any_of can be disambiguated with explicit type",
+    "[C++14][matching][matchers][any_of]"
+)
+{
+  {
+    mock_str obj;
+    using trompeloeil::any_of;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, overload(any_of<std::string>("", eq("foo"))));
+    obj.overload(std::string("foo"));
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: none_of is true if no element matches",
+    "[C++14][matching][matchers][none_of]"
+)
+{
+  {
+    mock_str obj;
+    using trompeloeil::none_of;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, str(none_of("bar", eq("foo"))));
+    obj.str("zoo");
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: nane_of reports if any of the element matches",
+    "[C++14][matching][matchers][none_of]"
+)
+{
+  try {
+    mock_str obj;
+    using trompeloeil::none_of;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, str(none_of("bar", eq("foo"))));
+    obj.str("bar");
+    FAIL("didn't throw");
+  }
+  catch (reported) {
+    REQUIRE(reports.size() == 1U);
+    auto re = R":(No match for call of str with signature void\(std::string\) with\.
+  param  _1 == bar
+
+Tried obj\.str\(none_of\(\"bar\", eq\(\"foo\"\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 to be none of \{ bar,  == foo \}):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: none_of can be disambiguated with explicit type",
+    "[C++14][matching][matchers][none_of]"
+)
+{
+  {
+    mock_str obj;
+    using trompeloeil::none_of;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, overload(none_of<std::string>("bar", eq("foo"))));
+    obj.overload(std::string("zoo"));
+  }
+  REQUIRE(reports.empty());
+}
+//
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: all_of is true if every element matches",
+    "[C++14][matching][matchers][all_of]"
+)
+{
+  {
+    C_ptr obj;
+    using trompeloeil::all_of;
+    using trompeloeil::ne;
+    using trompeloeil::eq;
+    REQUIRE_CALL(obj, ptr(all_of(ne(nullptr), *eq(3))));
+    int i = 3;
+    obj.ptr(&i);
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: all_of reports if at least one element does not match",
+    "[C++14][matching][matchers][all_of]"
+)
+{
+  try {
+    C_ptr obj;
+    using trompeloeil::all_of;
+    using trompeloeil::eq;
+    using trompeloeil::ne;
+    REQUIRE_CALL(obj, ptr(all_of(ne(nullptr), *eq(3))));
+    int i = 4;
+    obj.ptr(&i);
+    FAIL("didn't throw");
+  }
+  catch (reported) {
+    REQUIRE(reports.size() == 1U);
+    auto re = R":(No match for call of ptr with signature void\(int\*\) with\.
+  param  _1 == .*
+
+Tried obj\.ptr\(all_of\(ne\(nullptr\), \*eq\(3\)\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 to be all of \{  != nullptr,  == 3 \}):";
+    INFO("report=" << reports.front().msg);
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: all_of can be disambiguated with explicit type",
+    "[C++14][matching][matchers][all_of]"
+)
+{
+  {
+    C_ptr obj;
+    using trompeloeil::all_of;
+    using trompeloeil::eq;
+    using trompeloeil::ne;
+    REQUIRE_CALL(obj, coverload(all_of<const int*>(ne(nullptr), *eq(3))));
+    const int i = 3;
+    obj.coverload(&i);
+  }
+  REQUIRE(reports.empty());
+}
+//
 // tests of parameter matching using typed matcher re
 
 #if TROMPELOEIL_TEST_REGEX_FAILURES
@@ -3927,7 +4107,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: mismatching elements of a vector tested with matcher range_is_none are reported",
+    "C++14: mismatching elements of a vector tested with matcher range_is_any are reported",
     "[C++14][matching][matchers][range_is_any]"
 )
 {
@@ -3954,7 +4134,7 @@ Tried m\.vector\(trompeloeil::range_is_any\(gt\(0\)\)\) at [A-Za-z0-9_ ./:\]*:[0
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: range_is_none can be disambiguated with an explicit type",
+    "C++14: range_is_any can be disambiguated with an explicit type",
     "[C++14][matching][matchers][range_is any]"
 )
 {

@@ -37,6 +37,7 @@
 #include "trompeloeil/matcher/range.hpp"
 #endif
 #include "trompeloeil/matcher/re.hpp"
+#include "trompeloeil/matcher/set_predicate.hpp"
 #include "trompeloeil/sequence.hpp"
 #include "trompeloeil/stream_tracer.hpp"
 #ifdef __cpp_impl_coroutine
