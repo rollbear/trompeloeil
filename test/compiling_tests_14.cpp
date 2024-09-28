@@ -4107,7 +4107,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: mismatching elements of a vector tested with matcher range_is_none are reported",
+    "C++14: mismatching elements of a vector tested with matcher range_is_any are reported",
     "[C++14][matching][matchers][range_is_any]"
 )
 {
