@@ -1058,19 +1058,46 @@ void test()
 }
 ```
 
+There are also compound matcher that match a value to a set of matchers.
+The matchers may be any of the above, or simple values for equality comparison.
+
+These are:
+
+- [**`all_of(`** *matchers* **`)`**](reference.md/#all_of) matches value with all of the matchers provided
+- [**`any_of(`** *matchers* **`)`**](reference.md/#any_of) matches value with at least one of the matchers provided
+- [**`none_of(`** *matchers* **`)`**](reference.md/#none) matches value with none of the matchers provided
+
+Example:
+```Cpp
+class Mock
+{
+public:
+  MAKE_MOCK1(func, void(int));
+};
+
+void test()
+{
+  Mock m;
+  using trompeloeil::any_of;
+  using trompeloeil::gt;
+  REQUIRE_CALL(m, func(any_of(-1, gt(0)))); // value must be -1 or >0.
+  func(&m);
+  // expectations must be met before end of scope
+}
+```
 ### <A name="matching_ranges"/> Matching ranges with conditions
 
 Instead of using exact values of parameters to match calls with, *Trompeloeil*
 provides a set of [matchers](reference.md/#matcher). Range matchers are:
 
-- [**`range_has(`** *range* **`)`**](reference.md/#range_has) matches when all the expected values are present in the range
-- [**`range_is(`** *range* **`)`**](reference.md/#range_is) matches values of each element in the range with expected values
-- [**`range_is_permutation(`** *range* **`)`**](reference.md/#range_is_permutation) matches some permutation of the values in the range matches all expected values
-- [**`range_starts_with(`** *range* **`)`**](reference.md/#range_starts_with) matches values of the first elements in the range with expected values
-- [**`range_ends_with(`** *range* **`)`**](reference.md/#range_ends_with) matches values of the last elements in the range with expected values
-- [**`range_is_all(`** *value* **`)`**](reference.md/#range_is_all) matches when every element in the range matches value
-- [**`range_is_any(`** *value* **`)`**](reference.md/#range_is_any) matches when at least one element in the range matches value
-- [**`range_is_none(`** *value* **`)`**](reference.md/#range_is_none) matches when no element in the range matches value
+- [**`range_has(`** *matchers* **`)`**](reference.md/#range_has) matches when all the expected values are present in the range
+- [**`range_is(`** *matchers* **`)`**](reference.md/#range_is) matches values of each element in the range with expected values
+- [**`range_is_permutation(`** *matchers* **`)`**](reference.md/#range_is_permutation) matches some permutation of the values in the range matches all expected values
+- [**`range_starts_with(`** *matchers* **`)`**](reference.md/#range_starts_with) matches values of the first elements in the range with expected values
+- [**`range_ends_with(`** *matchers* **`)`**](reference.md/#range_ends_with) matches values of the last elements in the range with expected values
+- [**`range_is_all(`** *matcher* **`)`**](reference.md/#range_is_all) matches when every element in the range matches value
+- [**`range_is_any(`** *matcher* **`)`**](reference.md/#range_is_any) matches when at least one element in the range matches value
+- [**`range_is_none(`** *matcher* **`)`**](reference.md/#range_is_none) matches when no element in the range matches value
 
 By default, the matchers are [*duck typed*](
 https://en.wikipedia.org/wiki/Duck_typing
