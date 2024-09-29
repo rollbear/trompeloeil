@@ -20,6 +20,8 @@
 #include "../matcher.hpp"
 #endif
 
+#include <vector>
+
 namespace trompeloeil {
 
 namespace impl {
@@ -96,12 +98,27 @@ struct is_permutation_checker
     {
       return false;
     }
+    using element_type = typename std::remove_reference<decltype(*it)>::type;
+    std::vector<element_type*> values;
+    values.reserve(size);
+    for (auto& element : range)
+    {
+      values.push_back(&element);
+    }
     bool all_true = true;
     const auto match = [&](const auto& compare)
     {
-      return std::any_of(it, e, [&](const auto& v){
-        return trompeloeil::param_matches(compare, std::ref(v));
-      });
+      auto found = std::find_if(values.begin(), values.end(),
+                                [&compare](const element_type* p){
+                                  return trompeloeil::param_matches(compare, std::ref(*p));
+                                });
+      if (found != values.end())
+      {
+        *found = values.back();
+        values.pop_back();
+        return true;
+      }
+      return false;
     };
     trompeloeil::ignore(std::initializer_list<bool>{
         (all_true = all_true && match(elements))  ...});
