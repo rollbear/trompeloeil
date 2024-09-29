@@ -8,21 +8,25 @@
   - [Matcher](#matcher)
     - [_](#wildcard)
     - [**`ANY(`** *type* **`)`**](#ANY)
+    - [**`MEMBER_IS(`** *member*, *matcher* **`)`**](#MEMBER_IS)
+    - [**`all_of(`** *values* **`)`**](#all_of)
+    - [**`any_of(`** *values* **`)`**](#any_of)
     - [**`eq(`** *value* **`)`**](#eq)
     - [**`ne(`** *value* **`)`**](#ne)
     - [**`gt(`** *value* **`)`**](#gt)
     - [**`ge(`** *value* **`)`**](#ge)
     - [**`lt(`** *value* **`)`**](#lt)
     - [**`le(`** *value* **`)`**](#le)
+    - [**`none_of(`** *values* **`)`**](#none_of)
     - [**`re(`** *string* **`)`**](#re)
-    - [**`range_has(`** *range* **`)`**](#range_has)
-    - [**`range_is(`** *range* **`)`**](#range_is)
-    - [**`range_is_all(`** *value* **`)`**](#range_is_all)
-    - [**`range_is_any(`** *value* **`)`**](#range_is_any)
-    - [**`range_is_none(`** *value* **`)`**](#range_is_none)
-    - [**`range_is_permutation(`** *range* **`)`**](#range_is_permutation)
-    - [**`range_starts_with(`** *range* **`)`**](#range_starts_with)
-    - [**`range_ends_with(`** *range* **`)`**](#range_ends_with)
+    - [**`range_has(`** *values **`)`**](#range_has)
+    - [**`range_is(`** *values* **`)`**](#range_is)
+    - [**`range_is_all(`** *matcher* **`)`**](#range_is_all)
+    - [**`range_is_any(`** *matcher* **`)`**](#range_is_any)
+    - [**`range_is_none(`** *matcher* **`)`**](#range_is_none)
+    - [**`range_is_permutation(`** *values* **`)`**](#range_is_permutation)
+    - [**`range_starts_with(`** *values* **`)`**](#range_starts_with)
+    - [**`range_ends_with(`** *values* **`)`**](#range_ends_with)
     - [**`*`** *matcher*](#deref_matcher)
     - [**`!`** *matcher*](#not_matcher)
 - [Macros](#macros) (alphabetical order)
@@ -227,12 +231,26 @@ matchers
 
 - [_](#wildcard)
 - [**`ANY(`** *type* **`)`**](#ANY)
+- [**`MEMBER_IS(`** *member*, *matcher* **`)`**](#MEMBER_IS)
+- [**`all_of(`** *values* **`)`**](#all_of)
+- [**`any_of(`** *values* **`)`**](#any_of)
 - [**`eq(`** *value* **`)`**](#eq)
 - [**`ne(`** *value* **`)`**](#ne)
 - [**`gt(`** *value* **`)`**](#gt)
 - [**`ge(`** *value* **`)`**](#ge)
 - [**`lt(`** *value* **`)`**](#lt)
 - [**`le(`** *value* **`)`**](#le)
+- [**`none_of(`** *values* **`)`**](#none_of)
+- [**`re(`** *string* **`)`**](#re)
+- [**`range_has(`** *values* **`)`**](#range_has)
+- [**`range_is(`** *values* **`)`**](#range_is)
+- [**`range_is_all(`** *matcher* **`)`**](#range_is_all)
+- [**`range_is_any(`** *matcher* **`)`**](#range_is_any)
+- [**`range_is_none(`** *matcher* **`)`**](#range_is_none)
+- [**`range_is_permutation(`** *values* **`)`**](#range_is_permutation)
+- [**`range_starts_with(`** *values* **`)`**](#range_starts_with)
+- [**`range_ends_with(`** *values* **`)`**](#range_ends_with)
+
 
 You can also provide [your own matchers](CookBook.md/#custom_matchers).
 
@@ -270,6 +288,46 @@ return 1 + the value provided.
 If type information is needed, for example to disambiguate overloads, use
 [**`ANY(`** *type* **`)`**](#ANY).
 
+#### <A name="MEMBER_IS"/>**`MEMBER_IS(`** *member*, *matcher* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a member
+of a passed value using a matcher. The matcher can be a value that can be
+equality compared with the member, or a matcher like
+[**`gt(`** *value* **`)`**](#gt). This es especially useful together with the
+matchers [**`all_of(`** *values* **`)`**](#all_of) and
+[**`any_of(`** *values* **`)`**](#any_of)
+
+`#include <trompeloeil/matcher/member_is.hpp>`
+
+Example:
+
+```Cpp
+struct xy
+{
+    int x;
+    int y;
+};
+
+class C
+{
+public:
+  MAKE_MOCK1(func, void(xy));
+};
+
+TEST(atest)
+{
+  C mock_obj;
+  REQUIRE_CALL(mock_obj, func(all_of(MEMBER_IS(&xy::x, gt(0)),
+                                     MEMBER_IS(&xy::y, 0))));
+
+  test_function(&mock_obj);
+}
+```
+
+Above, the expectation matches only calls to `mock_obj.fun(xy coord)` with 
+`coord.x > 0 && coord.y == 0`.
+
+
 #### <A name="ANY"/>**`ANY(`** *type* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match any value
@@ -301,6 +359,100 @@ TEST(atest)
 Above, any call to `mock_obj.func(int)` is accepted, but calls to
 `mock_obj.func(std::string)` renders a violation report since there is no
 matching [expectation](#expectation).
+
+#### <A name="all_of"/>**`all_of(`** *values* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a
+value with all of several provided. By default it matches any parameter type
+that supports comparison with the *values*, but an explicit type can be
+specified if needed for disambiguation. *values* can be any value that is
+equality comparable with the type, or other matchers that can be used with
+the type.
+
+`#include <trompeloeil/matcher/set_predicate.hpp>`
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(ifunc, void(int*));
+  MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK1(func, void(const std::string&));
+};
+
+using trompeloeil::ne;
+using trompeloeil::eq;
+using trompeloeil::all_of;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, ifunc(all_of(ne(nullptr), *eq(3))));
+
+  std::string expected = "foo";
+  REQUIRE_CALL(mock_obj, func(all_of<const char*>(ne(nullptr), expected)));
+
+  test_function(&mock_obj);
+}
+```
+
+Above, the first [expectation](#expectation) matches only calls to
+`mock_obj.ifunc(int*)` with a non-null pointer pointing to the value `3`. Any
+call with a `nullptr` or a pointer pointing to a value other than `3` renders
+a violation report since no [expectation](#expectation) matches.
+
+The second [expectation](#expectation) matches only calls to
+`mock_obj.func(const char*)`, with a C-string `"foo"`.
+
+
+#### <A name="any_of"/>**`any_of(`** *values* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to match a
+value with any of several provided. By default it matches any parameter type
+that supports comparison with the *values*, but an explicit type can be
+specified if needed for disambiguation. *values* can be any value that is
+equality comparable with the type, or other matchers that can be used with
+the type.
+
+`#include <trompeloeil/matcher/set_predicate.hpp>`
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(ifunc, void(int*));
+  MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK1(func, void(const std::string&));
+};
+
+using trompeloeil::ne;
+using trompeloeil::eq;
+using trompeloeil::any_of;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, ifunc(any_of(nullptr, *eq(3))));
+
+  std::string expected = "foo";
+  REQUIRE_CALL(mock_obj, func(any_of<const char*>(nullptr, expected)));
+
+  test_function(&mock_obj);
+}
+```
+
+Above, the first [expectation](#expectation) matches only calls to
+`mock_obj.ifunc(int*)` with either a `nullptr`, or a pointer to the value
+`3`. Any call with a non-null pointer pointing to a value other than `3`
+renders a violation report since no [expectation](#expectation) matches.
+
+The second [expectation](#expectation) matches only calls to
+`mock_obj.func(const char*)`, with either `nullptr` or a C-string `"foo"`.
+
 
 #### <A name="eq"/>**`eq(`** *value* **`)`**
 
@@ -558,6 +710,56 @@ with a [`std::string`](http://en.cppreference.com/w/cpp/string/basic_string)
 It is also possible to use `*le(val)` to match a pointer to a less-than or
 equal value.
 
+
+#### <A name="none_of"/>**`none_of(`** *values* **`)`**
+
+Used in the parameter list of an [expectation](#expectation) to ensure no
+match between a value and several provided. By default it matches any
+parameter type that supports comparison with the *values*, but an explicit
+type can be specified if needed for disambiguation. *values* can be any value
+that is equality comparable with the type, or other matchers that can be used
+with the type.
+
+`#include <trompeloeil/matcher/set_predicate.hpp>`
+
+Example:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(ifunc, void(int*));
+  MAKE_MOCK1(func, void(const char*));
+  MAKE_MOCK1(func, void(const std::string&));
+};
+
+using trompeloeil::ne;
+using trompeloeil::eq;
+using trompeloeil::none_of;
+
+TEST(atest)
+{
+  C mock_obj;
+  ALLOW_CALL(mock_obj, ifunc(none_of(nullptr, *eq(3))));
+
+  std::string expected = "foo";
+  REQUIRE_CALL(mock_obj, func(none_of<const char*>(nullptr, expected)));
+
+  test_function(&mock_obj);
+}
+```
+
+Above, the first [expectation](#expectation) matches only calls to
+`mock_obj.ifunc(int*)` with a non-null pointer pointer to a value other than
+`3`. Any call with a `nullptr`, or a pointer pointing to the value `3`
+renders a violation report since no [expectation](#expectation) matches.
+
+The second [expectation](#expectation) matches only calls to
+`mock_obj.func(const char*)`, with a non-null pointer, pointing to a C-string
+that is not `"foo"`.
+
+
+
 #### <A name="re"/>**`re(`** *string* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
@@ -659,7 +861,7 @@ The second [expectation](#expectation) matches calls to
 `{ 1, 2, 3 }` (in any order).
 
 
-#### <A name="range_is"/>**`range_is`** *matcher*
+#### <A name="range_is"/>**`range_is(`** *matchers* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
 range with a set of matchers. By default it can match any range-like
@@ -699,7 +901,7 @@ The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with the values `{ 1, 2, 3 }`.
 
 
-#### <A name="range_is_all"/>**`range_is_all`** *matcher*
+#### <A name="range_is_all"/>**`range_is_all(`** *matcher* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match each
 element in a range to a matcher or value. By default it can match any
@@ -742,7 +944,7 @@ The second [expectation](#expectation) matches calls to
 The matcher `range_is_all` always matches an empty range.
 
 
-#### <A name="range_is_any"/>**`range_is_any`** *matcher*
+#### <A name="range_is_any"/>**`range_is_any(`** *matcher* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match each
 element in a range to a matcher or value. By default it can match any
@@ -784,7 +986,7 @@ The second [expectation](#expectation) matches calls to
 
 The matcher `range_is_any` does never match an empty range.
 
-#### <A name="range_is_none"/>**`range_is_none`** *matcher*
+#### <A name="range_is_none"/>**`range_is_none(`** *matcher* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match each
 element in a range to a matcher or value. By default it can match any
@@ -827,7 +1029,7 @@ The second [expectation](#expectation) matches calls to
 The matcher `range_is_nonel` always matches an empty range.
 
 
-#### <A name="range_is_permutation"/>**`range_is_permutation(`** *elements* **`)`**
+#### <A name="range_is_permutation"/>**`range_is_permutation(`** *matchers* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
 range with a set of matchers without regard to order. By default it can
@@ -868,8 +1070,14 @@ The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with a permutation of the values
 `{ 1, 2, 3 }`.
 
+**NOTE!** Avoid using `range_is_permutation` with relational matchers like
+[**`gt(`** *value* **`)`**](#gt), since it may reach different results
+depending  on the order in which the elements are tried. E.g.
+`range_is_permutation(gt(0), gt(1), gt(2))` may or may not match a range
+`{3,2,1}`.
 
-#### <A name="range_starts_with"/>**`range_starts_with`** *matcher*
+
+#### <A name="range_starts_with"/>**`range_starts_with(`** *matchers* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match the
 first values in a range to a set of matchers. By default it can match any
@@ -912,7 +1120,7 @@ The second [expectation](#expectation) matches calls to
 starting with `{ 1, 2 }`.
 
 
-#### <A name="range_ends_with"/>**`range_ends_with`** *matcher*
+#### <A name="range_ends_with"/>**`range_ends_with(`** *matchers* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match the
 last values in a range to a set of matchers. By default it can match any
