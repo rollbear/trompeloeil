@@ -2096,7 +2096,7 @@ Above, **`THROW(...)`** will refer to a copy of the string `what` with the value
 
 See also [**`LR_THROW(...)`**](#LR_THROW) which accesses copies of local objects.
 
-<A name="TIMES and RT_TIMES"/>
+<A name="TIMES-and-RT_TIMES"/>
 
 ### **`TIMES(`** *limits* **`)`** and **`RT_TIMES(`** *limits* **`)`**
 
