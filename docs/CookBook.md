@@ -1734,8 +1734,9 @@ control with the Trompeloeil C\+\+14 Mocking Framework](http://playfulprogrammin
 
 By default [**`REQUIRE_CALL(...)`**](reference.md/#REQUIRE_CALL) needs exactly
 one matching call, otherwise a violation is reported. Sometimes the need is
-for something else. A modifier [**`TIMES(...)`**](reference.md/#TIMES) is used
-to change that. You can either specify an exact number of times matching calls
+for something else. The modifiers [**`TIMES(...)`**](reference.md/#TIMES-and-RT_TIMES) or
+[**`RT_TIMES(...)`**](reference.md/#TIMES-and-RT_TIMES) can be used to change that.
+You can either specify an exact number of times matching calls
 must be made, or a range of numbers.
 
 Example:
