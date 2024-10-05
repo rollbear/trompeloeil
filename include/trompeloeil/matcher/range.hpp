@@ -25,6 +25,15 @@
 namespace trompeloeil {
 
 namespace impl {
+template <typename E, typename M>
+auto make_predicate_matcher(M &m) {
+  return std::function<bool(const E &)>([&m](const E &value) {
+    return trompeloeil::param_matches(m, std::ref(value));
+  });
+}
+}
+
+namespace impl {
 struct is_checker
 {
   template <typename R, typename ... Es>
@@ -93,36 +102,25 @@ struct is_permutation_checker
     using std::end;
     auto it = begin(range);
     const auto e = end(range);
-    const auto size = static_cast<size_t>(std::distance(it, e));
-    if (size != sizeof...(elements))
-    {
-      return false;
-    }
-    using element_type = typename std::remove_reference<decltype(*it)>::type;
-    std::vector<element_type*> values;
-    values.reserve(size);
-    for (auto& element : range)
-    {
-      values.push_back(&element);
-    }
-    bool all_true = true;
-    const auto match = [&](const auto& compare)
-    {
-      auto found = std::find_if(values.begin(), values.end(),
-                                [&compare](const element_type* p){
-                                  return trompeloeil::param_matches(compare, std::ref(*p));
-                                });
-      if (found != values.end())
-      {
-        *found = values.back();
-        values.pop_back();
-        return true;
-      }
-      return false;
+    using element_type = decltype(*it);
+    std::vector<std::function<bool(const element_type&)>> matchers{
+        make_predicate_matcher<element_type>(elements)...
     };
-    trompeloeil::ignore(std::initializer_list<bool>{
-        (all_true = all_true && match(elements))  ...});
-    return all_true;
+    while (it != e) {
+      auto found = std::find_if(matchers.begin(), matchers.end(),
+                                [it](const auto& matcher)
+                                {
+                                  return matcher(*it);
+                                });
+      if (found == matchers.end())
+      {
+        break;
+      }
+      *found = std::move(matchers.back());
+      matchers.pop_back();
+      ++it;
+    }
+    return it == e && matchers.empty();
   }
 };
 
@@ -172,16 +170,23 @@ struct has_checker
     using std::end;
     auto it = begin(range);
     const auto e = end(range);
-    bool all_true = true;
-    const auto match = [&](const auto& compare)
+    using element_type = decltype(*it);
+    std::vector<std::function<bool(const element_type&)>> matchers{
+                      make_predicate_matcher<element_type>(elements)...
+                  };
+    while (it != e)
     {
-      return std::any_of(it, e, [&](const auto& v){
-        return trompeloeil::param_matches(compare, std::ref(v));
-      });
-    };
-    trompeloeil::ignore(std::initializer_list<bool>{
-        (all_true = all_true && match(elements))  ...});
-    return all_true;
+      auto found = std::find_if(matchers.begin(), matchers.end(),
+                                [it](const auto& matcher) {
+                                  return matcher(*it);
+                                });
+      if (found != matchers.end()) {
+        *found = std::move(matchers.back());
+        matchers.pop_back();
+      }
+      ++it;
+    }
+    return matchers.empty();
   }
 };
 
