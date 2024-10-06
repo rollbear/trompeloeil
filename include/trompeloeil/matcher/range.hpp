@@ -428,7 +428,7 @@ struct has_range_printer {
   void operator()(std::ostream& os, const E& elements) const
   {
     os << " range has {";
-    const char* sep = "";
+    const char* sep = " ";
     for (const auto& v : elements) {
       os << std::exchange(sep, ", ") << v;
     };
