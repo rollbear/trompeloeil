@@ -1,6 +1,6 @@
 	* Added several new composable matchers.
 
-	  range matchers range_has(*elements*), range_is(*elements*),
+	  range matchers range_includes(*elements*), range_is(*elements*),
 	  range_is_permutation(*elements*), range_is_all(*comparator*),
 	  range_is_none(*comparator*), range_is_any(*comparator*),
 	  range_starts_with(*elements*) and range_ends_with(*elements*).

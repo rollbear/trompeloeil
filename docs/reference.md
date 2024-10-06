@@ -19,7 +19,7 @@
     - [**`le(`** *value* **`)`**](#le)
     - [**`none_of(`** *values* **`)`**](#none_of)
     - [**`re(`** *string* **`)`**](#re)
-    - [**`range_has(`** *values **`)`**](#range_has)
+    - [**`range_includes(`** *values **`)`**](#range_includes)
     - [**`range_is(`** *values* **`)`**](#range_is)
     - [**`range_is_all(`** *matcher* **`)`**](#range_is_all)
     - [**`range_is_any(`** *matcher* **`)`**](#range_is_any)
@@ -242,7 +242,7 @@ matchers
 - [**`le(`** *value* **`)`**](#le)
 - [**`none_of(`** *values* **`)`**](#none_of)
 - [**`re(`** *string* **`)`**](#re)
-- [**`range_has(`** *values* **`)`**](#range_has)
+- [**`range_includes(`** *values* **`)`**](#range_includes)
 - [**`range_is(`** *values* **`)`**](#range_is)
 - [**`range_is_all(`** *matcher* **`)`**](#range_is_all)
 - [**`range_is_any(`** *matcher* **`)`**](#range_is_any)
@@ -819,7 +819,7 @@ a regular expression, or `!re(string)` to allow only strings that do not match
 a regular expression.
 
 
-#### <A name="range_has"/>**`range_has(`** matchers **`)`**
+#### <A name="range_includes"/>**`range_includes(`** matchers **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match a
 range with has a set of matchers. By default it can match any range-like
@@ -827,7 +827,11 @@ type, but it can be explicitly disambiguated by providing a type to match for.
 
 `#include <trompeloeil/matcher/range.hpp>`
 
-Example:
+**`range_includes`** comes in two flavours:
+* **`range_includes(`** *matchers* **`)`** where matchers is one or several values or other matchers like [**`re(`** *string* **`)`**](#re)
+* **`range_includes(`** *values* **`)`** where values is a collection, e.g. a [`std::vector<>`](https://en.cppreference.com/w/cpp/container/vector) or C-array, of values.
+
+Example using matchers:
 
 ```Cpp
 class C
@@ -839,13 +843,13 @@ public:
 };
 
 using trompeloeil::gt;
-using trompeloeil::range_has;
+using trompeloeil::range_includes;
 
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, vfunc(range_has(gt(2), 1)));
-  REQUIRE_CALL(mock_obj, ofunc(range_has<std::list<int>>(1,2,3)));
+  ALLOW_CALL(mock_obj, vfunc(range_includes(gt(2), 1)));
+  REQUIRE_CALL(mock_obj, ofunc(range_includes<std::list<int>>(1,2,3)));
   test_function(&mock_obj);
 }
 ```
@@ -860,6 +864,29 @@ The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with at least the values
 `{ 1, 2, 3 }` (in any order).
 
+Example using a C-array of values:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+};
+
+using trompeloeil::range_includes;
+
+TEST(atest)
+{
+  C mock_obj;
+  int values[] {2, 1 };
+  ALLOW_CALL(mock_obj, vfunc(range_includes(values)));
+  test_function(&mock_obj);
+}
+```
+
+The expectation only matches calls to `mock_obj.vfunc()` with a vector that
+holds at least one elemend with the value 1, and at least one element with
+the value 2.
 
 #### <A name="range_is"/>**`range_is(`** *matchers* **`)`**
 
@@ -869,7 +896,11 @@ type, but it can be explicitly disambiguated by providing a type to match for.
 
 `#include <trompeloeil/matcher/range.hpp>`
 
-Example:
+**`range_is`** comes in two flavours:
+* **`range_is(`** *matchers* **`)`** where matchers is one or several values or other matchers like [**`re(`** *string* **`)`**](#re)
+* **`range_is(`** *values* **`)`** where values is a collection, e.g. a [`std::vector<>`](https://en.cppreference.com/w/cpp/container/vector) or C-array, of values.
+
+Example using matchers:
 
 ```Cpp
 class C
@@ -900,6 +931,27 @@ renders a violation report since no [expectation](#expectation) matches.
 The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with the values `{ 1, 2, 3 }`.
 
+Example using C-array of values:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+};
+
+using trompeloeil::range_is;
+
+TEST(atest)
+{
+  C mock_obj;
+  int expected[] { 1, 2, 3 };
+  ALLOW_CALL(mock_obj, vfunc(range_is(expected)));
+  test_function(&mock_obj);
+}
+```
+
+The expectation only matches calls to `mock_obj.vfunc()` with a vector holding exactly { 1, 2, 3 }.
 
 #### <A name="range_is_all"/>**`range_is_all(`** *matcher* **`)`**
 
@@ -1038,7 +1090,11 @@ providing a type to match for.
 
 `#include <trompeloeil/matcher/range.hpp>`
 
-Example:
+**`range_is_permutation`** comes in two flavours:
+* **`range_is_permutation(`** *matchers* **`)`** where matchers is one or several values or other matchers like [**`re(`** *string* **`)`**](#re)
+* **`range_is_permutation(`** *values* **`)`** where values is a collection, e.g. a [`std::vector<>`](https://en.cppreference.com/w/cpp/container/vector) or C-array, of values. 
+
+Example using matchers:
 
 ```Cpp
 class C
@@ -1071,11 +1127,34 @@ The second [expectation](#expectation) matches calls to
 `{ 1, 2, 3 }`.
 
 **NOTE!** Avoid using `range_is_permutation` with relational matchers like
-[**`gt(`** *value* **`)`**](#gt), since it may reach different results
-depending  on the order in which the elements are tried. E.g.
+[**`gt(`** *value* **`)`**](#gt). In order to work with input-ranges, it
+uses a greedy one-pass algorithm, which may reach different results
+depending  on the order in which the elements are matched. E.g.
 `range_is_permutation(gt(0), gt(1), gt(2))` may or may not match a range
 `{3,2,1}`.
 
+Example using a C-array of values:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+};
+
+using trompeloeil::range_is_permutation;
+
+TEST(atest)
+{
+  C mock_obj;
+  int values[] { 1, 2, 3 };
+  ALLOW_CALL(mock_obj, vfunc(range_is_permutation(values)));
+  test_function(&mock_obj);
+}
+```
+
+This only allows calls to `mock_obj.vfunc()` with a vector holding the values
+1, 2, 3, in any order. 
 
 #### <A name="range_starts_with"/>**`range_starts_with(`** *matchers* **`)`**
 
@@ -1086,7 +1165,11 @@ to match for.
 
 `#include <trompeloeil/matcher/range.hpp>`
 
-Example:
+**`range_starts_with`** comes in two flavours:
+* **`range_starts_with(`** *matchers* **`)`** where matchers is one or several values or other matchers like [**`re(`** *string* **`)`**](#re)
+* **`range_starts_with(`** *values* **`)`** where values is a collection, e.g. a [`std::vector<>`](https://en.cppreference.com/w/cpp/container/vector) or C-array, of values.
+
+Example using matchers:
 
 ```Cpp
 class C
@@ -1119,6 +1202,28 @@ The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with at least two values,
 starting with `{ 1, 2 }`.
 
+Example using a C-array with values:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+};
+
+using trompeloeil::range_starts_with;
+
+TEST(atest)
+{
+  C mock_obj;
+  int first_values[]{1,2};
+  ALLOW_CALL(mock_obj, vfunc(range_starts_with(first_values)));
+  test_function(&mock_obj);
+}
+```
+
+The example above matches only calls to `mock_obj.vfunc()` with a vector
+which starts with the values {1, 2}.
 
 #### <A name="range_ends_with"/>**`range_ends_with(`** *matchers* **`)`**
 
@@ -1129,7 +1234,11 @@ to match for.
 
 `#include <trompeloeil/matcher/range.hpp>`
 
-Example:
+**`range_ends_with`** comes in two flavours:
+* **`range_ends_with(`** *matchers* **`)`** where matchers is one or several values or other matchers like [**`re(`** *string* **`)`**](#re)
+* **`range_ends_with(`** *values* **`)`** where values is a collection, e.g. a [`std::vector<>`](https://en.cppreference.com/w/cpp/container/vector) or C-array, of values.
+
+Example using matchers:
 
 ```Cpp
 class C
@@ -1162,6 +1271,28 @@ The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with at least two values,
 ending with `{ 1, 2 }`.
 
+Example using a C-array of values:
+
+```Cpp
+class C
+{
+public:
+  MAKE_MOCK1(vfunc, void(const std::vector<int>&));
+};
+
+using trompeloeil::range_ends_with;
+
+TEST(atest)
+{
+  C mock_obj;
+  int tail[]{2,1,0};
+  ALLOW_CALL(mock_obj, vfunc(range_ends_with(tail)));
+  test_function(&mock_obj);
+}
+```
+
+The example above only matches calls to `mock_obj.vfunc()` with a vector with
+2,1,0 as the last elements.
 
 #### <A name="deref_matcher"/>**`*`** *matcher*
 

@@ -91,7 +91,7 @@ constexpr bool is_range_v = is_range<T>::value;
 }
 
 namespace impl {
-struct is_checker
+struct is_elements_checker
 {
   template <typename R, typename ... Es>
   bool operator()(const R& range, const Es& ... elements) const
@@ -113,7 +113,7 @@ struct is_checker
   }
 };
 
-struct is_printer
+struct is_elements_printer
 {
   template <typename ... Es>
   void operator()(std::ostream& os, const Es& ... elements) const
@@ -138,15 +138,15 @@ template <
     typename = typename std::enable_if<!impl::disjunction<impl::is_range<Es>...>::value>::type,
     typename R = make_matcher_return<
         Type,
-        impl::is_checker,
-        impl::is_printer,
+        impl::is_elements_checker,
+        impl::is_elements_printer,
         impl::store_as_t<Es>...>
     >
 R range_is(Es&& ... es)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::is_checker{},
-      impl::is_printer{},
+      impl::is_elements_checker{},
+      impl::is_elements_printer{},
       std::forward<Es>(es)...);
 }
 namespace impl {
@@ -195,7 +195,7 @@ R range_is(C&& c)
 }
 
 namespace impl {
-struct is_permutation_checker
+struct is_permutation_elements_checker
 {
   template <typename R, typename ... Es>
   bool operator()(const R& range, const Es& ... elements) const
@@ -226,7 +226,7 @@ struct is_permutation_checker
   }
 };
 
-struct is_permutation_printer
+struct is_permutation_elements_printer
 {
   template <typename ... Es>
   void operator()(std::ostream& os, const Es& ... elements) const
@@ -251,15 +251,15 @@ template <
     typename = typename std::enable_if<!impl::disjunction<impl::is_range<Es>...>::value>::type,
     typename R = make_matcher_return<
         Type,
-        impl::is_permutation_checker,
-        impl::is_permutation_printer,
+        impl::is_permutation_elements_checker,
+        impl::is_permutation_elements_printer,
         Es...>
     >
 R range_is_permutation(Es&& ... es)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::is_permutation_checker{},
-      impl::is_permutation_printer{},
+      impl::is_permutation_elements_checker{},
+      impl::is_permutation_elements_printer{},
       std::forward<Es>(es)...);
 }
 
@@ -326,7 +326,7 @@ R range_is_permutation(C&& c)
 }
 
 namespace impl {
-struct has_checker
+struct includes_elements_checker
 {
   template <typename R, typename ... Es>
   bool operator()(const R& range, const Es& ... elements) const
@@ -355,7 +355,7 @@ struct has_checker
   }
 };
 
-struct has_printer
+struct includes_elements_printer
 {
   template <typename ... Es>
   void operator()(std::ostream& os, const Es& ... elements) const
@@ -380,20 +380,21 @@ template <
     typename = typename std::enable_if<!impl::disjunction<impl::is_range<Es>...>::value>::type,
     typename R = make_matcher_return<
         Type,
-        impl::has_checker,
-        impl::has_printer,
+        impl::includes_elements_checker,
+        impl::includes_elements_printer,
         Es...>
     >
-R range_has(Es&& ... es)
+R range_includes(Es&& ... es)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::has_checker{},
-      impl::has_printer{},
+      impl::includes_elements_checker{},
+      impl::includes_elements_printer{},
       std::forward<Es>(es)...);
 }
 
 namespace impl {
-struct has_range_checker {
+struct includes_range_checker
+{
   template <typename R, typename C>
   bool operator()(const R& range, const C& elements) const
   {
@@ -423,7 +424,8 @@ struct has_range_checker {
   }
 
 };
-struct has_range_printer {
+struct includes_range_printer
+{
   template <typename E>
   void operator()(std::ostream& os, const E& elements) const
   {
@@ -443,15 +445,15 @@ template <
     typename = typename std::enable_if<impl::is_range_v<C>>::type,
     typename R = make_matcher_return<
         Type,
-        impl::has_range_checker,
-        impl::has_range_printer,
+        impl::includes_range_checker,
+        impl::includes_range_printer,
         impl::store_as_t<C>>
     >
-R range_has(C&&  c)
+R range_includes(C&&  c)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::has_range_checker{},
-      impl::has_range_printer{},
+      impl::includes_range_checker{},
+      impl::includes_range_printer{},
       impl::store_as<C>::make(std::forward<C>(c)));
 }
 
