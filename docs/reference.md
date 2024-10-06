@@ -59,9 +59,10 @@
   - [**`REQUIRE_CALL(`** *mock_object*, *func_name*(*parameter_list*)**`)`**](#REQUIRE_CALL)
   - [**`REQUIRE_DESTRUCTION(`** *mock_object* **`)`**](#REQUIRE_DESTRUCTION)
   - [**`RETURN(`** *expr* **`)`**](#RETURN)
+  - [**`RT_TIMES(`** *limit* **`)`**](#TIMES-and-RT_TIMES)
   - [**`SIDE_EFFECT(`** *expr* **`)`**](#SIDE_EFFECT)
   - [**`THROW(`** *expr* **`)`**](#THROW)
-  - [**`TIMES(`** *limit* **`)`**](#TIMES)
+  - [**`TIMES(`** *limit* **`)`**](#TIMES-and-RT_TIMES)
   - [**`WITH(`** *expr* **`)`**](#WITH)
 - [Types and Type Templates](#types_and_templates) (alphabetical order)
   - [`trompeloeil::deathwatched<T>`](#deathwatched_type)
@@ -2781,9 +2782,9 @@ Above, **`THROW(...)`** will refer to a copy of the string `what` with the value
 
 See also [**`LR_THROW(...)`**](#LR_THROW) which accesses copies of local objects.
 
-<A name="TIMES"/>
+<A name="TIMES-and-RT_TIMES"/>
 
-### **`TIMES(`** *limits* **`)`**
+### **`TIMES(`** *limits* **`)`** and **`RT_TIMES(`** *limits* **`)`**
 
 Used in [**`REQUIRE_CALL(...)`**](#REQUIRE_CALL) and
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL) to set the limits on
@@ -2795,15 +2796,19 @@ matching calls required.
 *limits* may also be two numbers, describing a range *min-inclusive*,
 *max-inclusive*.
 
-If the minimum number of matching calls in not met before the end of the
+If the minimum number of matching calls is not met before the end of the
 lifetime of the [expectation](#expectation), a violation is reported.
 
 If the maximum number of matching calls is exceeded, a violation is reported.
 
-*limits* must be
-[`constexpr`](http://en.cppreference.com/w/cpp/language/constexpr).
+The difference between **`TIMES(...)`** and **`RT_TIMES(...)`** is, that the
+prior only supports [`constexpr`](http://en.cppreference.com/w/cpp/language/constexpr)
+arguments, while the latter is designed to accept also runtime arguements.
+If invalid bounds are provided, **`TIMES(...)`** issues a compile-error.
+**`RT_TIMES(...)`** will compile successfully, but will raise a ``std::logic_error``
+during construction.
 
-**`TIMES(...)`** may only be used once for each
+Either a single **`TIMES(...)`** or **`RT_TIMES(...)`** may be used for each
 [**`REQUIRE_CALL(..)`**](#REQUIRE_CALL) or
 [**`NAMED_REQUIRE_CALL(...)`**](#NAMED_REQUIRE_CALL).
 
@@ -2837,7 +2842,8 @@ See also the helpers [**`AT_LEAST(...)`**](#AT_LEAST) and
 [**`AT_MOST(...)`**](#AT_MOST).
 
 See also [**`IN_SEQUENCE(...)`**](#IN_SEQUENCE) for information about how
-`.TIMES(...)` works together with [**`sequence`**](#sequence_type) objects.
+`.TIMES(...)` and `.RT_TIMES(...)` work together with [**`sequence`**](#sequence_type)
+objects.
 
 <A name="WITH"/>
 

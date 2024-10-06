@@ -17,6 +17,7 @@
 
 #if defined(CATCH2_VERSION) && CATCH2_VERSION == 3
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #else
 #include <catch2/catch.hpp>
 #endif
@@ -4822,6 +4823,123 @@ TEST_CASE_METHOD(
     REQUIRE(e->is_satisfied());
     REQUIRE(!e->is_saturated());
     obj.count();
+    REQUIRE(e->is_satisfied());
+    REQUIRE(e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: .RT_TIMES is satisfied when min calls is reached, and not saturated until max calls is reached",
+  "[C++11][C++14][multiplicity]")
+{
+  {
+    mock_c obj;
+
+    SECTION("For arbitrary valid bounds.")
+    {
+	    const std::size_t min = GENERATE(0u, 1u, 2u, 3u, 4u);
+    	const std::size_t max = min + GENERATE(0u, 1u, 2u, 3u, 4u);
+    	auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+		  .RT_TIMES(min, max)
+		  .RETURN(1));
+
+    	for (std::size_t i{0};
+			i < min;
+			++i)
+    	{
+    		REQUIRE(!e->is_satisfied());
+    		REQUIRE(!e->is_saturated());
+
+    		obj.count();
+    	}
+
+    	for (std::size_t i{min};
+			i < max;
+			++i)
+    	{
+    		REQUIRE(e->is_satisfied());
+    		REQUIRE(!e->is_saturated());
+
+    		obj.count();
+    	}
+
+    	REQUIRE(e->is_satisfied());
+    	REQUIRE(e->is_saturated());
+    }
+
+    SECTION("When invalid bounds are given.")
+    {
+        const std::size_t max = GENERATE(0u, 1u, 2u, 3u, 4u);
+	    const std::size_t min = max + GENERATE(1u, 2u, 3u, 4u);
+
+        const auto makeExpectation = [&]()
+        {
+            REQUIRE_CALL_V(obj, count(),
+				.RT_TIMES(min, max)
+				.RETURN(1));
+        };
+        REQUIRE_THROWS_AS(
+            makeExpectation(),
+	        std::logic_error);
+    }
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: .RT_TIMES with AT_LEAST is satisfied when count calls is reached, but never saturated.",
+  "[C++11][C++14][multiplicity]")
+{
+  {
+    mock_c obj;
+
+    const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
+    auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+	  .RT_TIMES(AT_LEAST(count))
+	  .RETURN(1));
+
+    for (std::size_t i{0};
+		i < count;
+		++i)
+    {
+        REQUIRE(!e->is_satisfied());
+    	REQUIRE(!e->is_saturated());
+
+    	obj.count();
+    }
+
+    REQUIRE(e->is_satisfied());
+    REQUIRE(!e->is_saturated());
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+  Fixture,
+  "C++11: .RT_TIMES with AT_MOST is satisfied until count calls is reached, and saturaded when exactly count calls are made.",
+  "[C++11][C++14][multiplicity]")
+{
+  {
+    mock_c obj;
+
+    const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
+    auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+	  .RT_TIMES(AT_MOST(count))
+	  .RETURN(1));
+
+    for (std::size_t i{0};
+		i < count;
+		++i)
+    {
+        REQUIRE(e->is_satisfied());
+    	REQUIRE(!e->is_saturated());
+
+    	obj.count();
+    }
+
     REQUIRE(e->is_satisfied());
     REQUIRE(e->is_saturated());
   }
