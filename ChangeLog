@@ -1,8 +1,8 @@
 	* Added several new composable matchers.
 
 	  range matchers range_includes(*elements*), range_is(*elements*),
-	  range_is_permutation(*elements*), range_is_all(*comparator*),
-	  range_is_none(*comparator*), range_is_any(*comparator*),
+	  range_is_permutation(*elements*), range_all_of(*comparator*),
+	  range_none_of(*comparator*), range_any_of(*comparator*),
 	  range_starts_with(*elements*) and range_ends_with(*elements*).
 
 	  Use in expectations as:
@@ -19,7 +19,7 @@
 
       These can be composed like:
 
-        REQUIRE_CALL(obj, func(range_is_all(
+        REQUIRE_CALL(obj, func(range_all_of(
                                  any_of(MEMBER_IS(&type::x, -1),
                                         MEMBER_IS(&type::y, gt(0))))));
 
