@@ -4398,6 +4398,60 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: mismatching elements of a vector tested with matcher range_has is reported",
+    "[C++14][matching][matchers][range_has]"
+)
+{
+  try {
+    range_mock m;
+    REQUIRE_CALL(m, vector(trompeloeil::range_has(1, 7)));
+    m.vector({1,3,5});
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 5 \}
+
+Tried m\.vector\(trompeloeil::range_has\(1, 7\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range has \{1, 7 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: mismatching elements of a vector tested with matcher range_has and a C-array is reported",
+    "[C++14][matching][matchers][range_has]"
+)
+{
+  try {
+    range_mock m;
+    int values[] { 5, 2 };
+    REQUIRE_CALL(m, vector(trompeloeil::range_has(values)));
+    m.vector({1,3,5});
+    FAIL("didn't throw");
+  }
+  catch (reported)
+  {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 5 \}
+
+Tried m\.vector\(trompeloeil::range_has\(values\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range has \{ 5, 2 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+
+  }
+}
 
 
 TEST_CASE_METHOD(
