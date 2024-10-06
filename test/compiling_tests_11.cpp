@@ -4839,50 +4839,44 @@ TEST_CASE_METHOD(
 
     SECTION("For arbitrary valid bounds.")
     {
-	    const std::size_t min = GENERATE(0u, 1u, 2u, 3u, 4u);
-    	const std::size_t max = min + GENERATE(0u, 1u, 2u, 3u, 4u);
-    	auto e = NAMED_REQUIRE_CALL_V(obj, count(),
-		  .RT_TIMES(min, max)
-		  .RETURN(1));
+      const std::size_t min = GENERATE(0u, 1u, 2u, 3u, 4u);
+      const std::size_t max = min + GENERATE(0u, 1u, 2u, 3u, 4u);
+      auto e = NAMED_REQUIRE_CALL_V(obj, count(),
+                                    .RT_TIMES(min, max)
+                                        .RETURN(1));
 
-    	for (std::size_t i{0};
-			i < min;
-			++i)
-    	{
-    		REQUIRE(!e->is_satisfied());
-    		REQUIRE(!e->is_saturated());
+      for (std::size_t i{0}; i < min; ++i)
+      {
+        REQUIRE(!e->is_satisfied());
+        REQUIRE(!e->is_saturated());
 
-    		obj.count();
-    	}
+        obj.count();
+      }
 
-    	for (std::size_t i{min};
-			i < max;
-			++i)
-    	{
-    		REQUIRE(e->is_satisfied());
-    		REQUIRE(!e->is_saturated());
+      for (std::size_t i{min}; i < max; ++i)
+      {
+        REQUIRE(e->is_satisfied());
+        REQUIRE(!e->is_saturated());
 
-    		obj.count();
-    	}
+        obj.count();
+      }
 
-    	REQUIRE(e->is_satisfied());
-    	REQUIRE(e->is_saturated());
+      REQUIRE(e->is_satisfied());
+      REQUIRE(e->is_saturated());
     }
 
     SECTION("When invalid bounds are given.")
     {
-        const std::size_t max = GENERATE(0u, 1u, 2u, 3u, 4u);
-	    const std::size_t min = max + GENERATE(1u, 2u, 3u, 4u);
+      const std::size_t max = GENERATE(0u, 1u, 2u, 3u, 4u);
+      const std::size_t min = max + GENERATE(1u, 2u, 3u, 4u);
 
-        const auto makeExpectation = [&]()
-        {
-            REQUIRE_CALL_V(obj, count(),
-				.RT_TIMES(min, max)
-				.RETURN(1));
-        };
-        REQUIRE_THROWS_AS(
-            makeExpectation(),
-	        std::logic_error);
+      const auto makeExpectation = [&]()
+      {
+        REQUIRE_CALL_V(obj, count(),
+                       .RT_TIMES(min, max)
+                       .RETURN(1));
+      };
+      REQUIRE_THROWS_AS(makeExpectation(), std::logic_error);
     }
   }
   REQUIRE(reports.empty());
@@ -4898,17 +4892,15 @@ TEST_CASE_METHOD(
 
     const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
     auto e = NAMED_REQUIRE_CALL_V(obj, count(),
-	  .RT_TIMES(AT_LEAST(count))
-	  .RETURN(1));
+                                  .RT_TIMES(AT_LEAST(count))
+                                  .RETURN(1));
 
-    for (std::size_t i{0};
-		i < count;
-		++i)
+    for (std::size_t i{0}; i < count; ++i)
     {
-        REQUIRE(!e->is_satisfied());
-    	REQUIRE(!e->is_saturated());
+      REQUIRE(!e->is_satisfied());
+      REQUIRE(!e->is_saturated());
 
-    	obj.count();
+      obj.count();
     }
 
     REQUIRE(e->is_satisfied());
@@ -4927,17 +4919,15 @@ TEST_CASE_METHOD(
 
     const std::size_t count = GENERATE(0u, 1u, 2u, 3u, 4u);
     auto e = NAMED_REQUIRE_CALL_V(obj, count(),
-	  .RT_TIMES(AT_MOST(count))
-	  .RETURN(1));
+                                  .RT_TIMES(AT_MOST(count))
+                                  .RETURN(1));
 
-    for (std::size_t i{0};
-		i < count;
-		++i)
+    for (std::size_t i{0}; i < count; ++i)
     {
-        REQUIRE(e->is_satisfied());
-    	REQUIRE(!e->is_saturated());
+      REQUIRE(e->is_satisfied());
+      REQUIRE(!e->is_saturated());
 
-    	obj.count();
+      obj.count();
     }
 
     REQUIRE(e->is_satisfied());

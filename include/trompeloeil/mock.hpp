@@ -2509,18 +2509,18 @@ template <typename T>
 
   struct rt_multiplicity
   {
-	  std::size_t low{};
-	  std::size_t high{};
+    std::size_t low{};
+    std::size_t high{};
 
     explicit rt_multiplicity(std::size_t _low) noexcept
-	    : low{_low},
-		high{_low}
+     : low{_low}
+     , high{_low}
     {
     }
 
     explicit rt_multiplicity(std::size_t _low, std::size_t _high) noexcept
-	    : low{_low},
-		high{_high}
+    : low{_low}
+    , high{_high}
     {
     }
   };
@@ -2835,7 +2835,7 @@ template <typename T>
 
       if (bounds.high < bounds.low)
       {
-	      throw std::logic_error{"In RT_TIMES the first value must not exceed the second"};
+         throw std::logic_error{"In RT_TIMES the first value must not exceed the second"};
       }
 
       m.matcher->sequences->set_limits(bounds.low, bounds.high);
