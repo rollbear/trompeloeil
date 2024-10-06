@@ -3580,6 +3580,21 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
+    "C++14: elements of a vector can be tested with matcher range_is and a C-array",
+    "[C++14][matching][matchers][range_is]"
+)
+{
+  {
+    range_mock m;
+    int elements[]{1,3,5};
+    REQUIRE_CALL(m, vector(trompeloeil::range_is(elements)));
+    m.vector({1,3,5});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
     "C++14: elements of a vector can be tested with matcher range_is and element matchers",
     "[C++14][matching][matchers][range_is]"
 )
@@ -3594,6 +3609,61 @@ TEST_CASE_METHOD(
   }
   REQUIRE(reports.empty());
 }
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a mismatching range for range_is is reported",
+    "[C++14][matching][matchers][range_is]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is;
+    using trompeloeil::ge;
+    REQUIRE_CALL(m, vector(range_is(ge(1),3,5)));
+    m.vector({1,3, 4});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_is\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is \{ >= 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a mismatching range for range_is and a C-array is reported",
+    "[C++14][matching][matchers][range_is]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is;
+    int expected[] { 1, 3, 5 };
+    REQUIRE_CALL(m, vector(range_is(expected)));
+    m.vector({1,3, 4});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_is\(expected\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
 
 TEST_CASE_METHOD(
     Fixture,
@@ -3624,6 +3694,33 @@ Tried m\.vector\(range_is\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
     Fixture,
+    "C++14: a too short range for range_is and a C-array is reported",
+    "[C++14][matching][matchers][range_is]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is;
+    int expected[] { 1, 3, 5 };
+    REQUIRE_CALL(m, vector(range_is(expected)));
+    m.vector({1,3});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3 \}
+
+Tried m\.vector\(range_is\(expected\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
     "C++14: a too long range for range_is is reported",
     "[C++14][matching][matchers][range_is]"
 )
@@ -3644,6 +3741,33 @@ TEST_CASE_METHOD(
 
 Tried m\.vector\(range_is\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 range is \{ >= 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a too long range for range_is and a C-array is reported",
+    "[C++14][matching][matchers][range_is]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is;
+    int expected[] { 1, 3, 5 };
+    REQUIRE_CALL(m, vector(range_is(expected)));
+    m.vector({1,3,5,6});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 5, 6 \}
+
+Tried m\.vector\(range_is\(expected\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is \{ 1, 3, 5 \}):";
 
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
@@ -3681,6 +3805,21 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
+    "C++14: elements of a vector can be tested with matcher range_is_permutation and a C-array",
+    "[C++14][matching][matchers][range_is_permutation]"
+)
+{
+  {
+    range_mock m;
+    int values[] { 3,5,1 };
+    REQUIRE_CALL(m, vector(trompeloeil::range_is_permutation(values)));
+    m.vector({1,3,5});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
     "C++14: elements of a vector can be tested with matcher range_is_permutation and element matchers",
     "[C++14][matching][matchers][range_is_permutation]"
 )
@@ -3694,6 +3833,59 @@ TEST_CASE_METHOD(
     m.vector({3,1,5});
   }
   REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a mismatching range for range_is_permutation is reported",
+    "[C++14][matching][matchers][range_is_permutation]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is_permutation;
+    REQUIRE_CALL(m, vector(range_is_permutation(1, 5, 3)));
+    m.vector({1, 3, 4});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_is_permutation\(1, 5, 3\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is permutation of \{1, 5, 3 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a mismatcheng range for range_is_permutation and a C-array is reported",
+    "[C++14][matching][matchers][range_is_permutation]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is_permutation;
+    int values[] { 1, 3, 5};
+    REQUIRE_CALL(m, vector(range_is_permutation(values)));
+    m.vector({1,3,4});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_is_permutation\(values\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is permutation of \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
 }
 
 TEST_CASE_METHOD(
@@ -3718,6 +3910,33 @@ TEST_CASE_METHOD(
 
 Tried m\.vector\(range_is_permutation\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 range is permutation of \{ >= 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a too short range for range_is_permutation and a C-array is reported",
+    "[C++14][matching][matchers][range_is_permutation]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is_permutation;
+    int values[] { 1, 3, 5};
+    REQUIRE_CALL(m, vector(range_is_permutation(values)));
+    m.vector({1,3});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3 \}
+
+Tried m\.vector\(range_is_permutation\(values\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is permutation of \{ 1, 3, 5 \}):";
 
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
   }
@@ -3752,6 +3971,33 @@ Tried m\.vector\(range_is_permutation\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-
 
 TEST_CASE_METHOD(
     Fixture,
+    "C++14: a too long range for range_is_permutation and a C-array is reported",
+    "[C++14][matching][matchers][range_is_permutation]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_is_permutation;
+    int expected[]{1,3,5};
+    REQUIRE_CALL(m, vector(range_is_permutation(expected)));
+    m.vector({1,3,5,6});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 5, 6 \}
+
+Tried m\.vector\(range_is_permutation\(expected\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range is permutation of \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
     "C++14: range_is_permutation can be disambiguated with explicit type",
     "[C++14][matching][matchers][range_is_permutation]"
 )
@@ -3776,6 +4022,21 @@ TEST_CASE_METHOD(
   {
     range_mock m;
     REQUIRE_CALL(m, vector(trompeloeil::range_starts_with(1,3)));
+    m.vector({1,3,5});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: elements of a vector can be tested with matcher range_starts_with and a C-array",
+    "[C++14][matching][matchers][range_starts_with]"
+)
+{
+  {
+    range_mock m;
+    int first[] { 1,3 };
+    REQUIRE_CALL(m, vector(trompeloeil::range_starts_with(first)));
     m.vector({1,3,5});
   }
   REQUIRE(reports.empty());
@@ -3824,6 +4085,87 @@ Tried m\.vector\(range_starts_with\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
   }
 }
 
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a too short range for range_starts_with and a C-array is reported",
+    "[C++14][matching][matchers][range_starts_with]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_starts_with;
+    int tail[] { 1, 3, 5 };
+    REQUIRE_CALL(m, vector(range_starts_with(tail)));
+    m.vector({1,3});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3 \}
+
+Tried m\.vector\(range_starts_with\(tail\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range starts with \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a mismatching range for range_starts_with is reported",
+    "[C++14][matching][matchers][range_starts_with]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_starts_with;
+    using trompeloeil::ge;
+    REQUIRE_CALL(m, vector(range_starts_with(ge(1), 3, 5)));
+    m.vector({1, 3, 4});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_starts_with\(ge\(1\), 3, 5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range starts with \{ >= 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a mismatching range for range_starts_with and a C-array is reported",
+    "[C++14][matching][matchers][range_starts_with]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_starts_with;
+    int tail[] { 1, 3, 5 };
+    REQUIRE_CALL(m, vector(range_starts_with(tail)));
+    m.vector({1, 3, 4});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_starts_with\(tail\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range starts with \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
 
 TEST_CASE_METHOD(
     Fixture,
@@ -3850,6 +4192,21 @@ TEST_CASE_METHOD(
   {
     range_mock m;
     REQUIRE_CALL(m, vector(trompeloeil::range_ends_with(3,5)));
+    m.vector({1,3,5});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: elements of a vector can be tested with matcher range_ends_with and a C-array",
+    "[C++14][matching][matchers][range_ends_with]"
+)
+{
+  {
+    range_mock m;
+    int tail[]{3,5};
+    REQUIRE_CALL(m, vector(trompeloeil::range_ends_with(tail)));
     m.vector({1,3,5});
   }
   REQUIRE(reports.empty());
@@ -3898,6 +4255,86 @@ Tried m\.vector\(range_ends_with\(ge\(1\),3,5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   }
 }
 
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: a too short range for range_ends_with and a C-array is reported",
+    "[C++14][matching][matchers][range_ends_with]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_ends_with;
+    int tail[] { 1,3,5};
+    REQUIRE_CALL(m, vector(range_ends_with(tail)));
+    m.vector({1,3});
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3 \}
+
+Tried m\.vector\(range_ends_with\(tail\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range ends with \{ 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: mismatching range for range_ends_with is reported",
+    "[C++14][matching][matchers][range_ends_with]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_ends_with;
+    using trompeloeil::ge;
+    REQUIRE_CALL(m, vector(range_ends_with(ge(1), 3, 5)));
+    m.vector({ 1, 3, 4 });
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 4 \}
+
+Tried m\.vector\(range_ends_with\(ge\(1\), 3, 5\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range ends with \{ >= 1, 3, 5 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: mismatching range for range_ends_with and a C-array is reported",
+    "[C++14][matching][matchers][range_ends_with]"
+)
+{
+  try {
+    range_mock m;
+    using trompeloeil::range_ends_with;
+    int tail[] { 1, 3, 4};
+    REQUIRE_CALL(m, vector(range_ends_with(tail)));
+    m.vector({1, 3, 5 });
+    FAIL("didn't throw");
+  }
+  catch(reported) {
+    REQUIRE(reports.size() == 1U);
+    INFO("report=" << reports.front().msg);
+    auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
+  param  _1 == \{ 1, 3, 5 \}
+
+Tried m\.vector\(range_ends_with\(tail\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+  Expected  _1 range ends with \{ 1, 3, 4 \}):";
+
+    REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
+  }
+}
 
 TEST_CASE_METHOD(
     Fixture,
@@ -3925,6 +4362,21 @@ TEST_CASE_METHOD(
   {
     range_mock m;
     REQUIRE_CALL(m, vector(trompeloeil::range_has(1,5)));
+    m.vector({1,3,5});
+  }
+  REQUIRE(reports.empty());
+}
+
+TEST_CASE_METHOD(
+    Fixture,
+    "C++14: elements of a vector can be tested with matcher range_has and a C-array",
+    "[C++14][matching][matchers][range_has]"
+)
+{
+  {
+    range_mock m;
+    int values[] { 5, 1 };
+    REQUIRE_CALL(m, vector(trompeloeil::range_has(values)));
     m.vector({1,3,5});
   }
   REQUIRE(reports.empty());
