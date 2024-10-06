@@ -1090,7 +1090,7 @@ void test()
 Instead of using exact values of parameters to match calls with, *Trompeloeil*
 provides a set of [matchers](reference.md/#matcher). Range matchers are:
 
-- [**`range_has(`** *matchers* **`)`**](reference.md/#range_has) matches when all the expected values are present in the range
+- [**`range_includes(`** *matchers* **`)`**](reference.md/#range_includes) matches when all the expected values are present in the range
 - [**`range_is(`** *matchers* **`)`**](reference.md/#range_is) matches values of each element in the range with expected values
 - [**`range_is_permutation(`** *matchers* **`)`**](reference.md/#range_is_permutation) matches some permutation of the values in the range matches all expected values
 - [**`range_starts_with(`** *matchers* **`)`**](reference.md/#range_starts_with) matches values of the first elements in the range with expected values

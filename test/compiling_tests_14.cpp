@@ -4355,13 +4355,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: elements of a vector can be tested with matcher range_has",
-    "[C++14][matching][matchers][range_has]"
+    "C++14: elements of a vector can be tested with matcher range_includes",
+    "[C++14][matching][matchers][range_includes]"
 )
 {
   {
     range_mock m;
-    REQUIRE_CALL(m, vector(trompeloeil::range_has(1,5)));
+    REQUIRE_CALL(m, vector(trompeloeil::range_includes(1,5)));
     m.vector({1,3,5});
   }
   REQUIRE(reports.empty());
@@ -4369,14 +4369,14 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: elements of a vector can be tested with matcher range_has and a C-array",
-    "[C++14][matching][matchers][range_has]"
+    "C++14: elements of a vector can be tested with matcher range_includes and a C-array",
+    "[C++14][matching][matchers][range_includes]"
 )
 {
   {
     range_mock m;
     int values[] { 5, 1 };
-    REQUIRE_CALL(m, vector(trompeloeil::range_has(values)));
+    REQUIRE_CALL(m, vector(trompeloeil::range_includes(values)));
     m.vector({1,3,5});
   }
   REQUIRE(reports.empty());
@@ -4384,15 +4384,15 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: elements of a vector can be tested with matcher range_has and element matchers",
-    "[C++14][matching][matchers][range_has]"
+    "C++14: elements of a vector can be tested with matcher range_includes and element matchers",
+    "[C++14][matching][matchers][range_includes]"
 )
 {
   {
     range_mock m;
     using trompeloeil::eq;
     using trompeloeil::gt;
-    REQUIRE_CALL(m, vector(trompeloeil::range_has(eq(1),gt(4))));
+    REQUIRE_CALL(m, vector(trompeloeil::range_includes(eq(1),gt(4))));
     m.vector({1,3,5});
   }
   REQUIRE(reports.empty());
@@ -4400,13 +4400,13 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: mismatching elements of a vector tested with matcher range_has is reported",
-    "[C++14][matching][matchers][range_has]"
+    "C++14: mismatching elements of a vector tested with matcher range_includes is reported",
+    "[C++14][matching][matchers][range_includes]"
 )
 {
   try {
     range_mock m;
-    REQUIRE_CALL(m, vector(trompeloeil::range_has(1, 7)));
+    REQUIRE_CALL(m, vector(trompeloeil::range_includes(1, 7)));
     m.vector({1,3,5});
     FAIL("didn't throw");
   }
@@ -4417,7 +4417,7 @@ TEST_CASE_METHOD(
     auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
   param  _1 == \{ 1, 3, 5 \}
 
-Tried m\.vector\(trompeloeil::range_has\(1, 7\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+Tried m\.vector\(trompeloeil::range_includes\(1, 7\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 range has \{1, 7 \}):";
 
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
@@ -4427,14 +4427,14 @@ Tried m\.vector\(trompeloeil::range_has\(1, 7\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: mismatching elements of a vector tested with matcher range_has and a C-array is reported",
-    "[C++14][matching][matchers][range_has]"
+    "C++14: mismatching elements of a vector tested with matcher range_includes and a C-array is reported",
+    "[C++14][matching][matchers][range_includes]"
 )
 {
   try {
     range_mock m;
     int values[] { 5, 2 };
-    REQUIRE_CALL(m, vector(trompeloeil::range_has(values)));
+    REQUIRE_CALL(m, vector(trompeloeil::range_includes(values)));
     m.vector({1,3,5});
     FAIL("didn't throw");
   }
@@ -4445,7 +4445,7 @@ TEST_CASE_METHOD(
     auto re = R":(No match for call of vector with signature void\(const std::vector<int>&\) with\.
   param  _1 == \{ 1, 3, 5 \}
 
-Tried m\.vector\(trompeloeil::range_has\(values\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
+Tried m\.vector\(trompeloeil::range_includes\(values\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*.*
   Expected  _1 range has \{ 5, 2 \}):";
 
     REQUIRE(std::regex_search(reports.front().msg, std::regex(re)));
@@ -4456,15 +4456,15 @@ Tried m\.vector\(trompeloeil::range_has\(values\)\) at [A-Za-z0-9_ ./:\]*:[0-9]*
 
 TEST_CASE_METHOD(
     Fixture,
-    "C++14: range_has can be disambiguated with explicit type",
-    "[C++14][matching][matchers][range_has]"
+    "C++14: range_includes can be disambiguated with explicit type",
+    "[C++14][matching][matchers][range_includes]"
 )
 {
   {
     range_mock m;
-    using trompeloeil::range_has;
+    using trompeloeil::range_includes;
     using trompeloeil::gt;
-    REQUIRE_CALL(m, overloaded(range_has<std::vector<int>>(gt(3),1)));
+    REQUIRE_CALL(m, overloaded(range_includes<std::vector<int>>(gt(3),1)));
     m.overloaded(std::vector<int>{1,3,5});
   }
   REQUIRE(reports.empty());
