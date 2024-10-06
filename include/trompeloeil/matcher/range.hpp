@@ -459,8 +459,7 @@ R range_includes(C&&  c)
 
 namespace impl
 {
-struct is_all_checker
-{
+struct range_all_of_checker {
   template <typename R, typename C>
   bool operator()(const R& range, const C& comp) const
   {
@@ -476,8 +475,7 @@ struct is_all_checker
   }
 };
 
-struct is_all_printer
-{
+struct range_all_of_printer {
   template <typename C>
   void operator()(std::ostream& os, const C& comp) const
   {
@@ -491,21 +489,21 @@ template <typename Type = trompeloeil::wildcard,
     typename C,
           typename R = make_matcher_return<
           Type,
-          impl::is_all_checker,
-          impl::is_all_printer,
+          impl::range_all_of_checker,
+          impl::range_all_of_printer,
           C>
           >
-R range_is_all(C&& compare)
+R range_all_of(C&& compare)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::is_all_checker{},
-      impl::is_all_printer{},
+      impl::range_all_of_checker{},
+      impl::range_all_of_printer{},
       std::forward<C>(compare));
 }
 
 namespace impl
 {
-struct is_none_checker
+struct range_none_of_checker
 {
   template <typename R, typename C>
   bool operator()(const R& range, const C& comp) const
@@ -521,8 +519,7 @@ struct is_none_checker
   }
 };
 
-struct is_none_printer
-{
+struct range_none_of_printer {
   template <typename C>
   void operator()(std::ostream& os, const C& comp) const
   {
@@ -537,21 +534,21 @@ template <
     typename C,
     typename R = make_matcher_return<
         Type,
-        impl::is_none_checker,
-        impl::is_none_printer,
+        impl::range_none_of_checker,
+        impl::range_none_of_printer,
         C>>
-R range_is_none(C&& compare)
+R range_none_of(C&& compare)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::is_none_checker{},
-      impl::is_none_printer{},
+      impl::range_none_of_checker{},
+      impl::range_none_of_printer{},
       std::forward<C>(compare));
 }
 
 
 namespace impl
 {
-struct is_any_checker
+struct range_any_of_checker
 {
   template <typename R, typename C>
   bool operator()(const R& range, const C& comp) const
@@ -567,7 +564,7 @@ struct is_any_checker
   }
 };
 
-struct is_any_printer
+struct range_any_of_printer
 {
   template <typename C>
   void operator()(std::ostream& os, const C& comp) const
@@ -583,20 +580,20 @@ template <
     typename C,
     typename R = make_matcher_return<
         Type,
-        impl::is_any_checker,
-        impl::is_any_printer,
+        impl::range_any_of_checker,
+        impl::range_any_of_printer,
         C>>
-R range_is_any(C&& compare)
+R range_any_of(C&& compare)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::is_any_checker{},
-      impl::is_any_printer{},
+      impl::range_any_of_checker{},
+      impl::range_any_of_printer{},
       std::forward<C>(compare));
 }
 
 namespace impl
 {
-struct starts_with_checker
+struct starts_with_elements_checker
 {
   template <typename R, typename ... Es>
   bool operator()(const R& range, const Es& ... elements) const
@@ -618,7 +615,7 @@ struct starts_with_checker
   }
 };
 
-struct starts_with_printer
+struct starts_with_elements_printer
 {
   template <typename ... Es>
   void operator()(std::ostream& os, const Es& ... elements) const
@@ -646,14 +643,14 @@ template <
     typename = typename std::enable_if<!impl::disjunction<impl::is_range<Es>...>::value>::type,
     typename R = make_matcher_return<
         Type,
-        impl::starts_with_checker,
-        impl::starts_with_printer,
+        impl::starts_with_elements_checker,
+        impl::starts_with_elements_printer,
         Es...>>
 R range_starts_with(Es&& ... es)
 {
   return trompeloeil::make_matcher<Type>(
-      impl::starts_with_checker{},
-      impl::starts_with_printer{},
+      impl::starts_with_elements_checker{},
+      impl::starts_with_elements_printer{},
       std::forward<Es>(es)...);
 }
 

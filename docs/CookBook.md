@@ -1095,9 +1095,9 @@ provides a set of [matchers](reference.md/#matcher). Range matchers are:
 - [**`range_is_permutation(`** *matchers* **`)`**](reference.md/#range_is_permutation) matches some permutation of the values in the range matches all expected values
 - [**`range_starts_with(`** *matchers* **`)`**](reference.md/#range_starts_with) matches values of the first elements in the range with expected values
 - [**`range_ends_with(`** *matchers* **`)`**](reference.md/#range_ends_with) matches values of the last elements in the range with expected values
-- [**`range_is_all(`** *matcher* **`)`**](reference.md/#range_is_all) matches when every element in the range matches value
-- [**`range_is_any(`** *matcher* **`)`**](reference.md/#range_is_any) matches when at least one element in the range matches value
-- [**`range_is_none(`** *matcher* **`)`**](reference.md/#range_is_none) matches when no element in the range matches value
+- [**`range_all_of(`** *matcher* **`)`**](reference.md/#range_all_of) matches when every element in the range matches value
+- [**`range_any_of(`** *matcher* **`)`**](reference.md/#range_any_of) matches when at least one element in the range matches value
+- [**`range_none_of(`** *matcher* **`)`**](reference.md/#range_none_of) matches when no element in the range matches value
 
 By default, the matchers are [*duck typed*](
 https://en.wikipedia.org/wiki/Duck_typing
@@ -1119,7 +1119,7 @@ void test()
 {
   Mock m;
   ALLOW_CALL(m, vfunc(trompeloeil::range_starts_with(1,2,3)));
-  REQUIRE_CALL(m, ofunc(trompeloeil::range_is_all<std::vector<int>>(trompeloeil::ge(0)))); // const std::vector<int>& version once
+  REQUIRE_CALL(m, ofunc(trompeloeil::range_all_of<std::vector<int>>(trompeloeil::ge(0)))); // const std::vector<int>& version once
   func(&m);
   // expectations must be met before end of scope
 }

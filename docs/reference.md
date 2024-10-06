@@ -21,9 +21,9 @@
     - [**`re(`** *string* **`)`**](#re)
     - [**`range_includes(`** *values **`)`**](#range_includes)
     - [**`range_is(`** *values* **`)`**](#range_is)
-    - [**`range_is_all(`** *matcher* **`)`**](#range_is_all)
-    - [**`range_is_any(`** *matcher* **`)`**](#range_is_any)
-    - [**`range_is_none(`** *matcher* **`)`**](#range_is_none)
+    - [**`range_all_of(`** *matcher* **`)`**](#range_all_of)
+    - [**`range_any_of(`** *matcher* **`)`**](#range_any_of)
+    - [**`range_none_of(`** *matcher* **`)`**](#range_none_of)
     - [**`range_is_permutation(`** *values* **`)`**](#range_is_permutation)
     - [**`range_starts_with(`** *values* **`)`**](#range_starts_with)
     - [**`range_ends_with(`** *values* **`)`**](#range_ends_with)
@@ -244,9 +244,9 @@ matchers
 - [**`re(`** *string* **`)`**](#re)
 - [**`range_includes(`** *values* **`)`**](#range_includes)
 - [**`range_is(`** *values* **`)`**](#range_is)
-- [**`range_is_all(`** *matcher* **`)`**](#range_is_all)
-- [**`range_is_any(`** *matcher* **`)`**](#range_is_any)
-- [**`range_is_none(`** *matcher* **`)`**](#range_is_none)
+- [**`range_all_of(`** *matcher* **`)`**](#range_all_of)
+- [**`range_any_of(`** *matcher* **`)`**](#range_any_of)
+- [**`range_none_of(`** *matcher* **`)`**](#range_none_of)
 - [**`range_is_permutation(`** *values* **`)`**](#range_is_permutation)
 - [**`range_starts_with(`** *values* **`)`**](#range_starts_with)
 - [**`range_ends_with(`** *values* **`)`**](#range_ends_with)
@@ -953,7 +953,7 @@ TEST(atest)
 
 The expectation only matches calls to `mock_obj.vfunc()` with a vector holding exactly { 1, 2, 3 }.
 
-#### <A name="range_is_all"/>**`range_is_all(`** *matcher* **`)`**
+#### <A name="range_all_of"/>**`range_all_of(`** *matcher* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match each
 element in a range to a matcher or value. By default it can match any
@@ -974,13 +974,13 @@ public:
 };
 
 using trompeloeil::gt;
-using trompeloeil::range_is_all;
+using trompeloeil::range_all_of;
 
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, vfunc(range_is_all(gt(0))));
-  REQUIRE_CALL(mock_obj, ofunc(range_is_all<std::list<int>>(gt(0))));
+  ALLOW_CALL(mock_obj, vfunc(range_all_of(gt(0))));
+  REQUIRE_CALL(mock_obj, ofunc(range_all_of<std::list<int>>(gt(0))));
   test_function(&mock_obj);
 }
 ```
@@ -993,10 +993,10 @@ renders a violation report since no [expectation](#expectation) matches.
 The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with values `> 0`.
 
-The matcher `range_is_all` always matches an empty range.
+The matcher `range_all_of` always matches an empty range.
 
 
-#### <A name="range_is_any"/>**`range_is_any(`** *matcher* **`)`**
+#### <A name="range_any_of"/>**`range_any_of(`** *matcher* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match each
 element in a range to a matcher or value. By default it can match any
@@ -1017,13 +1017,13 @@ public:
 };
 
 using trompeloeil::gt;
-using trompeloeil::range_is_any;
+using trompeloeil::range_any_of;
 
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, vfunc(range_is_any(gt(0))));
-  REQUIRE_CALL(mock_obj, ofunc(range_is_any<std::list<int>>(gt(0))));
+  ALLOW_CALL(mock_obj, vfunc(range_any_of(gt(0))));
+  REQUIRE_CALL(mock_obj, ofunc(range_any_of<std::list<int>>(gt(0))));
   test_function(&mock_obj);
 }
 ```
@@ -1036,9 +1036,9 @@ renders a violation report since no [expectation](#expectation) matches.
 The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` with at least one value `> 0`.
 
-The matcher `range_is_any` does never match an empty range.
+The matcher `range_any_of` does never match an empty range.
 
-#### <A name="range_is_none"/>**`range_is_none(`** *matcher* **`)`**
+#### <A name="range_none_of"/>**`range_none_of(`** *matcher* **`)`**
 
 Used in the parameter list of an [expectation](#expectation) to match each
 element in a range to a matcher or value. By default it can match any
@@ -1059,13 +1059,13 @@ public:
 };
 
 using trompeloeil::lt;
-using trompeloeil::range_is_none;
+using trompeloeil::range_none_of;
 
 TEST(atest)
 {
   C mock_obj;
-  ALLOW_CALL(mock_obj, vfunc(range_is_none(0)));
-  REQUIRE_CALL(mock_obj, ofunc(range_is_none<std::list<int>>(lt(0))));
+  ALLOW_CALL(mock_obj, vfunc(range_none_of(0)));
+  REQUIRE_CALL(mock_obj, ofunc(range_none_of<std::list<int>>(lt(0))));
   test_function(&mock_obj);
 }
 ```
@@ -1078,7 +1078,7 @@ no [expectation](#expectation) matches.
 The second [expectation](#expectation) matches calls to
 `mock_obj.ofunc(const std::list<int>&)` where none of the values are `< 0`.
 
-The matcher `range_is_nonel` always matches an empty range.
+The matcher `range_none_ofl` always matches an empty range.
 
 
 #### <A name="range_is_permutation"/>**`range_is_permutation(`** *matchers* **`)`**
