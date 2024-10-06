@@ -724,10 +724,6 @@ struct ends_with_checker
     bool all_true = true;
     const auto match = [&](const auto &compare)
     {
-      if (it == e)
-      {
-        return false;
-      }
       const auto &v = *it++;
       return trompeloeil::param_matches(compare, std::ref(v));
     };
