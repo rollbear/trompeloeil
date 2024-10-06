@@ -516,6 +516,7 @@ namespace trompeloeil {
     mini_span(T* address, size_t size) noexcept : begin_(address), end_(address + size) {}
     T* begin() const noexcept { return begin_; }
     T* end() const noexcept { return end_; }
+    size_t size() const { return static_cast<size_t>(end_ - begin_); }
   private:
     T* begin_;
     T* end_;
