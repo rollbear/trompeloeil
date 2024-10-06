@@ -1,3 +1,7 @@
+	* Added .RT_TIMES() to exceptations, which works like .TIMES()
+	  but where the limits are only known at runtime. Thank you
+	  Dominic Koepke for submitting the implementation.
+
 	* Added several new composable matchers.
 
 	  range matchers range_includes(*elements*), range_is(*elements*),
