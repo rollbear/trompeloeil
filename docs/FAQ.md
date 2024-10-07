@@ -22,6 +22,8 @@
 - Q. [How do I use *Trompeloeil* in a CMake project?](#cmake)
 - Q. [Why are mock objects not move constructible?](#move_constructible)
 - Q. [Why can't I mock a function that returns a template?](#return_template)
+- Q. [Why doesn't **`MAKE_MOCK(...)`** work with templated parameter types?](#template_args)
+- Q. [Why doesn't **`MAKE_MOCK(...)`** work with nullary functions?](#nullary_functions)
 - Q. [Can I mock a `noexcept` function?](#mock_noexcept)
 - Q. [What does it mean that an expectation is "saturated"?](#saturated_expectation)
 - Q. [Can I mock a coroutine functionp?](#coroutines)
@@ -312,10 +314,11 @@ idea. If you can provide a pull request, so much the better.
 
 ## <A name="why_param_count"/> Q. Why the need to provide the number of parameters in [**`MAKE_MOCKn()`**](reference.md/#MAKE_MOCKn) when all information is in the signature?
 
-**A.** If you can figure out a way to infer the information necessary to
-generate a mocked implementation without an explicit parameter count,
-please [open an issue](https://github.com/rollbear/trompeloeil/issues)
-discussing the idea. If you can provide a pull request, so much the better.
+**A.** When using the trailing return type syntax for the function signatures, you can
+use the macros [**`MAKE_MOCK(...)`**](reference.md#MAKE_MOCK),
+[**`MAKE_CONST_MOCK(...)`**](reference.md#MAKE_CONST_MOCK) and
+[**`MAKE_STDMETHODCALL_MOCK(...)`**](reference.md#MAKE_STDMETHOD_MOCK) and let the
+preprocessor infer the number of parameters for you.
 
 ## <A name="why_cpp14"/> Q. Why *`C++14`* and not *`C++11`* or *`C++03`* that is more widely spread?
 
@@ -693,16 +696,7 @@ work poorly with templates. It sees the parameters to the
 macro above as `make`, `std::pair<int`, followed by `int>(int,int)`, which
 of course is nonsense and causes compilation errors.
 
-One easy way around this is to put the signature into parentheses:
-
-```Cpp
-struct M
-{
-  MAKE_MOCK2(make, (std::pair<int,int>(int,int)));
-};
-```
-
-Or if you prefer the legacy way, create an alias:
+One easy way around this is to create an alias:
 
 ```Cpp
 using pair_int_int = std::pair<int,int>;
@@ -710,6 +704,7 @@ using pair_int_int = std::pair<int,int>;
 struct M
 {
   MAKE_MOCK2(make, pair_int_int(int,int));
+  MAKE_MOCK(make_trail, auto (int, int)->pair_int_int);
 };
 ```
 
@@ -719,6 +714,59 @@ Another way, if you're mocking an interface, is to use
 [**`trompeloeil::mock_interface<T>`**](reference.md/#mock_interface)
 and [**`IMPLEMENT_MOCKn`**](reference.md/#IMPLEMENT_MOCKn). See
 [CookBook](CookBook.md/#creating_mock_classes) for an intro.
+
+### <A name="template_args"/> Q. Why doesn't **`MAKE_MOCK(...)`** work with templated parameter types?
+
+Like this:
+
+```Cpp
+struct M
+{
+  MAKE_MOCK(make, auto (std::pair<int,int>)->int);
+};
+```
+
+**A.** You can, but there is a limitation in the preprocessor, that makes it
+work poorly with templates. The expansion of the
+[**`MAKE_MOCK()`**](reference.md/#MAKE_MOCK) macro sees the parameters to the
+function as `std::pair<int`, followed by `int>`, which  of course is nonsense
+and  causes compilation errors. The same problem applies to the return type.
+
+A way around this is to create an alias:
+
+```Cpp
+using pair_int_int = std::pair<int,int>;
+
+struct M
+{
+  MAKE_MOCK(make, auto (pair_int_int) -> int);
+};
+```
+
+Another way is to resort to [**`MAKE_MOCKn(...)`**](reference.md/#MAKE_MOCKn)
+and be explicit about the function arity.
+
+### <A name="nullary_functions"/> Q. Why doesn't **`MAKE_MOCK(...)`** work with nullary functions?
+
+Like this:
+
+```Cpp
+struct M
+{
+  MAKE_MOCK(make, auto () -> int);
+};
+```
+
+**A.** It does, but compilers disgagree a bit on it.
+
+* MSVC handles nullary functions when compiling with `/Zc:preprocessor`
+  with MSVC 19.40 (VS 17.10) or later.
+
+* Gcc and Clang always handles nullary functions when compiling with
+  C++20 or later, and when enabling a gcc extension by defining the macro
+  `TROMPELOEIL_HAS_GCC_PP` before `#include`:ing the trompeloeil headers, and
+  compiling with `-std=gnu++11`, `-std=gnu++14` or `-std=gnu++17`.
+
 
 ### <A name="mock_noexcept"/> Q. Can I mock a `noexcept` function?
 
