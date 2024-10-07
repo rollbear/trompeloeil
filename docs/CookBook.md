@@ -940,8 +940,18 @@ void a_test()
 
 ### <A name="mocking_return_template"/> Mocking functions which return a template
 
-To use template as return type you have to put the signature into parentheses
-like this:
+To use template as return type, you need to introduce an alias for the return type instead:
+
+```Cpp
+using pair_ints = std::pair<int,int>;
+
+struct M
+{
+    MAKE_MOCK(make, auto (int, int)->pair_ints);
+};
+```
+If you use the [**`MAKE_MOCKn()`**](reference.md/#MAKE_MOCKn) macros, you can get away
+with enclosing the return type in parentheses, like this:
 
 ```Cpp
 struct M

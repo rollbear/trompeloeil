@@ -696,16 +696,7 @@ work poorly with templates. It sees the parameters to the
 macro above as `make`, `std::pair<int`, followed by `int>(int,int)`, which
 of course is nonsense and causes compilation errors.
 
-One easy way around this is to put the signature into parentheses:
-
-```Cpp
-struct M
-{
-  MAKE_MOCK2(make, (std::pair<int,int>(int,int)));
-};
-```
-
-Or if you prefer the legacy way, create an alias:
+One easy way around this is to create an alias:
 
 ```Cpp
 using pair_int_int = std::pair<int,int>;
@@ -713,6 +704,7 @@ using pair_int_int = std::pair<int,int>;
 struct M
 {
   MAKE_MOCK2(make, pair_int_int(int,int));
+  MAKE_MOCK(make_trail, auto (int, int)->pair_int_int);
 };
 ```
 
@@ -738,7 +730,7 @@ struct M
 work poorly with templates. The expansion of the
 [**`MAKE_MOCK()`**](reference.md/#MAKE_MOCK) macro sees the parameters to the
 function as `std::pair<int`, followed by `int>`, which  of course is nonsense
-and  causes compilation errors.
+and  causes compilation errors. The same problem applies to the return type.
 
 A way around this is to create an alias:
 
