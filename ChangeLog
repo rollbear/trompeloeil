@@ -1,3 +1,5 @@
+v49 2024-10-07
+
 	* Added mocking macros that infers function arity from a trailing return
 	  type syntax signature.
 
