@@ -25,6 +25,11 @@
 #include "test_reporter.hpp"
 #include <optional>
 
+#include <version>
+#ifdef __cpp_lib_generator
+#include <generator>
+#endif
+
 using trompeloeil::_;
 
 namespace {
@@ -35,6 +40,10 @@ namespace {
     MAKE_MOCK0 (voidret, coro::task<void>());
     MAKE_MOCK1 (unique, coro::task<iptr>(iptr));
     MAKE_MOCK0 (gen, coro::generator<int>());
+
+#ifdef __cpp_lib_generator
+    MAKE_MOCK0 (stdgen, std::generator<int>());
+#endif // __cpp_lib_generator
   };
 }
 
@@ -198,4 +207,46 @@ TEST_CASE_METHOD(
     REQUIRE(v == 3);
     REQUIRE(reports.empty());
 }
+
+#ifdef __cpp_lib_generator
+TEST_CASE_METHOD(
+  Fixture,
+  "CO_YIELD with std::generator",
+  "[coro]")
+{
+  co_mock m;
+  REQUIRE_CALL(m, stdgen())
+      .CO_YIELD(5)
+      .CO_YIELD(8)
+      .CO_YIELD(3)
+      .CO_YIELD(0)
+      .CO_RETURN();
+
+  auto gen = m.stdgen();
+
+  SECTION("as iterator")
+  {
+    auto it = std::ranges::begin(gen);
+    REQUIRE(*it == 5);
+    ++it;
+    REQUIRE(it != std::ranges::end(gen));
+    REQUIRE(*it == 8);
+    ++it;
+    REQUIRE(it != std::ranges::end(gen));
+    REQUIRE(*it == 3);
+    ++it;
+    REQUIRE(it != std::ranges::end(gen));
+    REQUIRE(*it == 0);
+    ++it;
+    REQUIRE(it == std::ranges::end(gen));
+  }
+
+  SECTION("as range")
+  {
+    REQUIRE(std::ranges::equal(gen, std::array{5, 8, 3, 0}));
+  }
+
+  REQUIRE(reports.empty());
+}
+#endif // __cpp_lib_generator
 #endif
