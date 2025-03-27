@@ -122,13 +122,15 @@
 #define TROMPELOEIL_NOT_IMPLEMENTED(...) __VA_ARGS__
 #endif
 
-#if defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL==0
-#  if _MSC_VER >= 1940
-#    define TROMPELOEIL_HAS_VA_OPT 1
-#  else
-#    define TROMPELOEIL_HAS_VA_OPT 0
+#if defined(_MSVC_TRADITIONAL)
+#  if _MSVC_TRADITIONAL==0
+#    if (_MSC_VER >= 1940) || ((_MSVC_VER >= 1926) &&  (_MSVC_LANG > 201703L))
+#      define TROMPELOEIL_HAS_VA_OPT 1
+#    else
+#      define TROMPELOEIL_HAS_VA_OPT 0
+#    endif
+#    define TROMPELOEIL_MSVC_PREPROCESSOR 0
 #  endif
-#  define TROMPELOEIL_MSVC_PREPROCESSOR 0
 #elif __cplusplus >= 202002L
 #  define TROMPELOEIL_HAS_VA_OPT 1
 #else
