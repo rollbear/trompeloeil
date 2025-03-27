@@ -1676,6 +1676,13 @@ jobs:
             cxx_standard: 20,
           }
           - {
+            name: "Windows MSVC 2022 C++20 __cppstd",
+            os: windows-2022,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 20,
+            cxx_flags: "/Zc:__cplusplus"
+          }
+          - {
             name: "Windows MSVC 2022 C++20 preprocessor",
             os: windows-2022,
             cc: "cl", cxx: "cl",
@@ -1728,6 +1735,13 @@ jobs:
             os: windows-2019,
             cc: "cl", cxx: "cl",
             cxx_standard: 20,
+          }
+          - {
+            name: "Windows MSVC 2019 C++20 __cppstd",
+            os: windows-2019,
+            cc: "cl", cxx: "cl",
+            cxx_standard: 20,
+            cxx_flags: "/Zc:__cplusplus"
           }
           - {
             name: "Windows MSVC 2019 C++20 preprocessor",
