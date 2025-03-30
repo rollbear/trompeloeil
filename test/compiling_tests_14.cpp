@@ -526,7 +526,13 @@ and has.* obj\.func\(_, _\).* as first required):";
     INFO(first.file << ':' << first.line << "\n" << first.msg);
   }
 }
-// SIDE_EFFECT and LR_SIDE_EFFECT tests
+
+struct mem_fixture : Fixture
+{
+  int member_variable = 1;
+};
+
+// SIDE_EFFECT, LR_SIDE_EFFECT and MEM_SIDE_EFFECT tests
 
 TEST_CASE_METHOD(
   Fixture,
@@ -583,6 +589,24 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
   REQUIRE(s == "3_3_");
 }
+
+#if TROMPELOEIL_CPLUSPLUS >= 202003L
+
+TEST_CASE_METHOD(
+    mem_fixture,
+    "C++20: MEM_SIDE_EFFECT has access to member variables",
+    "[C++20][side_effects]")
+{
+  mock_c obj;
+  REQUIRE_CALL(obj, getter(ANY(int)))
+  .MEM_SIDE_EFFECT(member_variable = _1)
+  .RETURN(_1);
+
+  obj.getter(3);
+  REQUIRE(member_variable == 3);
+}
+
+#endif
 
 // RETURN and LR_RETURN tests
 
@@ -804,6 +828,24 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+#if TROMPELOEIL_CPLUSPLUS >= 202003L
+
+TEST_CASE_METHOD(
+    mem_fixture,
+    "C++20: MEM_RETURN has access to member variables",
+    "[C++20][side_effects]")
+{
+  mock_c obj;
+  REQUIRE_CALL(obj, getter(ANY(int)))
+      .MEM_RETURN(member_variable + _1);
+
+  auto x = obj.getter(3);
+  REQUIRE(x == 4);
+}
+
+#endif
+
+
 TEST_CASE_METHOD(
   Fixture,
   "C++14: THROW access copy of local object",
@@ -892,6 +934,30 @@ TEST_CASE_METHOD(
   REQUIRE(s == "8");
 }
 
+#if TROMPELOEIL_CPLUSPLUS >= 202003L
+
+TEST_CASE_METHOD(
+    mem_fixture,
+    "C++20: MEM_THROW has access to member variables",
+    "[C++20][side_effects]")
+{
+  mock_c obj;
+  REQUIRE_CALL(obj, getter(ANY(int)))
+      .MEM_THROW(member_variable + _1);
+
+  try {
+    obj.getter(3);
+    FAIL("didn't thriw");
+  }
+  catch (int x)
+  {
+    REQUIRE(x == 4);
+  }
+}
+
+#endif
+
+
 // WITH and LR_WITH tests
 
 TEST_CASE_METHOD(
@@ -968,6 +1034,30 @@ TEST_CASE_METHOD(
   REQUIRE(reports.empty());
 }
 
+#if TROMPELOEIL_CPLUSPLUS >= 202003L
+
+TEST_CASE_METHOD(
+    mem_fixture,
+    "C++20: MEM_WIITH has access to member variables",
+    "[C++20][side_effects]")
+{
+  mock_c obj;
+  {
+    REQUIRE_CALL(obj, getter(ANY(int)))
+        .MEM_WITH(member_variable == _1)
+        .RETURN(0);
+    REQUIRE(obj.getter(1) == 0);
+  }
+  {
+    REQUIRE_CALL(obj, getter(ANY(int)))
+        .MEM_WITH(member_variable > _1)
+        .RETURN(1);
+
+    REQUIRE(obj.getter(0) == 1);
+  }
+}
+
+#endif
 
 TEST_CASE_METHOD(
   Fixture,

@@ -269,7 +269,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
 #define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
   template action<trompeloeil::with>(                                          \
     arg_s,                                                                     \
-    [capture]                                                                  \
+    [TROMPELOEIL_IDENTITY capture]                                             \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t const& trompeloeil_x)\
     {                                                                          \
       auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                      \
@@ -294,7 +294,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
   template action<trompeloeil::sideeffect>(                                    \
-    [capture]                                                                  \
+    [TROMPELOEIL_IDENTITY capture]                                             \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
     {                                                                          \
       auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                      \
@@ -319,7 +319,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
   template action<trompeloeil::handle_return>(                                 \
-    [capture]                                                                  \
+    [TROMPELOEIL_IDENTITY capture]                                             \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
       -> typename trompeloeil_e_t::trompeloeil_return_of_t                     \
     {                                                                          \
@@ -344,7 +344,7 @@ using index_sequence_for = make_index_sequence<sizeof...(T)>;
     })
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
   template action<trompeloeil::handle_throw>(                                  \
-    [capture]                                                                  \
+    [TROMPELOEIL_IDENTITY capture]                                             \
     (typename trompeloeil_e_t::trompeloeil_call_params_type_t& trompeloeil_x)  \
     {                                                                          \
       auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                      \

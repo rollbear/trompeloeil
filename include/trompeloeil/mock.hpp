@@ -4089,15 +4089,17 @@ template <typename T>
 #endif /* (TROMPELOEIL_CPLUSPLUS > 201103L) */
 
 
-#define TROMPELOEIL_WITH(...)    TROMPELOEIL_WITH_(=,#__VA_ARGS__, __VA_ARGS__)
-#define TROMPELOEIL_LR_WITH(...) TROMPELOEIL_WITH_(&,#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_WITH(...)     TROMPELOEIL_WITH_((=),#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_LR_WITH(...)  TROMPELOEIL_WITH_((&),#__VA_ARGS__, __VA_ARGS__)
+#define TROMPELOEIL_MEM_WITH(...) TROMPELOEIL_WITH_((&,this),#__VA_ARGS__, __VA_ARGS__)
 
 
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_WITH_(capture, arg_s, ...)                                 \
-  template action<trompeloeil::with>(arg_s,                                    \
-                                     [capture](auto const& trompeloeil_x) {    \
+  template action<trompeloeil::with>(                                          \
+      arg_s,                                                                   \
+      [TROMPELOEIL_IDENTITY capture](auto const& trompeloeil_x) {              \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4120,14 +4122,16 @@ template <typename T>
 #endif /* !(TROMPELOEIL_CPLUSPLUS != 201103L) */
 
 
-#define TROMPELOEIL_SIDE_EFFECT(...)    TROMPELOEIL_SIDE_EFFECT_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_SIDE_EFFECT(...) TROMPELOEIL_SIDE_EFFECT_(&, __VA_ARGS__)
+#define TROMPELOEIL_SIDE_EFFECT(...)    TROMPELOEIL_SIDE_EFFECT_((=), __VA_ARGS__)
+#define TROMPELOEIL_LR_SIDE_EFFECT(...) TROMPELOEIL_SIDE_EFFECT_((&), __VA_ARGS__)
+#define TROMPELOEIL_MEM_SIDE_EFFECT(...) TROMPELOEIL_SIDE_EFFECT_((&,this), __VA_ARGS__)
 
 
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_SIDE_EFFECT_(capture, ...)                                 \
-  template action<trompeloeil::sideeffect>([capture](auto& trompeloeil_x) {    \
+  template action<trompeloeil::sideeffect>(                                    \
+    [TROMPELOEIL_IDENTITY capture](auto& trompeloeil_x) {                      \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4150,15 +4154,16 @@ template <typename T>
 #endif /* !(TROMPELOEIL_CPLUSPLUS == 201103L) */
 
 
-#define TROMPELOEIL_RETURN(...)    TROMPELOEIL_RETURN_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_RETURN(...) TROMPELOEIL_RETURN_(&, __VA_ARGS__)
+#define TROMPELOEIL_RETURN(...)    TROMPELOEIL_RETURN_((=), __VA_ARGS__)
+#define TROMPELOEIL_LR_RETURN(...) TROMPELOEIL_RETURN_((&), __VA_ARGS__)
+#define TROMPELOEIL_MEM_RETURN(...) TROMPELOEIL_RETURN_((&,this), __VA_ARGS__)
 
 
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_RETURN_(capture, ...)                                      \
-  template action<trompeloeil::handle_return>([capture](auto& trompeloeil_x)   \
-                                              -> decltype(auto) {              \
+  template action<trompeloeil::handle_return>(                                 \
+    [TROMPELOEIL_IDENTITY capture](auto& trompeloeil_x) -> decltype(auto) {    \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4181,14 +4186,16 @@ template <typename T>
 #endif /* !(TROMPELOEIL_CPLUSPLUS != 201103L) */
 
 
-#define TROMPELOEIL_THROW(...)    TROMPELOEIL_THROW_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_THROW(...) TROMPELOEIL_THROW_(&, __VA_ARGS__)
+#define TROMPELOEIL_THROW(...)    TROMPELOEIL_THROW_((=), __VA_ARGS__)
+#define TROMPELOEIL_LR_THROW(...) TROMPELOEIL_THROW_((&), __VA_ARGS__)
+#define TROMPELOEIL_MEM_THROW(...) TROMPELOEIL_THROW_((&,this), __VA_ARGS__)
 
 
 #if (TROMPELOEIL_CPLUSPLUS != 201103L)
 
 #define TROMPELOEIL_THROW_(capture, ...)                                       \
-  template action<trompeloeil::handle_throw>([capture](auto& trompeloeil_x) {  \
+  template action<trompeloeil::handle_throw>(                                  \
+    [TROMPELOEIL_IDENTITY capture](auto& trompeloeil_x) {                      \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -4345,12 +4352,16 @@ template <typename T>
 
 #define WITH                      TROMPELOEIL_WITH
 #define LR_WITH                   TROMPELOEIL_LR_WITH
+#define MEM_WITH                  TROMPELOEIL_MEM_WITH
 #define SIDE_EFFECT               TROMPELOEIL_SIDE_EFFECT
 #define LR_SIDE_EFFECT            TROMPELOEIL_LR_SIDE_EFFECT
+#define MEM_SIDE_EFFECT           TROMPELOEIL_MEM_SIDE_EFFECT
 #define RETURN                    TROMPELOEIL_RETURN
 #define LR_RETURN                 TROMPELOEIL_LR_RETURN
+#define MEM_RETURN                TROMPELOEIL_MEM_RETURN
 #define THROW                     TROMPELOEIL_THROW
 #define LR_THROW                  TROMPELOEIL_LR_THROW
+#define MEM_THROW                 TROMPELOEIL_MEM_THROW
 #define TIMES                     TROMPELOEIL_TIMES
 #define RT_TIMES                  TROMPELOEIL_RT_TIMES
 #define AT_LEAST                  TROMPELOEIL_AT_LEAST

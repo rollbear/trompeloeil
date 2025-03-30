@@ -318,12 +318,13 @@ namespace trompeloeil
 
 }
 
-#define TROMPELOEIL_CO_RETURN(...)    TROMPELOEIL_CO_RETURN_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_CO_RETURN(...) TROMPELOEIL_CO_RETURN_(&, __VA_ARGS__)
+#define TROMPELOEIL_CO_RETURN(...)     TROMPELOEIL_CO_RETURN_((=), __VA_ARGS__)
+#define TROMPELOEIL_LR_CO_RETURN(...)  TROMPELOEIL_CO_RETURN_((&), __VA_ARGS__)
+#define TROMPELOEIL_MEM_CO_RETURN(...) TROMPELOEIL_CO_RETURN_((&,this), __VA_ARGS__)
 
 #define TROMPELOEIL_CO_RETURN_(capture, ...)                                   \
-  template action<trompeloeil::handle_co_return>([capture](auto& trompeloeil_x)\
-                                                 -> decltype(auto) {           \
+  template action<trompeloeil::handle_co_return>(                              \
+    [TROMPELOEIL_IDENTITY capture] (auto& trompeloeil_x) -> decltype(auto) {   \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -343,11 +344,13 @@ namespace trompeloeil
     return ::trompeloeil::decay_return_type(__VA_ARGS__);                      \
   })
 
-#define TROMPELOEIL_CO_THROW(...)    TROMPELOEIL_CO_THROW_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_CO_THROW(...) TROMPELOEIL_CO_THROW_(&, __VA_ARGS__)
+#define TROMPELOEIL_CO_THROW(...)     TROMPELOEIL_CO_THROW_((=), __VA_ARGS__)
+#define TROMPELOEIL_LR_CO_THROW(...)  TROMPELOEIL_CO_THROW_((&), __VA_ARGS__)
+#define TROMPELOEIL_MEM_CO_THROW(...) TROMPELOEIL_CO_THROW_((&,this), __VA_ARGS__)
 
 #define TROMPELOEIL_CO_THROW_(capture, ...)                                    \
-  template action<trompeloeil::handle_co_throw>([capture](auto& trompeloeil_x){\
+  template action<trompeloeil::handle_co_throw>(                               \
+    [TROMPELOEIL_IDENTITY capture](auto& trompeloeil_x){                       \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -367,12 +370,14 @@ namespace trompeloeil
     throw __VA_ARGS__;                                                         \
  })
 
-#define TROMPELOEIL_CO_YIELD(...)    TROMPELOEIL_CO_YIELD_(=, __VA_ARGS__)
-#define TROMPELOEIL_LR_CO_YIELD(...) TROMPELOEIL_CO_YIELD_(&, __VA_ARGS__)
+#define TROMPELOEIL_CO_YIELD(...)     TROMPELOEIL_CO_YIELD_((=), __VA_ARGS__)
+#define TROMPELOEIL_LR_CO_YIELD(...)  TROMPELOEIL_CO_YIELD_((&), __VA_ARGS__)
+#define TROMPELOEIL_MEM_CO_YIELD(...) TROMPELOEIL_CO_YIELD_((&,this), __VA_ARGS__)
 
 
 #define TROMPELOEIL_CO_YIELD_(capture, ...)                                    \
-  template action<trompeloeil::handle_co_yield>([capture](auto& trompeloeil_x){\
+  template action<trompeloeil::handle_co_yield>(                               \
+    [TROMPELOEIL_IDENTITY capture](auto& trompeloeil_x){                       \
     auto&& _1 = ::trompeloeil::mkarg<1>(trompeloeil_x);                        \
     auto&& _2 = ::trompeloeil::mkarg<2>(trompeloeil_x);                        \
     auto&& _3 = ::trompeloeil::mkarg<3>(trompeloeil_x);                        \
@@ -396,10 +401,13 @@ namespace trompeloeil
 
 #define CO_RETURN                 TROMPELOEIL_CO_RETURN
 #define LR_CO_RETURN              TROMPELOEIL_LR_CO_RETURN
+#define MEM_CO_RETURN             TROMPELOEIL_MEM_CO_RETURN
 #define CO_THROW                  TROMPELOEIL_CO_THROW
 #define LR_CO_THROW               TROMPELOEIL_LR_CO_THROW
+#define MEM_CO_THROW              TROMPELOEIL_MEM_CO_THROW
 #define CO_YIELD                  TROMPELOEIL_CO_YIELD
 #define LR_CO_YIELD               TROMPELOEIL_LR_CO_YIELD
+#define MEM_CO_YIELD              TROMPELOEIL_MEM_CO_YIELD
 
 #endif
 

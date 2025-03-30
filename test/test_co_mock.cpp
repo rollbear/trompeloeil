@@ -208,6 +208,57 @@ TEST_CASE_METHOD(
     REQUIRE(reports.empty());
 }
 
+struct co_member_fixture : Fixture
+{
+  int member_variable = 1;
+};
+
+TEST_CASE_METHOD(
+    co_member_fixture,
+    "MEM_CO_RETURN can access member variables",
+    "[coro]")
+{
+  co_mock m;
+  REQUIRE_CALL(m, intret())
+    .MEM_CO_RETURN(member_variable++);
+  auto p = m.intret();
+  int v = 0;
+  std::invoke([&]() -> coro::task<void> { v = co_await p;});
+  REQUIRE(v == 1);
+  REQUIRE(this->member_variable == 2);
+}
+
+TEST_CASE_METHOD(
+    co_member_fixture,
+    "MEM_CO_YIELD can access member variables",
+    "[coro]")
+{
+  co_mock m;
+  REQUIRE_CALL(m, intret())
+    .MEM_CO_YIELD(member_variable++)
+    .CO_RETURN(0);
+  auto p = m.intret();
+  int v = 0;
+  std::invoke([&]() -> coro::task<void> { v = co_await p;});
+  REQUIRE(v == 1);
+  REQUIRE(this->member_variable == 2);
+  std::invoke([&]() -> coro::task<void> { v = co_await p;});
+  REQUIRE(v == 0);
+}
+
+TEST_CASE_METHOD(
+    co_member_fixture,
+    "MEM_CO_THROW can access member variables",
+    "[coro]")
+{
+  co_mock m;
+  REQUIRE_CALL(m, intret())
+      .MEM_CO_THROW(member_variable++);
+  auto p = m.intret();
+  std::invoke([&]() -> coro::task<void> { REQUIRE_THROWS(co_await p); });
+  REQUIRE(member_variable == 2);
+}
+
 #ifdef __cpp_lib_generator
 TEST_CASE_METHOD(
   Fixture,
