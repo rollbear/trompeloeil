@@ -1,3 +1,6 @@
+	* Support C++20 (and higher) on MSVC with the traditional preprocessor.
+	  Thank you Kevin Puetz for reporting and submitting the fix.
+
 v49 2024-10-07
 
 	* Added mocking macros that infers function arity from a trailing return
