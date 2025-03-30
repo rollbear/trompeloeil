@@ -1,3 +1,6 @@
+	* Conditional support for non-awaitable coroutines, like std::generator.
+	  Thank you Artem Suleimanov for submitting the improvement.
+
 	* Support C++20 (and higher) on MSVC with the traditional preprocessor.
 	  Thank you Kevin Puetz for reporting and submitting the fix.
 
