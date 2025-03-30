@@ -14,10 +14,6 @@
 #ifndef TROMPELOEIL_CORO_HPP
 #define TROMPELOEIL_CORO_HPP
 
-#if __cplusplus < 202002L
-#  error "C++20 is required"
-#endif
-
 #if defined(__cpp_impl_coroutine)
 #  define TROMPELOEIL_COROUTINES_SUPPORTED 1
 #else
