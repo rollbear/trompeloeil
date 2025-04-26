@@ -360,6 +360,31 @@ jobs:
             cxx_standard: 23,
             cxx_asan: true,
           }
+          # GCC-15
+          - {
+            name: "Linux GCC 15 C++17",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:15" },
+            compiler: gcc,
+            cxx_standard: 17,
+            cxx_asan: true,
+          }
+          - {
+            name: "Linux GCC 15 C++20",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:15" },
+            compiler: gcc,
+            cxx_standard: 20,
+            cxx_asan: true,
+          }
+          - {
+            name: "Linux GCC 15 C++23",
+            os: ubuntu-latest,
+            container: { image: "ghcr.io/rollbear/gcc:15" },
+            compiler: gcc,
+            cxx_standard: 23,
+            cxx_asan: true,
+          }
 
 #          # Clang-3.5
 #          - {
