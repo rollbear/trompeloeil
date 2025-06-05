@@ -47,11 +47,9 @@ namespace trompeloeil
     else
     {
 #ifdef CATCH_CONFIG_PREFIX_ALL
-      CATCH_CAPTURE(failure);
-      CATCH_CHECK(failure.empty());
+      CATCH_FAIL_CHECK(failure);
 #else
-      CAPTURE(failure);
-      CHECK(failure.empty());
+      FAIL_CHECK(failure);
 #endif
     }
   }
