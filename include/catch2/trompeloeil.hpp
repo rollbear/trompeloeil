@@ -59,9 +59,9 @@ namespace trompeloeil
     const char* trompeloeil_mock_calls_done_correctly)
   {      
 #ifdef CATCH_CONFIG_PREFIX_ALL
-      CATCH_REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+      CATCH_SUCCEED(trompeloeil_mock_calls_done_correctly);
 #else
-      REQUIRE(trompeloeil_mock_calls_done_correctly != 0);
+      SUCCEED(trompeloeil_mock_calls_done_correctly);
 #endif
   }
 }
