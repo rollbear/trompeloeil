@@ -286,8 +286,7 @@ Before running any tests, make sure to call:
     }
     else
     {
-      CAPTURE(failure);
-      CHECK(failure.empty());
+      FAIL_CHECK(failure);
     }
   });
 ```
